@@ -1,0 +1,120 @@
+/* Osyster Slate Tech Design System Custom Styles */
+
+:root {
+    --bg-dark: #0C1115;
+    --surface-dark: #141C22;
+    --surface-container-high: #1C2730;
+    --primary-cyan: #00E6FF;
+    --secondary-amber: #FFB300;
+    --tertiary-coral: #FF5252;
+    --text-primary: #E1E2E5;
+    --text-muted: #8B9198;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+/* Outer Scroll Wrapper to resolve horizontal overflow safely */
+.scroll-wrapper {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+}
+
+/* Bento Card Style with Slate Tech glow and subtle spring physics */
+.bento-card {
+    background-color: var(--surface-dark);
+    border: 1px solid rgba(139, 145, 152, 0.14);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.4s ease,
+                border-color 0.4s ease,
+                background-color 0.4s ease;
+}
+
+.bento-card:hover {
+    transform: translateY(-5px) scale(1.008);
+    border-color: rgba(0, 230, 255, 0.4);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(0, 230, 255, 0.2),
+                0 0 45px -15px rgba(0, 230, 255, 0.25);
+}
+
+.bento-card-amber:hover {
+    border-color: rgba(255, 179, 0, 0.4);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(255, 179, 0, 0.2),
+                0 0 45px -15px rgba(255, 179, 0, 0.25);
+}
+
+.bento-card-coral:hover {
+    border-color: rgba(255, 82, 82, 0.4);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(255, 82, 82, 0.2),
+                0 0 45px -15px rgba(255, 82, 82, 0.25);
+}
+
+/* Interactive Bento Dashboard Mockup with Dynamic Tilt and Ambient Theme Glow */
+.tech-mockup {
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9),
+                0 0 0 1px rgba(0, 230, 255, 0.12),
+                0 0 70px -20px rgba(0, 230, 255, 0.2);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.6s ease;
+}
+
+.tech-mockup:hover {
+    transform: scale(1.02) rotate(-0.5deg);
+    box-shadow: 0 35px 75px -10px rgba(0, 0, 0, 0.95),
+                0 0 0 1.5px rgba(0, 230, 255, 0.35),
+                0 0 90px -10px rgba(0, 230, 255, 0.35);
+}
+
+/* Pulse badge animation */
+@keyframes neon-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.95); }
+}
+
+.animate-neon-pulse {
+    animation: neon-pulse 2s ease-in-out infinite;
+}
+
+/* FAQ Accordion Transitions */
+.faq-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.faq-content.open {
+    grid-template-rows: 1fr;
+}
+
+.faq-inner {
+    overflow: hidden;
+    padding-bottom: 0 !important;
+}
+
+.faq-inner > p {
+    padding-bottom: 1.25rem;
+}
+
+.faq-icon {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.faq-icon.rotate {
+    transform: rotate(180deg);
+}
+
+/* Hide Scrollbar */
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}

@@ -2,6 +2,23 @@
 
 All notable changes to the **Osyster** project will be documented in this file.
 
+## [0.0.2] - 2026-09-04
+
+### Added
+- **Repository Parity & Licensing**:
+  - Added Tremors Source License (TSL) Version 1.0 in `LICENSE.md` establishing source-available distribution and attribution terms.
+  - Added comprehensive `PRIVACY.md` detailing the offline-only architecture, complete absence of network permissions, zero telemetry collection, and local volatile memory boundaries for system telemetry.
+- **Task Roadmap & Engineering Documentation**:
+  - Added `TASKS.md` tracking development across kernel diagnostics, baked-in OS utilities, process controls, and bento UI features.
+  - Overhauled `README.md` and `DEVELOPMENT.md` with complete architectural documentation, mathematical kernel delta jiffy formulas, memory token parsing, and verification guides.
+- **Slate Tech Documentation Website**:
+  - Created a dedicated single-page site in `docs/` with the Slate Tech Bento design, live animated Canvas sparkline graph, GitHub release download counters, responsive feature cards, developer profile, and FAQ accordion.
+- **Build Engineering & Toolchain**:
+  - Updated Gradle wrapper to 9.5.0 and Android Gradle Plugin to 9.3.2.
+  - Bumped project versionCode to 2 and versionName to 0.0.2.
+
+---
+
 ## [0.0.1] - 2026-07-06
 
 ### Added
