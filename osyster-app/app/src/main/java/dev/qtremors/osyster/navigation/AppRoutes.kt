@@ -18,4 +18,13 @@ sealed interface AppRoutes {
 
     @Serializable
     data object DeviceInfo : AppRoutes
+
+    @Serializable
+    data object Settings : AppRoutes
+
+    @Serializable
+    data object About : AppRoutes
+
+    @Serializable
+    data object Licenses : AppRoutes
 }

@@ -51,3 +51,17 @@ val SurfaceContainerHighLight = Color(0xFFEDF2F7)
 val OnBackgroundLight = Color(0xFF191C1E)
 val OnSurfaceLight = Color(0xFF191C1E)
 val OutlineLight = Color(0xFF70787D)
+
+// OLED Theme (Pure Black AMOLED)
+val BackgroundOled = Color(0xFF000000)
+val SurfaceOled = Color(0xFF070B0E)
+val SurfaceContainerHighOled = Color(0xFF10161B)
+
+// Accent Palette Primary Swatches
+val AccentCyan = Color(0xFF00E6FF)
+val AccentAmber = Color(0xFFFFB300)
+val AccentRose = Color(0xFFFF5252)
+val AccentEmerald = Color(0xFF00E676)
+val AccentPurple = Color(0xFFB388FF)
+val AccentBlue = Color(0xFF2979FF)
+val AccentMonochrome = Color(0xFFE0E0E0)

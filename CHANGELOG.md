@@ -1,8 +1,18 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.0.3
+> **Version:** 0.0.4
 > **Last Updated:** 2026-09-04
+
+---
+
+## [0.0.4] - 2026-09-04
+
+- **Settings Screen & Reactive Preferences**: Added Material 3 Expressive settings screen backed by an offline-only SharedPreferences manager and Kotlin StateFlow stream, supporting theme mode (System, Light, Dark, OLED), accent palette swatches, telemetry sampling frequency, temperature units, and process filters.
+- **About & System Specifications Screen**: Added dedicated About screen with project identity banner, copyable version and device hardware diagnostics, developer profile, privacy policy, and release channels.
+- **Licenses & Credits Screen**: Added open-source software licenses screen and credits section cataloging runtime dependencies and upstream contributors with direct repository links.
+- **Navigation Chrome Integration**: Added top bar settings action button, adaptive subpage top app bars with back navigation, and subpage bottom bar suppression.
+- **Brand Identity & Icon Compatibility**: Integrated high-resolution rasterized Osyster brand logo for the About header, resolved adaptive icon Compose rendering crash, and standardized version display.
 
 ---
 

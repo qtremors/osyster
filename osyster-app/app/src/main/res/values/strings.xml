@@ -1,3 +1,89 @@
 <resources>
     <string name="app_name">Osyster</string>
+    <string name="app_tagline">Private Android System Monitor</string>
+    <string name="back">Back</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="section_appearance">Appearance</string>
+    <string name="theme_mode">Theme Mode</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_oled">OLED</string>
+    <string name="accent_palette">Accent Palette</string>
+    <string name="accent_cyan">Cyan</string>
+    <string name="accent_amber">Amber</string>
+    <string name="accent_rose">Rose</string>
+    <string name="accent_emerald">Emerald</string>
+    <string name="accent_purple">Purple</string>
+    <string name="accent_blue">Blue</string>
+    <string name="accent_dynamic">Dynamic</string>
+    <string name="accent_monochrome">Monochrome</string>
+    <string name="dynamic_color">Dynamic Color</string>
+    <string name="dynamic_color_description">Match system wallpaper colors on Android 12 and newer</string>
+    <string name="haptic_feedback">Haptic Feedback</string>
+    <string name="haptic_feedback_description">Provide tactile responses when interacting with controls</string>
+
+    <!-- Diagnostics & Monitoring Section -->
+    <string name="section_diagnostics">Diagnostics &amp; Monitoring</string>
+    <string name="update_interval">Update Interval</string>
+    <string name="update_interval_description">Sampling frequency for CPU, RAM, and thermal monitors</string>
+    <string name="interval_fast">500 ms (Fast)</string>
+    <string name="interval_normal">1000 ms (Normal)</string>
+    <string name="interval_relaxed">2000 ms (Relaxed)</string>
+    <string name="interval_saver">3000 ms (Battery Saver)</string>
+    <string name="temp_unit">Temperature Unit</string>
+    <string name="temp_unit_description">Show temperature readouts in Celsius or Fahrenheit</string>
+    <string name="unit_celsius">Celsius (°C)</string>
+    <string name="unit_fahrenheit">Fahrenheit (°F)</string>
+    <string name="process_filter">Process Filter</string>
+    <string name="process_filter_title">Show Kernel Threads</string>
+    <string name="process_filter_description">Include low-level kernel worker threads in the task list</string>
+
+    <!-- Info / About Section in Settings -->
+    <string name="section_info">Info</string>
+    <string name="about_headline">About Osyster</string>
+    <string name="about_description">App info, device specifications, privacy, and licenses</string>
+
+    <!-- About Screen -->
+    <string name="about_title">About</string>
+    <string name="section_app_info">App Info</string>
+    <string name="version">Version</string>
+    <string name="developer">Developer</string>
+    <string name="developer_name">Tremors (@qtremors)</string>
+    <string name="developer_url">https://github.com/qtremors</string>
+    <string name="repository">Repository</string>
+    <string name="repository_url">github.com/qtremors/osyster</string>
+    <string name="repository_full_url">https://github.com/qtremors/osyster</string>
+    <string name="device">Device</string>
+    <string name="section_privacy">Privacy</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="privacy_description">"Osyster operates completely offline without network permissions. All system telemetry, process stats, and hardware metrics remain strictly on your device."</string>
+    <string name="privacy_policy_url">https://github.com/qtremors/osyster/blob/main/PRIVACY.md</string>
+    <string name="section_changelogs">Changelogs &amp; Support</string>
+    <string name="view_releases">View Releases</string>
+    <string name="view_releases_description">See what\'s new in the latest version</string>
+    <string name="view_releases_url">https://github.com/qtremors/osyster/releases</string>
+    <string name="report_issue">Report an Issue</string>
+    <string name="report_issue_description">Found a bug or have a suggestion? Let me know on GitHub.</string>
+    <string name="report_issue_url">https://github.com/qtremors/osyster/issues/new</string>
+    <string name="community_discord">Discord Community</string>
+    <string name="community_discord_description">Join the Tremors community on Discord</string>
+    <string name="community_discord_url">https://discord.gg/QgUjuNj9U8</string>
+    <string name="open_source_licenses">Licenses &amp; Credits</string>
+    <string name="open_source_licenses_description">View third-party software details and acknowledgments</string>
+
+    <!-- Licenses Screen -->
+    <string name="licenses_title">Licenses &amp; Credits</string>
+    <string name="licenses_notice">"Osyster is developed by Tremors. It utilizes the following open-source software and libraries, each subject to its own license terms:"</string>
+    <string name="section_credits">Credits &amp; Acknowledgments</string>
+    <string name="credit_author_title">Tremors (@qtremors)</string>
+    <string name="credit_author_desc">Creator and maintainer of Osyster</string>
+    <string name="credit_android_title">Android Open Source Project</string>
+    <string name="credit_android_desc">Core Android platform, Linux kernel diagnostics, and Jetpack APIs</string>
+    <string name="credit_kotlin_title">Kotlin &amp; JetBrains</string>
+    <string name="credit_kotlin_desc">Kotlin programming language, Coroutines, and Serialization</string>
+    <string name="section_libraries">Open Source Libraries</string>
 </resources>
