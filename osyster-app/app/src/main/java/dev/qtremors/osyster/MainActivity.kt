@@ -3,6 +3,7 @@ package dev.qtremors.osyster
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,10 +18,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import dev.qtremors.osyster.navigation.AppRoutes
 import dev.qtremors.osyster.ui.BentoDashboard
 import dev.qtremors.osyster.ui.CpuDashboard
 import dev.qtremors.osyster.ui.DeviceInfoDashboard
@@ -35,11 +38,12 @@ import dev.qtremors.osyster.ui.theme.OsysterTheme
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             OsysterTheme {
                 val navController = rememberNavController()
-                val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+                val currentDestination = navController.currentBackStackEntryAsState().value?.destination
 
                 Scaffold(
                     topBar = {
@@ -63,19 +67,19 @@ class MainActivity : ComponentActivity() {
                             tonalElevation = 8.dp
                         ) {
                             val items = listOf(
-                                Triple("bento", Icons.Default.Dashboard, "Dashboard"),
-                                Triple("cpu", Icons.Default.Speed, "CPU"),
-                                Triple("memory", Icons.Default.Memory, "RAM"),
-                                Triple("processes", Icons.Default.Terminal, "Tasks"),
-                                Triple("device_info", Icons.Default.Info, "Info")
+                                Triple(AppRoutes.Bento, Icons.Default.Dashboard, "Dashboard"),
+                                Triple(AppRoutes.Cpu, Icons.Default.Speed, "CPU"),
+                                Triple(AppRoutes.Memory, Icons.Default.Memory, "RAM"),
+                                Triple(AppRoutes.Processes, Icons.Default.Terminal, "Tasks"),
+                                Triple(AppRoutes.DeviceInfo, Icons.Default.Info, "Info")
                             )
 
                             items.forEach { (route, icon, label) ->
-                                val isSelected = currentRoute == route
+                                val isSelected = currentDestination?.hasRoute(route::class) == true
                                 NavigationBarItem(
                                     selected = isSelected,
                                     onClick = {
-                                        if (currentRoute != route) {
+                                        if (!isSelected) {
                                             navController.navigate(route) {
                                                 popUpTo(navController.graph.startDestinationId) { saveState = true }
                                                 launchSingleTop = true
@@ -97,27 +101,27 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "bento",
+                        startDestination = AppRoutes.Bento,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
                             .background(MaterialTheme.colorScheme.background)
                     ) {
-                        composable("bento") {
+                        composable<AppRoutes.Bento> {
                             BentoDashboard(onNavigateTo = { route ->
                                 navController.navigate(route)
                             })
                         }
-                        composable("cpu") {
+                        composable<AppRoutes.Cpu> {
                             CpuDashboard()
                         }
-                        composable("memory") {
+                        composable<AppRoutes.Memory> {
                             MemoryDashboard()
                         }
-                        composable("processes") {
+                        composable<AppRoutes.Processes> {
                             ProcessDashboard()
                         }
-                        composable("device_info") {
+                        composable<AppRoutes.DeviceInfo> {
                             DeviceInfoDashboard()
                         }
                     }

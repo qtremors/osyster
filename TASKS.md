@@ -2,7 +2,7 @@
 
 > **Project:** Osyster
 >
-> **Version:** 0.0.2
+> **Version:** 0.0.3
 >
 > **Last Updated:** 2026-09-04
 

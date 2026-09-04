@@ -34,6 +34,7 @@ import dev.qtremors.osyster.monitor.BatteryState
 import dev.qtremors.osyster.monitor.CpuState
 import dev.qtremors.osyster.monitor.MemoryState
 import dev.qtremors.osyster.monitor.SystemMonitor
+import dev.qtremors.osyster.navigation.AppRoutes
 import kotlinx.coroutines.flow.collectLatest
 import java.util.Locale
 
@@ -79,7 +80,7 @@ fun OysterArcGauge(
 
 @Composable
 fun BentoDashboard(
-    onNavigateTo: (String) -> Unit,
+    onNavigateTo: (AppRoutes) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -124,7 +125,7 @@ fun BentoDashboard(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onNavigateTo("cpu") }
+                .clickable { onNavigateTo(AppRoutes.Cpu) }
         ) {
             Row(
                 modifier = Modifier
@@ -186,7 +187,7 @@ fun BentoDashboard(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { onNavigateTo("memory") }
+                    .clickable { onNavigateTo(AppRoutes.Memory) }
             ) {
                 Column(
                     modifier = Modifier
@@ -229,7 +230,7 @@ fun BentoDashboard(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { onNavigateTo("cpu") }
+                    .clickable { onNavigateTo(AppRoutes.Cpu) }
             ) {
                 Column(
                     modifier = Modifier
@@ -272,7 +273,7 @@ fun BentoDashboard(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { onNavigateTo("processes") }
+                    .clickable { onNavigateTo(AppRoutes.Processes) }
             ) {
                 Column(
                     modifier = Modifier
@@ -309,7 +310,7 @@ fun BentoDashboard(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                 modifier = Modifier
                     .weight(1f)
-                    .clickable { onNavigateTo("device_info") }
+                    .clickable { onNavigateTo(AppRoutes.DeviceInfo) }
             ) {
                 Column(
                     modifier = Modifier
@@ -347,7 +348,7 @@ fun BentoDashboard(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onNavigateTo("memory") }
+                .clickable { onNavigateTo(AppRoutes.Memory) }
         ) {
             Row(
                 modifier = Modifier

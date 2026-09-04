@@ -1,6 +1,21 @@
-# Changelog
+# Osyster Changelog
 
-All notable changes to the **Osyster** project will be documented in this file.
+> **Project:** Osyster
+> **Version:** 0.0.3
+> **Last Updated:** 2026-09-04
+
+---
+
+## [0.0.3] - 2026-09-04
+
+- **Type-Safe Route Serialization**: Migrated navigation graph and bottom navigation bar to type-safe `@Serializable` destination contracts (`AppRoutes`).
+- **Predictive Back Navigation**: Enabled Android 13+ predictive back gesture callback handling in application manifest.
+- **Edge-to-Edge Chrome**: Configured activity edge-to-edge system bar layout with adaptive navigation padding.
+- **Release Signing & Verification**: Added release keystore configuration with verified signing resolution, R8 minification, and build convention tasks.
+- **Semantic Design Tokens**: Added semantic typography extensions (`titleLargeBold`, `filename`, `storageMetric`, `dangerLabel`) and cleaned XML resources.
+- **System Font Optimization**: Standardized on native system typography, reducing APK footprint.
+
+---
 
 ## [0.0.2] - 2026-09-04
 

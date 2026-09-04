@@ -57,7 +57,6 @@ private val LightColorScheme = lightColorScheme(
 fun OsysterTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false, // Set false to prioritize our custom brand colors
-    flexSettings: GSFlexSettings = GSFlexSettings(preset = GSFlexPreset.EXPRESSIVE),
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -69,13 +68,10 @@ fun OsysterTheme(
         else -> LightColorScheme
     }
 
-    val currentTypography = remember(flexSettings) {
-        VariableFontFactory.createTypography(flexSettings)
-    }
-
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = currentTypography,
+        typography = Typography,
+        shapes = ExpressiveShapes,
         content = content
     )
 }

@@ -7,8 +7,7 @@
 <h1 align="center"><a href="https://qtremors.github.io/osyster/">Osyster</a></h1>
 
 <p align="center">
-  The features Android should have had by default.<br/>
-  A private, powerful system monitor and OS utility suite.
+  A private, modern Android system monitor and OS utility suite.
 </p>
 
 <p align="center">
@@ -27,11 +26,11 @@
 </p>
 
 > [!NOTE]
-> **Privacy first:** Osyster does not request `android.permission.INTERNET`. All system telemetry, process stats, and hardware metrics remain strictly on your device.
+> **Privacy first:** Osyster does not request `android.permission.INTERNET`. All system telemetry, process stats, and hardware metrics stay on your device.
 
 ## Why Osyster
 
-Android is an exceptionally versatile operating system, yet it often hides critical hardware insights, kernel telemetry, and system controls behind obscure developer menus, adb commands, or proprietary skins. Osyster bridges this divide by delivering native Linux kernel diagnostics, real-time hardware telemetry, granular process inspection, and baked-in OS utilities through a fluid, zero-bloat Bento Grid interface.
+Osyster is an offline Android system monitor and OS utility suite built for speed, privacy, and a clean native interface. It has no ads, trackers, accounts, network access, or hidden data collection.
 
 ## Download
 
@@ -41,7 +40,7 @@ Osyster requires no root access for its core diagnostic suite: processor jiffies
 
 ## Features
 
-- **Private and offline:** No ads, no telemetry, no tracking SDKs, and zero internet permission.
+- **Private and offline:** No ads, accounts, trackers, data collection, or internet permission.
 - **Interactive Bento Grid:** High-density landing dashboard presenting overall CPU load, live RAM allocation, Swap status, CPU temperatures, running process counts, and battery status at a glance.
 - **Native Kernel Diagnostics:** Core-by-core processor load computed directly from `/proc/stat` active vs total delta jiffies, active CPU cluster frequencies, thermal zones, and real-time sparkline trend graphs drawn via custom Canvas paths.
 - **RAM & SWAP Matrix:** Comprehensive memory allocation breakdowns (total RAM, used RAM, available, buffers, and cache) parsed directly from `/proc/meminfo` with visual progress gauges.
@@ -49,16 +48,6 @@ Osyster requires no root access for its core diagnostic suite: processor jiffies
 - **Device & Hardware Specifications:** Detailed breakdown of hardware manufacturer, device model, board configurations, processor platform, supported ABIs, Android OS versions, API levels, security patches, and bootloaders.
 - **Real-Time Battery Telemetry:** Monitors battery percentage, millivolt voltage levels, temperatures, health status, charging states, and connected power sources.
 - **Sleek Slate Tech Interface:** Dark Slate Navy (`#0C1115`), Surface Slate (`#141C22`), Electric Cyan Neon (`#00E6FF`), Warm Amber (`#FFB300`), and Coral Rose (`#FF5252`) tailored for modern high-refresh OLED displays.
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| **Language & Runtime** | Kotlin 2.2.10, Coroutines, Flow |
-| **Android Toolchain** | Android Gradle Plugin 9.3.2, compileSdk 37, minSdk 24 |
-| **UI Framework** | Jetpack Compose BOM 2026.05.00, Material 3 1.5.0-alpha19 |
-| **Navigation** | Navigation Compose |
-| **Data Engine** | Native `/proc/stat`, `/proc/meminfo`, `/proc/[pid]`, and Android battery broadcasts |
 
 ## Community and support
 
@@ -71,16 +60,16 @@ Osyster requires no root access for its core diagnostic suite: processor jiffies
 
 Osyster is built by [Tremors](https://github.com/qtremors) with Kotlin and the Android platform. Thanks to the maintainers of:
 
-- [AndroidX](https://developer.android.com/jetpack/androidx), [Jetpack Compose](https://developer.android.com/compose), and [Material 3](https://m3.material.io/)
-- [Kotlin](https://kotlinlang.org/) and [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines)
-- [Tailwind CSS](https://tailwindcss.com/), [Lucide](https://lucide.dev/), and [Simple Icons](https://simpleicons.org/) for the project website and visual presentation
-- Google Fonts for Google Sans Flex, Inter, and Outfit
+- [AndroidX](https://developer.android.com/jetpack/androidx), [Jetpack Compose](https://developer.android.com/compose), [Material 3](https://m3.material.io/), and [DataStore](https://developer.android.com/topic/libraries/architecture/datastore)
+- [Kotlin](https://kotlinlang.org/), [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), and [Immutable Collections](https://github.com/Kotlin/kotlinx.collections.immutable)
+- [MaterialKolor](https://github.com/jordond/MaterialKolor) and [Graphics Shapes](https://developer.android.com/develop/ui/compose/graphics/draw/shapes)
+- [Tailwind CSS](https://tailwindcss.com/), [Lucide](https://lucide.dev/), [Simple Icons](https://simpleicons.org/), [Roboto](https://fonts.google.com/specimen/Roboto), and [Outfit](https://fonts.google.com/specimen/Outfit) for the project website and visual presentation
 
-The app's **Settings → About** screen lists runtime libraries and licenses. Each project remains the property of its respective authors and is used under its own license.
+The app's **Settings -> About -> Open Source Licenses** screen lists its runtime libraries and their licenses. Each project remains the property of its respective authors and is used under its own license.
 
 ## For developers
 
-Architecture, project structure, telemetry parsing mathematics, bento canvas rendering, build configurations, and verification guidance live in [DEVELOPMENT.md](DEVELOPMENT.md).
+Architecture, project structure, technology choices, setup, build commands, testing, release signing, and maintenance guidance live in [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## License
 
