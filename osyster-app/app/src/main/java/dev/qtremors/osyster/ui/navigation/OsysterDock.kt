@@ -36,6 +36,7 @@ fun OsysterDock(
     onBackClick: (() -> Unit)? = null,
     floatingActionButton: (@Composable () -> Unit)? = null,
     actionButton: (@Composable () -> Unit)? = null,
+    customContent: (@Composable RowScope.() -> Unit)? = null,
     hapticEnabled: Boolean = true,
     expanded: Boolean = true
 ) {
@@ -49,7 +50,9 @@ fun OsysterDock(
     val shouldHideLabel = isLargeFont || (isCompactScreen && items.size > 2)
 
     val toolbarContent: @Composable RowScope.() -> Unit = {
-        if (onBackClick != null) {
+        if (customContent != null) {
+            customContent()
+        } else if (onBackClick != null) {
             IconButton(
                 onClick = {
                     OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
@@ -72,6 +75,11 @@ fun OsysterDock(
 
             if (!title.isNullOrBlank()) {
                 Spacer(modifier = Modifier.width(6.dp))
+                val maxTitleWidth = if (floatingActionButton != null) {
+                    (screenWidth - 190).coerceAtLeast(80).dp
+                } else {
+                    (screenWidth - 140).coerceAtLeast(100).dp
+                }
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
@@ -80,7 +88,7 @@ fun OsysterDock(
                     maxLines = 1,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .widthIn(max = (screenWidth - 140).coerceAtLeast(100).dp)
+                        .widthIn(max = maxTitleWidth)
                         .padding(start = 2.dp, end = if (actionButton == null) 14.dp else 4.dp)
                         .basicMarquee()
                 )
@@ -178,11 +186,12 @@ fun OsysterDock(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .imePadding()
             .windowInsetsPadding(WindowInsets.navigationBars)
             .padding(start = 16.dp, end = 16.dp, bottom = 20.dp, top = 8.dp),
         contentAlignment = Alignment.Center
     ) {
-        if (floatingActionButton != null && onBackClick == null) {
+        if (floatingActionButton != null) {
             HorizontalFloatingToolbar(
                 expanded = expanded,
                 floatingActionButton = floatingActionButton,

@@ -1,8 +1,21 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.0.6
+> **Version:** 0.0.7
 > **Last Updated:** 2026-09-04
+
+---
+
+## [0.0.7] - 2026-09-04
+
+- **App Stopper Grid & Stopped Detection**: Added high-density 4 to 6 column grid with persistent column settings, displaying active apps in full color and stopped apps in grayscale with dimmed opacity.
+- **Direct System App Info Force Stop**: Tapping any monitored application launches its system App Info page for quick force-stop operations, updating state immediately upon return.
+- **Docked Search & Top Bar Density Switcher**: Integrated inline search into the bottom floating dock with software keyboard tracking, alongside a top-bar 4x to 6x grid density dropdown.
+- **Contextual Hold-to-Manage Actions**: Added long-press bottom sheet with options to open App Info, launch the app, open Google Play Store, or remove from the list.
+- **Full-Height App Picker**: Redesigned app selection sheet expanding to full height with search and system apps toggle.
+- **Dynamic Floating Dock Integration**: Adapted Osyster's floating dock for App Stopper with back navigation, marquee title, docked search, and Add Applications FAB.
+- **Persistent Managed Storage**: Saved curated apps and column preferences to offline SharedPreferences across reboots.
+- **Task Dashboard Shortcuts**: Added direct App Info force-stop shortcuts to running process cards on the Tasks dashboard.
 
 ---
 

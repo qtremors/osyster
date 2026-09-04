@@ -15,9 +15,10 @@ import androidx.compose.material.icons.filled.BatteryStd
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.SignalCellularAlt
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Terminal
-import androidx.compose.material.icons.filled.SignalCellularAlt
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
@@ -484,6 +485,61 @@ fun BentoDashboard(
                         modifier = Modifier.size(20.dp)
                     )
                 }
+            }
+        }
+
+        // App Stopper Bento Block
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onNavigateTo(AppRoutes.AppStopper) }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.PowerSettingsNew,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column {
+                        Text(
+                            text = "App Stopper",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        val managedCount = prefsState.managedStopPackages.size
+                        Text(
+                            text = if (managedCount == 0) "No apps managed • Tap to add" else "$managedCount monitored apps",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                }
+
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
 

@@ -33,4 +33,7 @@ sealed interface AppRoutes {
 
     @Serializable
     data object Network : AppRoutes
+
+    @Serializable
+    data object AppStopper : AppRoutes
 }

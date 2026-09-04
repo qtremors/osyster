@@ -23,6 +23,23 @@ class OsysterPreferencesTest {
         assertEquals(TemperatureUnit.CELSIUS, state.temperatureUnit)
         assertFalse(state.showKernelThreads)
         assertFalse(state.isOnboardingCompleted)
+        assertTrue(state.managedStopPackages.isEmpty())
+        assertEquals(4, state.appStopperGridColumns)
+    }
+
+    @Test
+    fun appStopperGridColumns_stateUpdates() {
+        val state = OsysterPreferencesState(appStopperGridColumns = 6)
+        assertEquals(6, state.appStopperGridColumns)
+    }
+
+    @Test
+    fun managedStopPackages_stateUpdates() {
+        val packages = setOf("com.example.app1", "com.example.app2")
+        val state = OsysterPreferencesState(managedStopPackages = packages)
+        assertEquals(2, state.managedStopPackages.size)
+        assertTrue(state.managedStopPackages.contains("com.example.app1"))
+        assertTrue(state.managedStopPackages.contains("com.example.app2"))
     }
 
     @Test

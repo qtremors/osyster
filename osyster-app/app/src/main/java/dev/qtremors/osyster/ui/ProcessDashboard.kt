@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.qtremors.osyster.monitor.AppStopperMonitor
 import dev.qtremors.osyster.monitor.ProcessInfo
 import dev.qtremors.osyster.monitor.SystemMonitor
 import kotlinx.coroutines.Dispatchers
@@ -253,8 +254,27 @@ fun ProcessDashboard(modifier: Modifier = Modifier) {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
+                    val targetPackage = proc.name.substringBefore(':')
+                    val isAppPackage = targetPackage.contains('.')
+
+                    if (isAppPackage) {
+                        Button(
+                            onClick = {
+                                AppStopperMonitor.openAppInfo(context, targetPackage)
+                                selectedProcess = null
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(100)
+                        ) {
+                            Icon(Icons.Default.Info, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Force Stop (App Info)", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+                        }
+                    }
+
                     // End process / force kill action button
-                    Button(
+                    OutlinedButton(
                         onClick = {
                             scope.launch(Dispatchers.IO) {
                                 val success = killProcessByPid(proc.pid)
@@ -269,11 +289,10 @@ fun ProcessDashboard(modifier: Modifier = Modifier) {
                                 }
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(100)
                     ) {
-                        Text("Terminate Task", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onTertiary)
+                        Text("Send Sigkill (PID ${proc.pid})", fontWeight = FontWeight.Bold)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))

@@ -61,7 +61,9 @@ data class OsysterPreferencesState(
     val diagnosticsInterval: DiagnosticsInterval = DiagnosticsInterval.INTERVAL_1000MS,
     val temperatureUnit: TemperatureUnit = TemperatureUnit.CELSIUS,
     val showKernelThreads: Boolean = false,
-    val isOnboardingCompleted: Boolean = false
+    val isOnboardingCompleted: Boolean = false,
+    val managedStopPackages: Set<String> = emptySet(),
+    val appStopperGridColumns: Int = 4
 )
 
 // =========================================================================
@@ -84,6 +86,15 @@ class OsysterPreferencesManager(context: Context) {
         val intervalStr = prefs.getString(KEY_DIAGNOSTICS_INTERVAL, DiagnosticsInterval.INTERVAL_1000MS.name) ?: DiagnosticsInterval.INTERVAL_1000MS.name
         val tempUnitStr = prefs.getString(KEY_TEMP_UNIT, TemperatureUnit.CELSIUS.name) ?: TemperatureUnit.CELSIUS.name
 
+        val managedRaw = prefs.getString(KEY_MANAGED_STOP_PACKAGES, "") ?: ""
+        val managedPackages = if (managedRaw.isNotBlank()) {
+            managedRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+        } else {
+            emptySet()
+        }
+
+        val gridCols = prefs.getInt(KEY_APP_STOPPER_GRID_COLUMNS, 4).coerceIn(4, 6)
+
         return OsysterPreferencesState(
             themeMode = runCatching { ThemeMode.valueOf(themeModeStr) }.getOrDefault(ThemeMode.SYSTEM),
             accentPalette = runCatching { AccentPalette.valueOf(accentStr) }.getOrDefault(AccentPalette.CYAN),
@@ -92,7 +103,9 @@ class OsysterPreferencesManager(context: Context) {
             diagnosticsInterval = runCatching { DiagnosticsInterval.valueOf(intervalStr) }.getOrDefault(DiagnosticsInterval.INTERVAL_1000MS),
             temperatureUnit = runCatching { TemperatureUnit.valueOf(tempUnitStr) }.getOrDefault(TemperatureUnit.CELSIUS),
             showKernelThreads = prefs.getBoolean(KEY_SHOW_KERNEL_THREADS, false),
-            isOnboardingCompleted = prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false)
+            isOnboardingCompleted = prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false),
+            managedStopPackages = managedPackages,
+            appStopperGridColumns = gridCols
         )
     }
 
@@ -136,6 +149,31 @@ class OsysterPreferencesManager(context: Context) {
         _state.value = _state.value.copy(isOnboardingCompleted = completed)
     }
 
+    fun setManagedStopPackages(packages: Set<String>) {
+        val serialized = packages.filter { it.isNotBlank() }.joinToString(",")
+        prefs.edit().putString(KEY_MANAGED_STOP_PACKAGES, serialized).apply()
+        _state.value = _state.value.copy(managedStopPackages = packages)
+    }
+
+    fun addManagedStopPackage(packageName: String) {
+        if (packageName.isBlank()) return
+        val current = _state.value.managedStopPackages
+        val updated = current + packageName.trim()
+        setManagedStopPackages(updated)
+    }
+
+    fun removeManagedStopPackage(packageName: String) {
+        val current = _state.value.managedStopPackages
+        val updated = current - packageName.trim()
+        setManagedStopPackages(updated)
+    }
+
+    fun setAppStopperGridColumns(columns: Int) {
+        val clamped = columns.coerceIn(4, 6)
+        prefs.edit().putInt(KEY_APP_STOPPER_GRID_COLUMNS, clamped).apply()
+        _state.value = _state.value.copy(appStopperGridColumns = clamped)
+    }
+
     companion object {
         private const val PREFS_NAME = "osyster_settings_prefs"
         private const val KEY_THEME_MODE = "theme_mode"
@@ -146,6 +184,8 @@ class OsysterPreferencesManager(context: Context) {
         private const val KEY_TEMP_UNIT = "temperature_unit"
         private const val KEY_SHOW_KERNEL_THREADS = "show_kernel_threads"
         private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
+        private const val KEY_MANAGED_STOP_PACKAGES = "managed_stop_packages"
+        private const val KEY_APP_STOPPER_GRID_COLUMNS = "app_stopper_grid_columns"
 
         @Volatile
         private var instance: OsysterPreferencesManager? = null
