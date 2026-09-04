@@ -45,6 +45,7 @@ import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -187,12 +188,13 @@ private fun ThemeModeCard(
 
     Column(
         modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
             .selectable(
                 selected = isSelected,
                 onClick = { onClick(mode) },
                 role = androidx.compose.ui.semantics.Role.RadioButton,
                 interactionSource = interactionSource,
-                indication = null
+                indication = ripple()
             )
             .graphicsLayer {
                 scaleX = scale
@@ -270,7 +272,10 @@ fun AccentPaletteSelector(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.clickable { onPaletteSelected(palette) }
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { onPaletteSelected(palette) }
+                            .padding(4.dp)
                     ) {
                         Box(
                             modifier = Modifier

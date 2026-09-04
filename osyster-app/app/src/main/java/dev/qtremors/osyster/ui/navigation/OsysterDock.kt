@@ -5,6 +5,8 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -60,6 +62,7 @@ fun OsysterDock(
                 },
                 modifier = Modifier
                     .size(44.dp)
+                    .clip(CircleShape)
                     .align(Alignment.CenterVertically),
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
@@ -132,25 +135,25 @@ fun OsysterDock(
                 )
 
                 if (itemWidth > 0.dp || isSelected) {
-                    IconButton(
+                    Surface(
                         onClick = {
                             OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
                             item.onClick()
                         },
+                        shape = CircleShape,
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.surfaceContainerHigh
+                        },
+                        contentColor = if (isSelected) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
                         modifier = Modifier
                             .width(itemWidth + labelWidth)
-                            .height(44.dp),
-                        colors = if (isSelected) {
-                            IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
-                            )
-                        } else {
-                            IconButtonDefaults.iconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                            .height(44.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,

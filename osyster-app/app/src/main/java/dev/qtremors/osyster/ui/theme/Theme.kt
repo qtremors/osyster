@@ -2,7 +2,9 @@ package dev.qtremors.osyster.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -30,8 +32,17 @@ private val DarkColorScheme = darkColorScheme(
     onBackground = OnBackgroundDark,
     surface = SurfaceDark,
     onSurface = OnSurfaceDark,
+    surfaceVariant = SurfaceVariantDark,
+    onSurfaceVariant = OnSurfaceVariantDark,
+    surfaceContainerLowest = SurfaceContainerLowestDark,
+    surfaceContainerLow = SurfaceContainerLowDark,
+    surfaceContainer = SurfaceContainerDark,
     surfaceContainerHigh = SurfaceContainerHighDark,
-    outline = OutlineDark
+    surfaceContainerHighest = SurfaceContainerHighestDark,
+    surfaceDim = SurfaceDimDark,
+    surfaceBright = SurfaceBrightDark,
+    outline = OutlineDark,
+    outlineVariant = OutlineVariantDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -51,8 +62,17 @@ private val LightColorScheme = lightColorScheme(
     onBackground = OnBackgroundLight,
     surface = SurfaceLight,
     onSurface = OnSurfaceLight,
+    surfaceVariant = SurfaceVariantLight,
+    onSurfaceVariant = OnSurfaceVariantLight,
+    surfaceContainerLowest = SurfaceContainerLowestLight,
+    surfaceContainerLow = SurfaceContainerLowLight,
+    surfaceContainer = SurfaceContainerLight,
     surfaceContainerHigh = SurfaceContainerHighLight,
-    outline = OutlineLight
+    surfaceContainerHighest = SurfaceContainerHighestLight,
+    surfaceDim = SurfaceDimLight,
+    surfaceBright = SurfaceBrightLight,
+    outline = OutlineLight,
+    outlineVariant = OutlineVariantLight
 )
 
 private val OledColorScheme = darkColorScheme(
@@ -72,10 +92,20 @@ private val OledColorScheme = darkColorScheme(
     onBackground = OnBackgroundDark,
     surface = SurfaceOled,
     onSurface = OnSurfaceDark,
+    surfaceVariant = SurfaceVariantOled,
+    onSurfaceVariant = OnSurfaceVariantOled,
+    surfaceContainerLowest = SurfaceContainerLowestOled,
+    surfaceContainerLow = SurfaceContainerLowOled,
+    surfaceContainer = SurfaceContainerOled,
     surfaceContainerHigh = SurfaceContainerHighOled,
-    outline = OutlineDark
+    surfaceContainerHighest = SurfaceContainerHighestOled,
+    surfaceDim = SurfaceDimOled,
+    surfaceBright = SurfaceBrightOled,
+    outline = OutlineDark,
+    outlineVariant = OutlineVariantOled
 )
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun OsysterTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
@@ -115,6 +145,7 @@ fun OsysterTheme(
         colorScheme = colorScheme,
         typography = Typography,
         shapes = ExpressiveShapes,
+        motionScheme = MotionScheme.expressive(),
         content = content
     )
 }

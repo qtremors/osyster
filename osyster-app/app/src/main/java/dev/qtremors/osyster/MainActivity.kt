@@ -8,8 +8,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -109,9 +112,13 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                BackHandler(enabled = isAppStopper && isAppStopperSearchActive) {
-                    isAppStopperSearchActive = false
-                    appStopperSearchQuery = ""
+                PredictiveBackHandler(enabled = isAppStopper && isAppStopperSearchActive) { progress ->
+                    try {
+                        progress.collect { }
+                        isAppStopperSearchActive = false
+                        appStopperSearchQuery = ""
+                    } catch (_: java.util.concurrent.CancellationException) {
+                    }
                 }
 
                 val backProgress = remember { Animatable(0f) }
@@ -121,15 +128,16 @@ class MainActivity : ComponentActivity() {
                         progress.collect { backEvent ->
                             backProgress.snapTo(backEvent.progress)
                         }
+                        val targetPage = (pagerState.currentPage - 1).coerceAtLeast(0)
                         scope.launch {
-                            pagerState.animateScrollToPage(0)
+                            pagerState.animateScrollToPage(targetPage)
                         }
                         scope.launch {
-                            backProgress.animateTo(0f, animationSpec = tween(400))
+                            backProgress.animateTo(0f, animationSpec = tween(350))
                         }
                     } catch (_: java.util.concurrent.CancellationException) {
                         scope.launch {
-                            backProgress.animateTo(0f, animationSpec = tween(300))
+                            backProgress.animateTo(0f, animationSpec = tween(250))
                         }
                     }
                 }
@@ -193,8 +201,12 @@ class MainActivity : ComponentActivity() {
                                     state = pagerState,
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .scale(1f - (backProgress.value * 0.05f))
-                                        .alpha(1f - (backProgress.value * 0.3f))
+                                        .graphicsLayer {
+                                            val p = backProgress.value
+                                            scaleX = 1f - (p * 0.04f)
+                                            scaleY = 1f - (p * 0.04f)
+                                            translationX = p * 40.dp.toPx()
+                                        }
                                 ) { page ->
                                     when (page) {
                                         0 -> BentoDashboard(
@@ -290,9 +302,14 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    when {
-                        isOnboarding || isSubpage -> Unit
-                        isAppStopper -> {
+                    AnimatedVisibility(
+                        visible = !isOnboarding && !isSubpage,
+                        enter = fadeIn(tween(250)) + slideInVertically(spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow)) { it },
+                        exit = fadeOut(tween(200)) + slideOutVertically(spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow)) { it },
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    ) {
+                        Box(contentAlignment = Alignment.BottomCenter) {
+                            if (isAppStopper) {
                             if (isAppStopperSearchActive) {
                                 OsysterDock(
                                     modifier = Modifier.align(Alignment.BottomCenter),
@@ -445,8 +462,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
-                        }
-                        else -> {
+                        } else {
                             val dockItems = remember {
                                 listOf(
                                     OsysterDockItem(
@@ -534,4 +550,5 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
 }

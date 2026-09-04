@@ -1,0 +1,272 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Drop Shadows and Glow Filters -->
+    <filter id="needle-shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="-3" dy="5" stdDeviation="5" flood-color="#04081c" flood-opacity="0.65"/>
+    </filter>
+
+    <filter id="arm-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="-2" dy="3" stdDeviation="3.5" flood-color="#050c26" flood-opacity="0.55"/>
+    </filter>
+
+    <filter id="orange-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="3" dy="-2" stdDeviation="6" flood-color="#040822" flood-opacity="0.45"/>
+    </filter>
+
+    <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="node-bloom" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="core-glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Clip Paths -->
+    <clipPath id="squircle-clip">
+      <rect x="63" y="61" width="375" height="377" rx="72" ry="72"/>
+    </clipPath>
+
+    <!-- Background Gradients -->
+    <linearGradient id="bg-base" x1="15%" y1="15%" x2="85%" y2="85%">
+      <stop offset="0%" stop-color="#3240b2"/>
+      <stop offset="30%" stop-color="#4654cb"/>
+      <stop offset="70%" stop-color="#554fc7"/>
+      <stop offset="100%" stop-color="#5c50ce"/>
+    </linearGradient>
+
+    <radialGradient id="bg-topright" cx="82%" cy="18%" r="55%">
+      <stop offset="0%" stop-color="#00f3e2"/>
+      <stop offset="50%" stop-color="#00d8cb" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#00c8c0" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="orange-corner-grad" x1="80%" y1="20%" x2="20%" y2="80%">
+      <stop offset="0%" stop-color="#fc9c32"/>
+      <stop offset="40%" stop-color="#fe8338"/>
+      <stop offset="100%" stop-color="#fd683b"/>
+    </linearGradient>
+
+    <!-- Continuous 360-degree Base Track Gradients -->
+    <linearGradient id="track-right-grad" x1="10%" y1="0%" x2="60%" y2="100%">
+      <stop offset="0%" stop-color="#54e66e"/>
+      <stop offset="22%" stop-color="#2adca0"/>
+      <stop offset="45%" stop-color="#06cbd1"/>
+      <stop offset="75%" stop-color="#2896d6"/>
+      <stop offset="100%" stop-color="#554ecc"/>
+    </linearGradient>
+
+    <linearGradient id="track-left-grad" x1="60%" y1="100%" x2="10%" y2="0%">
+      <stop offset="0%" stop-color="#554ecc"/>
+      <stop offset="35%" stop-color="#4458cb"/>
+      <stop offset="70%" stop-color="#24a8d4"/>
+      <stop offset="100%" stop-color="#54e66e"/>
+    </linearGradient>
+
+    <linearGradient id="pill-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c4fab8"/>
+      <stop offset="50%" stop-color="#8ceb78"/>
+      <stop offset="100%" stop-color="#baf892"/>
+    </linearGradient>
+
+    <linearGradient id="orange-track-grad" x1="90%" y1="90%" x2="10%" y2="10%">
+      <stop offset="0%" stop-color="#fabe3a"/>
+      <stop offset="35%" stop-color="#fe8e32"/>
+      <stop offset="70%" stop-color="#fe7539"/>
+      <stop offset="100%" stop-color="#fecf45"/>
+    </linearGradient>
+
+    <!-- Dial and Rosette Gradients -->
+    <radialGradient id="dial-bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#142674"/>
+      <stop offset="65%" stop-color="#0f1c60"/>
+      <stop offset="90%" stop-color="#0a1246"/>
+      <stop offset="100%" stop-color="#070c32"/>
+    </radialGradient>
+
+    <linearGradient id="rosette-base" x1="15%" y1="85%" x2="85%" y2="15%">
+      <stop offset="0%" stop-color="#783ec0"/>
+      <stop offset="25%" stop-color="#5243bc"/>
+      <stop offset="55%" stop-color="#3870cc"/>
+      <stop offset="80%" stop-color="#2db2d4"/>
+      <stop offset="100%" stop-color="#4ce0c0"/>
+    </linearGradient>
+
+    <radialGradient id="rosette-depth" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.32"/>
+      <stop offset="55%" stop-color="#000000" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Swirling Circular Tube Arm Gradients -->
+    <linearGradient id="arm-top" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#28a8d0"/>
+      <stop offset="50%" stop-color="#32c6d6"/>
+      <stop offset="100%" stop-color="#64e9be"/>
+    </linearGradient>
+
+    <linearGradient id="arm-right" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22c2b0"/>
+      <stop offset="50%" stop-color="#3cd8a6"/>
+      <stop offset="100%" stop-color="#7eec96"/>
+    </linearGradient>
+
+    <linearGradient id="arm-bottom" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3a52c0"/>
+      <stop offset="50%" stop-color="#4178db"/>
+      <stop offset="100%" stop-color="#4ba2e5"/>
+    </linearGradient>
+
+    <linearGradient id="arm-left" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#5842c2"/>
+      <stop offset="50%" stop-color="#4d68cf"/>
+      <stop offset="100%" stop-color="#4aa7e6"/>
+    </linearGradient>
+
+    <!-- Needle and Core Gradients -->
+    <linearGradient id="needle-grad" x1="250" y1="250" x2="348" y2="150" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fa7085"/>
+      <stop offset="25%" stop-color="#fc7d58"/>
+      <stop offset="60%" stop-color="#ff8830"/>
+      <stop offset="85%" stop-color="#f5b22b"/>
+      <stop offset="100%" stop-color="#fdbf2d"/>
+    </linearGradient>
+
+    <radialGradient id="center-core" cx="42%" cy="40%" r="58%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#a4fdf3"/>
+      <stop offset="70%" stop-color="#54e8dc"/>
+      <stop offset="100%" stop-color="#28bed8"/>
+    </radialGradient>
+
+    <radialGradient id="amber-dot" cx="40%" cy="38%" r="60%">
+      <stop offset="0%" stop-color="#fff4d0"/>
+      <stop offset="45%" stop-color="#fec568"/>
+      <stop offset="100%" stop-color="#f59c1c"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Squircle App Icon Container -->
+  <g clip-path="url(#squircle-clip)">
+    <!-- Base Squircle Multi-tone Fill -->
+    <rect x="63" y="61" width="375" height="377" fill="url(#bg-base)"/>
+    <rect x="63" y="61" width="375" height="377" fill="url(#bg-topright)"/>
+
+    <!-- Bottom-Left Warm Coral/Orange Corner Background Fill -->
+    <path d="M 63,230 L 63,365 A 72 72 0 0 0 135,438 L 270,438 C 255,405 240,370 195,325 C 150,280 100,245 63,230 Z" fill="url(#orange-corner-grad)"/>
+
+    <!-- Unbroken Continuous 360-degree Base Gauge Track (midline r=167, width=38) -->
+    <!-- Right Half: -90° (top) through 0° (right) to +85° (bottom-right) -->
+    <path d="M 250.00,83.00 A 167 167 0 0 1 264.55,416.36" fill="none" stroke="url(#track-right-grad)" stroke-width="38" stroke-linecap="butt"/>
+    <!-- Left Half: +85° (bottom-right) through 180° (left) to 270° / -90° (top) -->
+    <path d="M 264.55,416.36 A 167 167 0 1 1 250.00,83.00" fill="none" stroke="url(#track-left-grad)" stroke-width="38" stroke-linecap="butt"/>
+
+    <!-- Top Lime Capsule Accent (-90° to -60°) -->
+    <path d="M 250.00,83.00 A 167 167 0 0 1 333.50,105.38" fill="none" stroke="url(#pill-grad)" stroke-width="22" stroke-linecap="round"/>
+    <path d="M 250.00,83.00 A 167 167 0 0 1 333.50,105.38" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="250.00" cy="83.00" r="6.5" fill="#f0fff0"/>
+    <circle cx="333.50" cy="105.38" r="6.5" fill="#f0fff0"/>
+
+    <!-- Right Arc Circuit Trace & Glowing Nodes (-45° to 0°) -->
+    <circle cx="368.10" cy="131.90" r="18" fill="#d6fcd8" opacity="0.45" filter="url(#node-bloom)"/>
+    <circle cx="417.00" cy="250.00" r="18" fill="#a6f8d2" opacity="0.45" filter="url(#node-bloom)"/>
+    <path d="M 368.10,131.90 A 167 167 0 0 1 417.00,250.00" fill="none" stroke="#d2fcd8" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="368.10" cy="131.90" r="8" fill="#f2fff4"/>
+    <circle cx="405.90" cy="190.20" r="6" fill="#cbfad5"/>
+    <circle cx="417.00" cy="250.00" r="8.5" fill="#d4fce8"/>
+
+    <!-- Bottom-Left Concentric Orange Gauge Swoop (85° to 185°, midline r=167, width=38) -->
+    <path d="M 264.55,416.36 A 167 167 0 0 1 83.64,235.45" fill="none" stroke="url(#orange-track-grad)" stroke-width="38" stroke-linecap="round" filter="url(#orange-shadow)"/>
+    <circle cx="132" cy="368" r="18" fill="#ffa726" opacity="0.4" filter="url(#soft-glow)"/>
+    <circle cx="132" cy="368" r="8.5" fill="url(#amber-dot)"/>
+  </g>
+
+  <!-- Central Midnight Dial Disc (r=148, perfectly clean seamless circle) -->
+  <g id="central-dial">
+    <circle cx="250" cy="250" r="148" fill="url(#dial-bg)"/>
+  </g>
+
+  <!-- Speedometer Radial Tick Marks (7 clean rounded dashes from -90° to 0° in 15° steps) -->
+  <g id="dial-ticks">
+    <line x1="250.00" y1="117.00" x2="250.00" y2="105.00" stroke="#a2faee" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>
+    <line x1="284.42" y1="121.53" x2="287.53" y2="109.94" stroke="#a2faee" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>
+    <line x1="316.50" y1="134.82" x2="322.50" y2="124.43" stroke="#a2faee" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>
+    <line x1="344.05" y1="155.95" x2="352.53" y2="147.47" stroke="#a2faee" stroke-width="3.5" stroke-linecap="round" opacity="0.95"/>
+    <line x1="365.18" y1="183.50" x2="375.57" y2="177.50" stroke="#a2faee" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>
+    <line x1="378.47" y1="215.58" x2="390.06" y2="212.47" stroke="#a2faee" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>
+    <line x1="383.00" y1="250.00" x2="395.00" y2="250.00" stroke="#a2faee" stroke-width="3.5" stroke-linecap="round" opacity="0.8"/>
+  </g>
+
+  <!-- Central Rosette Motif (8 Pure Circular Convex Arcs of Radius 38, seamless 3D depth) -->
+  <g id="rosette">
+    <path d="M 337.46,213.77 A 38 38 0 0 1 337.46,286.23 A 38 38 0 0 1 286.23,337.46 A 38 38 0 0 1 213.77,337.46 A 38 38 0 0 1 162.54,286.23 A 38 38 0 0 1 162.54,213.77 A 38 38 0 0 1 213.77,162.54 A 38 38 0 0 1 286.23,162.54 A 38 38 0 0 1 337.46,213.77 Z" fill="url(#rosette-base)"/>
+    <path d="M 337.46,213.77 A 38 38 0 0 1 337.46,286.23 A 38 38 0 0 1 286.23,337.46 A 38 38 0 0 1 213.77,337.46 A 38 38 0 0 1 162.54,286.23 A 38 38 0 0 1 162.54,213.77 A 38 38 0 0 1 213.77,162.54 A 38 38 0 0 1 286.23,162.54 A 38 38 0 0 1 337.46,213.77 Z" fill="url(#rosette-depth)"/>
+
+    <!-- Central Moat Trench Behind Arms -->
+    <circle cx="250" cy="250" r="30" fill="#0d1848" stroke="#060c28" stroke-width="4"/>
+
+    <!-- 4 Interlocking Swirling Circular Tube Arms with 3D Specular Highlights -->
+    <!-- Top Arm (0°) -->
+    <g id="arm-top-group" filter="url(#arm-shadow)">
+      <path d="M 250,174 A 38 38 0 0 0 238,246" fill="none" stroke="url(#arm-top)" stroke-width="18" stroke-linecap="round"/>
+      <path d="M 248,172 A 38 38 0 0 0 236,244" fill="none" stroke="#ffffff" stroke-width="3.5" opacity="0.32" stroke-linecap="round"/>
+      <circle cx="250" cy="174" r="12.5" fill="#64e9be"/>
+      <circle cx="250" cy="174" r="4.5" fill="#122472"/>
+    </g>
+
+    <!-- Right Arm (90°) -->
+    <g id="arm-right-group" transform="rotate(90 250 250)" filter="url(#arm-shadow)">
+      <path d="M 250,174 A 38 38 0 0 0 238,246" fill="none" stroke="url(#arm-right)" stroke-width="18" stroke-linecap="round"/>
+      <path d="M 248,172 A 38 38 0 0 0 236,244" fill="none" stroke="#ffffff" stroke-width="3.5" opacity="0.32" stroke-linecap="round"/>
+      <circle cx="250" cy="174" r="12.5" fill="#7eec96"/>
+      <circle cx="250" cy="174" r="4.5" fill="#122472"/>
+    </g>
+
+    <!-- Bottom Arm (180°) -->
+    <g id="arm-bottom-group" transform="rotate(180 250 250)" filter="url(#arm-shadow)">
+      <path d="M 250,174 A 38 38 0 0 0 238,246" fill="none" stroke="url(#arm-bottom)" stroke-width="18" stroke-linecap="round"/>
+      <path d="M 248,172 A 38 38 0 0 0 236,244" fill="none" stroke="#ffffff" stroke-width="3.5" opacity="0.32" stroke-linecap="round"/>
+      <circle cx="250" cy="174" r="12.5" fill="#4ba2e5"/>
+      <circle cx="250" cy="174" r="4.5" fill="#122472"/>
+    </g>
+
+    <!-- Left Arm (270°) -->
+    <g id="arm-left-group" transform="rotate(270 250 250)" filter="url(#arm-shadow)">
+      <path d="M 250,174 A 38 38 0 0 0 238,246" fill="none" stroke="url(#arm-left)" stroke-width="18" stroke-linecap="round"/>
+      <path d="M 248,172 A 38 38 0 0 0 236,244" fill="none" stroke="#ffffff" stroke-width="3.5" opacity="0.32" stroke-linecap="round"/>
+      <circle cx="250" cy="174" r="12.5" fill="#4aa7e6"/>
+      <circle cx="250" cy="174" r="4.5" fill="#122472"/>
+    </g>
+  </g>
+
+  <!-- Speedometer Needle (Tapered rounded indicator bar with drop shadow and specular highlight) -->
+  <g id="needle">
+    <path d="M 274.52,240.64 L 348.08,161.29 A 8 8 0 0 0 336.64,150.09 L 258.78,225.20 A 11 11 0 0 0 274.52,240.64 Z" fill="url(#needle-grad)" filter="url(#needle-shadow)"/>
+    <line x1="270" y1="230" x2="338" y2="157" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.45"/>
+  </g>
+
+  <!-- Center Pivot Core with Glowing Cyan Button Dome -->
+  <g id="center-pivot">
+    <!-- Dark Bezel Ring -->
+    <circle cx="250" cy="250" r="22" fill="#142878" stroke="#0a1444" stroke-width="1.5"/>
+    <!-- Cyan Glowing Core Button Dome -->
+    <circle cx="250" cy="250" r="16.5" fill="url(#center-core)" filter="url(#core-glow)"/>
+    <!-- Specular Highlight Spot -->
+    <ellipse cx="246" cy="244" rx="5" ry="3" transform="rotate(-30 246 244)" fill="#ffffff" opacity="0.9"/>
+  </g>
+</svg>

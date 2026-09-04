@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package dev.qtremors.osyster.ui
 
 import androidx.compose.animation.*
@@ -70,13 +72,11 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                     modifier = Modifier.size(160.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(
-                        progress = { ramUsedPercent / 100f },
+                    CircularWavyProgressIndicator(
+                        progress = { (ramUsedPercent / 100f).coerceIn(0f, 1f) },
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        strokeWidth = 8.dp,
-                        strokeCap = StrokeCap.Round
+                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                     )
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -166,12 +166,11 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                             )
                         }
 
-                        LinearProgressIndicator(
-                            progress = { swapUsedPercent / 100f },
+                        LinearWavyProgressIndicator(
+                            progress = { (swapUsedPercent / 100f).coerceIn(0f, 1f) },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(6.dp)
-                                .clip(RoundedCornerShape(100)),
+                                .height(10.dp),
                             color = MaterialTheme.colorScheme.secondary,
                             trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
                         )

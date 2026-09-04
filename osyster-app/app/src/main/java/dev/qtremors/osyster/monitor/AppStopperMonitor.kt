@@ -19,7 +19,8 @@ data class ManagedAppInfo(
     val label: String,
     val icon: Drawable?,
     val isStopped: Boolean,
-    val isSystemApp: Boolean
+    val isSystemApp: Boolean,
+    val isUninstalled: Boolean = false
 )
 
 data class InstalledAppItem(
@@ -29,11 +30,49 @@ data class InstalledAppItem(
     val isSystemApp: Boolean
 )
 
+data class AppStopperCounts(
+    val installedCount: Int,
+    val uninstalledCount: Int,
+    val totalCount: Int
+)
+
 // =========================================================================
 // Section Comment: App Stopper Package Utility & State Evaluator
 // =========================================================================
 
 object AppStopperMonitor {
+
+    private const val PREFS_LABELS = "osyster_app_stopper_labels"
+
+    fun saveAppLabel(context: Context, packageName: String, label: String) {
+        if (packageName.isBlank() || label.isBlank()) return
+        val prefs = context.getSharedPreferences(PREFS_LABELS, Context.MODE_PRIVATE)
+        prefs.edit().putString(packageName, label).apply()
+    }
+
+    fun getAppLabel(context: Context, packageName: String): String? {
+        val prefs = context.getSharedPreferences(PREFS_LABELS, Context.MODE_PRIVATE)
+        return prefs.getString(packageName, null)
+    }
+
+    fun removeAppLabel(context: Context, packageName: String) {
+        val prefs = context.getSharedPreferences(PREFS_LABELS, Context.MODE_PRIVATE)
+        prefs.edit().remove(packageName).apply()
+    }
+
+    fun getFallbackLabel(packageName: String): String {
+        val parts = packageName.split('.')
+        val genericWords = setOf("android", "app", "application", "mobile", "client", "ui", "main")
+        val candidate = parts.asReversed().firstOrNull { it.isNotBlank() && it.lowercase() !in genericWords }
+            ?: parts.lastOrNull { it.isNotBlank() }
+            ?: packageName
+
+        return if (candidate.length > 1) {
+            candidate.replaceFirstChar { if (it.isLowerCase()) it.titlecase(java.util.Locale.getDefault()) else it.toString() }
+        } else {
+            packageName
+        }
+    }
 
     /**
      * Determines whether an application package is currently in the stopped state
@@ -55,7 +94,32 @@ object AppStopperMonitor {
     }
 
     /**
+     * Computes count of installed and uninstalled (ghost) apps among managed packages.
+     */
+    fun getManagedAppCounts(context: Context, packageNames: Set<String>): AppStopperCounts {
+        val pm = context.packageManager
+        var installed = 0
+        var uninstalled = 0
+        for (pkg in packageNames) {
+            val isInstalled = try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    pm.getApplicationInfo(pkg, PackageManager.ApplicationInfoFlags.of(0))
+                } else {
+                    @Suppress("DEPRECATION")
+                    pm.getApplicationInfo(pkg, 0)
+                }
+                true
+            } catch (_: Exception) {
+                false
+            }
+            if (isInstalled) installed++ else uninstalled++
+        }
+        return AppStopperCounts(installed, uninstalled, packageNames.size)
+    }
+
+    /**
      * Loads full metadata and current stopped status for a set of managed package names.
+     * Uninstalled packages are preserved as ghost apps so users can still remove or reinstall them.
      */
     fun loadManagedApps(context: Context, packageNames: Set<String>): List<ManagedAppInfo> {
         val pm = context.packageManager
@@ -70,10 +134,12 @@ object AppStopperMonitor {
                     pm.getApplicationInfo(pkg, 0)
                 }
 
-                val label = pm.getApplicationLabel(appInfo).toString()
+                val label = pm.getApplicationLabel(appInfo).toString().ifBlank { getFallbackLabel(pkg) }
                 val icon = pm.getApplicationIcon(appInfo)
                 val isStopped = (appInfo.flags and ApplicationInfo.FLAG_STOPPED) != 0
                 val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+
+                saveAppLabel(context, pkg, label)
 
                 list.add(
                     ManagedAppInfo(
@@ -81,17 +147,30 @@ object AppStopperMonitor {
                         label = label,
                         icon = icon,
                         isStopped = isStopped,
-                        isSystemApp = isSystem
+                        isSystemApp = isSystem,
+                        isUninstalled = false
                     )
                 )
             } catch (_: Exception) {
-                // If package was uninstalled, omit
+                // Preserve uninstalled package as a ghost app
+                val cachedLabel = getAppLabel(context, pkg) ?: getFallbackLabel(pkg)
+                list.add(
+                    ManagedAppInfo(
+                        packageName = pkg,
+                        label = cachedLabel,
+                        icon = null,
+                        isStopped = true,
+                        isSystemApp = false,
+                        isUninstalled = true
+                    )
+                )
             }
         }
 
-        // Sort: Active apps first, then alphabetically by label
+        // Sort: Active apps first, then Stopped apps, then Ghost (uninstalled) apps, then alphabetically by label
         return list.sortedWith(
-            compareBy<ManagedAppInfo> { it.isStopped }
+            compareBy<ManagedAppInfo> { it.isUninstalled }
+                .thenBy { it.isStopped }
                 .thenBy(String.CASE_INSENSITIVE_ORDER) { it.label }
         )
     }

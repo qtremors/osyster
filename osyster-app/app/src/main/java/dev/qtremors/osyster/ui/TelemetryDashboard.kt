@@ -1,19 +1,23 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package dev.qtremors.osyster.ui
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelemetryDashboard(
     modifier: Modifier = Modifier,
@@ -23,62 +27,53 @@ fun TelemetryDashboard(
     var selectedTab by remember(initialTab) { mutableIntStateOf(initialTab) }
     val view = LocalView.current
 
+    LaunchedEffect(initialTab) {
+        selectedTab = initialTab
+    }
+
     Column(modifier = modifier.fillMaxSize()) {
-        Box(
+        // Material 3 Expressive Connected Button Group
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            contentAlignment = Alignment.Center
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+                .selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
         ) {
-            SingleChoiceSegmentedButtonRow(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                SegmentedButton(
-                    selected = selectedTab == 0,
-                    onClick = {
-                        if (selectedTab != 0) {
-                            OsysterHapticUtil.performTick(view, hapticEnabled)
-                            selectedTab = 0
-                        }
-                    },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Speed,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    },
-                    colors = SegmentedButtonDefaults.colors(
-                        activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                ) {
-                    Text("CPU Telemetry")
-                }
+            val tabs = listOf(
+                Triple(0, Icons.Default.Speed, "CPU Telemetry"),
+                Triple(1, Icons.Default.Memory, "RAM & Swap")
+            )
 
-                SegmentedButton(
-                    selected = selectedTab == 1,
-                    onClick = {
-                        if (selectedTab != 1) {
+            tabs.forEachIndexed { index, (_, iconVector, labelText) ->
+                val isSelected = selectedTab == index
+                ToggleButton(
+                    checked = isSelected,
+                    onCheckedChange = {
+                        if (selectedTab != index) {
                             OsysterHapticUtil.performTick(view, hapticEnabled)
-                            selectedTab = 1
+                            selectedTab = index
                         }
                     },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Memory,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
+                    shapes = when (index) {
+                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                        tabs.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                     },
-                    colors = SegmentedButtonDefaults.colors(
-                        activeContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        activeContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    modifier = Modifier
+                        .weight(1f)
+                        .semantics { role = Role.RadioButton },
                 ) {
-                    Text("RAM & Swap")
+                    Icon(
+                        imageVector = iconVector,
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    Text(
+                        text = labelText,
+                        maxLines = 1,
+                    )
                 }
             }
         }

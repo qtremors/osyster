@@ -1,11 +1,13 @@
 package dev.qtremors.osyster.ui
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -16,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -32,10 +35,14 @@ import java.util.Locale
 // Section Comment: Active Processes Dashboard
 // =========================================================================
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProcessDashboard(modifier: Modifier = Modifier) {
     var searchQuery by remember { mutableStateOf("") }
+
+    BackHandler(enabled = searchQuery.isNotEmpty()) {
+        searchQuery = ""
+    }
     var rawProcesses by remember { mutableStateOf<List<ProcessInfo>>(emptyList()) }
     var isRefreshing by remember { mutableStateOf(false) }
     var selectedProcess by remember { mutableStateOf<ProcessInfo?>(null) }
@@ -92,7 +99,10 @@ fun ProcessDashboard(modifier: Modifier = Modifier) {
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             trailingIcon = {
                 if (searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { searchQuery = "" }) {
+                    IconButton(
+                        onClick = { searchQuery = "" },
+                        modifier = Modifier.clip(CircleShape)
+                    ) {
                         Icon(Icons.Default.Close, contentDescription = "Clear")
                     }
                 }
@@ -139,11 +149,10 @@ fun ProcessDashboard(modifier: Modifier = Modifier) {
                 ) {
                     items(filteredProcesses, key = { it.pid }) { proc ->
                         Card(
+                            onClick = { selectedProcess = proc },
                             shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { selectedProcess = proc }
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
                                 modifier = Modifier
@@ -181,7 +190,7 @@ fun ProcessDashboard(modifier: Modifier = Modifier) {
             }
 
             if (isRefreshing) {
-                LinearProgressIndicator(
+                LinearWavyProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.TopCenter)

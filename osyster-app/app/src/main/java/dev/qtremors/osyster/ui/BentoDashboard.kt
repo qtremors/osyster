@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package dev.qtremors.osyster.ui
 
 import androidx.compose.animation.*
@@ -35,7 +37,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.qtremors.osyster.monitor.AppStopperMonitor
 import dev.qtremors.osyster.monitor.BatteryState
 import dev.qtremors.osyster.monitor.CpuState
 import dev.qtremors.osyster.monitor.MemoryState
@@ -58,16 +62,13 @@ fun OysterArcGauge(
     percentage: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
-    trackColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-    strokeWidth: androidx.compose.ui.unit.Dp = 8.dp
+    trackColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
 ) {
-    CircularProgressIndicator(
+    CircularWavyProgressIndicator(
         progress = { percentage.coerceIn(0f, 100f) / 100f },
         modifier = modifier,
         color = color,
-        trackColor = trackColor,
-        strokeWidth = strokeWidth,
-        strokeCap = StrokeCap.Round
+        trackColor = trackColor
     )
 }
 
@@ -94,6 +95,16 @@ fun BentoDashboard(
     var activeNetworkType by remember { mutableStateOf(NetworkMonitor.getActiveNetworkType(context)) }
     var todayNetworkTotal by remember { mutableStateOf("") }
     var todayNetworkLabel by remember { mutableStateOf("Today") }
+
+    var appStopperResumeKey by remember { mutableIntStateOf(0) }
+    LifecycleResumeEffect(Unit) {
+        appStopperResumeKey++
+        onPauseOrDispose { }
+    }
+
+    val appStopperCounts = remember(prefsState.managedStopPackages, appStopperResumeKey) {
+        AppStopperMonitor.getManagedAppCounts(context, prefsState.managedStopPackages)
+    }
 
     LaunchedEffect(Unit) {
         if (NetworkMonitor.hasUsageAccess(context)) {
@@ -154,11 +165,10 @@ fun BentoDashboard(
 
         // Large CPU Core Ring Bento Block
         Card(
+            onClick = { onNavigateTo(AppRoutes.Cpu) },
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onNavigateTo(AppRoutes.Cpu) }
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier
@@ -216,11 +226,10 @@ fun BentoDashboard(
         ) {
             // Memory Bento Block
             Card(
+                onClick = { onNavigateTo(AppRoutes.Memory) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { onNavigateTo(AppRoutes.Memory) }
+                modifier = Modifier.weight(1f)
             ) {
                 Column(
                     modifier = Modifier
@@ -244,13 +253,12 @@ fun BentoDashboard(
                         fontWeight = FontWeight.Black
                     )
 
-                    // Linear RAM Bar
-                    LinearProgressIndicator(
+                    // Expressive Wavy RAM Bar
+                    LinearWavyProgressIndicator(
                         progress = { ramUsedPercent / 100f },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(100)),
+                            .height(10.dp),
                         color = MaterialTheme.colorScheme.primary,
                         trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                     )
@@ -259,11 +267,10 @@ fun BentoDashboard(
 
             // Thermal Bento Block
             Card(
+                onClick = { onNavigateTo(AppRoutes.Cpu) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { onNavigateTo(AppRoutes.Cpu) }
+                modifier = Modifier.weight(1f)
             ) {
                 Column(
                     modifier = Modifier
@@ -302,11 +309,10 @@ fun BentoDashboard(
         ) {
             // Active Tasks block
             Card(
+                onClick = { onNavigateTo(AppRoutes.Processes) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { onNavigateTo(AppRoutes.Processes) }
+                modifier = Modifier.weight(1f)
             ) {
                 Column(
                     modifier = Modifier
@@ -339,11 +345,10 @@ fun BentoDashboard(
 
             // Battery Energy block
             Card(
+                onClick = { onNavigateTo(AppRoutes.DeviceInfo) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { onNavigateTo(AppRoutes.DeviceInfo) }
+                modifier = Modifier.weight(1f)
             ) {
                 Column(
                     modifier = Modifier
@@ -395,11 +400,10 @@ fun BentoDashboard(
 
         // Network Traffic Bento Block
         Card(
+            onClick = { onNavigateTo(AppRoutes.Network) },
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onNavigateTo(AppRoutes.Network) }
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier
@@ -490,11 +494,10 @@ fun BentoDashboard(
 
         // App Stopper Bento Block
         Card(
+            onClick = { onNavigateTo(AppRoutes.AppStopper) },
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onNavigateTo(AppRoutes.AppStopper) }
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier
@@ -525,9 +528,13 @@ fun BentoDashboard(
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        val managedCount = prefsState.managedStopPackages.size
+                        val subtitleText = when {
+                            appStopperCounts.totalCount == 0 -> "No apps managed • Tap to add"
+                            appStopperCounts.uninstalledCount > 0 -> "${appStopperCounts.installedCount} monitored • ${appStopperCounts.uninstalledCount} uninstalled"
+                            else -> "${appStopperCounts.installedCount} monitored apps"
+                        }
                         Text(
-                            text = if (managedCount == 0) "No apps managed • Tap to add" else "$managedCount monitored apps",
+                            text = subtitleText,
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline
                         )
@@ -545,11 +552,10 @@ fun BentoDashboard(
 
         // SWAP File block (Bottom of grid)
         Card(
+            onClick = { onNavigateTo(AppRoutes.Memory) },
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onNavigateTo(AppRoutes.Memory) }
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier

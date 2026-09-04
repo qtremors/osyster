@@ -1,8 +1,11 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package dev.qtremors.osyster.ui
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -106,8 +109,9 @@ fun AppStopperScreen(
         }
     }
 
-    val stoppedCount = remember(managedApps) { managedApps.count { it.isStopped } }
-    val activeCount = remember(managedApps) { managedApps.count { !it.isStopped } }
+    val uninstalledCount = remember(managedApps) { managedApps.count { it.isUninstalled } }
+    val stoppedCount = remember(managedApps) { managedApps.count { it.isStopped && !it.isUninstalled } }
+    val activeCount = remember(managedApps) { managedApps.count { !it.isStopped && !it.isUninstalled } }
 
     Box(
         modifier = modifier
@@ -182,30 +186,52 @@ fun AppStopperScreen(
                             )
                         }
                     }
+
+                    if (uninstalledCount > 0) {
+                        Surface(
+                            shape = RoundedCornerShape(100),
+                            color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(7.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.tertiary)
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    text = "$uninstalledCount Ghost",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
+                            }
+                        }
+                    }
                 }
 
                 // Right: Grid size dropdown button
                 Box {
-                    IconButton(
+                    Surface(
                         onClick = {
                             OsysterHapticUtil.performVirtualKey(view, prefsState.hapticFeedback)
                             showGridMenu = true
                         },
-                        modifier = Modifier.size(36.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        modifier = Modifier.size(28.dp)
                     ) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                            modifier = Modifier.size(28.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text(
-                                    text = "${gridColumns}x",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Black,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = "${gridColumns}x",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Black,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                     }
 
@@ -250,7 +276,7 @@ fun AppStopperScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator()
+                            LoadingIndicator()
                         }
                     }
 
@@ -343,7 +369,11 @@ fun AppStopperScreen(
                                     columns = gridColumns,
                                     hapticEnabled = prefsState.hapticFeedback,
                                     onClick = {
-                                        AppStopperMonitor.openAppInfo(context, app.packageName)
+                                        if (app.isUninstalled) {
+                                            selectedAppForOptions = app
+                                        } else {
+                                            AppStopperMonitor.openAppInfo(context, app.packageName)
+                                        }
                                     },
                                     onLongClick = {
                                         selectedAppForOptions = app
@@ -377,7 +407,22 @@ fun AppStopperScreen(
                     val bitmap = remember(app.icon) {
                         app.icon?.let { runCatching { it.toSafeBitmap() }.getOrNull() }
                     }
-                    if (bitmap != null) {
+                    if (app.isUninstalled) {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
+                            modifier = Modifier.size(44.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Android,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
+                        }
+                    } else if (bitmap != null) {
                         Image(
                             bitmap = bitmap.asImageBitmap(),
                             contentDescription = null,
@@ -418,20 +463,24 @@ fun AppStopperScreen(
                     // Status Pill
                     Surface(
                         shape = RoundedCornerShape(100),
-                        color = if (app.isStopped) {
-                            MaterialTheme.colorScheme.surfaceContainerHighest
-                        } else {
-                            MaterialTheme.colorScheme.primaryContainer
+                        color = when {
+                            app.isUninstalled -> MaterialTheme.colorScheme.tertiaryContainer
+                            app.isStopped -> MaterialTheme.colorScheme.surfaceContainerHighest
+                            else -> MaterialTheme.colorScheme.primaryContainer
                         }
                     ) {
                         Text(
-                            text = if (app.isStopped) "STOPPED" else "RUNNING",
+                            text = when {
+                                app.isUninstalled -> "UNINSTALLED"
+                                app.isStopped -> "STOPPED"
+                                else -> "RUNNING"
+                            },
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
-                            color = if (app.isStopped) {
-                                MaterialTheme.colorScheme.outline
-                            } else {
-                                MaterialTheme.colorScheme.primary
+                            color = when {
+                                app.isUninstalled -> MaterialTheme.colorScheme.onTertiaryContainer
+                                app.isStopped -> MaterialTheme.colorScheme.outline
+                                else -> MaterialTheme.colorScheme.primary
                             },
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                         )
@@ -440,90 +489,164 @@ fun AppStopperScreen(
 
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
-                // Actions List
-                ListItem(
-                    supportingContent = { Text("Go to system settings to force stop this app") },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
+                if (app.isUninstalled) {
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "This app is uninstalled. Osyster keeps its ghost entry and will automatically resume monitoring when reinstalled.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(12.dp)
                         )
-                    },
-                    modifier = Modifier.combinedClickable(
-                        onClick = {
-                            selectedAppForOptions = null
-                            AppStopperMonitor.openAppInfo(context, app.packageName)
-                        }
-                    ),
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                ) {
-                    Text("Open App Info (Force Stop)", fontWeight = FontWeight.Bold)
-                }
+                    }
 
-                ListItem(
-                    supportingContent = { Text("Open application main activity") },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.secondary
-                        )
-                    },
-                    modifier = Modifier.combinedClickable(
-                        onClick = {
-                            selectedAppForOptions = null
-                            AppStopperMonitor.launchApp(context, app.packageName)
-                        }
-                    ),
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                ) {
-                    Text("Launch Application", fontWeight = FontWeight.Bold)
-                }
+                    ListItem(
+                        supportingContent = { Text("Open Google Play Store to reinstall") },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Default.Shop,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        },
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .combinedClickable(
+                                onClick = {
+                                    selectedAppForOptions = null
+                                    AppStopperMonitor.openInPlayStore(context, app.packageName)
+                                }
+                            ),
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    ) {
+                        Text("Install from Play Store", fontWeight = FontWeight.Bold)
+                    }
 
-                ListItem(
-                    supportingContent = { Text("Open Google Play Store listing") },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Default.Shop,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.tertiary
+                    ListItem(
+                        supportingContent = { Text("Stop monitoring and remove ghost app") },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Default.DeleteOutline,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        },
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .combinedClickable(
+                                onClick = {
+                                    selectedAppForOptions = null
+                                    manager.removeManagedStopPackage(app.packageName)
+                                    AppStopperMonitor.removeAppLabel(context, app.packageName)
+                                    reloadApps()
+                                }
+                            ),
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    ) {
+                        Text(
+                            "Remove from List",
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error
                         )
-                    },
-                    modifier = Modifier.combinedClickable(
-                        onClick = {
-                            selectedAppForOptions = null
-                            AppStopperMonitor.openInPlayStore(context, app.packageName)
-                        }
-                    ),
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                ) {
-                    Text("View in Play Store", fontWeight = FontWeight.Bold)
-                }
+                    }
+                } else {
+                    // Actions List for Installed App
+                    ListItem(
+                        supportingContent = { Text("Go to system settings to force stop this app") },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        },
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .combinedClickable(
+                                onClick = {
+                                    selectedAppForOptions = null
+                                    AppStopperMonitor.openAppInfo(context, app.packageName)
+                                }
+                            ),
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    ) {
+                        Text("Open App Info (Force Stop)", fontWeight = FontWeight.Bold)
+                    }
 
-                ListItem(
-                    supportingContent = { Text("Stop monitoring this application in Osyster") },
-                    leadingContent = {
-                        Icon(
-                            imageVector = Icons.Default.DeleteOutline,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error
+                    ListItem(
+                        supportingContent = { Text("Open application main activity") },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.secondary
+                            )
+                        },
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .combinedClickable(
+                                onClick = {
+                                    selectedAppForOptions = null
+                                    AppStopperMonitor.launchApp(context, app.packageName)
+                                }
+                            ),
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    ) {
+                        Text("Launch Application", fontWeight = FontWeight.Bold)
+                    }
+
+                    ListItem(
+                        supportingContent = { Text("Open Google Play Store listing") },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Default.Shop,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary
+                            )
+                        },
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .combinedClickable(
+                                onClick = {
+                                    selectedAppForOptions = null
+                                    AppStopperMonitor.openInPlayStore(context, app.packageName)
+                                }
+                            ),
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    ) {
+                        Text("View in Play Store", fontWeight = FontWeight.Bold)
+                    }
+
+                    ListItem(
+                        supportingContent = { Text("Stop monitoring this application in Osyster") },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Default.DeleteOutline,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        },
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .combinedClickable(
+                                onClick = {
+                                    selectedAppForOptions = null
+                                    manager.removeManagedStopPackage(app.packageName)
+                                    AppStopperMonitor.removeAppLabel(context, app.packageName)
+                                    reloadApps()
+                                }
+                            ),
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    ) {
+                        Text(
+                            "Remove from List",
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error
                         )
-                    },
-                    modifier = Modifier.combinedClickable(
-                        onClick = {
-                            selectedAppForOptions = null
-                            manager.removeManagedStopPackage(app.packageName)
-                            reloadApps()
-                        }
-                    ),
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                ) {
-                    Text(
-                        "Remove from List",
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -574,12 +697,13 @@ private fun ManagedAppGridItem(
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (app.isStopped) {
-                MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.45f)
-            } else {
-                MaterialTheme.colorScheme.surfaceContainerHigh
+            containerColor = when {
+                app.isUninstalled -> MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.5f)
+                app.isStopped -> MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.45f)
+                else -> MaterialTheme.colorScheme.surfaceContainerHigh
             }
         ),
+        border = if (app.isUninstalled) BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)) else null,
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
@@ -602,7 +726,22 @@ private fun ManagedAppGridItem(
             verticalArrangement = Arrangement.Center
         ) {
             // Icon
-            if (bitmap != null) {
+            if (app.isUninstalled) {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
+                    modifier = Modifier.size(iconSize)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Android,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                            modifier = Modifier.size(iconSize * 0.65f)
+                        )
+                    }
+                }
+            } else if (bitmap != null) {
                 Image(
                     bitmap = bitmap.asImageBitmap(),
                     contentDescription = null,
@@ -629,8 +768,8 @@ private fun ManagedAppGridItem(
             Text(
                 text = app.label,
                 style = MaterialTheme.typography.labelSmall,
-                fontWeight = if (app.isStopped) FontWeight.Normal else FontWeight.Bold,
-                color = if (app.isStopped) {
+                fontWeight = if (app.isStopped || app.isUninstalled) FontWeight.Normal else FontWeight.Bold,
+                color = if (app.isStopped || app.isUninstalled) {
                     MaterialTheme.colorScheme.outline
                 } else {
                     MaterialTheme.colorScheme.onSurface
@@ -644,12 +783,16 @@ private fun ManagedAppGridItem(
 
             // Status Text
             Text(
-                text = if (app.isStopped) "Stopped" else "Active",
+                text = when {
+                    app.isUninstalled -> "Ghost"
+                    app.isStopped -> "Stopped"
+                    else -> "Active"
+                },
                 style = MaterialTheme.typography.labelSmall,
-                color = if (app.isStopped) {
-                    MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
-                } else {
-                    MaterialTheme.colorScheme.primary
+                color = when {
+                    app.isUninstalled -> MaterialTheme.colorScheme.tertiary
+                    app.isStopped -> MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+                    else -> MaterialTheme.colorScheme.primary
                 },
                 fontSize = 9.sp
             )
@@ -758,7 +901,10 @@ private fun AddAppsBottomSheet(
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = "" }) {
+                        IconButton(
+                            onClick = { searchQuery = "" },
+                            modifier = Modifier.clip(CircleShape)
+                        ) {
                             Icon(Icons.Default.Close, contentDescription = "Clear")
                         }
                     }
@@ -801,7 +947,7 @@ private fun AddAppsBottomSheet(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator()
+                            LoadingIndicator()
                         }
                     }
 
@@ -840,6 +986,7 @@ private fun AddAppsBottomSheet(
                                     ),
                                     modifier = Modifier
                                         .fillMaxWidth()
+                                        .clip(RoundedCornerShape(16.dp))
                                         .combinedClickable(
                                             onClick = {
                                                 OsysterHapticUtil.performVirtualKey(view, hapticEnabled)

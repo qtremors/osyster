@@ -13,11 +13,13 @@ import androidx.activity.compose.PredictiveBackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -116,16 +118,26 @@ fun OnboardingScreen(
         }
     }
 
+    val backProgress = remember { Animatable(0f) }
+
     PredictiveBackHandler(enabled = pagerState.currentPage > 0) { progressFlow ->
         try {
-            progressFlow.collect { }
+            progressFlow.collect { backEvent ->
+                backProgress.snapTo(backEvent.progress)
+            }
             scope.launch {
                 pagerState.animateScrollToPage(
                     page = pagerState.currentPage - 1,
                     animationSpec = tween(300)
                 )
             }
+            scope.launch {
+                backProgress.animateTo(0f, animationSpec = tween(300))
+            }
         } catch (_: java.util.concurrent.CancellationException) {
+            scope.launch {
+                backProgress.animateTo(0f, animationSpec = tween(200))
+            }
         }
     }
 
@@ -172,6 +184,12 @@ fun OnboardingScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .graphicsLayer {
+                    val p = backProgress.value
+                    scaleX = 1f - (p * 0.04f)
+                    scaleY = 1f - (p * 0.04f)
+                    translationX = p * 36.dp.toPx()
+                }
         ) { page ->
             when (page) {
                 0 -> OnboardingWelcomePage()

@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package dev.qtremors.osyster.ui
 
 import androidx.compose.animation.*
@@ -153,17 +155,15 @@ fun DeviceInfoDashboard(
                     contentAlignment = Alignment.Center
                 ) {
                     val progress = batteryState.levelPercentage / 100f
-                    CircularProgressIndicator(
-                        progress = { progress },
+                    CircularWavyProgressIndicator(
+                        progress = { progress.coerceIn(0f, 1f) },
                         modifier = Modifier.fillMaxSize(),
                         color = when {
                             batteryState.status == "Charging" -> MaterialTheme.colorScheme.primary
                             batteryState.levelPercentage < 20 -> MaterialTheme.colorScheme.tertiary
                             else -> MaterialTheme.colorScheme.primary
                         },
-                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        strokeWidth = 8.dp,
-                        strokeCap = StrokeCap.Round
+                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                     )
 
                     Icon(

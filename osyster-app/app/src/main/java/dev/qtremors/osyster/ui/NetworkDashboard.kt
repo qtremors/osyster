@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package dev.qtremors.osyster.ui
 
 import android.content.Intent
@@ -221,7 +223,9 @@ fun NetworkDashboard(
                                     OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
                                     onNavigateBack()
                                 },
-                                modifier = Modifier.size(36.dp)
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -484,7 +488,9 @@ fun NetworkDashboard(
                             }
                             targetDateMillis = cal.timeInMillis
                         },
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.Default.ChevronLeft,
@@ -496,18 +502,24 @@ fun NetworkDashboard(
 
                     Spacer(modifier = Modifier.width(10.dp))
 
-                    Text(
-                        text = dateLabel,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.clickable {
+                    Surface(
+                        onClick = {
                             if (!isCurrentPeriod) {
                                 OsysterHapticUtil.performTick(view, hapticEnabled)
                                 targetDateMillis = System.currentTimeMillis()
                             }
-                        }
-                    )
+                        },
+                        shape = RoundedCornerShape(100),
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ) {
+                        Text(
+                            text = dateLabel,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.width(10.dp))
 
@@ -525,7 +537,9 @@ fun NetworkDashboard(
                             }
                         },
                         enabled = !isCurrentPeriod,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.Default.ChevronRight,
@@ -1037,9 +1051,8 @@ fun NetworkDashboard(
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp,
+                            CircularWavyProgressIndicator(
+                                modifier = Modifier.size(18.dp),
                                 color = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -1051,7 +1064,9 @@ fun NetworkDashboard(
                                 isSearchActive = !isSearchActive
                                 if (!isSearchActive) searchQuery = ""
                             },
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
                         ) {
                             Icon(
                                 imageVector = if (isSearchActive) Icons.Default.Close else Icons.Default.Search,
@@ -1202,11 +1217,10 @@ private fun AppUsageItem(
     }
 
     Card(
+        onClick = onClick,
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier

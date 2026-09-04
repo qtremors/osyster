@@ -1,8 +1,19 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.0.7
+> **Version:** 0.0.8
 > **Last Updated:** 2026-09-04
+
+---
+
+## [0.0.8] - 2026-09-04
+
+- **Material 3 Expressive System & Tokens**: Integrated expressive motion scheme, complete surface container palettes, and morphing loading indicators.
+- **Touch & Hover Shape Alignment**: Bounded ripples and hover feedback across cards, dock navigation pills, and lists to exact corner geometries.
+- **Expressive Wavy Progress Gauges**: Converted circular and linear indicators across CPU, RAM, SWAP, Battery, and Network to expressive wavy bars and rings.
+- **Connected Toggle Button Switcher**: Modernized Telemetry tab switching to the Material 3 Expressive connected button group standard.
+- **App Stopper Ghost Apps & Count Sync**: Preserved uninstalled apps as ghost entries with Play Store reinstall shortcuts and live dashboard count updates.
+- **Predictive Back & Dock Motion**: Added tactile gesture previews, sequential back navigation, and smooth floating dock enter/exit transitions.
 
 ---
 
