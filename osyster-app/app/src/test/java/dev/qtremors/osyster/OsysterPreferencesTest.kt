@@ -22,6 +22,7 @@ class OsysterPreferencesTest {
         assertEquals(DiagnosticsInterval.INTERVAL_1000MS, state.diagnosticsInterval)
         assertEquals(TemperatureUnit.CELSIUS, state.temperatureUnit)
         assertFalse(state.showKernelThreads)
+        assertFalse(state.isOnboardingCompleted)
     }
 
     @Test

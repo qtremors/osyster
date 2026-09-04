@@ -5,6 +5,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface AppRoutes {
     @Serializable
+    data object Onboarding : AppRoutes
+
+    @Serializable
     data object Bento : AppRoutes
 
     @Serializable

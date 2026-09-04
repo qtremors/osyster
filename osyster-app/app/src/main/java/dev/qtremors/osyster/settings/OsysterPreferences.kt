@@ -60,7 +60,8 @@ data class OsysterPreferencesState(
     val hapticFeedback: Boolean = true,
     val diagnosticsInterval: DiagnosticsInterval = DiagnosticsInterval.INTERVAL_1000MS,
     val temperatureUnit: TemperatureUnit = TemperatureUnit.CELSIUS,
-    val showKernelThreads: Boolean = false
+    val showKernelThreads: Boolean = false,
+    val isOnboardingCompleted: Boolean = false
 )
 
 // =========================================================================
@@ -90,7 +91,8 @@ class OsysterPreferencesManager(context: Context) {
             hapticFeedback = prefs.getBoolean(KEY_HAPTIC_FEEDBACK, true),
             diagnosticsInterval = runCatching { DiagnosticsInterval.valueOf(intervalStr) }.getOrDefault(DiagnosticsInterval.INTERVAL_1000MS),
             temperatureUnit = runCatching { TemperatureUnit.valueOf(tempUnitStr) }.getOrDefault(TemperatureUnit.CELSIUS),
-            showKernelThreads = prefs.getBoolean(KEY_SHOW_KERNEL_THREADS, false)
+            showKernelThreads = prefs.getBoolean(KEY_SHOW_KERNEL_THREADS, false),
+            isOnboardingCompleted = prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false)
         )
     }
 
@@ -129,6 +131,11 @@ class OsysterPreferencesManager(context: Context) {
         _state.value = _state.value.copy(showKernelThreads = enabled)
     }
 
+    fun setOnboardingCompleted(completed: Boolean) {
+        prefs.edit().putBoolean(KEY_ONBOARDING_COMPLETED, completed).apply()
+        _state.value = _state.value.copy(isOnboardingCompleted = completed)
+    }
+
     companion object {
         private const val PREFS_NAME = "osyster_settings_prefs"
         private const val KEY_THEME_MODE = "theme_mode"
@@ -138,6 +145,7 @@ class OsysterPreferencesManager(context: Context) {
         private const val KEY_DIAGNOSTICS_INTERVAL = "diagnostics_interval"
         private const val KEY_TEMP_UNIT = "temperature_unit"
         private const val KEY_SHOW_KERNEL_THREADS = "show_kernel_threads"
+        private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
 
         @Volatile
         private var instance: OsysterPreferencesManager? = null

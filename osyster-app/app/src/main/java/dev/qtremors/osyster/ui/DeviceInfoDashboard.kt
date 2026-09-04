@@ -212,6 +212,6 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
             InfoRow("Bootloader Release", android.os.Build.BOOTLOADER, InfoGroupPosition.Bottom)
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(110.dp))
     }
 }

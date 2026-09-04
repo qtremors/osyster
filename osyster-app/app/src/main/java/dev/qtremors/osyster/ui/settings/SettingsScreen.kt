@@ -102,7 +102,7 @@ fun SettingsScreen(
                 .padding(horizontal = 16.dp),
             contentPadding = PaddingValues(
                 top = 16.dp,
-                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 24.dp
+                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 110.dp
             ),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {

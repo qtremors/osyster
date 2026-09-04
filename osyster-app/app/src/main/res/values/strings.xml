@@ -86,4 +86,29 @@
     <string name="credit_kotlin_title">Kotlin &amp; JetBrains</string>
     <string name="credit_kotlin_desc">Kotlin programming language, Coroutines, and Serialization</string>
     <string name="section_libraries">Open Source Libraries</string>
+
+    <!-- Onboarding Flow -->
+    <string name="onboarding_welcome_title">Welcome to Osyster</string>
+    <string name="onboarding_welcome_subtitle">Private, real-time Android system telemetry and hardware diagnostics.</string>
+    <string name="onboarding_feature_offline">100% Offline</string>
+    <string name="onboarding_feature_offline_desc">Zero network permissions requested. No telemetry leaves your device.</string>
+    <string name="onboarding_feature_kernel">Direct Kernel Telemetry</string>
+    <string name="onboarding_feature_kernel_desc">Live CPU frequencies, cluster loads, and memory pools from /proc.</string>
+    <string name="onboarding_feature_thermal">Thermal &amp; Sensor Readouts</string>
+    <string name="onboarding_feature_thermal_desc">Real-time temperature readouts across SoC and hardware zones.</string>
+    <string name="onboarding_feature_transparent">Open &amp; Transparent</string>
+    <string name="onboarding_feature_transparent_desc">Zero analytics frameworks, ad networks, or background trackers.</string>
+
+    <string name="onboarding_permissions_title">System Access</string>
+    <string name="onboarding_permissions_subtitle">Optional elevated access to unlock advanced telemetry features.</string>
+    <string name="onboarding_permissions_optional_notice">Both permissions are optional. Core diagnostics work offline without them.</string>
+    <string name="onboarding_perm_notifications_title">Notifications</string>
+    <string name="onboarding_perm_notifications_desc">Live status bar readouts and thermal alerts</string>
+    <string name="onboarding_perm_usage_title">Usage Access</string>
+    <string name="onboarding_perm_usage_desc">Per-app memory and CPU resource attribution</string>
+    <string name="onboarding_perm_grant">Grant</string>
+    <string name="onboarding_perm_granted">Enabled</string>
+
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_launch">Launch Dashboard</string>
 </resources>

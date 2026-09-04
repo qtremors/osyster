@@ -278,7 +278,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(110.dp))
     }
 }
 

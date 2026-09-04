@@ -1,8 +1,18 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.0.4
+> **Version:** 0.0.5
 > **Last Updated:** 2026-09-04
+
+---
+
+## [0.0.5] - 2026-09-04
+
+- **Streamlined 2-Page Onboarding Flow**: Added a focused first-run onboarding experience with an overview page highlighting offline privacy and kernel telemetry, followed by an elevated permissions page with feature dependency unlock lists for notifications and usage access.
+- **Floating Dock Navigation Shell & Subpage Alignment**: Replaced the static bottom navigation bar with a floating dock container featuring spring-animated expanding pill indicators, docked contextual actions, and vertically centered back navigation with title marquee labels on subpages.
+- **Streamlined 3-Tab Architecture**: Consolidated core monitoring screens into three focused destinations (Dashboard, Telemetry, and Tasks) with a unified CPU/RAM segmented switcher in Telemetry.
+- **Predictive Back Navigation & Gestures**: Connected the core dashboards via a gesture-driven horizontal pager with predictive back navigation returning to the Bento dashboard with depth scaling.
+- **Tactile Rotary Haptics**: Implemented rotary bucketed haptic feedback during page swipe transitions and crisp virtual key feedback on tab switches, integrated with user haptic preferences.
 
 ---
 
