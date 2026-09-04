@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.BatteryStd
@@ -16,10 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.qtremors.osyster.R
 import dev.qtremors.osyster.monitor.BatteryState
 import dev.qtremors.osyster.monitor.SystemMonitor
+import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 import kotlinx.coroutines.flow.collectLatest
 import java.util.Locale
 
@@ -76,7 +81,12 @@ fun InfoRow(
 }
 
 @Composable
-fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
+fun DeviceInfoDashboard(
+    modifier: Modifier = Modifier,
+    onNavigateBack: (() -> Unit)? = null,
+    hapticEnabled: Boolean = true
+) {
+    val view = LocalView.current
     val context = LocalContext.current
     var batteryState by remember { mutableStateOf(SystemMonitor.getBatteryState(context)) }
 
@@ -93,7 +103,38 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Top Header Row: Back & Title
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (onNavigateBack != null) {
+                IconButton(
+                    onClick = {
+                        OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
+                        onNavigateBack()
+                    },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+            }
+            Text(
+                text = stringResource(R.string.device_specs_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
 
         // Battery level dial card
         Card(
@@ -121,7 +162,7 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
                             else -> MaterialTheme.colorScheme.primary
                         },
                         trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        strokeWidth = 6.dp,
+                        strokeWidth = 8.dp,
                         strokeCap = StrokeCap.Round
                     )
 
@@ -212,6 +253,6 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
             InfoRow("Bootloader Release", android.os.Build.BOOTLOADER, InfoGroupPosition.Bottom)
         }
 
-        Spacer(modifier = Modifier.height(110.dp))
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }

@@ -1,8 +1,10 @@
 package dev.qtremors.osyster.ui
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -10,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -240,11 +243,90 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                     color = MaterialTheme.colorScheme.secondary
                 )
 
+                // Segmented Multi-Color Allocation Bar
+                val totalRam = memoryState.ramTotalKb.coerceAtLeast(1L).toFloat()
+                val usedRatio = (memoryState.ramUsedKb.toFloat() / totalRam).coerceAtLeast(0.001f)
+                val cachedRatio = (memoryState.ramCachedKb.toFloat() / totalRam).coerceAtLeast(0.001f)
+                val buffersRatio = (memoryState.ramBuffersKb.toFloat() / totalRam).coerceAtLeast(0.001f)
+                val freeRatio = (memoryState.ramFreeKb.toFloat() / totalRam).coerceAtLeast(0.001f)
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(3.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(usedRatio)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(cachedRatio)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.tertiary)
+                    )
+                    if (memoryState.ramBuffersKb > 0) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(buffersRatio)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.secondary)
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(freeRatio)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.12f))
+                    )
+                }
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Cached Space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                        )
+                        Text("Active Memory", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    }
+                    Text(
+                        text = formatKb(memoryState.ramUsedKb),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.tertiary)
+                        )
+                        Text("Cached Space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    }
                     Text(
                         text = formatKb(memoryState.ramCachedKb),
                         style = MaterialTheme.typography.bodyMedium,
@@ -256,7 +338,18 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Buffers", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.secondary)
+                        )
+                        Text("Buffers", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    }
                     Text(
                         text = formatKb(memoryState.ramBuffersKb),
                         style = MaterialTheme.typography.bodyMedium,
@@ -268,7 +361,18 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Free Space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.25f))
+                        )
+                        Text("Free Space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    }
                     Text(
                         text = formatKb(memoryState.ramFreeKb),
                         style = MaterialTheme.typography.bodyMedium,

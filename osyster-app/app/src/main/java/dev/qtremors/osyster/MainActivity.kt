@@ -38,6 +38,7 @@ import dev.qtremors.osyster.navigation.AppRoutes
 import dev.qtremors.osyster.settings.OsysterPreferencesManager
 import dev.qtremors.osyster.ui.BentoDashboard
 import dev.qtremors.osyster.ui.DeviceInfoDashboard
+import dev.qtremors.osyster.ui.NetworkDashboard
 import dev.qtremors.osyster.ui.ProcessDashboard
 import dev.qtremors.osyster.ui.TelemetryDashboard
 import dev.qtremors.osyster.ui.navigation.OsysterDock
@@ -77,7 +78,8 @@ class MainActivity : ComponentActivity() {
                 val isSettings = currentDestination?.hasRoute(AppRoutes.Settings::class) == true || currentRoute?.contains("Settings") == true
                 val isAbout = currentDestination?.hasRoute(AppRoutes.About::class) == true || currentRoute?.contains("About") == true
                 val isLicenses = currentDestination?.hasRoute(AppRoutes.Licenses::class) == true || currentRoute?.contains("Licenses") == true
-                val isSubpage = isDeviceInfo || isSettings || isAbout || isLicenses
+                val isNetwork = currentDestination?.hasRoute(AppRoutes.Network::class) == true || currentRoute?.contains("Network") == true
+                val isSubpage = isDeviceInfo || isSettings || isAbout || isLicenses || isNetwork
 
                 val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
                 val scope = rememberCoroutineScope()
@@ -204,7 +206,10 @@ class MainActivity : ComponentActivity() {
                                     .fillMaxSize()
                                     .statusBarsPadding()
                             ) {
-                                DeviceInfoDashboard()
+                                DeviceInfoDashboard(
+                                    onNavigateBack = { navController.navigateUp() },
+                                    hapticEnabled = prefsState.hapticFeedback
+                                )
                             }
                         }
                         composable<AppRoutes.Settings> {
@@ -226,42 +231,22 @@ class MainActivity : ComponentActivity() {
                                 onNavigateBack = { navController.navigateUp() }
                             )
                         }
+                        composable<AppRoutes.Network> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .statusBarsPadding()
+                            ) {
+                                NetworkDashboard(
+                                    onNavigateBack = { navController.navigateUp() },
+                                    hapticEnabled = prefsState.hapticFeedback
+                                )
+                            }
+                        }
                     }
 
                     when {
-                        isOnboarding -> Unit
-                        isDeviceInfo -> {
-                            OsysterDock(
-                                modifier = Modifier.align(Alignment.BottomCenter),
-                                title = "Device Specifications",
-                                onBackClick = { navController.navigateUp() },
-                                hapticEnabled = prefsState.hapticFeedback
-                            )
-                        }
-                        isSettings -> {
-                            OsysterDock(
-                                modifier = Modifier.align(Alignment.BottomCenter),
-                                title = stringResource(R.string.settings_title),
-                                onBackClick = { navController.navigateUp() },
-                                hapticEnabled = prefsState.hapticFeedback
-                            )
-                        }
-                        isAbout -> {
-                            OsysterDock(
-                                modifier = Modifier.align(Alignment.BottomCenter),
-                                title = stringResource(R.string.about_title),
-                                onBackClick = { navController.navigateUp() },
-                                hapticEnabled = prefsState.hapticFeedback
-                            )
-                        }
-                        isLicenses -> {
-                            OsysterDock(
-                                modifier = Modifier.align(Alignment.BottomCenter),
-                                title = stringResource(R.string.licenses_title),
-                                onBackClick = { navController.navigateUp() },
-                                hapticEnabled = prefsState.hapticFeedback
-                            )
-                        }
+                        isOnboarding || isSubpage -> Unit
                         else -> {
                             val dockItems = remember {
                                 listOf(

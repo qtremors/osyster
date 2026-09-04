@@ -46,6 +46,7 @@
     <string name="section_info">Info</string>
     <string name="about_headline">About Osyster</string>
     <string name="about_description">App info, device specifications, privacy, and licenses</string>
+    <string name="device_specs_title">Device Specifications</string>
 
     <!-- About Screen -->
     <string name="about_title">About</string>
@@ -111,4 +112,35 @@
 
     <string name="onboarding_continue">Continue</string>
     <string name="onboarding_launch">Launch Dashboard</string>
+
+    <!-- Network & Data Usage Monitoring -->
+    <string name="network_title">Network Usage</string>
+    <string name="network_interval_day">Day</string>
+    <string name="network_interval_week">Week</string>
+    <string name="network_interval_month">Month</string>
+    <string name="network_filter_all">Mobile and Wi-Fi</string>
+    <string name="network_filter_mobile">Mobile</string>
+    <string name="network_filter_wifi">Wi-Fi</string>
+    <string name="network_download">Download</string>
+    <string name="network_upload">Upload</string>
+    <string name="network_mobile_data">Mobile Data</string>
+    <string name="network_wifi_data">Wi-Fi</string>
+    <string name="network_total_data">Total Data</string>
+    <string name="network_card_data_usage">Data Usage</string>
+    <string name="network_search_hint">Search applications...</string>
+    <string name="network_no_data">No network usage recorded for this period</string>
+    <string name="network_perm_title">Usage Access Required</string>
+    <string name="network_perm_desc">Android requires Usage Access permission to read historical and per-app network consumption statistics.</string>
+    <string name="network_perm_grant">Grant Usage Access</string>
+    <string name="network_bento_title">Network Traffic</string>
+    <string name="network_app_details">Application Details</string>
+    <string name="network_app_info">App Settings</string>
+    <string name="network_system_app">System Application</string>
+    <string name="network_phone_perm_title">Cellular Attribution Permission</string>
+    <string name="network_phone_perm_desc">Android requires Phone permission to read cellular network statistics per application.</string>
+    <string name="network_phone_perm_grant">Grant Phone Permission</string>
+    <string name="network_traffic_wifi">Wi-Fi Traffic</string>
+    <string name="network_traffic_mobile">Mobile Data</string>
+    <string name="network_label_wifi_today">Wi-Fi • Today</string>
+    <string name="network_label_mobile_today">Mobile • Today</string>
 </resources>

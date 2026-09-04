@@ -116,7 +116,7 @@ fun LicensesScreen(
                 .padding(horizontal = 16.dp),
             contentPadding = PaddingValues(
                 top = 16.dp,
-                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 110.dp
+                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
             ),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {

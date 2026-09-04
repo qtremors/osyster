@@ -6,16 +6,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.BatteryStd
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.SignalCellularAlt
 import androidx.compose.material.icons.filled.Thermostat
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,11 +34,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.qtremors.osyster.monitor.BatteryState
 import dev.qtremors.osyster.monitor.CpuState
 import dev.qtremors.osyster.monitor.MemoryState
+import dev.qtremors.osyster.monitor.NetworkInterval
+import dev.qtremors.osyster.monitor.NetworkInterfaceFilter
+import dev.qtremors.osyster.monitor.NetworkMonitor
+import dev.qtremors.osyster.monitor.RealtimeSpeed
 import dev.qtremors.osyster.monitor.SystemMonitor
 import dev.qtremors.osyster.navigation.AppRoutes
+import dev.qtremors.osyster.settings.OsysterPreferencesManager
 import kotlinx.coroutines.flow.collectLatest
 import java.util.Locale
 
@@ -47,47 +57,69 @@ fun OysterArcGauge(
     percentage: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
-    trackColor: Color = Color.White.copy(alpha = 0.08f),
-    strokeWidth: Float = 22f
+    trackColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+    strokeWidth: androidx.compose.ui.unit.Dp = 8.dp
 ) {
-    Canvas(modifier = modifier) {
-        val radius = size.minDimension / 2.0f - strokeWidth / 2.0f
-        val center = Offset(size.width / 2.0f, size.height / 2.0f)
-
-        // Draw track circle
-        drawCircle(
-            color = trackColor,
-            radius = radius,
-            center = center,
-            style = Stroke(width = strokeWidth)
-        )
-
-        // Draw active arc with rounded edges
-        val sweepAngle = (percentage.coerceIn(0f, 100f) / 100f) * 360f
-        drawArc(
-            color = color,
-            startAngle = -90f,
-            sweepAngle = sweepAngle,
-            useCenter = false,
-            style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-        )
-    }
+    CircularProgressIndicator(
+        progress = { percentage.coerceIn(0f, 100f) / 100f },
+        modifier = modifier,
+        color = color,
+        trackColor = trackColor,
+        strokeWidth = strokeWidth,
+        strokeCap = StrokeCap.Round
+    )
 }
 
 // =========================================================================
 // Section Comment: Bento Grid Layout Dashboard Screen
 // =========================================================================
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun BentoDashboard(
     onNavigateTo: (AppRoutes) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val preferencesManager = remember { OsysterPreferencesManager.getInstance(context) }
+    val prefsState by preferencesManager.state.collectAsStateWithLifecycle()
+
     var cpuState by remember { mutableStateOf(SystemMonitor.getCpuState()) }
     var memoryState by remember { mutableStateOf(SystemMonitor.getMemoryState()) }
     var batteryState by remember { mutableStateOf(SystemMonitor.getBatteryState(context)) }
     var processesCount by remember { mutableIntStateOf(0) }
+    val realtimeSpeed by remember { NetworkMonitor.streamRealtimeSpeed() }
+        .collectAsStateWithLifecycle(initialValue = RealtimeSpeed(0L, 0L))
+    var activeNetworkType by remember { mutableStateOf(NetworkMonitor.getActiveNetworkType(context)) }
+    var todayNetworkTotal by remember { mutableStateOf("") }
+    var todayNetworkLabel by remember { mutableStateOf("Today") }
+
+    LaunchedEffect(Unit) {
+        if (NetworkMonitor.hasUsageAccess(context)) {
+            val summary = NetworkMonitor.queryNetworkUsage(
+                context = context,
+                interval = NetworkInterval.DAY,
+                filter = NetworkInterfaceFilter.ALL,
+                targetDateMillis = System.currentTimeMillis()
+            )
+            val currentType = NetworkMonitor.getActiveNetworkType(context)
+            activeNetworkType = currentType
+            when (currentType) {
+                NetworkInterfaceFilter.MOBILE -> {
+                    todayNetworkTotal = NetworkMonitor.formatBytes(summary.mobileBytes)
+                    todayNetworkLabel = "Mobile • Today"
+                }
+                NetworkInterfaceFilter.WIFI -> {
+                    todayNetworkTotal = NetworkMonitor.formatBytes(summary.wifiBytes)
+                    todayNetworkLabel = "Wi-Fi • Today"
+                }
+                NetworkInterfaceFilter.ALL -> {
+                    todayNetworkTotal = NetworkMonitor.formatBytes(summary.totalBytes)
+                    todayNetworkLabel = "Today"
+                }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         // Collect diagnostic updates concurrently
@@ -318,11 +350,25 @@ fun BentoDashboard(
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = if (batteryState.status == "Charging") Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = if (batteryState.status == "Charging") Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                        if (batteryState.tempCelsius > 0f) {
+                            Text(
+                                text = prefsState.temperatureUnit.format(batteryState.tempCelsius),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                    }
                     Text(
                         text = "Battery Power",
                         style = MaterialTheme.typography.bodyMedium,
@@ -334,9 +380,108 @@ fun BentoDashboard(
                         fontWeight = FontWeight.Black
                     )
                     Text(
-                        text = batteryState.status,
+                        text = if (batteryState.powerSource.isNotBlank() && batteryState.powerSource != "Battery") {
+                            "${batteryState.status} • ${batteryState.powerSource}"
+                        } else {
+                            batteryState.status
+                        },
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+        }
+
+        // Network Traffic Bento Block
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onNavigateTo(AppRoutes.Network) }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        shape = CircleShape,
+                        color = when (activeNetworkType) {
+                            NetworkInterfaceFilter.MOBILE -> Color(0xFFFFB300).copy(alpha = 0.2f)
+                            else -> MaterialTheme.colorScheme.primaryContainer
+                        },
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = when (activeNetworkType) {
+                                    NetworkInterfaceFilter.MOBILE -> Icons.Default.SignalCellularAlt
+                                    else -> Icons.Default.Wifi
+                                },
+                                contentDescription = null,
+                                tint = when (activeNetworkType) {
+                                    NetworkInterfaceFilter.MOBILE -> Color(0xFFFFB300)
+                                    else -> MaterialTheme.colorScheme.primary
+                                },
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column {
+                        Text(
+                            text = when (activeNetworkType) {
+                                NetworkInterfaceFilter.MOBILE -> "Mobile Data"
+                                NetworkInterfaceFilter.WIFI -> "Wi-Fi Traffic"
+                                else -> "Network Traffic"
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "↓ ${NetworkMonitor.formatSpeed(realtimeSpeed.rxBytesPerSec)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF00E6FF)
+                            )
+                            Text(
+                                text = "↑ ${NetworkMonitor.formatSpeed(realtimeSpeed.txBytesPerSec)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF00E676)
+                            )
+                        }
+                    }
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (todayNetworkTotal.isNotEmpty()) {
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(
+                                text = todayNetworkTotal,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Black,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = todayNetworkLabel,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }

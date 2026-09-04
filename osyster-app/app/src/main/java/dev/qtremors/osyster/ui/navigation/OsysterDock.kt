@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 
@@ -34,6 +35,7 @@ fun OsysterDock(
     title: String? = null,
     onBackClick: (() -> Unit)? = null,
     floatingActionButton: (@Composable () -> Unit)? = null,
+    actionButton: (@Composable () -> Unit)? = null,
     hapticEnabled: Boolean = true,
     expanded: Boolean = true
 ) {
@@ -54,40 +56,40 @@ fun OsysterDock(
                     onBackClick()
                 },
                 modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .size(44.dp),
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    .size(44.dp)
+                    .align(Alignment.CenterVertically),
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
+                    contentColor = MaterialTheme.colorScheme.onSurface
                 )
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
 
             if (!title.isNullOrBlank()) {
-                Spacer(modifier = Modifier.width(8.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .height(44.dp)
-                        .widthIn(min = 60.dp, max = 220.dp)
-                        .padding(horizontal = 4.dp)
-                ) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        modifier = Modifier
-                            .basicMarquee()
-                            .weight(1f, fill = false)
-                    )
+                        .widthIn(max = (screenWidth - 140).coerceAtLeast(100).dp)
+                        .padding(start = 2.dp, end = if (actionButton == null) 14.dp else 4.dp)
+                        .basicMarquee()
+                )
+            }
+
+            if (actionButton != null) {
+                Spacer(modifier = Modifier.width(6.dp))
+                Box(modifier = Modifier.align(Alignment.CenterVertically)) {
+                    actionButton()
                 }
             }
         } else {
@@ -104,7 +106,7 @@ fun OsysterDock(
                 )
 
                 val labelWidth by animateDpAsState(
-                    targetValue = if (isSelected && !shouldHideLabel) 76.dp else 0.dp,
+                    targetValue = if (isSelected && !shouldHideLabel) 70.dp else 0.dp,
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
                         stiffness = Spring.StiffnessLow
@@ -177,7 +179,7 @@ fun OsysterDock(
         modifier = modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(start = 16.dp, end = 16.dp, bottom = 20.dp, top = 8.dp),
         contentAlignment = Alignment.Center
     ) {
         if (floatingActionButton != null && onBackClick == null) {

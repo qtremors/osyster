@@ -1,8 +1,18 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.0.5
+> **Version:** 0.0.6
 > **Last Updated:** 2026-09-04
+
+---
+
+## [0.0.6] - 2026-09-04
+
+- **Network & Wi-Fi Data Usage Monitoring**: Added offline network traffic monitoring with real-time transfer speeds, adaptive dashboard Bento card with active connection detection (Wi-Fi and Mobile Data), interactive daily/weekly/monthly timeline bar charts with dual-color download and upload indicators, curved pill-segmented data usage circle with 4-stat metric grid, and per-application consumption breakdown with interface-specific chip filtering, search, and direct application settings shortcuts.
+- **Standardized Floating Dock Dimensions**: Aligned dock geometry across main navigation and all subpages with uniform 296 dp width, elevation, and centered title balance.
+- **Capsule Pill Metric Gauges**: Refined application breakdown bars, storage meters, and timeline activity slots into smooth rounded capsule pill segments.
+- **Battery Temperature Telemetry on Dashboard**: Added live battery thermal metrics to the Battery Power Bento card, featuring a header temperature badge and combined status readout formatted in the user's preferred temperature unit (Celsius or Fahrenheit).
+- **Expressive Wavy Progress for Dashboard RAM**: Replaced the linear bar in the Active RAM Bento block with a Material 3 Expressive wavy progress indicator.
 
 ---
 

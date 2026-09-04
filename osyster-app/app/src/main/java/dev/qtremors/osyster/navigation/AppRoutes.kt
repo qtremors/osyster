@@ -30,4 +30,7 @@ sealed interface AppRoutes {
 
     @Serializable
     data object Licenses : AppRoutes
+
+    @Serializable
+    data object Network : AppRoutes
 }
