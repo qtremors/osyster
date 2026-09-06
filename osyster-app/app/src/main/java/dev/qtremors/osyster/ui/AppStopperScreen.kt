@@ -9,6 +9,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,28 +33,33 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
+import dev.qtremors.osyster.R
+import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import dev.qtremors.osyster.monitor.AppStopperMonitor
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.tooling.preview.Preview
 import dev.qtremors.osyster.monitor.InstalledAppItem
 import dev.qtremors.osyster.monitor.ManagedAppInfo
 import dev.qtremors.osyster.settings.OsysterPreferencesManager
 import dev.qtremors.osyster.settings.OsysterPreferencesState
+import dev.qtremors.osyster.ui.theme.OsysterTheme
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import dev.qtremors.osyster.ui.util.rememberAsyncAppIcon
+import dev.qtremors.osyster.ui.viewmodel.AppStopperUiState
+import dev.qtremors.osyster.ui.viewmodel.AppStopperViewModel
 
 // =========================================================================
 // Section Comment: App Stopper Screen
 // =========================================================================
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun AppStopperScreen(
     prefsState: OsysterPreferencesState,
@@ -62,56 +68,117 @@ fun AppStopperScreen(
     modifier: Modifier = Modifier,
     showAddSheet: Boolean = false,
     onShowAddSheetChange: (Boolean) -> Unit = {},
-    searchQuery: String = ""
+    searchQuery: String = "",
+    viewModel: AppStopperViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-    val view = LocalView.current
-    val scope = rememberCoroutineScope()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    var managedApps by remember { mutableStateOf<List<ManagedAppInfo>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var localShowAddSheet by remember { mutableStateOf(false) }
-    val isAddSheetOpen = showAddSheet || localShowAddSheet
-    val setAddSheetOpen: (Boolean) -> Unit = { open ->
-        localShowAddSheet = open
-        onShowAddSheetChange(open)
+    LaunchedEffect(searchQuery) {
+        viewModel.setSearchQuery(searchQuery)
     }
-    var selectedAppForOptions by remember { mutableStateOf<ManagedAppInfo?>(null) }
-    var showGridMenu by remember { mutableStateOf(false) }
 
-    val gridColumns = prefsState.appStopperGridColumns.coerceIn(4, 6)
-
-    // Helper to reload managed apps
-    val reloadApps = {
-        scope.launch(Dispatchers.IO) {
-            val list = AppStopperMonitor.loadManagedApps(context, prefsState.managedStopPackages)
-            withContext(Dispatchers.Main) {
-                managedApps = list
-                isLoading = false
-            }
+    LaunchedEffect(showAddSheet) {
+        if (showAddSheet != uiState.showAddSheet) {
+            viewModel.setShowAddSheet(showAddSheet)
         }
     }
 
-    // Refresh automatically whenever the user resumes Osyster (e.g. back from App Info)
     LifecycleResumeEffect(prefsState.managedStopPackages) {
-        reloadApps()
+        viewModel.loadManagedApps(prefsState.managedStopPackages)
         onPauseOrDispose { }
     }
 
-    val filteredApps = remember(managedApps, searchQuery) {
-        if (searchQuery.isBlank()) {
-            managedApps
-        } else {
-            managedApps.filter {
-                it.label.contains(searchQuery, ignoreCase = true) ||
-                        it.packageName.contains(searchQuery, ignoreCase = true)
+    val gridColumns = prefsState.appStopperGridColumns.coerceIn(4, 6)
+
+    AppStopperContent(
+        uiState = uiState,
+        gridColumns = gridColumns,
+        hapticFeedback = prefsState.hapticFeedback,
+        onSetGridColumns = { manager.setAppStopperGridColumns(it) },
+        onOpenAddSheet = {
+            viewModel.setShowAddSheet(true)
+            onShowAddSheetChange(true)
+        },
+        onAppClick = { app ->
+            if (app.isUninstalled) {
+                viewModel.setSelectedAppForOptions(app)
+            } else {
+                viewModel.openAppInfo(app.packageName)
             }
-        }
+        },
+        onAppLongClick = { app ->
+            viewModel.setSelectedAppForOptions(app)
+        },
+        modifier = modifier
+    )
+
+    // Hold Options Bottom Sheet
+    uiState.selectedAppForOptions?.let { app ->
+        AppStopperHoldOptionsSheet(
+            app = app,
+            onDismiss = { viewModel.setSelectedAppForOptions(null) },
+            onOpenAppInfo = { viewModel.openAppInfo(app.packageName) },
+            onLaunchApp = { viewModel.launchApp(app.packageName) },
+            onOpenPlayStore = { viewModel.openInPlayStore(app.packageName) },
+            onRemoveApp = { viewModel.removeManagedApp(app.packageName, manager) }
+        )
     }
 
-    val uninstalledCount = remember(managedApps) { managedApps.count { it.isUninstalled } }
-    val stoppedCount = remember(managedApps) { managedApps.count { it.isStopped && !it.isUninstalled } }
-    val activeCount = remember(managedApps) { managedApps.count { !it.isStopped && !it.isUninstalled } }
+    // Add Apps Bottom Sheet
+    if (uiState.showAddSheet) {
+        LaunchedEffect(uiState.includeSystemApps) {
+            viewModel.loadInstalledApps(
+                alreadyManaged = prefsState.managedStopPackages,
+                includeSystem = uiState.includeSystemApps
+            )
+        }
+
+        AddAppsBottomSheet(
+            installedApps = uiState.installedApps,
+            isLoading = uiState.isInstalledLoading,
+            includeSystemApps = uiState.includeSystemApps,
+            hapticEnabled = prefsState.hapticFeedback,
+            onIncludeSystemAppsChange = { includeSystem ->
+                viewModel.loadInstalledApps(
+                    alreadyManaged = prefsState.managedStopPackages,
+                    includeSystem = includeSystem
+                )
+            },
+            onDismiss = {
+                viewModel.setShowAddSheet(false)
+                onShowAddSheetChange(false)
+            },
+            onAddPackages = { selectedPackages ->
+                viewModel.addManagedPackages(selectedPackages, manager)
+                onShowAddSheetChange(false)
+                viewModel.loadManagedApps(manager.state.value.managedStopPackages)
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun AppStopperContent(
+    uiState: AppStopperUiState,
+    gridColumns: Int,
+    hapticFeedback: Boolean,
+    onSetGridColumns: (Int) -> Unit,
+    onOpenAddSheet: () -> Unit,
+    onAppClick: (ManagedAppInfo) -> Unit,
+    onAppLongClick: (ManagedAppInfo) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+    var showGridMenu by remember { mutableStateOf(false) }
+
+    val managedApps = uiState.managedApps
+    val isLoading = uiState.isLoading
+    val searchQuery = uiState.searchQuery
+    val filteredApps = uiState.filteredApps
+    val uninstalledCount = uiState.uninstalledCount
+    val stoppedCount = uiState.stoppedCount
+    val activeCount = uiState.activeCount
 
     Box(
         modifier = modifier
@@ -155,7 +222,7 @@ fun AppStopperScreen(
                             )
                             Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                text = "$activeCount Active",
+                                text = stringResource(R.string.app_stopper_status_active, activeCount),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -179,7 +246,7 @@ fun AppStopperScreen(
                             )
                             Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                text = "$stoppedCount Stopped",
+                                text = stringResource(R.string.app_stopper_status_stopped, stoppedCount),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.outline
@@ -204,7 +271,7 @@ fun AppStopperScreen(
                                 )
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Text(
-                                    text = "$uninstalledCount Ghost",
+                                    text = stringResource(R.string.app_stopper_status_ghost, uninstalledCount),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onTertiaryContainer
@@ -216,22 +283,29 @@ fun AppStopperScreen(
 
                 // Right: Grid size dropdown button
                 Box {
-                    Surface(
-                        onClick = {
-                            OsysterHapticUtil.performVirtualKey(view, prefsState.hapticFeedback)
-                            showGridMenu = true
-                        },
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        modifier = Modifier.size(28.dp)
+                    Box(
+                        modifier = Modifier
+                            .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                OsysterHapticUtil.performVirtualKey(view, hapticFeedback)
+                                showGridMenu = true
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text(
-                                text = "${gridColumns}x",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Black,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "${gridColumns}x",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Black,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
 
@@ -244,7 +318,7 @@ fun AppStopperScreen(
                             DropdownMenuItem(
                                 text = {
                                     Text(
-                                        text = "$cols Columns",
+                                        text = stringResource(R.string.app_stopper_columns_format, cols),
                                         fontWeight = if (gridColumns == cols) FontWeight.Bold else FontWeight.Normal
                                     )
                                 },
@@ -258,8 +332,8 @@ fun AppStopperScreen(
                                     }
                                 },
                                 onClick = {
-                                    OsysterHapticUtil.performVirtualKey(view, prefsState.hapticFeedback)
-                                    manager.setAppStopperGridColumns(cols)
+                                    OsysterHapticUtil.performVirtualKey(view, hapticFeedback)
+                                    onSetGridColumns(cols)
                                     showGridMenu = false
                                 }
                             )
@@ -313,12 +387,12 @@ fun AppStopperScreen(
                                     }
                                 }
                                 Text(
-                                    text = "No Managed Apps",
+                                    text = stringResource(R.string.app_stopper_empty_title),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "Add apps to monitor their stopped state in a high-density grid. Tap an app to open its App Info and force stop it.",
+                                    text = stringResource(R.string.app_stopper_empty_desc),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.outline,
                                     modifier = Modifier.padding(horizontal = 8.dp),
@@ -327,14 +401,14 @@ fun AppStopperScreen(
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Button(
                                     onClick = {
-                                        OsysterHapticUtil.performVirtualKey(view, prefsState.hapticFeedback)
-                                        setAddSheetOpen(true)
+                                        OsysterHapticUtil.performVirtualKey(view, hapticFeedback)
+                                        onOpenAddSheet()
                                     },
                                     shape = RoundedCornerShape(100)
                                 ) {
                                     Icon(Icons.Default.Add, contentDescription = null)
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Add Applications", fontWeight = FontWeight.Bold)
+                                    Text(stringResource(R.string.app_stopper_add_apps_button), fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -346,7 +420,7 @@ fun AppStopperScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "No apps matching \"$searchQuery\"",
+                                text = stringResource(R.string.app_stopper_no_matching_query, searchQuery),
                                 color = MaterialTheme.colorScheme.outline
                             )
                         }
@@ -357,7 +431,7 @@ fun AppStopperScreen(
                             columns = GridCells.Fixed(gridColumns),
                             contentPadding = PaddingValues(
                                 top = 8.dp,
-                                bottom = 110.dp
+                                bottom = LocalBottomContentPadding.current
                             ),
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -367,17 +441,9 @@ fun AppStopperScreen(
                                 ManagedAppGridItem(
                                     app = app,
                                     columns = gridColumns,
-                                    hapticEnabled = prefsState.hapticFeedback,
-                                    onClick = {
-                                        if (app.isUninstalled) {
-                                            selectedAppForOptions = app
-                                        } else {
-                                            AppStopperMonitor.openAppInfo(context, app.packageName)
-                                        }
-                                    },
-                                    onLongClick = {
-                                        selectedAppForOptions = app
-                                    }
+                                    hapticEnabled = hapticFeedback,
+                                    onClick = { onAppClick(app) },
+                                    onLongClick = { onAppLongClick(app) }
                                 )
                             }
                         }
@@ -386,287 +452,278 @@ fun AppStopperScreen(
             }
         }
     }
+}
 
-    // Hold Options Bottom Sheet
-    selectedAppForOptions?.let { app ->
-        ModalBottomSheet(
-            onDismissRequest = { selectedAppForOptions = null },
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+// =========================================================================
+// Subsection Comment: App Stopper Hold Options Sheet
+// =========================================================================
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun AppStopperHoldOptionsSheet(
+    app: ManagedAppInfo,
+    onDismiss: () -> Unit,
+    onOpenAppInfo: () -> Unit,
+    onLaunchApp: () -> Unit,
+    onOpenPlayStore: () -> Unit,
+    onRemoveApp: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            // Header
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                // Header
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                val bitmap = rememberAsyncAppIcon(app.packageName, app.icon).value
+                if (app.isUninstalled) {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Android,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
+                } else if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap,
+                        contentDescription = null,
+                        colorFilter = if (app.isStopped) {
+                            ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
+                        } else null,
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Android,
+                        contentDescription = null,
+                        modifier = Modifier.size(44.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = app.label,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = app.packageName,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                // Status Pill
+                Surface(
+                    shape = RoundedCornerShape(100),
+                    color = when {
+                        app.isUninstalled -> MaterialTheme.colorScheme.tertiaryContainer
+                        app.isStopped -> MaterialTheme.colorScheme.surfaceContainerHighest
+                        else -> MaterialTheme.colorScheme.primaryContainer
+                    }
+                ) {
+                    Text(
+                        text = when {
+                            app.isUninstalled -> stringResource(R.string.app_stopper_badge_uninstalled)
+                            app.isStopped -> stringResource(R.string.app_stopper_badge_stopped)
+                            else -> stringResource(R.string.app_stopper_badge_running)
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = when {
+                            app.isUninstalled -> MaterialTheme.colorScheme.onTertiaryContainer
+                            app.isStopped -> MaterialTheme.colorScheme.outline
+                            else -> MaterialTheme.colorScheme.primary
+                        },
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    )
+                }
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+
+            if (app.isUninstalled) {
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    val bitmap = remember(app.icon) {
-                        app.icon?.let { runCatching { it.toSafeBitmap() }.getOrNull() }
-                    }
-                    if (app.isUninstalled) {
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
-                            modifier = Modifier.size(44.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Android,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
-                                    modifier = Modifier.size(28.dp)
-                                )
-                            }
-                        }
-                    } else if (bitmap != null) {
-                        Image(
-                            bitmap = bitmap.asImageBitmap(),
-                            contentDescription = null,
-                            colorFilter = if (app.isStopped) {
-                                ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
-                            } else null,
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                        )
-                    } else {
+                    Text(
+                        text = stringResource(R.string.app_stopper_uninstalled_notice),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+
+                ListItem(
+                    supportingContent = { Text(stringResource(R.string.app_stopper_action_reinstall_desc)) },
+                    leadingContent = {
                         Icon(
-                            imageVector = Icons.Default.Android,
+                            imageVector = Icons.Default.Shop,
                             contentDescription = null,
-                            modifier = Modifier.size(44.dp)
+                            tint = MaterialTheme.colorScheme.primary
                         )
-                    }
-
-                    Spacer(modifier = Modifier.width(14.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = app.label,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = app.packageName,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.outline,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-
-                    // Status Pill
-                    Surface(
-                        shape = RoundedCornerShape(100),
-                        color = when {
-                            app.isUninstalled -> MaterialTheme.colorScheme.tertiaryContainer
-                            app.isStopped -> MaterialTheme.colorScheme.surfaceContainerHighest
-                            else -> MaterialTheme.colorScheme.primaryContainer
-                        }
-                    ) {
-                        Text(
-                            text = when {
-                                app.isUninstalled -> "UNINSTALLED"
-                                app.isStopped -> "STOPPED"
-                                else -> "RUNNING"
-                            },
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = when {
-                                app.isUninstalled -> MaterialTheme.colorScheme.onTertiaryContainer
-                                app.isStopped -> MaterialTheme.colorScheme.outline
-                                else -> MaterialTheme.colorScheme.primary
-                            },
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                        )
-                    }
+                    },
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .combinedClickable(
+                            onClick = {
+                                onDismiss()
+                                onOpenPlayStore()
+                            }
+                        ),
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                ) {
+                    Text(stringResource(R.string.app_stopper_action_reinstall), fontWeight = FontWeight.Bold)
                 }
 
-                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-
-                if (app.isUninstalled) {
-                    Card(
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "This app is uninstalled. Osyster keeps its ghost entry and will automatically resume monitoring when reinstalled.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(12.dp)
+                ListItem(
+                    supportingContent = { Text(stringResource(R.string.app_stopper_action_remove_ghost_desc)) },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Default.DeleteOutline,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
                         )
-                    }
-
-                    ListItem(
-                        supportingContent = { Text("Open Google Play Store to reinstall") },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Default.Shop,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .combinedClickable(
-                                onClick = {
-                                    selectedAppForOptions = null
-                                    AppStopperMonitor.openInPlayStore(context, app.packageName)
-                                }
-                            ),
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    ) {
-                        Text("Install from Play Store", fontWeight = FontWeight.Bold)
-                    }
-
-                    ListItem(
-                        supportingContent = { Text("Stop monitoring and remove ghost app") },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Default.DeleteOutline,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        },
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .combinedClickable(
-                                onClick = {
-                                    selectedAppForOptions = null
-                                    manager.removeManagedStopPackage(app.packageName)
-                                    AppStopperMonitor.removeAppLabel(context, app.packageName)
-                                    reloadApps()
-                                }
-                            ),
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    ) {
-                        Text(
-                            "Remove from List",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error
+                    },
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .combinedClickable(
+                            onClick = {
+                                onDismiss()
+                                onRemoveApp()
+                            }
+                        ),
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                ) {
+                    Text(
+                        stringResource(R.string.app_stopper_action_remove),
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            } else {
+                // Actions List for Installed App
+                ListItem(
+                    supportingContent = { Text(stringResource(R.string.app_stopper_action_force_stop_desc)) },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
                         )
-                    }
-                } else {
-                    // Actions List for Installed App
-                    ListItem(
-                        supportingContent = { Text("Go to system settings to force stop this app") },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .combinedClickable(
-                                onClick = {
-                                    selectedAppForOptions = null
-                                    AppStopperMonitor.openAppInfo(context, app.packageName)
-                                }
-                            ),
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    ) {
-                        Text("Open App Info (Force Stop)", fontWeight = FontWeight.Bold)
-                    }
-
-                    ListItem(
-                        supportingContent = { Text("Open application main activity") },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.secondary
-                            )
-                        },
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .combinedClickable(
-                                onClick = {
-                                    selectedAppForOptions = null
-                                    AppStopperMonitor.launchApp(context, app.packageName)
-                                }
-                            ),
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    ) {
-                        Text("Launch Application", fontWeight = FontWeight.Bold)
-                    }
-
-                    ListItem(
-                        supportingContent = { Text("Open Google Play Store listing") },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Default.Shop,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.tertiary
-                            )
-                        },
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .combinedClickable(
-                                onClick = {
-                                    selectedAppForOptions = null
-                                    AppStopperMonitor.openInPlayStore(context, app.packageName)
-                                }
-                            ),
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    ) {
-                        Text("View in Play Store", fontWeight = FontWeight.Bold)
-                    }
-
-                    ListItem(
-                        supportingContent = { Text("Stop monitoring this application in Osyster") },
-                        leadingContent = {
-                            Icon(
-                                imageVector = Icons.Default.DeleteOutline,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        },
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .combinedClickable(
-                                onClick = {
-                                    selectedAppForOptions = null
-                                    manager.removeManagedStopPackage(app.packageName)
-                                    AppStopperMonitor.removeAppLabel(context, app.packageName)
-                                    reloadApps()
-                                }
-                            ),
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    ) {
-                        Text(
-                            "Remove from List",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
+                    },
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .combinedClickable(
+                            onClick = {
+                                onDismiss()
+                                onOpenAppInfo()
+                            }
+                        ),
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                ) {
+                    Text(stringResource(R.string.app_stopper_action_force_stop), fontWeight = FontWeight.Bold)
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                ListItem(
+                    supportingContent = { Text(stringResource(R.string.app_stopper_action_launch_desc)) },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                    },
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .combinedClickable(
+                            onClick = {
+                                onDismiss()
+                                onLaunchApp()
+                            }
+                        ),
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                ) {
+                    Text(stringResource(R.string.app_stopper_action_launch), fontWeight = FontWeight.Bold)
+                }
+
+                ListItem(
+                    supportingContent = { Text(stringResource(R.string.app_stopper_action_store_desc)) },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Default.Shop,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.tertiary
+                        )
+                    },
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .combinedClickable(
+                            onClick = {
+                                onDismiss()
+                                onOpenPlayStore()
+                            }
+                        ),
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                ) {
+                    Text(stringResource(R.string.app_stopper_action_store), fontWeight = FontWeight.Bold)
+                }
+
+                ListItem(
+                    supportingContent = { Text(stringResource(R.string.app_stopper_action_remove_desc)) },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Default.DeleteOutline,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .combinedClickable(
+                            onClick = {
+                                onDismiss()
+                                onRemoveApp()
+                            }
+                        ),
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                ) {
+                    Text(
+                        stringResource(R.string.app_stopper_action_remove),
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
-    }
-
-    // Add Apps Bottom Sheet
-    if (isAddSheetOpen) {
-        AddAppsBottomSheet(
-            alreadyManagedPackages = prefsState.managedStopPackages,
-            hapticEnabled = prefsState.hapticFeedback,
-            onDismiss = { setAddSheetOpen(false) },
-            onAddPackages = { selectedPackages ->
-                val current = prefsState.managedStopPackages
-                manager.setManagedStopPackages(current + selectedPackages)
-                setAddSheetOpen(false)
-                reloadApps()
-            }
-        )
     }
 }
 
@@ -684,9 +741,7 @@ private fun ManagedAppGridItem(
     onLongClick: () -> Unit
 ) {
     val view = LocalView.current
-    val bitmap = remember(app.icon) {
-        app.icon?.let { runCatching { it.toSafeBitmap() }.getOrNull() }
-    }
+    val bitmap = rememberAsyncAppIcon(app.packageName, app.icon).value
 
     val iconSize = when (columns) {
         4 -> 50.dp
@@ -743,7 +798,7 @@ private fun ManagedAppGridItem(
                 }
             } else if (bitmap != null) {
                 Image(
-                    bitmap = bitmap.asImageBitmap(),
+                    bitmap = bitmap,
                     contentDescription = null,
                     colorFilter = if (app.isStopped) {
                         ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
@@ -784,9 +839,9 @@ private fun ManagedAppGridItem(
             // Status Text
             Text(
                 text = when {
-                    app.isUninstalled -> "Ghost"
-                    app.isStopped -> "Stopped"
-                    else -> "Active"
+                    app.isUninstalled -> stringResource(R.string.app_stopper_label_ghost)
+                    app.isStopped -> stringResource(R.string.app_stopper_label_stopped)
+                    else -> stringResource(R.string.app_stopper_label_active)
                 },
                 style = MaterialTheme.typography.labelSmall,
                 color = when {
@@ -806,46 +861,28 @@ private fun ManagedAppGridItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddAppsBottomSheet(
-    alreadyManagedPackages: Set<String>,
+fun AddAppsBottomSheet(
+    installedApps: List<InstalledAppItem>,
+    isLoading: Boolean,
+    includeSystemApps: Boolean,
     hapticEnabled: Boolean,
+    onIncludeSystemAppsChange: (Boolean) -> Unit,
     onDismiss: () -> Unit,
     onAddPackages: (Set<String>) -> Unit
 ) {
-    val context = LocalContext.current
     val view = LocalView.current
-    val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    var allInstalledApps by remember { mutableStateOf<List<InstalledAppItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
     var searchQuery by remember { mutableStateOf("") }
-    var includeSystemApps by remember { mutableStateOf(false) }
     val selectedPackages = remember { mutableStateListOf<String>() }
 
-    // Load installed apps when includeSystemApps changes
-    LaunchedEffect(includeSystemApps) {
-        isLoading = true
-        scope.launch(Dispatchers.IO) {
-            val list = AppStopperMonitor.loadAllInstalledApps(
-                context = context,
-                excludePackages = alreadyManagedPackages,
-                includeSystemApps = includeSystemApps
-            )
-            withContext(Dispatchers.Main) {
-                allInstalledApps = list
-                isLoading = false
-            }
-        }
-    }
-
-    val filteredApps = remember(allInstalledApps, searchQuery) {
+    val filteredApps = remember(installedApps, searchQuery) {
         if (searchQuery.isBlank()) {
-            allInstalledApps
+            installedApps
         } else {
-            allInstalledApps.filter {
+            installedApps.filter {
                 it.label.contains(searchQuery, ignoreCase = true) ||
-                        it.packageName.contains(searchQuery, ignoreCase = true)
+                    it.packageName.contains(searchQuery, ignoreCase = true)
             }
         }
     }
@@ -870,12 +907,12 @@ private fun AddAppsBottomSheet(
             ) {
                 Column {
                     Text(
-                        text = "Add Applications",
+                        text = stringResource(R.string.app_stopper_add_sheet_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "${selectedPackages.size} selected (${filteredApps.size} available)",
+                        text = stringResource(R.string.app_stopper_add_sheet_subtitle, selectedPackages.size, filteredApps.size),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.outline
                     )
@@ -889,7 +926,7 @@ private fun AddAppsBottomSheet(
                     enabled = selectedPackages.isNotEmpty(),
                     shape = RoundedCornerShape(100)
                 ) {
-                    Text("Add to List", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.app_stopper_add_to_list), fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -897,7 +934,7 @@ private fun AddAppsBottomSheet(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search installed apps...") },
+                placeholder = { Text(stringResource(R.string.app_stopper_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
@@ -905,7 +942,7 @@ private fun AddAppsBottomSheet(
                             onClick = { searchQuery = "" },
                             modifier = Modifier.clip(CircleShape)
                         ) {
-                            Icon(Icons.Default.Close, contentDescription = "Clear")
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear))
                         }
                     }
                 },
@@ -925,9 +962,9 @@ private fun AddAppsBottomSheet(
                 selected = includeSystemApps,
                 onClick = {
                     OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
-                    includeSystemApps = !includeSystemApps
+                    onIncludeSystemAppsChange(!includeSystemApps)
                 },
-                label = { Text("Include System Apps") },
+                label = { Text(stringResource(R.string.app_stopper_include_system)) },
                 leadingIcon = {
                     if (includeSystemApps) {
                         Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -957,7 +994,7 @@ private fun AddAppsBottomSheet(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "No available applications found",
+                                text = stringResource(R.string.app_stopper_no_available_apps),
                                 color = MaterialTheme.colorScheme.outline
                             )
                         }
@@ -971,9 +1008,7 @@ private fun AddAppsBottomSheet(
                         ) {
                             items(filteredApps, key = { it.packageName }) { appItem ->
                                 val isSelected = appItem.packageName in selectedPackages
-                                val bitmap = remember(appItem.icon) {
-                                    appItem.icon?.let { runCatching { it.toSafeBitmap() }.getOrNull() }
-                                }
+                                val bitmap = rememberAsyncAppIcon(appItem.packageName, appItem.icon).value
 
                                 Card(
                                     shape = RoundedCornerShape(16.dp),
@@ -1006,7 +1041,7 @@ private fun AddAppsBottomSheet(
                                     ) {
                                         if (bitmap != null) {
                                             Image(
-                                                bitmap = bitmap.asImageBitmap(),
+                                                bitmap = bitmap,
                                                 contentDescription = null,
                                                 modifier = Modifier
                                                     .size(38.dp)
@@ -1061,12 +1096,58 @@ private fun AddAppsBottomSheet(
     }
 }
 
-// =========================================================================
-// Subsection Comment: Drawable to Bitmap Converter
-// =========================================================================
 
-private fun Drawable.toSafeBitmap(): Bitmap {
-    val width = intrinsicWidth.takeIf { it > 0 } ?: 96
-    val height = intrinsicHeight.takeIf { it > 0 } ?: 96
-    return toBitmap(width.coerceIn(48, 144), height.coerceIn(48, 144))
+@Preview(showBackground = true)
+@Composable
+private fun AppStopperContentPreview() {
+    OsysterTheme {
+        AppStopperContent(
+            uiState = AppStopperUiState(
+                managedApps = listOf(
+                    ManagedAppInfo(
+                        packageName = "com.android.camera",
+                        label = "Camera",
+                        icon = null,
+                        isStopped = false,
+                        isSystemApp = false
+                    ),
+                    ManagedAppInfo(
+                        packageName = "com.android.settings",
+                        label = "Settings",
+                        icon = null,
+                        isStopped = true,
+                        isSystemApp = false
+                    )
+                ),
+                isLoading = false
+            ),
+            gridColumns = 4,
+            hapticFeedback = true,
+            onSetGridColumns = {},
+            onOpenAddSheet = {},
+            onAppClick = {},
+            onAppLongClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AppStopperHoldOptionsPreview() {
+    OsysterTheme {
+        AppStopperHoldOptionsSheet(
+            app = ManagedAppInfo(
+                packageName = "com.example.sample",
+                label = "Sample App",
+                icon = null,
+                isStopped = false,
+                isSystemApp = false
+            ),
+            onDismiss = {},
+            onOpenAppInfo = {},
+            onLaunchApp = {},
+            onOpenPlayStore = {},
+            onRemoveApp = {}
+        )
+    }
 }

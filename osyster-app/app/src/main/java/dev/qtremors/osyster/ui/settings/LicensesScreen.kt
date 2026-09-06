@@ -70,8 +70,7 @@ private val libraries = listOf(
     OpenSourceLibrary("Jetpack Compose Material Icons Extended", "Apache 2.0", "https://developer.android.com/jetpack/compose"),
     OpenSourceLibrary("Kotlin Coroutines Android", "Apache 2.0", "https://github.com/Kotlin/kotlinx.coroutines"),
     OpenSourceLibrary("Kotlinx Serialization JSON", "Apache 2.0", "https://github.com/Kotlin/kotlinx.serialization"),
-    OpenSourceLibrary("Kotlinx Immutable Collections", "Apache 2.0", "https://github.com/Kotlin/kotlinx.collections.immutable"),
-    OpenSourceLibrary("MaterialKolor", "MIT", "https://github.com/jordond/MaterialKolor")
+    OpenSourceLibrary("Kotlinx Immutable Collections", "Apache 2.0", "https://github.com/Kotlin/kotlinx.collections.immutable")
 )
 
 @Composable

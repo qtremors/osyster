@@ -3,8 +3,10 @@ package dev.qtremors.osyster.monitor
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.BatteryManager
 import android.os.Build
+import android.os.Process
 import android.os.SystemClock
 import java.io.File
 import java.io.RandomAccessFile
@@ -25,13 +27,28 @@ data class CpuCoreState(
     val maxFreqKhz: Long
 )
 
-data class CpuState(
-    val overallUsage: Float,
-    val coreStates: List<CpuCoreState>,
-    val cpuTempCelsius: Float,
-    val cpuModel: String,
-    val cpuArchitecture: String
+data class CpuTimeSnapshot(
+    val coreId: Int?,
+    val activeTime: Long,
+    val idleTime: Long
 )
+
+data class CpuState(
+    val overallUsage: TelemetryResult<Float> = TelemetryResult.Available(0f),
+    val coreStates: List<CpuCoreState> = emptyList(),
+    val cpuTempCelsius: TelemetryResult<Float> = TelemetryResult.Restricted,
+    val cpuModel: String = "",
+    val cpuArchitecture: String = ""
+) {
+    val overallUsageOrZero: Float
+        get() = (overallUsage as? TelemetryResult.Available)?.value ?: 0f
+
+    val isUsageRestricted: Boolean
+        get() = overallUsage is TelemetryResult.Restricted
+
+    val isTempRestricted: Boolean
+        get() = cpuTempCelsius is TelemetryResult.Restricted
+}
 
 data class MemoryState(
     val ramTotalKb: Long,
@@ -72,11 +89,42 @@ object SystemMonitor {
     // Subsection Comment: CPU Monitor Parser
     // =========================================================================
 
+    fun parseProcStatLine(line: String): CpuTimeSnapshot? {
+        val trimmed = line.trim()
+        val isOverall = trimmed.startsWith("cpu ")
+        val isCore = trimmed.startsWith("cpu") && trimmed.length > 3 && trimmed[3].isDigit()
+        if (!isOverall && !isCore) return null
+
+        val parts = trimmed.split("\\s+".toRegex()).filter { it.isNotEmpty() }
+        if (parts.size < 5) return null
+
+        val coreId = if (isOverall) null else parts.firstOrNull()?.removePrefix("cpu")?.toIntOrNull()
+        if (!isOverall && coreId == null) return null
+
+        val user = parts[1].toLongOrNull() ?: 0L
+        val nice = parts[2].toLongOrNull() ?: 0L
+        val system = parts[3].toLongOrNull() ?: 0L
+        val idle = parts[4].toLongOrNull() ?: 0L
+        val iowait = if (parts.size > 5) parts[5].toLongOrNull() ?: 0L else 0L
+        val irq = if (parts.size > 6) parts[6].toLongOrNull() ?: 0L else 0L
+        val softirq = if (parts.size > 7) parts[7].toLongOrNull() ?: 0L else 0L
+
+        val active = user + nice + system + irq + softirq
+        val totalIdle = idle + iowait
+        return CpuTimeSnapshot(coreId = coreId, activeTime = active, idleTime = totalIdle)
+    }
+
+    fun calculateCpuUsage(deltaActive: Long, deltaTotal: Long): Float {
+        if (deltaTotal <= 0L || deltaActive < 0L) return 0f
+        return (deltaActive.toFloat() / deltaTotal.toFloat() * 100f).coerceIn(0f, 100f)
+    }
+
     fun getCpuState(): CpuState {
         var overallUsage = 0f
         val coreStates = mutableListOf<CpuCoreState>()
         val cpuModel = detectCpuModel()
         val cpuArchitecture = System.getProperty("os.arch") ?: "unknown"
+        var procStatReadSuccess = false
 
         try {
             // Read overall and per-core CPU usage from /proc/stat
@@ -84,65 +132,36 @@ object SystemMonitor {
             if (statFile.exists() && statFile.canRead()) {
                 statFile.useLines { lines ->
                     lines.forEach { line ->
-                        if (line.startsWith("cpu ")) {
-                            val parts = line.split("\\s+".toRegex()).filter { it.isNotEmpty() }
-                            if (parts.size >= 5) {
-                                val user = parts[1].toLongOrNull() ?: 0L
-                                val nice = parts[2].toLongOrNull() ?: 0L
-                                val system = parts[3].toLongOrNull() ?: 0L
-                                val idle = parts[4].toLongOrNull() ?: 0L
-                                val iowait = if (parts.size > 5) parts[5].toLongOrNull() ?: 0L else 0L
-                                val irq = if (parts.size > 6) parts[6].toLongOrNull() ?: 0L else 0L
-                                val softirq = if (parts.size > 7) parts[7].toLongOrNull() ?: 0L else 0L
+                        val snapshot = parseProcStatLine(line)
+                        if (snapshot != null) {
+                            procStatReadSuccess = true
+                            val active = snapshot.activeTime
+                            val total = snapshot.activeTime + snapshot.idleTime
 
-                                val active = user + nice + system + irq + softirq
-                                val total = active + idle + iowait
-
+                            if (snapshot.coreId == null) {
                                 if (lastCpuTime > 0L) {
                                     val deltaActive = active - lastCpuTime
                                     val deltaTotal = total - (lastCpuTime + lastIdleTime)
-
-                                    if (deltaTotal > 0L) {
-                                        overallUsage = (deltaActive.toFloat() / deltaTotal.toFloat() * 100f).coerceIn(0f, 100f)
-                                    }
+                                    overallUsage = calculateCpuUsage(deltaActive, deltaTotal)
                                 }
-
                                 lastCpuTime = active
-                                lastIdleTime = idle + iowait
-                            }
-                        } else if (line.startsWith("cpu") && line.length > 3 && line[3].isDigit()) {
-                            val parts = line.split("\\s+".toRegex()).filter { it.isNotEmpty() }
-                            val coreId = parts.firstOrNull()?.removePrefix("cpu")?.toIntOrNull()
-                            if (coreId != null && parts.size >= 5) {
-                                val user = parts[1].toLongOrNull() ?: 0L
-                                val nice = parts[2].toLongOrNull() ?: 0L
-                                val system = parts[3].toLongOrNull() ?: 0L
-                                val idle = parts[4].toLongOrNull() ?: 0L
-                                val iowait = if (parts.size > 5) parts[5].toLongOrNull() ?: 0L else 0L
-                                val irq = if (parts.size > 6) parts[6].toLongOrNull() ?: 0L else 0L
-                                val softirq = if (parts.size > 7) parts[7].toLongOrNull() ?: 0L else 0L
-
-                                val active = user + nice + system + irq + softirq
-                                val total = active + idle + iowait
-
+                                lastIdleTime = snapshot.idleTime
+                            } else {
+                                val coreId = snapshot.coreId
                                 val prevActive = lastCoresCpuTime[coreId] ?: 0L
                                 val prevIdle = lastCoresIdleTime[coreId] ?: 0L
-
                                 var coreUsage = 0f
                                 if (prevActive > 0L) {
                                     val deltaActive = active - prevActive
                                     val deltaTotal = total - (prevActive + prevIdle)
-                                    if (deltaTotal > 0L) {
-                                        coreUsage = (deltaActive.toFloat() / deltaTotal.toFloat() * 100f).coerceIn(0f, 100f)
-                                    }
+                                    coreUsage = calculateCpuUsage(deltaActive, deltaTotal)
                                 }
 
                                 lastCoresCpuTime[coreId] = active
-                                lastCoresIdleTime[coreId] = idle + iowait
+                                lastCoresIdleTime[coreId] = snapshot.idleTime
 
                                 val freq = getCoreFrequencyKhz(coreId)
                                 val maxFreq = getCoreMaxFrequencyKhz(coreId)
-
                                 coreStates.add(CpuCoreState(coreId, coreUsage, freq, maxFreq))
                             }
                         }
@@ -153,14 +172,17 @@ object SystemMonitor {
             e.printStackTrace()
         }
 
+        val usageResult: TelemetryResult<Float>
         // Fallback for cores if /proc/stat is unreadable or restricted by SELinux
-        if (coreStates.isEmpty()) {
+        if (!procStatReadSuccess && coreStates.isEmpty()) {
             val coresCount = Runtime.getRuntime().availableProcessors().coerceAtLeast(1)
+            var activeFreqFound = false
             for (i in 0 until coresCount) {
                 val freq = getCoreFrequencyKhz(i)
                 val maxFreq = getCoreMaxFrequencyKhz(i)
                 // Calculate dynamic load from core frequency scaling ratio if available
                 val coreUsage = if (maxFreq > 0L && freq > 0L) {
+                    activeFreqFound = true
                     (freq.toFloat() / maxFreq.toFloat() * 100f).coerceIn(5f, 100f)
                 } else {
                     0f
@@ -168,26 +190,30 @@ object SystemMonitor {
                 coreStates.add(CpuCoreState(i, coreUsage, freq, maxFreq))
             }
 
-            if (overallUsage == 0f && coreStates.isNotEmpty()) {
+            usageResult = if (activeFreqFound) {
                 val activeCores = coreStates.filter { it.usagePercentage > 0f }
-                overallUsage = if (activeCores.isNotEmpty()) {
+                val calculated = if (activeCores.isNotEmpty()) {
                     activeCores.map { it.usagePercentage }.average().toFloat().coerceIn(0f, 100f)
                 } else {
-                    // Provide modest active baseline if frequency nodes are sandboxed
-                    8.5f
+                    0f
                 }
+                TelemetryResult.Available(calculated)
+            } else {
+                // Procfs and cpufreq sysfs nodes are both restricted by the Android platform sandbox
+                TelemetryResult.Restricted
             }
         } else {
             // If /proc/stat was readable but overallUsage is still 0 (e.g. initial delta), derive from cores
             if (overallUsage == 0f && coreStates.any { it.usagePercentage > 0f }) {
                 overallUsage = coreStates.map { it.usagePercentage }.average().toFloat().coerceIn(0f, 100f)
             }
+            usageResult = TelemetryResult.Available(overallUsage)
         }
 
         val temp = getCpuTemperature()
 
         return CpuState(
-            overallUsage = overallUsage,
+            overallUsage = usageResult,
             coreStates = coreStates.sortedBy { it.id },
             cpuTempCelsius = temp,
             cpuModel = cpuModel,
@@ -271,7 +297,16 @@ object SystemMonitor {
         return 0L
     }
 
-    private fun getCpuTemperature(): Float {
+    fun parseThermalTemp(rawText: String): TelemetryResult<Float> {
+        val raw = rawText.trim().toFloatOrNull() ?: 0f
+        if (raw > 0f) {
+            val temp = if (raw > 1000f) raw / 1000f else raw
+            if (temp in 10f..105f) return TelemetryResult.Available(temp)
+        }
+        return TelemetryResult.Restricted
+    }
+
+    private fun getCpuTemperature(): TelemetryResult<Float> {
         // 1. Scan dynamic thermal zones for CPU / SoC types
         try {
             val thermalDir = File("/sys/class/thermal")
@@ -280,14 +315,11 @@ object SystemMonitor {
                 for (zone in zones) {
                     val typeFile = File(zone, "type")
                     val type = if (typeFile.exists()) typeFile.readText().trim().lowercase(Locale.getDefault()) else ""
-                    if (type.contains("cpu") || type.contains("soc") || type.contains("tsens") || type.contains("mtktscpu")) {
+                    if (type.contains("cpu") || type.contains("soc") || type.contains("tsens") || type.contains("mtktscpu") || type.contains("cluster")) {
                         val tempFile = File(zone, "temp")
                         if (tempFile.exists()) {
-                            val raw = tempFile.readText().trim().toFloatOrNull() ?: 0f
-                            if (raw > 0f) {
-                                val temp = if (raw > 1000f) raw / 1000f else raw
-                                if (temp in 10f..105f) return temp
-                            }
+                            val res = parseThermalTemp(tempFile.readText())
+                            if (res is TelemetryResult.Available) return res
                         }
                     }
                 }
@@ -305,22 +337,19 @@ object SystemMonitor {
             val file = File(path)
             if (file.exists()) {
                 try {
-                    val raw = file.readText().trim().toFloatOrNull() ?: 0f
-                    if (raw > 0f) {
-                        val temp = if (raw > 1000f) raw / 1000f else raw
-                        if (temp in 10f..105f) return temp
-                    }
+                    val res = parseThermalTemp(file.readText())
+                    if (res is TelemetryResult.Available) return res
                 } catch (_: Exception) {}
             }
         }
-        return 38.5f // Graceful standard fallback
+        return TelemetryResult.Restricted
     }
 
     // =========================================================================
     // Subsection Comment: Memory (RAM & SWAP) Monitor Parser
     // =========================================================================
 
-    fun getMemoryState(): MemoryState {
+    fun parseMemInfo(lines: Sequence<String>): MemoryState {
         var memTotal = 0L
         var memFree = 0L
         var memAvailable = 0L
@@ -329,30 +358,21 @@ object SystemMonitor {
         var swapTotal = 0L
         var swapFree = 0L
 
-        try {
-            val meminfoFile = File("/proc/meminfo")
-            if (meminfoFile.exists()) {
-                meminfoFile.useLines { lines ->
-                    lines.forEach { line ->
-                        val parts = line.split(":")
-                        if (parts.size > 1) {
-                            val key = parts[0].trim()
-                            val value = parts[1].replace("kB", "").trim().toLongOrNull() ?: 0L
-                            when (key) {
-                                "MemTotal" -> memTotal = value
-                                "MemFree" -> memFree = value
-                                "MemAvailable" -> memAvailable = value
-                                "Buffers" -> buffers = value
-                                "Cached" -> cached = value
-                                "SwapTotal" -> swapTotal = value
-                                "SwapFree" -> swapFree = value
-                            }
-                        }
-                    }
+        lines.forEach { line ->
+            val parts = line.split(":")
+            if (parts.size > 1) {
+                val key = parts[0].trim()
+                val value = parts[1].replace("kB", "").trim().toLongOrNull() ?: 0L
+                when (key) {
+                    "MemTotal" -> memTotal = value
+                    "MemFree" -> memFree = value
+                    "MemAvailable" -> memAvailable = value
+                    "Buffers" -> buffers = value
+                    "Cached" -> cached = value
+                    "SwapTotal" -> swapTotal = value
+                    "SwapFree" -> swapFree = value
                 }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
 
         // If MemAvailable is not reported, estimate it
@@ -360,8 +380,8 @@ object SystemMonitor {
             memAvailable = memFree + buffers + cached
         }
 
-        val ramUsed = memTotal - memAvailable
-        val swapUsed = swapTotal - swapFree
+        val ramUsed = (memTotal - memAvailable).coerceAtLeast(0L)
+        val swapUsed = (swapTotal - swapFree).coerceAtLeast(0L)
 
         return MemoryState(
             ramTotalKb = memTotal,
@@ -376,12 +396,63 @@ object SystemMonitor {
         )
     }
 
+    fun getMemoryState(): MemoryState {
+        try {
+            val meminfoFile = File("/proc/meminfo")
+            if (meminfoFile.exists() && meminfoFile.canRead()) {
+                return meminfoFile.useLines { parseMemInfo(it) }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return MemoryState(
+            ramTotalKb = 0L,
+            ramUsedKb = 0L,
+            ramAvailableKb = 0L,
+            ramFreeKb = 0L,
+            ramCachedKb = 0L,
+            ramBuffersKb = 0L,
+            swapTotalKb = 0L,
+            swapUsedKb = 0L,
+            swapFreeKb = 0L
+        )
+    }
+
     // =========================================================================
     // Subsection Comment: Active Processes Parser
     // =========================================================================
 
-    fun getActiveProcesses(): List<ProcessInfo> {
+    fun parseRssFromStatm(statmText: String, pageSizeBytes: Long = 4096L): Long {
+        val parts = statmText.trim().split("\\s+".toRegex()).filter { it.isNotEmpty() }
+        if (parts.size >= 2) {
+            val rssPages = parts[1].toLongOrNull() ?: 0L
+            return (rssPages * pageSizeBytes) / 1024L
+        }
+        return 0L
+    }
+
+    fun parseStatusUid(lines: Sequence<String>): Int? {
+        for (line in lines) {
+            if (line.startsWith("Uid:")) {
+                val parts = line.split("\\s+".toRegex()).filter { it.isNotEmpty() }
+                if (parts.size >= 2) {
+                    return parts[1].toIntOrNull()
+                }
+                break
+            }
+        }
+        return null
+    }
+
+    fun getActiveProcesses(
+        context: Context? = null,
+        showKernelThreads: Boolean = false
+    ): List<ProcessInfo> {
         val processes = mutableListOf<ProcessInfo>()
+        val packageManager = context?.packageManager
+        val uidCache = mutableMapOf<Int, String>()
+
         try {
             val procDir = File("/proc")
             val files = procDir.listFiles() ?: return emptyList()
@@ -415,8 +486,9 @@ object SystemMonitor {
                             }
                         }
 
-                        if (processName.isEmpty() || processName.startsWith("[")) {
-                            // Skip system kernel threads for clean user dashboard listing
+                        val isKernelThread = processName.startsWith("[")
+                        if (processName.isEmpty() || (isKernelThread && !showKernelThreads)) {
+                            // Skip system kernel threads unless showKernelThreads is enabled
                             continue
                         }
 
@@ -424,16 +496,29 @@ object SystemMonitor {
                         val statmFile = File(file, "statm")
                         var ramKb = 0L
                         if (statmFile.exists()) {
-                            val statmText = statmFile.readText().trim()
-                            val parts = statmText.split("\\s+".toRegex())
-                            if (parts.size >= 2) {
-                                val rssPages = parts[1].toLongOrNull() ?: 0L
-                                ramKb = (rssPages * pageSizeBytes) / 1024L
-                            }
+                            ramKb = parseRssFromStatm(statmFile.readText(), pageSizeBytes)
                         }
 
-                        if (ramKb > 0) {
-                            processes.add(ProcessInfo(pid, processName, ramKb))
+                        // Parse UID status line from /proc/[pid]/status
+                        var userLabel = "unknown"
+                        val statusFile = File(file, "status")
+                        if (statusFile.exists()) {
+                            try {
+                                val uid = statusFile.useLines { parseStatusUid(it) }
+                                if (uid != null) {
+                                    userLabel = resolveUid(uid, packageManager, uidCache)
+                                }
+                            } catch (_: Exception) {}
+                        }
+
+                        if (userLabel == "unknown" && pid == Process.myPid()) {
+                            userLabel = resolveUid(Process.myUid(), packageManager, uidCache)
+                        } else if (userLabel == "unknown" && isKernelThread) {
+                            userLabel = "root"
+                        }
+
+                        if (ramKb > 0L || (showKernelThreads && isKernelThread)) {
+                            processes.add(ProcessInfo(pid, processName, ramKb, user = userLabel))
                         }
                     } catch (_: Exception) {}
                 }
@@ -443,6 +528,55 @@ object SystemMonitor {
         }
 
         return processes.sortedByDescending { it.ramKb }
+    }
+
+    fun resolveUid(
+        uid: Int,
+        packageManager: PackageManager? = null,
+        cache: MutableMap<Int, String>? = null
+    ): String {
+        cache?.get(uid)?.let { return it }
+
+        val resolved = when (uid) {
+            0 -> "root"
+            1000 -> "system"
+            1001 -> "radio"
+            1002 -> "bluetooth"
+            1010 -> "wifi"
+            1013 -> "media"
+            1014 -> "drm"
+            1021 -> "gps"
+            1023 -> "media_rw"
+            1024 -> "mtp"
+            1028 -> "audioserver"
+            1037 -> "cameraserver"
+            1066 -> "statsd"
+            1073 -> "incidentd"
+            2000 -> "shell"
+            9999 -> "nobody"
+            else -> {
+                var pkgName: String? = null
+                if (packageManager != null) {
+                    try {
+                        pkgName = packageManager.getNameForUid(uid)
+                    } catch (_: Exception) {}
+                }
+                if (!pkgName.isNullOrBlank()) {
+                    pkgName
+                } else {
+                    val userId = uid / 100000
+                    val appId = uid % 100000
+                    if (appId >= 10000) {
+                        "u${userId}_a${appId - 10000}"
+                    } else {
+                        "uid:$uid"
+                    }
+                }
+            }
+        }
+
+        cache?.put(uid, resolved)
+        return resolved
     }
 
     // =========================================================================

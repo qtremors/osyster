@@ -23,10 +23,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -54,11 +58,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.monitor.*
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
+import dev.qtremors.osyster.ui.util.rememberAsyncAppIcon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.qtremors.osyster.ui.theme.OsysterTheme
+import dev.qtremors.osyster.ui.viewmodel.NetworkUiState
+import dev.qtremors.osyster.ui.viewmodel.NetworkViewModel
 
 // Slate Tech color tokens for network telemetry
 private val ColorCyanDownload = Color(0xFF00E6FF)
@@ -70,121 +81,90 @@ private val ColorAmberCellular = Color(0xFFFFB300)
 fun NetworkDashboard(
     modifier: Modifier = Modifier,
     onNavigateBack: (() -> Unit)? = null,
-    hapticEnabled: Boolean = true
+    hapticEnabled: Boolean = true,
+    viewModel: NetworkViewModel = viewModel()
 ) {
-    val context = LocalContext.current
-    val view = LocalView.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    var hasPermission by remember { mutableStateOf(NetworkMonitor.hasUsageAccess(context)) }
-    var hasPhonePermission by remember { mutableStateOf(NetworkMonitor.hasPhonePermission(context)) }
     val phonePermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        hasPhonePermission = granted
+    ) { isGranted ->
+        if (isGranted) {
+            viewModel.checkPermissions()
+        }
     }
 
-    var selectedInterval by remember { mutableStateOf(NetworkInterval.DAY) }
-    var selectedFilter by remember { mutableStateOf(NetworkInterfaceFilter.ALL) }
-    var intervalMenuExpanded by remember { mutableStateOf(false) }
-    var filterMenuExpanded by remember { mutableStateOf(false) }
-    var targetDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
-
-    var summary by remember { mutableStateOf(NetworkMonitor.emptySummary()) }
-    var isLoading by remember { mutableStateOf(true) }
-    var searchQuery by remember { mutableStateOf("") }
-    var isSearchActive by remember { mutableStateOf(false) }
-
-    var selectedBucketIndex by remember { mutableStateOf<Int?>(null) }
-    var selectedAppDetails by remember { mutableStateOf<AppNetworkUsage?>(null) }
-
-    val realtimeSpeed by remember { NetworkMonitor.streamRealtimeSpeed() }
-        .collectAsStateWithLifecycle(initialValue = RealtimeSpeed(0L, 0L))
-
-    // Re-check permission when returning to foreground
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                hasPermission = NetworkMonitor.hasUsageAccess(context)
-                hasPhonePermission = NetworkMonitor.hasPhonePermission(context)
+                viewModel.checkPermissions()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    // Refresh query when interval, filter, target date, or permission changes
-    LaunchedEffect(selectedInterval, selectedFilter, targetDateMillis, hasPermission, hasPhonePermission) {
-        if (!hasPermission) {
-            isLoading = false
-            return@LaunchedEffect
-        }
-        isLoading = true
-        selectedBucketIndex = null
-        val result = withContext(Dispatchers.IO) {
-            NetworkMonitor.queryNetworkUsage(
-                context = context,
-                interval = selectedInterval,
-                filter = selectedFilter,
-                targetDateMillis = targetDateMillis
-            )
-        }
-        summary = result
-        isLoading = false
-    }
+    NetworkDashboardContent(
+        uiState = uiState,
+        onNavigateBack = onNavigateBack,
+        hapticEnabled = hapticEnabled,
+        onIntervalChange = viewModel::setInterval,
+        onFilterChange = viewModel::setFilter,
+        onNavigatePreviousDate = viewModel::navigatePreviousDate,
+        onNavigateNextDate = viewModel::navigateNextDate,
+        onResetToCurrentDate = { viewModel.setTargetDateMillis(System.currentTimeMillis()) },
+        onSearchQueryChange = viewModel::setSearchQuery,
+        onSearchActiveChange = viewModel::setSearchActive,
+        onSelectBucket = viewModel::selectBucket,
+        onSelectAppDetails = viewModel::selectAppDetails,
+        onOpenUsageAccessSettings = viewModel::openUsageAccessSettings,
+        onOpenAppDetailsSettings = viewModel::openAppDetailsSettings,
+        onRequestPhonePermission = { phonePermissionLauncher.launch(android.Manifest.permission.READ_PHONE_STATE) },
+        onRefresh = { viewModel.loadUsage() },
+        modifier = modifier
+    )
+}
 
-    // Date formatting helper
-    val dateLabel = remember(targetDateMillis, selectedInterval) {
-        val cal = Calendar.getInstance().apply { timeInMillis = targetDateMillis }
-        when (selectedInterval) {
-            NetworkInterval.DAY -> {
-                val nowCal = Calendar.getInstance()
-                if (cal.get(Calendar.YEAR) == nowCal.get(Calendar.YEAR) &&
-                    cal.get(Calendar.DAY_OF_YEAR) == nowCal.get(Calendar.DAY_OF_YEAR)
-                ) {
-                    "Today, " + SimpleDateFormat("d MMM", Locale.getDefault()).format(cal.time)
-                } else {
-                    SimpleDateFormat("EEEE, d MMM", Locale.getDefault()).format(cal.time)
-                }
-            }
-            NetworkInterval.WEEK -> {
-                val endCal = Calendar.getInstance().apply { timeInMillis = targetDateMillis }
-                val startCal = Calendar.getInstance().apply {
-                    timeInMillis = targetDateMillis
-                    add(Calendar.DAY_OF_YEAR, -6)
-                }
-                val fmt = SimpleDateFormat("d MMM", Locale.getDefault())
-                "${fmt.format(startCal.time)} - ${fmt.format(endCal.time)}"
-            }
-            NetworkInterval.MONTH -> {
-                SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(cal.time)
-            }
-        }
-    }
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun NetworkDashboardContent(
+    uiState: NetworkUiState,
+    onNavigateBack: (() -> Unit)? = null,
+    hapticEnabled: Boolean = true,
+    onIntervalChange: (NetworkInterval) -> Unit = {},
+    onFilterChange: (NetworkInterfaceFilter) -> Unit = {},
+    onNavigatePreviousDate: () -> Unit = {},
+    onNavigateNextDate: () -> Unit = {},
+    onResetToCurrentDate: () -> Unit = {},
+    onSearchQueryChange: (String) -> Unit = {},
+    onSearchActiveChange: (Boolean) -> Unit = {},
+    onSelectBucket: (Int?) -> Unit = {},
+    onSelectAppDetails: (AppNetworkUsage?) -> Unit = {},
+    onOpenUsageAccessSettings: () -> Unit = {},
+    onOpenAppDetailsSettings: (String) -> Unit = {},
+    onRequestPhonePermission: () -> Unit = {},
+    onRefresh: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+    val hasPermission = uiState.hasPermission
+    val hasPhonePermission = uiState.hasPhonePermission
+    val selectedInterval = uiState.selectedInterval
+    val selectedFilter = uiState.selectedFilter
+    val summary = uiState.summary
+    val isLoading = uiState.isLoading
+    val searchQuery = uiState.searchQuery
+    val isSearchActive = uiState.isSearchActive
+    val selectedBucketIndex = uiState.selectedBucketIndex
+    val selectedAppDetails = uiState.selectedAppDetails
+    val realtimeSpeed = uiState.realtimeSpeed
+    val dateLabel = uiState.dateLabel
+    val isCurrentPeriod = uiState.isCurrentPeriod
+    val filteredApps = uiState.filteredApps
 
-    val isCurrentPeriod = remember(targetDateMillis, selectedInterval) {
-        val now = System.currentTimeMillis()
-        val calNow = Calendar.getInstance().apply { timeInMillis = now }
-        val calTarget = Calendar.getInstance().apply { timeInMillis = targetDateMillis }
-        when (selectedInterval) {
-            NetworkInterval.DAY -> calNow.get(Calendar.YEAR) == calTarget.get(Calendar.YEAR) &&
-                    calNow.get(Calendar.DAY_OF_YEAR) == calTarget.get(Calendar.DAY_OF_YEAR)
-            NetworkInterval.WEEK -> calTarget.timeInMillis >= now - 86400000L
-            NetworkInterval.MONTH -> calNow.get(Calendar.YEAR) == calTarget.get(Calendar.YEAR) &&
-                    calNow.get(Calendar.MONTH) == calTarget.get(Calendar.MONTH)
-        }
-    }
-
-    val filteredApps = remember(summary.apps, searchQuery) {
-        if (searchQuery.isBlank()) {
-            summary.apps
-        } else {
-            summary.apps.filter {
-                it.appName.contains(searchQuery, ignoreCase = true) ||
-                        it.packageName.contains(searchQuery, ignoreCase = true)
-            }
-        }
-    }
+    var intervalMenuExpanded by remember { mutableStateOf(false) }
+    var filterMenuExpanded by remember { mutableStateOf(false) }
 
     val maxAppBytes = remember(summary.apps) {
         summary.apps.maxOfOrNull { it.totalBytes }?.coerceAtLeast(1L) ?: 1L
@@ -195,16 +175,21 @@ fun NetworkDashboard(
         color = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            contentPadding = PaddingValues(
-                top = 8.dp,
-                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 16.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+        PullToRefreshBox(
+            isRefreshing = isLoading,
+            onRefresh = onRefresh,
+            modifier = Modifier.fillMaxSize()
         ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(
+                    top = 8.dp,
+                    bottom = LocalBottomContentPadding.current
+                ),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
             item {
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -224,7 +209,7 @@ fun NetworkDashboard(
                                     onNavigateBack()
                                 },
                                 modifier = Modifier
-                                    .size(36.dp)
+                                    .size(48.dp)
                                     .clip(CircleShape)
                             ) {
                                 Icon(
@@ -317,7 +302,7 @@ fun NetworkDashboard(
                             Button(
                                 onClick = {
                                     OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
-                                    NetworkMonitor.openUsageAccessSettings(context)
+                                    onOpenUsageAccessSettings()
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                                 shape = RoundedCornerShape(12.dp)
@@ -379,7 +364,7 @@ fun NetworkDashboard(
                                 text = { Text(stringResource(R.string.network_interval_day)) },
                                 onClick = {
                                     OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    selectedInterval = NetworkInterval.DAY
+                                    onIntervalChange(NetworkInterval.DAY)
                                     intervalMenuExpanded = false
                                 }
                             )
@@ -387,7 +372,7 @@ fun NetworkDashboard(
                                 text = { Text(stringResource(R.string.network_interval_week)) },
                                 onClick = {
                                     OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    selectedInterval = NetworkInterval.WEEK
+                                    onIntervalChange(NetworkInterval.WEEK)
                                     intervalMenuExpanded = false
                                 }
                             )
@@ -395,7 +380,7 @@ fun NetworkDashboard(
                                 text = { Text(stringResource(R.string.network_interval_month)) },
                                 onClick = {
                                     OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    selectedInterval = NetworkInterval.MONTH
+                                    onIntervalChange(NetworkInterval.MONTH)
                                     intervalMenuExpanded = false
                                 }
                             )
@@ -443,7 +428,7 @@ fun NetworkDashboard(
                                 text = { Text(stringResource(R.string.network_filter_all)) },
                                 onClick = {
                                     OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    selectedFilter = NetworkInterfaceFilter.ALL
+                                    onFilterChange(NetworkInterfaceFilter.ALL)
                                     filterMenuExpanded = false
                                 }
                             )
@@ -451,7 +436,7 @@ fun NetworkDashboard(
                                 text = { Text(stringResource(R.string.network_filter_mobile)) },
                                 onClick = {
                                     OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    selectedFilter = NetworkInterfaceFilter.MOBILE
+                                    onFilterChange(NetworkInterfaceFilter.MOBILE)
                                     filterMenuExpanded = false
                                 }
                             )
@@ -459,7 +444,7 @@ fun NetworkDashboard(
                                 text = { Text(stringResource(R.string.network_filter_wifi)) },
                                 onClick = {
                                     OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    selectedFilter = NetworkInterfaceFilter.WIFI
+                                    onFilterChange(NetworkInterfaceFilter.WIFI)
                                     filterMenuExpanded = false
                                 }
                             )
@@ -480,21 +465,15 @@ fun NetworkDashboard(
                     IconButton(
                         onClick = {
                             OsysterHapticUtil.performTick(view, hapticEnabled)
-                            val cal = Calendar.getInstance().apply { timeInMillis = targetDateMillis }
-                            when (selectedInterval) {
-                                NetworkInterval.DAY -> cal.add(Calendar.DAY_OF_YEAR, -1)
-                                NetworkInterval.WEEK -> cal.add(Calendar.DAY_OF_YEAR, -7)
-                                NetworkInterval.MONTH -> cal.add(Calendar.MONTH, -1)
-                            }
-                            targetDateMillis = cal.timeInMillis
+                            onNavigatePreviousDate()
                         },
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(48.dp)
                             .clip(CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.Default.ChevronLeft,
-                            contentDescription = "Previous Period",
+                            contentDescription = stringResource(R.string.network_prev_period),
                             tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(20.dp)
                         )
@@ -506,7 +485,7 @@ fun NetworkDashboard(
                         onClick = {
                             if (!isCurrentPeriod) {
                                 OsysterHapticUtil.performTick(view, hapticEnabled)
-                                targetDateMillis = System.currentTimeMillis()
+                                onResetToCurrentDate()
                             }
                         },
                         shape = RoundedCornerShape(100),
@@ -527,23 +506,17 @@ fun NetworkDashboard(
                         onClick = {
                             if (!isCurrentPeriod) {
                                 OsysterHapticUtil.performTick(view, hapticEnabled)
-                                val cal = Calendar.getInstance().apply { timeInMillis = targetDateMillis }
-                                when (selectedInterval) {
-                                    NetworkInterval.DAY -> cal.add(Calendar.DAY_OF_YEAR, 1)
-                                    NetworkInterval.WEEK -> cal.add(Calendar.DAY_OF_YEAR, 7)
-                                    NetworkInterval.MONTH -> cal.add(Calendar.MONTH, 1)
-                                }
-                                targetDateMillis = minOf(cal.timeInMillis, System.currentTimeMillis())
+                                onNavigateNextDate()
                             }
                         },
                         enabled = !isCurrentPeriod,
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(48.dp)
                             .clip(CircleShape)
                     ) {
                         Icon(
                             imageVector = Icons.Default.ChevronRight,
-                            contentDescription = "Next Period",
+                            contentDescription = stringResource(R.string.network_next_period),
                             tint = if (isCurrentPeriod) MaterialTheme.colorScheme.outlineVariant else MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(20.dp)
                         )
@@ -673,7 +646,7 @@ fun NetworkDashboard(
                                         letterSpacing = (-0.5).sp
                                     )
                                     Text(
-                                        text = "$totalUnit TOTAL",
+                                        text = stringResource(R.string.network_unit_total_format, totalUnit),
                                         style = MaterialTheme.typography.labelSmall,
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.Bold,
@@ -705,7 +678,7 @@ fun NetworkDashboard(
                                             )
                                             Spacer(modifier = Modifier.width(3.dp))
                                             Text(
-                                                text = "Download",
+                                                text = stringResource(R.string.network_download),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 fontSize = 11.sp,
                                                 color = MaterialTheme.colorScheme.outline
@@ -731,7 +704,7 @@ fun NetworkDashboard(
                                             )
                                             Spacer(modifier = Modifier.width(3.dp))
                                             Text(
-                                                text = "Upload",
+                                                text = stringResource(R.string.network_upload),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 fontSize = 11.sp,
                                                 color = MaterialTheme.colorScheme.outline
@@ -763,7 +736,7 @@ fun NetworkDashboard(
                                             )
                                             Spacer(modifier = Modifier.width(3.dp))
                                             Text(
-                                                text = "Mobile",
+                                                text = stringResource(R.string.network_filter_mobile),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 fontSize = 11.sp,
                                                 color = MaterialTheme.colorScheme.outline
@@ -789,7 +762,7 @@ fun NetworkDashboard(
                                             )
                                             Spacer(modifier = Modifier.width(3.dp))
                                             Text(
-                                                text = "Wi-Fi",
+                                                text = stringResource(R.string.network_filter_wifi),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 fontSize = 11.sp,
                                                 color = MaterialTheme.colorScheme.outline
@@ -822,13 +795,13 @@ fun NetworkDashboard(
                         ) {
                             Column {
                                 Text(
-                                    text = "Activity Timeline",
+                                    text = stringResource(R.string.network_activity_timeline),
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    text = "Peak: ${NetworkMonitor.formatBytes(maxBucketBytes)}",
+                                    text = stringResource(R.string.network_peak_format, NetworkMonitor.formatBytes(maxBucketBytes)),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.outline
                                 )
@@ -847,7 +820,7 @@ fun NetworkDashboard(
                                             .background(ColorCyanDownload)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Rx", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                                    Text(stringResource(R.string.network_rx), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Box(
@@ -857,7 +830,7 @@ fun NetworkDashboard(
                                             .background(ColorEmeraldUpload)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Tx", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                                    Text(stringResource(R.string.network_tx), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
                                 }
                             }
                         }
@@ -880,7 +853,7 @@ fun NetworkDashboard(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = if (activeBucket.label.isNotEmpty()) "Slot: ${activeBucket.label}" else "Slot ${selectedBucketIndex!! + 1}",
+                                        text = if (activeBucket.label.isNotEmpty()) stringResource(R.string.network_slot_format, activeBucket.label) else stringResource(R.string.network_slot_index_format, selectedBucketIndex + 1),
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onSurface
@@ -905,11 +878,29 @@ fun NetworkDashboard(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
+                        val peakBucket = remember(summary.timeline) {
+                            summary.timeline.maxByOrNull { it.totalBytes }
+                        }
+                        val chartSummaryDescription = remember(summary, dateLabel, peakBucket) {
+                            val totalStr = NetworkMonitor.formatBytes(summary.totalBytes)
+                            val rxStr = NetworkMonitor.formatBytes(summary.downloadBytes)
+                            val txStr = NetworkMonitor.formatBytes(summary.uploadBytes)
+                            val peakStr = if (peakBucket != null && peakBucket.totalBytes > 0L) {
+                                ", peak usage on ${peakBucket.label} with ${NetworkMonitor.formatBytes(peakBucket.totalBytes)}"
+                            } else {
+                                ""
+                            }
+                            "Network usage timeline for $dateLabel. Total $totalStr ($rxStr download, $txStr upload)$peakStr."
+                        }
+
                         // Custom Canvas Bar Chart with Pill-Shaped Sections
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(120.dp)
+                                .semantics {
+                                    contentDescription = chartSummaryDescription
+                                }
                         ) {
                             Canvas(
                                 modifier = Modifier
@@ -920,7 +911,7 @@ fun NetworkDashboard(
                                             if (count > 0) {
                                                 val colWidth = size.width / count
                                                 val tapped = (offset.x / colWidth).toInt().coerceIn(0, count - 1)
-                                                selectedBucketIndex = tapped
+                                                onSelectBucket(tapped)
                                                 OsysterHapticUtil.performTick(view, hapticEnabled)
                                             }
                                         }
@@ -1040,9 +1031,9 @@ fun NetworkDashboard(
                 ) {
                     Text(
                         text = when (selectedFilter) {
-                            NetworkInterfaceFilter.ALL -> "Application Breakdown (${filteredApps.size})"
-                            NetworkInterfaceFilter.MOBILE -> "Mobile Breakdown (${filteredApps.size})"
-                            NetworkInterfaceFilter.WIFI -> "Wi-Fi Breakdown (${filteredApps.size})"
+                            NetworkInterfaceFilter.ALL -> stringResource(R.string.network_breakdown_all, filteredApps.size)
+                            NetworkInterfaceFilter.MOBILE -> stringResource(R.string.network_breakdown_mobile, filteredApps.size)
+                            NetworkInterfaceFilter.WIFI -> stringResource(R.string.network_breakdown_wifi, filteredApps.size)
                         },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
@@ -1061,16 +1052,17 @@ fun NetworkDashboard(
                         IconButton(
                             onClick = {
                                 OsysterHapticUtil.performTick(view, hapticEnabled)
-                                isSearchActive = !isSearchActive
-                                if (!isSearchActive) searchQuery = ""
+                                val newActive = !isSearchActive
+                                onSearchActiveChange(newActive)
+                                if (!newActive) onSearchQueryChange("")
                             },
                             modifier = Modifier
-                                .size(36.dp)
+                                .size(48.dp)
                                 .clip(CircleShape)
                         ) {
                             Icon(
                                 imageVector = if (isSearchActive) Icons.Default.Close else Icons.Default.Search,
-                                contentDescription = "Search Applications",
+                                contentDescription = stringResource(R.string.network_search_apps_desc),
                                 tint = if (isSearchActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
                             )
                         }
@@ -1083,7 +1075,7 @@ fun NetworkDashboard(
                 item {
                     OutlinedTextField(
                         value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        onValueChange = onSearchQueryChange,
                         placeholder = { Text(stringResource(R.string.network_search_hint), color = MaterialTheme.colorScheme.outline) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
@@ -1135,7 +1127,7 @@ fun NetworkDashboard(
                             Button(
                                 onClick = {
                                     OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
-                                    phonePermissionLauncher.launch(android.Manifest.permission.READ_PHONE_STATE)
+                                    onRequestPhonePermission()
                                 },
                                 shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
@@ -1179,7 +1171,7 @@ fun NetworkDashboard(
                         filter = selectedFilter,
                         onClick = {
                             OsysterHapticUtil.performTick(view, hapticEnabled)
-                            selectedAppDetails = app
+                            onSelectAppDetails(app)
                         }
                     )
                 }
@@ -1190,13 +1182,14 @@ fun NetworkDashboard(
             }
         }
     }
+}
 
     // Modal Details Bottom Sheet
     selectedAppDetails?.let { app ->
         AppDetailsModalSheet(
             app = app,
-            onDismiss = { selectedAppDetails = null },
-            context = context
+            onDismiss = { onSelectAppDetails(null) },
+            onOpenAppSettings = { onOpenAppDetailsSettings(app.packageName) }
         )
     }
 }
@@ -1212,9 +1205,7 @@ private fun AppUsageItem(
     filter: NetworkInterfaceFilter,
     onClick: () -> Unit
 ) {
-    val bitmap = remember(app.icon) {
-        app.icon?.let { runCatching { it.toSafeBitmap() }.getOrNull() }
-    }
+    val bitmap = rememberAsyncAppIcon(app.packageName).value
 
     Card(
         onClick = onClick,
@@ -1231,7 +1222,7 @@ private fun AppUsageItem(
             // App Icon
             if (bitmap != null) {
                 androidx.compose.foundation.Image(
-                    bitmap = bitmap.asImageBitmap(),
+                    bitmap = bitmap,
                     contentDescription = null,
                     modifier = Modifier
                         .size(42.dp)
@@ -1280,17 +1271,17 @@ private fun AppUsageItem(
                             NetworkInterfaceFilter.ALL -> {
                                 val m = NetworkMonitor.formatBytes(app.mobileBytes)
                                 val w = NetworkMonitor.formatBytes(app.wifiBytes)
-                                "Mobile: $m • Wi-Fi: $w"
+                                stringResource(R.string.network_app_subtitle_all, m, w)
                             }
                             NetworkInterfaceFilter.MOBILE -> {
                                 val rx = NetworkMonitor.formatBytes(app.rxBytes)
                                 val tx = NetworkMonitor.formatBytes(app.txBytes)
-                                "Mobile • ↓ $rx  ↑ $tx"
+                                stringResource(R.string.network_app_subtitle_mobile, rx, tx)
                             }
                             NetworkInterfaceFilter.WIFI -> {
                                 val rx = NetworkMonitor.formatBytes(app.rxBytes)
                                 val tx = NetworkMonitor.formatBytes(app.txBytes)
-                                "Wi-Fi • ↓ $rx  ↑ $tx"
+                                stringResource(R.string.network_app_subtitle_wifi, rx, tx)
                             }
                         }
                         Text(
@@ -1366,7 +1357,7 @@ private fun AppUsageItem(
 private fun AppDetailsModalSheet(
     app: AppNetworkUsage,
     onDismiss: () -> Unit,
-    context: android.content.Context
+    onOpenAppSettings: () -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -1423,7 +1414,7 @@ private fun AppDetailsModalSheet(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Total Consumption",
+                    text = stringResource(R.string.network_total_consumption),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.outline
                 )
@@ -1440,7 +1431,7 @@ private fun AppDetailsModalSheet(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Download (Rx)",
+                    text = stringResource(R.string.network_download_rx),
                     style = MaterialTheme.typography.bodyMedium,
                     color = ColorCyanDownload
                 )
@@ -1457,7 +1448,7 @@ private fun AppDetailsModalSheet(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Upload (Tx)",
+                    text = stringResource(R.string.network_upload_tx),
                     style = MaterialTheme.typography.bodyMedium,
                     color = ColorEmeraldUpload
                 )
@@ -1474,7 +1465,7 @@ private fun AppDetailsModalSheet(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Application UID",
+                    text = stringResource(R.string.network_app_uid),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.outline
                 )
@@ -1491,11 +1482,7 @@ private fun AppDetailsModalSheet(
                 Spacer(modifier = Modifier.height(4.dp))
                 Button(
                     onClick = {
-                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            data = Uri.fromParts("package", app.packageName, null)
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        }
-                        runCatching { context.startActivity(intent) }
+                        onOpenAppSettings()
                         onDismiss()
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -1518,8 +1505,16 @@ private fun AppDetailsModalSheet(
     }
 }
 
-private fun Drawable.toSafeBitmap(): Bitmap {
-    val width = if (intrinsicWidth > 0) intrinsicWidth else 96
-    val height = if (intrinsicHeight > 0) intrinsicHeight else 96
-    return toBitmap(width.coerceIn(48, 144), height.coerceIn(48, 144))
+
+@Preview(showBackground = true)
+@Composable
+private fun NetworkDashboardPreview() {
+    OsysterTheme {
+        NetworkDashboardContent(
+            uiState = NetworkUiState(
+                hasPermission = true,
+                hasPhonePermission = true
+            )
+        )
+    }
 }

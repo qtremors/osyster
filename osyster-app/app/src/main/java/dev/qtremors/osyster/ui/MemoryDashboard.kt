@@ -18,28 +18,38 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.qtremors.osyster.monitor.MemoryState
-import dev.qtremors.osyster.monitor.SystemMonitor
+import dev.qtremors.osyster.R
+import dev.qtremors.osyster.ui.theme.OsysterTheme
+import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
+import dev.qtremors.osyster.ui.viewmodel.MemoryUiState
+import dev.qtremors.osyster.ui.viewmodel.MemoryViewModel
 import java.util.Locale
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun MemoryDashboard(modifier: Modifier = Modifier) {
-    var memoryState by remember { mutableStateOf(SystemMonitor.getMemoryState()) }
+fun MemoryDashboard(
+    modifier: Modifier = Modifier,
+    viewModel: MemoryViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    MemoryDashboardContent(
+        uiState = uiState,
+        modifier = modifier
+    )
+}
 
-    LaunchedEffect(Unit) {
-        SystemMonitor.streamMemory(1000L).collectLatest { state ->
-            memoryState = state
-        }
-    }
-
-    val ramUsedPercent = if (memoryState.ramTotalKb > 0) {
-        (memoryState.ramUsedKb.toFloat() / memoryState.ramTotalKb.toFloat()) * 100f
-    } else 0f
-
-    val swapUsedPercent = if (memoryState.swapTotalKb > 0) {
-        (memoryState.swapUsedKb.toFloat() / memoryState.swapTotalKb.toFloat()) * 100f
-    } else 0f
+@Composable
+fun MemoryDashboardContent(
+    uiState: MemoryUiState,
+    modifier: Modifier = Modifier
+) {
+    val memoryState = uiState.memoryState
+    val ramUsedPercent = uiState.ramUsedPercent
+    val swapUsedPercent = uiState.swapUsedPercent
 
     Column(
         modifier = modifier
@@ -61,7 +71,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "System RAM Allocation",
+                    text = stringResource(R.string.memory_system_ram_allocation),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -87,7 +97,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "RAM USED",
+                            text = stringResource(R.string.memory_ram_used_label),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline,
                             fontWeight = FontWeight.Bold
@@ -102,7 +112,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Active Memory", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                        Text(stringResource(R.string.memory_active_memory), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                         Text(
                             text = formatKb(memoryState.ramUsedKb),
                             style = MaterialTheme.typography.bodyMedium,
@@ -113,7 +123,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Available Capacity", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                        Text(stringResource(R.string.memory_available_capacity), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                         Text(
                             text = formatKb(memoryState.ramAvailableKb),
                             style = MaterialTheme.typography.bodyMedium,
@@ -124,7 +134,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Total Space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                        Text(stringResource(R.string.memory_total_space), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                         Text(
                             text = formatKb(memoryState.ramTotalKb),
                             style = MaterialTheme.typography.bodyMedium,
@@ -143,7 +153,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
                 Text(
-                    text = "Virtual SWAP File",
+                    text = stringResource(R.string.memory_virtual_swap_file),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary,
@@ -157,7 +167,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("SWAP Load", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                            Text(stringResource(R.string.memory_swap_load), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                             Text(
                                 text = String.format(Locale.getDefault(), "%.1f%%", swapUsedPercent),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -179,7 +189,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Used Space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                            Text(stringResource(R.string.memory_used_space), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                             Text(
                                 text = formatKb(memoryState.swapUsedKb),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -191,7 +201,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Free Space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                            Text(stringResource(R.string.memory_free_space), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                             Text(
                                 text = formatKb(memoryState.swapFreeKb),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -203,7 +213,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Total SWAP size", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                            Text(stringResource(R.string.memory_total_swap_size), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                             Text(
                                 text = formatKb(memoryState.swapTotalKb),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -219,7 +229,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "SWAP Space is inactive",
+                            text = stringResource(R.string.memory_swap_inactive),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.outline
                         )
@@ -236,7 +246,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
         ) {
             Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    text = "Allocation Segments",
+                    text = stringResource(R.string.memory_allocation_segments),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary
@@ -301,7 +311,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary)
                         )
-                        Text("Active Memory", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                        Text(stringResource(R.string.memory_active_memory), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                     }
                     Text(
                         text = formatKb(memoryState.ramUsedKb),
@@ -324,7 +334,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.tertiary)
                         )
-                        Text("Cached Space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                        Text(stringResource(R.string.memory_cached_space), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                     }
                     Text(
                         text = formatKb(memoryState.ramCachedKb),
@@ -347,7 +357,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.secondary)
                         )
-                        Text("Buffers", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                        Text(stringResource(R.string.memory_buffers), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                     }
                     Text(
                         text = formatKb(memoryState.ramBuffersKb),
@@ -370,7 +380,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
                                 .clip(CircleShape)
                                 .background(Color.White.copy(alpha = 0.25f))
                         )
-                        Text("Free Space", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                        Text(stringResource(R.string.memory_free_space), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                     }
                     Text(
                         text = formatKb(memoryState.ramFreeKb),
@@ -381,7 +391,7 @@ fun MemoryDashboard(modifier: Modifier = Modifier) {
             }
         }
 
-        Spacer(modifier = Modifier.height(110.dp))
+        Spacer(modifier = Modifier.height(LocalBottomContentPadding.current))
     }
 }
 
@@ -392,5 +402,29 @@ private fun formatKb(kb: Long): String {
         String.format(Locale.getDefault(), "%.1f MB", kb.toFloat() / 1024f)
     } else {
         "$kb KB"
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MemoryDashboardPreview() {
+    OsysterTheme {
+        MemoryDashboardContent(
+            uiState = MemoryUiState(
+                memoryState = MemoryState(
+                    ramTotalKb = 8388608L,
+                    ramUsedKb = 4194304L,
+                    ramAvailableKb = 4194304L,
+                    ramFreeKb = 2097152L,
+                    ramCachedKb = 1572864L,
+                    ramBuffersKb = 524288L,
+                    swapTotalKb = 4194304L,
+                    swapUsedKb = 1048576L,
+                    swapFreeKb = 3145728L
+                ),
+                ramUsedPercent = 50f,
+                swapUsedPercent = 25f
+            )
+        )
     }
 }

@@ -13,6 +13,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Process
 import android.provider.Settings
+import android.telephony.SubscriptionManager
+import android.telephony.TelephonyManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -85,8 +87,7 @@ object NetworkMonitor {
 
     private data class CachedAppMeta(
         val appName: String,
-        val packageName: String,
-        val icon: Drawable?
+        val packageName: String
     )
 
     private val appMetaCache = ConcurrentHashMap<Int, CachedAppMeta>()
@@ -126,6 +127,18 @@ object NetworkMonitor {
 
     fun hasPhonePermission(context: Context): Boolean {
         return context.checkSelfPermission(android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
+    }
+
+    @Suppress("MissingPermission")
+    fun getActiveCarrierNames(context: Context): List<String> {
+        if (!hasPhonePermission(context)) return emptyList()
+        return runCatching {
+            val sm = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as? SubscriptionManager
+            sm?.activeSubscriptionInfoList?.mapNotNull { info ->
+                info.carrierName?.toString()?.takeIf { it.isNotBlank() }
+                    ?: info.displayName?.toString()?.takeIf { it.isNotBlank() }
+            } ?: emptyList()
+        }.getOrDefault(emptyList())
     }
 
     fun getActiveNetworkType(context: Context): NetworkInterfaceFilter {
@@ -475,19 +488,42 @@ object NetworkMonitor {
 
             // Fallback for mobile on devices where subscriberId is needed
             if (!queried && networkType == ConnectivityManager.TYPE_MOBILE) {
-                runCatching {
-                    val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? android.telephony.TelephonyManager
-                    val subId = telephonyManager?.subscriberId
-                    if (!subId.isNullOrEmpty()) {
-                        val stats = networkStatsManager.querySummary(networkType, subId, rangeStart, rangeEnd)
-                        val bucket = NetworkStats.Bucket()
-                        while (stats.hasNextBucket()) {
-                            stats.getNextBucket(bucket)
-                            val uid = bucket.uid
-                            val prev = targetMap[uid] ?: Pair(0L, 0L)
-                            targetMap[uid] = Pair(prev.first + bucket.rxBytes, prev.second + bucket.txBytes)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                    @Suppress("DEPRECATION")
+                    runCatching {
+                        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+                        val subId = telephonyManager?.subscriberId
+                        if (!subId.isNullOrEmpty()) {
+                            val stats = networkStatsManager.querySummary(networkType, subId, rangeStart, rangeEnd)
+                            val bucket = NetworkStats.Bucket()
+                            while (stats.hasNextBucket()) {
+                                stats.getNextBucket(bucket)
+                                val uid = bucket.uid
+                                val prev = targetMap[uid] ?: Pair(0L, 0L)
+                                targetMap[uid] = Pair(prev.first + bucket.rxBytes, prev.second + bucket.txBytes)
+                            }
+                            stats.close()
                         }
-                        stats.close()
+                    }
+                } else {
+                    // For API 29 and higher, identify network interfaces using SubscriptionManager and standard carrier metadata without querying subscriber identifiers
+                    @Suppress("MissingPermission")
+                    runCatching {
+                        val subscriptionManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as? SubscriptionManager
+                        if (hasPhonePermission(context)) {
+                            val activeSubs = subscriptionManager?.activeSubscriptionInfoList
+                            if (!activeSubs.isNullOrEmpty()) {
+                                val stats = networkStatsManager.querySummary(networkType, null, rangeStart, rangeEnd)
+                                val bucket = NetworkStats.Bucket()
+                                while (stats.hasNextBucket()) {
+                                    stats.getNextBucket(bucket)
+                                    val uid = bucket.uid
+                                    val prev = targetMap[uid] ?: Pair(0L, 0L)
+                                    targetMap[uid] = Pair(prev.first + bucket.rxBytes, prev.second + bucket.txBytes)
+                                }
+                                stats.close()
+                            }
+                        }
                     }
                 }
             }
@@ -540,7 +576,7 @@ object NetworkMonitor {
                     totalBytes = total,
                     mobileBytes = mTotal,
                     wifiBytes = wTotal,
-                    icon = meta.icon
+                    icon = null
                 )
             )
         }
@@ -567,29 +603,28 @@ object NetworkMonitor {
 
         // 1. Check known system services
         if (uid == Process.SYSTEM_UID || uid == 1000) {
-            val icon = runCatching { pm.getApplicationIcon("android") }.getOrNull()
-            val meta = CachedAppMeta("Android System", "android", icon)
+            val meta = CachedAppMeta("Android System", "android")
             appMetaCache[uid] = meta
             return meta
         }
         if (uid == 0) {
-            val meta = CachedAppMeta("Root Process", "root", null)
+            val meta = CachedAppMeta("Root Process", "root")
             appMetaCache[uid] = meta
             return meta
         }
         if (uid == 1073) {
-            val meta = CachedAppMeta("Bluetooth Service", "com.android.bluetooth", null)
+            val meta = CachedAppMeta("Bluetooth Service", "com.android.bluetooth")
             appMetaCache[uid] = meta
             return meta
         }
         if (uid == 1001) {
-            val meta = CachedAppMeta("Telephony Services", "com.android.phone", null)
+            val meta = CachedAppMeta("Telephony Services", "com.android.phone")
             appMetaCache[uid] = meta
             return meta
         }
         if (uid == -4 || uid == -5) {
             val label = if (uid == -4) "Tethering & Hotspot" else "Removed Applications"
-            val meta = CachedAppMeta(label, "system.network", null)
+            val meta = CachedAppMeta(label, "system.network")
             appMetaCache[uid] = meta
             return meta
         }
@@ -599,8 +634,7 @@ object NetworkMonitor {
         if (indexedApp != null) {
             val label = runCatching { pm.getApplicationLabel(indexedApp).toString() }.getOrNull()
                 ?: indexedApp.packageName
-            val icon = runCatching { pm.getApplicationIcon(indexedApp) }.getOrNull()
-            val meta = CachedAppMeta(appName = label, packageName = indexedApp.packageName, icon = icon)
+            val meta = CachedAppMeta(appName = label, packageName = indexedApp.packageName)
             appMetaCache[uid] = meta
             return meta
         }
@@ -612,8 +646,7 @@ object NetworkMonitor {
             val appInfo = runCatching { pm.getApplicationInfo(pkgName, 0) }.getOrNull()
             val label = appInfo?.let { runCatching { pm.getApplicationLabel(it).toString() }.getOrNull() }
                 ?: pkgName
-            val icon = appInfo?.let { runCatching { pm.getApplicationIcon(it) }.getOrNull() }
-            val meta = CachedAppMeta(appName = label, packageName = pkgName, icon = icon)
+            val meta = CachedAppMeta(appName = label, packageName = pkgName)
             appMetaCache[uid] = meta
             return meta
         }
@@ -625,8 +658,7 @@ object NetworkMonitor {
             val appInfo = runCatching { pm.getApplicationInfo(cleanName, 0) }.getOrNull()
             val label = appInfo?.let { runCatching { pm.getApplicationLabel(it).toString() }.getOrNull() }
                 ?: cleanName
-            val icon = appInfo?.let { runCatching { pm.getApplicationIcon(it) }.getOrNull() }
-            val meta = CachedAppMeta(appName = label, packageName = cleanName, icon = icon)
+            val meta = CachedAppMeta(appName = label, packageName = cleanName)
             appMetaCache[uid] = meta
             return meta
         }
@@ -634,8 +666,7 @@ object NetworkMonitor {
         // 5. Clean fallback if UID cannot be resolved
         val fallbackMeta = CachedAppMeta(
             appName = "Application ($uid)",
-            packageName = "uid.$uid",
-            icon = null
+            packageName = "uid.$uid"
         )
         appMetaCache[uid] = fallbackMeta
         return fallbackMeta
@@ -654,21 +685,21 @@ object NetworkMonitor {
     fun formatBytes(bytes: Long): String {
         if (bytes < 1024L) return "$bytes B"
         val kb = bytes / 1024.0
-        if (kb < 1024.0) return String.format(Locale.US, "%.2f KB", kb)
+        if (kb < 1024.0) return String.format(Locale.getDefault(), "%.2f KB", kb)
         val mb = kb / 1024.0
-        if (mb < 1024.0) return String.format(Locale.US, "%.2f MB", mb)
+        if (mb < 1024.0) return String.format(Locale.getDefault(), "%.2f MB", mb)
         val gb = mb / 1024.0
-        return String.format(Locale.US, "%.2f GB", gb)
+        return String.format(Locale.getDefault(), "%.2f GB", gb)
     }
 
     fun splitBytesAndUnit(bytes: Long): Pair<String, String> {
         if (bytes < 1024L) return Pair("$bytes", "B")
         val kb = bytes / 1024.0
-        if (kb < 1024.0) return Pair(String.format(Locale.US, "%.2f", kb), "KB")
+        if (kb < 1024.0) return Pair(String.format(Locale.getDefault(), "%.2f", kb), "KB")
         val mb = kb / 1024.0
-        if (mb < 1024.0) return Pair(String.format(Locale.US, "%.2f", mb), "MB")
+        if (mb < 1024.0) return Pair(String.format(Locale.getDefault(), "%.2f", mb), "MB")
         val gb = mb / 1024.0
-        return Pair(String.format(Locale.US, "%.2f", gb), "GB")
+        return Pair(String.format(Locale.getDefault(), "%.2f", gb), "GB")
     }
 
     fun formatSpeed(bytesPerSec: Long): String {

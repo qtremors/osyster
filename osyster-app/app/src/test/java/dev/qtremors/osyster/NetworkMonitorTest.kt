@@ -13,37 +13,74 @@ class NetworkMonitorTest {
 
     @Test
     fun formatBytes_formatsVariousMagnitudesCorrectly() {
-        assertEquals("500 B", NetworkMonitor.formatBytes(500L))
-        assertEquals("1.00 KB", NetworkMonitor.formatBytes(1024L))
-        assertEquals("1.50 KB", NetworkMonitor.formatBytes(1536L))
-        assertEquals("1.00 MB", NetworkMonitor.formatBytes(1024L * 1024L))
-        assertEquals("849.77 MB", NetworkMonitor.formatBytes((849.77 * 1024 * 1024).toLong()))
-        assertEquals("1.50 GB", NetworkMonitor.formatBytes((1.5 * 1024 * 1024 * 1024).toLong()))
+        val originalLocale = java.util.Locale.getDefault()
+        try {
+            java.util.Locale.setDefault(java.util.Locale.US)
+            assertEquals("500 B", NetworkMonitor.formatBytes(500L))
+            assertEquals("1.00 KB", NetworkMonitor.formatBytes(1024L))
+            assertEquals("1.50 KB", NetworkMonitor.formatBytes(1536L))
+            assertEquals("1.00 MB", NetworkMonitor.formatBytes(1024L * 1024L))
+            assertEquals("849.77 MB", NetworkMonitor.formatBytes((849.77 * 1024 * 1024).toLong()))
+            assertEquals("1.50 GB", NetworkMonitor.formatBytes((1.5 * 1024 * 1024 * 1024).toLong()))
+
+            java.util.Locale.setDefault(java.util.Locale.GERMANY)
+            assertEquals("500 B", NetworkMonitor.formatBytes(500L))
+            assertEquals("1,00 KB", NetworkMonitor.formatBytes(1024L))
+            assertEquals("1,50 KB", NetworkMonitor.formatBytes(1536L))
+            assertEquals("1,50 GB", NetworkMonitor.formatBytes((1.5 * 1024 * 1024 * 1024).toLong()))
+        } finally {
+            java.util.Locale.setDefault(originalLocale)
+        }
     }
 
     @Test
     fun splitBytesAndUnit_splitsNumberAndUnitAccurately() {
-        val (numB, unitB) = NetworkMonitor.splitBytesAndUnit(420L)
-        assertEquals("420", numB)
-        assertEquals("B", unitB)
+        val originalLocale = java.util.Locale.getDefault()
+        try {
+            java.util.Locale.setDefault(java.util.Locale.US)
+            val (numB, unitB) = NetworkMonitor.splitBytesAndUnit(420L)
+            assertEquals("420", numB)
+            assertEquals("B", unitB)
 
-        val (numKB, unitKB) = NetworkMonitor.splitBytesAndUnit(2048L)
-        assertEquals("2.00", numKB)
-        assertEquals("KB", unitKB)
+            val (numKB, unitKB) = NetworkMonitor.splitBytesAndUnit(2048L)
+            assertEquals("2.00", numKB)
+            assertEquals("KB", unitKB)
 
-        val (numMB, unitMB) = NetworkMonitor.splitBytesAndUnit((846.08 * 1024 * 1024).toLong())
-        assertEquals("846.08", numMB)
-        assertEquals("MB", unitMB)
+            val (numMB, unitMB) = NetworkMonitor.splitBytesAndUnit((846.08 * 1024 * 1024).toLong())
+            assertEquals("846.08", numMB)
+            assertEquals("MB", unitMB)
 
-        val (numGB, unitGB) = NetworkMonitor.splitBytesAndUnit((4.25 * 1024 * 1024 * 1024).toLong())
-        assertEquals("4.25", numGB)
-        assertEquals("GB", unitGB)
+            val (numGB, unitGB) = NetworkMonitor.splitBytesAndUnit((4.25 * 1024 * 1024 * 1024).toLong())
+            assertEquals("4.25", numGB)
+            assertEquals("GB", unitGB)
+
+            java.util.Locale.setDefault(java.util.Locale.GERMANY)
+            val (numDeKB, unitDeKB) = NetworkMonitor.splitBytesAndUnit(2048L)
+            assertEquals("2,00", numDeKB)
+            assertEquals("KB", unitDeKB)
+
+            val (numDeGB, unitDeGB) = NetworkMonitor.splitBytesAndUnit((4.25 * 1024 * 1024 * 1024).toLong())
+            assertEquals("4,25", numDeGB)
+            assertEquals("GB", unitDeGB)
+        } finally {
+            java.util.Locale.setDefault(originalLocale)
+        }
     }
 
     @Test
     fun formatSpeed_appendsPerSecond() {
-        assertEquals("120.00 KB/s", NetworkMonitor.formatSpeed(120L * 1024L))
-        assertEquals("1.50 MB/s", NetworkMonitor.formatSpeed((1.5 * 1024 * 1024).toLong()))
+        val originalLocale = java.util.Locale.getDefault()
+        try {
+            java.util.Locale.setDefault(java.util.Locale.US)
+            assertEquals("120.00 KB/s", NetworkMonitor.formatSpeed(120L * 1024L))
+            assertEquals("1.50 MB/s", NetworkMonitor.formatSpeed((1.5 * 1024 * 1024).toLong()))
+
+            java.util.Locale.setDefault(java.util.Locale.GERMANY)
+            assertEquals("120,00 KB/s", NetworkMonitor.formatSpeed(120L * 1024L))
+            assertEquals("1,50 MB/s", NetworkMonitor.formatSpeed((1.5 * 1024 * 1024).toLong()))
+        } finally {
+            java.util.Locale.setDefault(originalLocale)
+        }
     }
 
     @Test

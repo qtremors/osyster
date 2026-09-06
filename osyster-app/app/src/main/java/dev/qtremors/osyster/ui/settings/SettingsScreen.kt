@@ -158,7 +158,8 @@ fun SettingsScreen(
                         DiagnosticsInterval.INTERVAL_500MS to stringResource(R.string.interval_fast),
                         DiagnosticsInterval.INTERVAL_1000MS to stringResource(R.string.interval_normal),
                         DiagnosticsInterval.INTERVAL_2000MS to stringResource(R.string.interval_relaxed),
-                        DiagnosticsInterval.INTERVAL_3000MS to stringResource(R.string.interval_saver)
+                        DiagnosticsInterval.INTERVAL_3000MS to stringResource(R.string.interval_saver),
+                        DiagnosticsInterval.INTERVAL_5000MS to stringResource(R.string.interval_eco)
                     )
 
                     intervals.forEachIndexed { index, (interval, label) ->

@@ -63,6 +63,7 @@ import dev.qtremors.osyster.ui.settings.AboutScreen
 import dev.qtremors.osyster.ui.settings.LicensesScreen
 import dev.qtremors.osyster.ui.settings.SettingsScreen
 import dev.qtremors.osyster.ui.theme.OsysterTheme
+import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -170,11 +171,16 @@ class MainActivity : ComponentActivity() {
                         }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
-                ) {
+                val navBarsBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                val isDockVisible = !isOnboarding && !isSubpage
+                val dynamicBottomPadding = if (isDockVisible) navBarsBottom + 108.dp else navBarsBottom + 16.dp
+
+                CompositionLocalProvider(LocalBottomContentPadding provides dynamicBottomPadding) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background)
+                    ) {
                     NavHost(
                         navController = navController,
                         startDestination = if (prefsState.isOnboardingCompleted) AppRoutes.Bento else AppRoutes.Onboarding,
@@ -327,7 +333,7 @@ class MainActivity : ComponentActivity() {
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Add,
-                                                contentDescription = "Add Applications"
+                                                contentDescription = stringResource(R.string.app_stopper_add_apps_button)
                                             )
                                         }
                                     },
@@ -339,7 +345,7 @@ class MainActivity : ComponentActivity() {
                                                 appStopperSearchQuery = ""
                                             },
                                             modifier = Modifier
-                                                .size(44.dp)
+                                                .size(48.dp)
                                                 .align(Alignment.CenterVertically),
                                             colors = IconButtonDefaults.iconButtonColors(
                                                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
@@ -348,7 +354,7 @@ class MainActivity : ComponentActivity() {
                                         ) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = "Close search",
+                                                contentDescription = stringResource(R.string.app_stopper_close_search),
                                                 modifier = Modifier.size(20.dp)
                                             )
                                         }
@@ -383,7 +389,7 @@ class MainActivity : ComponentActivity() {
                                                     Box(modifier = Modifier.weight(1f, fill = false)) {
                                                         if (appStopperSearchQuery.isEmpty()) {
                                                             Text(
-                                                                text = "Search apps...",
+                                                                text = stringResource(R.string.app_stopper_search_hint),
                                                                 style = MaterialTheme.typography.bodyMedium,
                                                                 color = MaterialTheme.colorScheme.outline,
                                                                 maxLines = 1
@@ -402,12 +408,12 @@ class MainActivity : ComponentActivity() {
                                                     appStopperSearchQuery = ""
                                                 },
                                                 modifier = Modifier
-                                                    .size(36.dp)
+                                                    .size(48.dp)
                                                     .align(Alignment.CenterVertically)
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Default.Close,
-                                                    contentDescription = "Clear search",
+                                                    contentDescription = stringResource(R.string.app_stopper_clear_search),
                                                     tint = MaterialTheme.colorScheme.outline,
                                                     modifier = Modifier.size(18.dp)
                                                 )
@@ -418,7 +424,7 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 OsysterDock(
                                     modifier = Modifier.align(Alignment.BottomCenter),
-                                    title = "App Stopper",
+                                    title = stringResource(R.string.app_stopper_title),
                                     onBackClick = {
                                         OsysterHapticUtil.performVirtualKey(view, prefsState.hapticFeedback)
                                         navController.navigateUp()
@@ -429,7 +435,7 @@ class MainActivity : ComponentActivity() {
                                                 OsysterHapticUtil.performVirtualKey(view, prefsState.hapticFeedback)
                                                 isAppStopperSearchActive = true
                                             },
-                                            modifier = Modifier.size(44.dp),
+                                            modifier = Modifier.size(48.dp),
                                             colors = IconButtonDefaults.iconButtonColors(
                                                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
                                                 contentColor = MaterialTheme.colorScheme.onSurface
@@ -437,7 +443,7 @@ class MainActivity : ComponentActivity() {
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Search,
-                                                contentDescription = "Search",
+                                                contentDescription = stringResource(R.string.search),
                                                 modifier = Modifier.size(20.dp)
                                             )
                                         }
@@ -456,28 +462,31 @@ class MainActivity : ComponentActivity() {
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Add,
-                                                contentDescription = "Add Applications"
+                                                contentDescription = stringResource(R.string.app_stopper_add_apps_button)
                                             )
                                         }
                                     }
                                 )
                             }
                         } else {
-                            val dockItems = remember {
+                            val dashboardLabel = stringResource(R.string.dock_dashboard)
+                            val telemetryLabel = stringResource(R.string.dock_telemetry)
+                            val tasksLabel = stringResource(R.string.dock_tasks)
+                            val dockItems = remember(dashboardLabel, telemetryLabel, tasksLabel) {
                                 listOf(
                                     OsysterDockItem(
                                         icon = Icons.Default.Dashboard,
-                                        label = "Dashboard",
+                                        label = dashboardLabel,
                                         onClick = { scope.launch { pagerState.animateScrollToPage(0) } }
                                     ),
                                     OsysterDockItem(
                                         icon = Icons.Default.Speed,
-                                        label = "Telemetry",
+                                        label = telemetryLabel,
                                         onClick = { scope.launch { pagerState.animateScrollToPage(1) } }
                                     ),
                                     OsysterDockItem(
                                         icon = Icons.Default.Terminal,
-                                        label = "Tasks",
+                                        label = tasksLabel,
                                         onClick = { scope.launch { pagerState.animateScrollToPage(2) } }
                                     )
                                 )
@@ -503,7 +512,7 @@ class MainActivity : ComponentActivity() {
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Default.Settings,
-                                                    contentDescription = "Settings"
+                                                    contentDescription = stringResource(R.string.settings_title)
                                                 )
                                             }
                                         }
@@ -520,7 +529,7 @@ class MainActivity : ComponentActivity() {
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Default.Refresh,
-                                                    contentDescription = "Toggle CPU / Memory"
+                                                    contentDescription = stringResource(R.string.dock_toggle_telemetry)
                                                 )
                                             }
                                         }
@@ -537,7 +546,7 @@ class MainActivity : ComponentActivity() {
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Default.PowerSettingsNew,
-                                                    contentDescription = "App Stopper"
+                                                    contentDescription = stringResource(R.string.app_stopper_title)
                                                 )
                                             }
                                         }
@@ -550,5 +559,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
 }
 }

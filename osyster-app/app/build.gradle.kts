@@ -14,8 +14,8 @@ android {
         applicationId = "dev.qtremors.osyster"
         minSdk = 24
         targetSdk = 37
-        versionCode = 8
-        versionName = "0.0.8"
+        versionCode = 9
+        versionName = "0.0.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -97,7 +97,7 @@ androidComponents {
     onVariants { variant ->
         variant.outputs.forEach { output ->
             val version = output.versionName.get() ?: "0.0.0"
-            output.outputFileName.set("Osyster-$version.apk")
+            output.outputFileName.set("Osyster-$version-${variant.name}.apk")
         }
     }
 }
@@ -173,7 +173,6 @@ dependencies {
     implementation(libs.androidx.compose.material3.adaptive.layout)
     implementation(libs.androidx.compose.material3.adaptive.navigation)
     implementation(libs.androidx.compose.material.icons.extended)
-    implementation(libs.material.kolor)
     implementation(libs.androidx.graphics.shapes)
 
     testImplementation(libs.junit)

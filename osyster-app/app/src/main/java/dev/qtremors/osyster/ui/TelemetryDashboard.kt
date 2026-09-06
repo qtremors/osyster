@@ -16,6 +16,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import dev.qtremors.osyster.R
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 
 @Composable
@@ -41,8 +43,8 @@ fun TelemetryDashboard(
             horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
         ) {
             val tabs = listOf(
-                Triple(0, Icons.Default.Speed, "CPU Telemetry"),
-                Triple(1, Icons.Default.Memory, "RAM & Swap")
+                Triple(0, Icons.Default.Speed, stringResource(R.string.telemetry_tab_cpu)),
+                Triple(1, Icons.Default.Memory, stringResource(R.string.telemetry_tab_ram))
             )
 
             tabs.forEachIndexed { index, (_, iconVector, labelText) ->

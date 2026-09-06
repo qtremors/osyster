@@ -1,8 +1,19 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.0.8
-> **Last Updated:** 2026-09-04
+> **Version:** 0.0.9
+> **Last Updated:** 2026-09-06
+
+---
+
+## [0.0.9] - 2026-09-06
+
+- **Comprehensive UI Internationalization**: Centralized user-facing labels, metrics, dialogs, and accessibility descriptions across all dashboards into XML string resources, with locale-sensitive number and byte formatting.
+- **Jetpack ViewModel Architecture & Smooth Scrolling**: Migrated state management across all core screens to dedicated ViewModels, decoupled UI previews, and introduced asynchronous LRU icon caching for fluid list performance.
+- **Sandbox Compliance & Telemetry Precision**: Modeled CPU and thermal states with explicit "Restricted by OS" indicators, resolved process UID ownership, and replaced raw shell process killing with compliant background process management.
+- **Interactive Controls & Personalization**: Added pull-to-refresh gestures on Task and Network screens, configurable update intervals with Eco mode, dynamic temperature units (Celsius/Fahrenheit), and kernel thread filtering.
+- **Accessibility & Contrast Calibration**: Implemented screen reader semantics for the network usage timeline chart and dock navigation tabs, expanded minimum touch targets to 48 dp, and calibrated surface contrast for Dark and OLED themes.
+- **Platform Hardening & Build Optimization**: Enforced cleartext traffic restrictions, excluded sensitive diagnostic state from backups, eliminated unused runtime dependencies, and established variant-specific APK naming.
 
 ---
 

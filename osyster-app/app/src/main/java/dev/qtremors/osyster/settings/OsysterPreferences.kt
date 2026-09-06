@@ -33,7 +33,8 @@ enum class DiagnosticsInterval(val millis: Long, val labelResName: String) {
     INTERVAL_500MS(500L, "interval_fast"),
     INTERVAL_1000MS(1000L, "interval_normal"),
     INTERVAL_2000MS(2000L, "interval_relaxed"),
-    INTERVAL_3000MS(3000L, "interval_saver")
+    INTERVAL_3000MS(3000L, "interval_saver"),
+    INTERVAL_5000MS(5000L, "interval_eco")
 }
 
 enum class TemperatureUnit(val symbol: String) {

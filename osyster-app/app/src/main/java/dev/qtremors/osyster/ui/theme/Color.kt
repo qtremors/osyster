@@ -22,21 +22,21 @@ val OnTertiaryDark = Color(0xFF5F0006)
 val TertiaryContainerDark = Color(0xFF8C0012)
 val OnTertiaryContainerDark = Color(0xFFFFDAD9)
 
-val BackgroundDark = Color(0xFF0C1115)     // Deep slate navy background
-val SurfaceDark = Color(0xFF141C22)        // Elevating surfaces
-val SurfaceContainerLowestDark = Color(0xFF080D10)
-val SurfaceContainerLowDark = Color(0xFF10171C)
-val SurfaceContainerDark = Color(0xFF141C22)
-val SurfaceContainerHighDark = Color(0xFF1C2730) // Segmented card surfaces
-val SurfaceContainerHighestDark = Color(0xFF24323E)
-val SurfaceDimDark = Color(0xFF0C1115)
-val SurfaceBrightDark = Color(0xFF2D3C4A)
-val SurfaceVariantDark = Color(0xFF1E2830)
-val OnSurfaceVariantDark = Color(0xFFBCC3CC)
-val OnBackgroundDark = Color(0xFFE1E2E5)
-val OnSurfaceDark = Color(0xFFE1E2E5)
-val OutlineDark = Color(0xFF8B9198)
-val OutlineVariantDark = Color(0xFF404850)
+val BackgroundDark = Color(0xFF0B1015)     // Deep slate navy background
+val SurfaceDark = Color(0xFF111820)        // Base surface
+val SurfaceContainerLowestDark = Color(0xFF070B0E)
+val SurfaceContainerLowDark = Color(0xFF131B22)
+val SurfaceContainerDark = Color(0xFF18222B)
+val SurfaceContainerHighDark = Color(0xFF222E39) // Segmented card surfaces with distinct contrast
+val SurfaceContainerHighestDark = Color(0xFF2C3B49) // Interactive chips, search inputs, badges
+val SurfaceDimDark = Color(0xFF0B1015)
+val SurfaceBrightDark = Color(0xFF334352)
+val SurfaceVariantDark = Color(0xFF1F2A35)
+val OnSurfaceVariantDark = Color(0xFFBCC5CE)
+val OnBackgroundDark = Color(0xFFE2E6EA)
+val OnSurfaceDark = Color(0xFFE2E6EA)
+val OutlineDark = Color(0xFF8B949E)
+val OutlineVariantDark = Color(0xFF3E4C59)
 
 // Light Theme (Sleek Frost tech)
 val PrimaryLight = Color(0xFF006875)
@@ -72,17 +72,17 @@ val OutlineVariantLight = Color(0xFFC2C7CE)
 
 // OLED Theme (Pure Black AMOLED)
 val BackgroundOled = Color(0xFF000000)
-val SurfaceOled = Color(0xFF070B0E)
+val SurfaceOled = Color(0xFF0A0F14)
 val SurfaceContainerLowestOled = Color(0xFF000000)
-val SurfaceContainerLowOled = Color(0xFF040608)
-val SurfaceContainerOled = Color(0xFF070B0E)
-val SurfaceContainerHighOled = Color(0xFF10161B)
-val SurfaceContainerHighestOled = Color(0xFF161E25)
+val SurfaceContainerLowOled = Color(0xFF0D1318)
+val SurfaceContainerOled = Color(0xFF131A21)
+val SurfaceContainerHighOled = Color(0xFF1C252E)
+val SurfaceContainerHighestOled = Color(0xFF26323E)
 val SurfaceDimOled = Color(0xFF000000)
-val SurfaceBrightOled = Color(0xFF1C2730)
-val SurfaceVariantOled = Color(0xFF0C1115)
-val OnSurfaceVariantOled = Color(0xFFBCC3CC)
-val OutlineVariantOled = Color(0xFF2D3740)
+val SurfaceBrightOled = Color(0xFF2E3B48)
+val SurfaceVariantOled = Color(0xFF11171E)
+val OnSurfaceVariantOled = Color(0xFFBCC5CE)
+val OutlineVariantOled = Color(0xFF364452)
 
 // Accent Palette Primary Swatches
 val AccentCyan = Color(0xFF00E6FF)

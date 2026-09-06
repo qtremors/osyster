@@ -18,8 +18,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import dev.qtremors.osyster.R
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 
 data class OsysterDockItem(
@@ -61,7 +68,7 @@ fun OsysterDock(
                     onBackClick()
                 },
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(48.dp)
                     .clip(CircleShape)
                     .align(Alignment.CenterVertically),
                 colors = IconButtonDefaults.iconButtonColors(
@@ -71,7 +78,7 @@ fun OsysterDock(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -104,82 +111,94 @@ fun OsysterDock(
                 }
             }
         } else {
-            items.forEachIndexed { index, item ->
-                val isSelected = selectedIndex == index
+            Row(
+                modifier = Modifier.selectableGroup(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                items.forEachIndexed { index, item ->
+                    val isSelected = selectedIndex == index
 
-                val itemWidth by animateDpAsState(
-                    targetValue = if (expanded || isSelected) 44.dp else 0.dp,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    ),
-                    label = "dock_item_width_$index"
-                )
+                    val itemWidth by animateDpAsState(
+                        targetValue = if (expanded || isSelected) 48.dp else 0.dp,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        ),
+                        label = "dock_item_width_$index"
+                    )
 
-                val labelWidth by animateDpAsState(
-                    targetValue = if (isSelected && !shouldHideLabel) 70.dp else 0.dp,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    ),
-                    label = "dock_label_width_$index"
-                )
+                    val labelWidth by animateDpAsState(
+                        targetValue = if (isSelected && !shouldHideLabel) 70.dp else 0.dp,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        ),
+                        label = "dock_label_width_$index"
+                    )
 
-                val spacerWidth by animateDpAsState(
-                    targetValue = if (index < items.size - 1) 6.dp else 0.dp,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    ),
-                    label = "dock_spacer_width_$index"
-                )
+                    val spacerWidth by animateDpAsState(
+                        targetValue = if (index < items.size - 1) 6.dp else 0.dp,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        ),
+                        label = "dock_spacer_width_$index"
+                    )
 
-                if (itemWidth > 0.dp || isSelected) {
-                    Surface(
-                        onClick = {
-                            OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
-                            item.onClick()
-                        },
-                        shape = CircleShape,
-                        color = if (isSelected) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.surfaceContainerHigh
-                        },
-                        contentColor = if (isSelected) {
-                            MaterialTheme.colorScheme.onPrimary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                        modifier = Modifier
-                            .width(itemWidth + labelWidth)
-                            .height(44.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(horizontal = 6.dp)
-                        ) {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.label,
-                                modifier = Modifier.size(22.dp)
-                            )
-
-                            if (isSelected && !shouldHideLabel) {
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = item.label,
-                                    style = MaterialTheme.typography.labelLarge,
-                                    maxLines = 1,
-                                    modifier = Modifier.basicMarquee()
+                    if (itemWidth > 0.dp || isSelected) {
+                        Surface(
+                            shape = CircleShape,
+                            color = if (isSelected) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceContainerHigh
+                            },
+                            contentColor = if (isSelected) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            modifier = Modifier
+                                .width(itemWidth + labelWidth)
+                                .height(48.dp)
+                                .selectable(
+                                    selected = isSelected,
+                                    role = Role.Tab,
+                                    onClick = {
+                                        OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
+                                        item.onClick()
+                                    }
                                 )
+                                .semantics {
+                                    contentDescription = item.label
+                                }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.padding(horizontal = 6.dp)
+                            ) {
+                                Icon(
+                                    imageVector = item.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(22.dp)
+                                )
+
+                                if (isSelected && !shouldHideLabel) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = item.label,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        maxLines = 1,
+                                        modifier = Modifier.basicMarquee()
+                                    )
+                                }
                             }
                         }
-                    }
 
-                    if (index < items.size - 1) {
-                        Spacer(modifier = Modifier.width(spacerWidth))
+                        if (index < items.size - 1) {
+                            Spacer(modifier = Modifier.width(spacerWidth))
+                        }
                     }
                 }
             }
