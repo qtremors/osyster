@@ -36,18 +36,20 @@ Osyster is an offline Android system monitor and OS utility suite built for spee
 
 Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyster/releases) and install it on any device running Android 7.0 (Nougat, API 24) or newer.
 
-Osyster requires no root access for its core diagnostic suite: processor jiffies, memory allocations, device specifications, and battery telemetry are read directly from accessible Android sysfs and procfs endpoints.
+Osyster requires no root access. It reads accessible sysfs/procfs files and Android APIs for diagnostics. CPU load, frequencies, thermal zones, and process visibility depend on Android's security restrictions and the device vendor. Current telemetry limitations are tracked in [TASKS.md](TASKS.md).
 
 ## Features
 
 - **Private and offline:** No ads, accounts, trackers, data collection, or internet permission.
 - **Interactive Bento Grid:** High-density landing dashboard presenting overall CPU load, live RAM allocation, Swap status, CPU temperatures, running process counts, and battery status at a glance.
-- **Native Kernel Diagnostics:** Core-by-core processor load computed directly from `/proc/stat` active vs total delta jiffies, active CPU cluster frequencies, thermal zones, and real-time sparkline trend graphs drawn via custom Canvas paths.
+- **Native Kernel Diagnostics:** CPU counters from `/proc/stat` where readable, per-core frequencies, thermal readings, and sparkline trend graphs. Unavailable CPU utilization is marked as restricted; readable clock frequencies remain separate.
 - **RAM & SWAP Matrix:** Comprehensive memory allocation breakdowns (total RAM, used RAM, available, buffers, and cache) parsed directly from `/proc/meminfo` with visual progress gauges.
-- **Active Tasks & Process Manager:** Scans the `/proc` directory structure to discover active running PIDs, matching them to process command names and RSS memory footprints. Includes full-text search and explicit process SIGKILL termination triggers.
+- **Active Tasks & Process Manager:** Lists OS-visible processes with command names, UID labels, RSS memory, search, and App Info shortcuts. Arbitrary PID termination is restricted; force stopping an app requires the user to act in Android's App Info screen.
+- **Network Usage:** Shows aggregate live transfer speeds and daily, weekly, and monthly usage with per-app and Mobile/Wi-Fi filters. Historical usage requires Android usage access.
+- **App Stopper:** Keeps a managed app list with stopped-state indicators, App Info shortcuts, and ghost entries for uninstalled apps. An app marked Active is not force-stopped, but may have no running process.
 - **Device & Hardware Specifications:** Detailed breakdown of hardware manufacturer, device model, board configurations, processor platform, supported ABIs, Android OS versions, API levels, security patches, and bootloaders.
 - **Real-Time Battery Telemetry:** Monitors battery percentage, millivolt voltage levels, temperatures, health status, charging states, and connected power sources.
-- **Sleek Slate Tech Interface:** Dark Slate Navy (`#0C1115`), Surface Slate (`#141C22`), Electric Cyan Neon (`#00E6FF`), Warm Amber (`#FFB300`), and Coral Rose (`#FF5252`) tailored for modern high-refresh OLED displays.
+- **Sleek Slate Tech Interface:** Dark Slate Navy (`#0B1015`), Surface Slate (`#111820`), Electric Cyan Neon (`#00E6FF`), Warm Amber (`#FFB300`), and Coral Rose (`#FF5252`), with System, Light, Dark, and OLED theme options.
 
 ## Community and support
 
@@ -60,9 +62,9 @@ Osyster requires no root access for its core diagnostic suite: processor jiffies
 
 Osyster is built by [Tremors](https://github.com/qtremors) with Kotlin and the Android platform. Thanks to the maintainers of:
 
-- [AndroidX](https://developer.android.com/jetpack/androidx), [Jetpack Compose](https://developer.android.com/compose), [Material 3](https://m3.material.io/), and [DataStore](https://developer.android.com/topic/libraries/architecture/datastore)
+- [AndroidX](https://developer.android.com/jetpack/androidx), [Jetpack Compose](https://developer.android.com/compose), and [Material 3](https://m3.material.io/)
 - [Kotlin](https://kotlinlang.org/), [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines), [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization), and [Immutable Collections](https://github.com/Kotlin/kotlinx.collections.immutable)
-- [MaterialKolor](https://github.com/jordond/MaterialKolor) and [Graphics Shapes](https://developer.android.com/develop/ui/compose/graphics/draw/shapes)
+- [Graphics Shapes](https://developer.android.com/develop/ui/compose/graphics/draw/shapes)
 - [Tailwind CSS](https://tailwindcss.com/), [Lucide](https://lucide.dev/), [Simple Icons](https://simpleicons.org/), [Roboto](https://fonts.google.com/specimen/Roboto), and [Outfit](https://fonts.google.com/specimen/Outfit) for the project website and visual presentation
 
 The app's **Settings -> About -> Open Source Licenses** screen lists its runtime libraries and their licenses. Each project remains the property of its respective authors and is used under its own license.

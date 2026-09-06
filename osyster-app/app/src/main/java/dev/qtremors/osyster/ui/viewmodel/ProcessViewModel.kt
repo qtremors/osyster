@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 data class ProcessUiState(
@@ -51,22 +50,10 @@ class ProcessViewModel(
     private val _uiState = MutableStateFlow(ProcessUiState(searchQuery = initialQuery))
     val uiState: StateFlow<ProcessUiState> = _uiState.asStateFlow()
 
-    init {
-        refreshProcesses(initialLoad = true)
-        observePreferences()
-        startPolling()
-    }
+    private val processRequest = LatestRequest(viewModelScope)
 
-    private fun observePreferences() {
-        viewModelScope.launch {
-            preferencesManager.state
-                .map { it.showKernelThreads }
-                .distinctUntilChanged()
-                .collectLatest { showThreads ->
-                    _uiState.update { it.copy(showKernelThreads = showThreads) }
-                    refreshProcesses()
-                }
-        }
+    init {
+        startPolling()
     }
 
     fun setSearchQuery(query: String) {
@@ -83,49 +70,37 @@ class ProcessViewModel(
     }
 
     fun refreshProcesses(initialLoad: Boolean = false) {
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(
-                    isRefreshing = !initialLoad,
-                    isLoading = initialLoad && it.rawProcesses.isEmpty()
-                )
+        _uiState.update { it.copy(isRefreshing = !initialLoad, isLoading = it.rawProcesses.isEmpty()) }
+        val showThreads = preferencesManager.state.value.showKernelThreads
+        processRequest.submit(load = {
+            withContext(Dispatchers.IO) {
+                SystemMonitor.getActiveProcesses(getApplication(), showKernelThreads = showThreads)
             }
-            val showThreads = preferencesManager.state.value.showKernelThreads
-            val list = withContext(Dispatchers.IO) {
-                SystemMonitor.getActiveProcesses(
-                    context = getApplication(),
-                    showKernelThreads = showThreads
-                )
-            }
-            _uiState.update {
-                it.copy(
-                    rawProcesses = list,
-                    isRefreshing = false,
-                    isLoading = false
-                )
-            }
-        }
+        }, publish = { list ->
+            _uiState.update { it.copy(rawProcesses = list, isRefreshing = false, isLoading = false) }
+        })
     }
 
     private fun startPolling() {
-        viewModelScope.launch {
-            while (true) {
-                delay(5000L)
-                if (!_uiState.value.isRefreshing) {
-                    val showThreads = preferencesManager.state.value.showKernelThreads
-                    val list = withContext(Dispatchers.IO) {
-                        SystemMonitor.getActiveProcesses(
-                            context = getApplication(),
-                            showKernelThreads = showThreads
-                        )
+        viewModelScope.launchWhileSubscribed(_uiState) {
+            try {
+                preferencesManager.state.map { Pair(it.showKernelThreads, it.diagnosticsInterval.millis) }
+                    .distinctUntilChanged().collectLatest { (showThreads, interval) ->
+                        _uiState.update { it.copy(showKernelThreads = showThreads) }
+                        refreshProcesses(initialLoad = true)
+                        while (true) {
+                            delay(interval.coerceAtLeast(2000L))
+                            if (!_uiState.value.isRefreshing && !_uiState.value.isLoading) refreshProcesses(initialLoad = true)
+                        }
                     }
-                    _uiState.update { it.copy(rawProcesses = list) }
-                }
+            } finally {
+                processRequest.cancel()
             }
         }
     }
 
     fun killBackgroundProcesses(packageName: String) {
+        if (android.os.Build.VERSION.SDK_INT >= 34) return
         val am = getApplication<Application>().getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
         am?.killBackgroundProcesses(packageName)
         selectProcess(null)

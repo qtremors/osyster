@@ -31,7 +31,7 @@ import dev.qtremors.osyster.ui.theme.OsysterTheme
 import dev.qtremors.osyster.ui.viewmodel.DeviceInfoUiState
 import dev.qtremors.osyster.ui.viewmodel.DeviceInfoViewModel
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.qtremors.osyster.ui.util.collectAsVisibleState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
 import java.util.Locale
@@ -95,7 +95,7 @@ fun DeviceInfoDashboard(
     hapticEnabled: Boolean = true,
     viewModel: DeviceInfoViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsVisibleState()
     val view = LocalView.current
 
     DeviceInfoDashboardContent(

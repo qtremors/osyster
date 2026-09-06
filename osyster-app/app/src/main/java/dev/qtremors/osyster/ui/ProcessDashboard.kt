@@ -38,7 +38,7 @@ import java.util.Locale
 
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.qtremors.osyster.ui.util.collectAsVisibleState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.qtremors.osyster.ui.theme.OsysterTheme
 import dev.qtremors.osyster.ui.viewmodel.ProcessUiState
@@ -54,7 +54,7 @@ fun ProcessDashboard(
     modifier: Modifier = Modifier,
     viewModel: ProcessViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsVisibleState()
 
     BackHandler(enabled = uiState.searchQuery.isNotEmpty()) {
         viewModel.setSearchQuery("")
@@ -286,7 +286,7 @@ fun ProcessDashboardContent(
                             Text(stringResource(R.string.app_stopper_action_force_stop), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                         }
 
-                        Button(
+                        if (android.os.Build.VERSION.SDK_INT < 34) Button(
                             onClick = {
                                 onKillBackgroundProcesses(targetPackage)
                             },

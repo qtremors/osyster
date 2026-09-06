@@ -61,18 +61,17 @@ window.addEventListener('scroll', () => {
 
 // FAQ Accordion Toggle
 function toggleFaq(element) {
-    const content = element.querySelector('.faq-content');
-    const icon = element.querySelector('.faq-icon');
-
-    document.querySelectorAll('.faq-content').forEach(el => {
-        if (el !== content) el.classList.remove('open');
+    const selected = element.querySelector('.faq-content');
+    const shouldOpen = !selected.classList.contains('open');
+    document.querySelectorAll('.faq-content').forEach(content => {
+        const open = content === selected && shouldOpen;
+        content.classList.toggle('open', open);
+        content.setAttribute('aria-hidden', String(!open));
+        content.inert = !open;
+        const card = content.parentElement;
+        card.querySelector('button').setAttribute('aria-expanded', String(open));
+        card.querySelector('.faq-icon').classList.toggle('rotate', open);
     });
-    document.querySelectorAll('.faq-icon').forEach(el => {
-        if (el !== icon) el.classList.remove('rotate');
-    });
-
-    content.classList.toggle('open');
-    icon.classList.toggle('rotate');
 }
 
 // Scroll Reveal Observer

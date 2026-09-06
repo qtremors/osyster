@@ -13,6 +13,8 @@ class MemoryUiStateTest {
         assertEquals(0f, state.ramUsedPercent, 0.001f)
         assertEquals(0f, state.swapUsedPercent, 0.001f)
     }
+
+    @Test
     fun ramPercentage_computesCorrectly() {
         val memoryState = MemoryState(
             ramTotalKb = 8000000L,
@@ -26,9 +28,7 @@ class MemoryUiStateTest {
             swapFreeKb = 1500000L
         )
         val state = MemoryUiState(
-            memoryState = memoryState,
-            ramUsedPercent = 50.0f,
-            swapUsedPercent = 25.0f
+            memoryState = memoryState
         )
 
         assertEquals(50.0f, state.ramUsedPercent, 0.01f)

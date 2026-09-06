@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import dev.qtremors.osyster.settings.AccentPalette
 import dev.qtremors.osyster.settings.ThemeMode
 
-private val DarkColorScheme = darkColorScheme(
+internal val DarkColorScheme = darkColorScheme(
     primary = PrimaryDark,
     onPrimary = OnPrimaryDark,
     primaryContainer = PrimaryContainerDark,
@@ -45,7 +45,7 @@ private val DarkColorScheme = darkColorScheme(
     outlineVariant = OutlineVariantDark
 )
 
-private val LightColorScheme = lightColorScheme(
+internal val LightColorScheme = lightColorScheme(
     primary = PrimaryLight,
     onPrimary = OnPrimaryLight,
     primaryContainer = PrimaryContainerLight,
@@ -75,7 +75,7 @@ private val LightColorScheme = lightColorScheme(
     outlineVariant = OutlineVariantLight
 )
 
-private val OledColorScheme = darkColorScheme(
+internal val OledColorScheme = darkColorScheme(
     primary = PrimaryDark,
     onPrimary = OnPrimaryDark,
     primaryContainer = PrimaryContainerDark,
@@ -136,7 +136,7 @@ fun OsysterTheme(
 
     // Apply custom accent primary if non-dynamic accent is selected
     val colorScheme = if (!useDynamic && accentPalette.primaryColor != null) {
-        baseScheme.copy(primary = accentPalette.primaryColor)
+        baseScheme.withAccessibleAccent(accentPalette.primaryColor, isDark)
     } else {
         baseScheme
     }

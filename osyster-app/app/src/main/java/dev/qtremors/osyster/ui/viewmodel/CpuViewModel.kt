@@ -53,7 +53,7 @@ class CpuViewModel(
     }
 
     private fun startStreaming() {
-        viewModelScope.launch {
+        viewModelScope.launchWhileSubscribed(_uiState) {
             preferencesManager.state
                 .map { it.diagnosticsInterval.millis }
                 .distinctUntilChanged()

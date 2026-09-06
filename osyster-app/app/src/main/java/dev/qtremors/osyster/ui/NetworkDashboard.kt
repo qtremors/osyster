@@ -54,7 +54,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.qtremors.osyster.ui.util.collectAsVisibleState
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.monitor.*
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
@@ -84,7 +84,7 @@ fun NetworkDashboard(
     hapticEnabled: Boolean = true,
     viewModel: NetworkViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsVisibleState()
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val phonePermissionLauncher = rememberLauncherForActivityResult(
@@ -190,6 +190,14 @@ fun NetworkDashboardContent(
                 ),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                if (summary.hasErrors) {
+                    item {
+                        Text(stringResource(R.string.network_query_error),
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp))
+                    }
+                }
+
             item {
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -893,6 +901,30 @@ fun NetworkDashboardContent(
                             "Network usage timeline for $dateLabel. Total $totalStr ($rxStr download, $txStr upload)$peakStr."
                         }
 
+                        var bucketMenuExpanded by remember { mutableStateOf(false) }
+                        Box {
+                            TextButton(onClick = { bucketMenuExpanded = true }) {
+                                Text(stringResource(R.string.network_select_period))
+                            }
+                            DropdownMenu(expanded = bucketMenuExpanded,
+                                onDismissRequest = { bucketMenuExpanded = false },
+                                modifier = Modifier.heightIn(max = 320.dp)) {
+                                summary.timeline.forEachIndexed { index, bucket ->
+                                    val format = java.text.DateFormat.getDateTimeInstance(
+                                        java.text.DateFormat.SHORT, java.text.DateFormat.SHORT)
+                                    val period = format.format(java.util.Date(bucket.startTimeMillis)) + " - " +
+                                        format.format(java.util.Date(bucket.endTimeMillis))
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.network_period_usage, period,
+                                            NetworkMonitor.formatBytes(bucket.rxBytes), NetworkMonitor.formatBytes(bucket.txBytes))) },
+                                        onClick = {
+                                            onSelectBucket(index)
+                                            bucketMenuExpanded = false
+                                        })
+                                }
+                            }
+                        }
+
                         // Custom Canvas Bar Chart with Pill-Shaped Sections
                         Box(
                             modifier = Modifier
@@ -1140,7 +1172,7 @@ fun NetworkDashboardContent(
             }
 
             // Application List Rows
-            if (filteredApps.isEmpty() && !isLoading) {
+            if (filteredApps.isEmpty() && !isLoading && !summary.hasErrors) {
                 item {
                     Card(
                         shape = RoundedCornerShape(18.dp),

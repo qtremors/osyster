@@ -11,6 +11,17 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class OsysterPreferencesTest {
+    private lateinit var previousLocale: java.util.Locale
+
+    @org.junit.Before
+    fun setTestLocale() {
+        previousLocale = java.util.Locale.getDefault()
+        java.util.Locale.setDefault(java.util.Locale.US)
+    }
+
+    @org.junit.After
+    fun restoreLocale() { java.util.Locale.setDefault(previousLocale) }
+
 
     @Test
     fun defaultPreferencesState_hasExpectedDefaults() {

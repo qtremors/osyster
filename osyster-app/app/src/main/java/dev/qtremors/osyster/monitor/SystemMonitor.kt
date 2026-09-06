@@ -80,11 +80,6 @@ data class BatteryState(
 
 object SystemMonitor {
 
-    private var lastCpuTime = 0L
-    private var lastIdleTime = 0L
-    private val lastCoresCpuTime = mutableMapOf<Int, Long>()
-    private val lastCoresIdleTime = mutableMapOf<Int, Long>()
-
     // =========================================================================
     // Subsection Comment: CPU Monitor Parser
     // =========================================================================
@@ -119,7 +114,7 @@ object SystemMonitor {
         return (deltaActive.toFloat() / deltaTotal.toFloat() * 100f).coerceIn(0f, 100f)
     }
 
-    fun getCpuState(): CpuState {
+    internal fun getCpuState(sampler: CpuUsageSampler = CpuUsageSampler()): CpuState {
         var overallUsage = 0f
         val coreStates = mutableListOf<CpuCoreState>()
         val cpuModel = detectCpuModel()
@@ -135,30 +130,12 @@ object SystemMonitor {
                         val snapshot = parseProcStatLine(line)
                         if (snapshot != null) {
                             procStatReadSuccess = true
-                            val active = snapshot.activeTime
-                            val total = snapshot.activeTime + snapshot.idleTime
-
+                            val usage = sampler.sample(snapshot)
                             if (snapshot.coreId == null) {
-                                if (lastCpuTime > 0L) {
-                                    val deltaActive = active - lastCpuTime
-                                    val deltaTotal = total - (lastCpuTime + lastIdleTime)
-                                    overallUsage = calculateCpuUsage(deltaActive, deltaTotal)
-                                }
-                                lastCpuTime = active
-                                lastIdleTime = snapshot.idleTime
+                                overallUsage = usage
                             } else {
                                 val coreId = snapshot.coreId
-                                val prevActive = lastCoresCpuTime[coreId] ?: 0L
-                                val prevIdle = lastCoresIdleTime[coreId] ?: 0L
-                                var coreUsage = 0f
-                                if (prevActive > 0L) {
-                                    val deltaActive = active - prevActive
-                                    val deltaTotal = total - (prevActive + prevIdle)
-                                    coreUsage = calculateCpuUsage(deltaActive, deltaTotal)
-                                }
-
-                                lastCoresCpuTime[coreId] = active
-                                lastCoresIdleTime[coreId] = snapshot.idleTime
+                                val coreUsage = usage
 
                                 val freq = getCoreFrequencyKhz(coreId)
                                 val maxFreq = getCoreMaxFrequencyKhz(coreId)
@@ -176,32 +153,11 @@ object SystemMonitor {
         // Fallback for cores if /proc/stat is unreadable or restricted by SELinux
         if (!procStatReadSuccess && coreStates.isEmpty()) {
             val coresCount = Runtime.getRuntime().availableProcessors().coerceAtLeast(1)
-            var activeFreqFound = false
             for (i in 0 until coresCount) {
-                val freq = getCoreFrequencyKhz(i)
-                val maxFreq = getCoreMaxFrequencyKhz(i)
-                // Calculate dynamic load from core frequency scaling ratio if available
-                val coreUsage = if (maxFreq > 0L && freq > 0L) {
-                    activeFreqFound = true
-                    (freq.toFloat() / maxFreq.toFloat() * 100f).coerceIn(5f, 100f)
-                } else {
-                    0f
-                }
-                coreStates.add(CpuCoreState(i, coreUsage, freq, maxFreq))
+                coreStates.add(CpuCoreState(i, 0f, getCoreFrequencyKhz(i), getCoreMaxFrequencyKhz(i)))
             }
-
-            usageResult = if (activeFreqFound) {
-                val activeCores = coreStates.filter { it.usagePercentage > 0f }
-                val calculated = if (activeCores.isNotEmpty()) {
-                    activeCores.map { it.usagePercentage }.average().toFloat().coerceIn(0f, 100f)
-                } else {
-                    0f
-                }
-                TelemetryResult.Available(calculated)
-            } else {
-                // Procfs and cpufreq sysfs nodes are both restricted by the Android platform sandbox
-                TelemetryResult.Restricted
-            }
+            // Clock frequency is not a measure of CPU utilization.
+            usageResult = TelemetryResult.Restricted
         } else {
             // If /proc/stat was readable but overallUsage is still 0 (e.g. initial delta), derive from cores
             if (overallUsage == 0f && coreStates.any { it.usagePercentage > 0f }) {
@@ -266,7 +222,7 @@ object SystemMonitor {
             return board.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         }
 
-        return "Octa-Core Processor"
+        return "Unknown processor"
     }
 
     private fun getCoreFrequencyKhz(coreId: Int): Long {
@@ -306,41 +262,22 @@ object SystemMonitor {
         return TelemetryResult.Restricted
     }
 
-    private fun getCpuTemperature(): TelemetryResult<Float> {
-        // 1. Scan dynamic thermal zones for CPU / SoC types
-        try {
-            val thermalDir = File("/sys/class/thermal")
-            if (thermalDir.exists() && thermalDir.isDirectory) {
-                val zones = thermalDir.listFiles { f -> f.name.startsWith("thermal_zone") } ?: emptyArray()
-                for (zone in zones) {
-                    val typeFile = File(zone, "type")
-                    val type = if (typeFile.exists()) typeFile.readText().trim().lowercase(Locale.getDefault()) else ""
-                    if (type.contains("cpu") || type.contains("soc") || type.contains("tsens") || type.contains("mtktscpu") || type.contains("cluster")) {
-                        val tempFile = File(zone, "temp")
-                        if (tempFile.exists()) {
-                            val res = parseThermalTemp(tempFile.readText())
-                            if (res is TelemetryResult.Available) return res
-                        }
-                    }
-                }
-            }
-        } catch (_: Exception) {}
+    internal fun isCpuThermalZone(type: String): Boolean {
+        val name = type.trim().lowercase(Locale.ROOT)
+        return name.contains("cpu") || name.contains("soc") || name.contains("cluster")
+    }
 
-        // 2. Scan standard known thermal paths
-        val thermalPaths = listOf(
-            "/sys/class/thermal/thermal_zone0/temp",
-            "/sys/class/thermal/thermal_zone1/temp",
-            "/sys/devices/virtual/thermal/thermal_zone0/temp",
-            "/sys/class/thermal/thermal_zone10/temp"
-        )
-        for (path in thermalPaths) {
-            val file = File(path)
-            if (file.exists()) {
-                try {
-                    val res = parseThermalTemp(file.readText())
-                    if (res is TelemetryResult.Available) return res
-                } catch (_: Exception) {}
-            }
+    private fun getCpuTemperature(): TelemetryResult<Float> {
+        val zones = runCatching {
+            File("/sys/class/thermal").listFiles { f -> f.name.startsWith("thermal_zone") }
+        }.getOrNull() ?: return TelemetryResult.Restricted
+        for (zone in zones) {
+            val result = runCatching {
+                if (isCpuThermalZone(File(zone, "type").readText())) {
+                    parseThermalTemp(File(zone, "temp").readText())
+                } else TelemetryResult.Restricted
+            }.getOrDefault(TelemetryResult.Restricted)
+            if (result is TelemetryResult.Available) return result
         }
         return TelemetryResult.Restricted
     }
@@ -457,8 +394,8 @@ object SystemMonitor {
             val procDir = File("/proc")
             val files = procDir.listFiles() ?: return emptyList()
 
-            // Page size is typically 4KB
-            val pageSizeBytes = 4096L
+            // Android devices can use 4 KB or 16 KB kernel pages.
+            val pageSizeBytes = android.system.Os.sysconf(android.system.OsConstants._SC_PAGESIZE).coerceAtLeast(0L)
 
             for (file in files) {
                 if (file.isDirectory) {
@@ -661,8 +598,9 @@ object SystemMonitor {
     // =========================================================================
 
     fun streamCpu(intervalMs: Long = 1000L): Flow<CpuState> = flow {
+        val sampler = CpuUsageSampler()
         while (true) {
-            emit(getCpuState())
+            emit(getCpuState(sampler))
             kotlinx.coroutines.delay(intervalMs)
         }
     }.flowOn(Dispatchers.IO)

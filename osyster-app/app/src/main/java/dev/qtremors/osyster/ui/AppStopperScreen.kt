@@ -43,7 +43,7 @@ import androidx.core.graphics.drawable.toBitmap
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.qtremors.osyster.ui.util.collectAsVisibleState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.tooling.preview.Preview
 import dev.qtremors.osyster.monitor.InstalledAppItem
@@ -71,7 +71,7 @@ fun AppStopperScreen(
     searchQuery: String = "",
     viewModel: AppStopperViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsVisibleState()
 
     LaunchedEffect(searchQuery) {
         viewModel.setSearchQuery(searchQuery)
@@ -126,7 +126,7 @@ fun AppStopperScreen(
 
     // Add Apps Bottom Sheet
     if (uiState.showAddSheet) {
-        LaunchedEffect(uiState.includeSystemApps) {
+        LaunchedEffect(prefsState.managedStopPackages) {
             viewModel.loadInstalledApps(
                 alreadyManaged = prefsState.managedStopPackages,
                 includeSystem = uiState.includeSystemApps

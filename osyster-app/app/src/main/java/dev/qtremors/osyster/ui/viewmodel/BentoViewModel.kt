@@ -57,15 +57,20 @@ class BentoViewModel(
     private val _uiState = MutableStateFlow(BentoUiState())
     val uiState: StateFlow<BentoUiState> = _uiState.asStateFlow()
 
+    private val networkRequest = LatestRequest(viewModelScope)
+
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            val app = getApplication<Application>()
-            val battery = SystemMonitor.getBatteryState(app)
-            val netType = NetworkMonitor.getActiveNetworkType(app)
-            _uiState.update { it.copy(batteryState = battery, activeNetworkType = netType) }
-        }
         startTelemetryStreams()
-        refreshNetworkSummary()
+        viewModelScope.launchWhileSubscribed(_uiState) {
+            try {
+                while (true) {
+                    refreshNetworkSummary()
+                    delay(30_000L)
+                }
+            } finally {
+                networkRequest.cancel()
+            }
+        }
         startProcessCountPolling()
     }
 
@@ -77,7 +82,7 @@ class BentoViewModel(
     }
 
     private fun startTelemetryStreams() {
-        viewModelScope.launch {
+        viewModelScope.launchWhileSubscribed(_uiState) {
             preferencesManager.state
                 .map { it.diagnosticsInterval.millis }
                 .distinctUntilChanged()
@@ -88,7 +93,7 @@ class BentoViewModel(
                     _uiState.update { it.copy(cpuState = cpu) }
                 }
         }
-        viewModelScope.launch {
+        viewModelScope.launchWhileSubscribed(_uiState) {
             preferencesManager.state
                 .map { it.diagnosticsInterval.millis }
                 .distinctUntilChanged()
@@ -99,7 +104,7 @@ class BentoViewModel(
                     _uiState.update { it.copy(memoryState = mem) }
                 }
         }
-        viewModelScope.launch {
+        viewModelScope.launchWhileSubscribed(_uiState) {
             preferencesManager.state
                 .map { it.diagnosticsInterval.millis }
                 .distinctUntilChanged()
@@ -110,7 +115,7 @@ class BentoViewModel(
                     _uiState.update { it.copy(realtimeSpeed = speed) }
                 }
         }
-        viewModelScope.launch {
+        viewModelScope.launchWhileSubscribed(_uiState) {
             SystemMonitor.streamBattery(getApplication(), 3000L).collectLatest { bat ->
                 _uiState.update { it.copy(batteryState = bat) }
             }
@@ -118,43 +123,31 @@ class BentoViewModel(
     }
 
     fun refreshNetworkSummary() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val context = getApplication<Application>()
-            val currentType = NetworkMonitor.getActiveNetworkType(context)
-            if (NetworkMonitor.hasUsageAccess(context)) {
-                val summary = NetworkMonitor.queryNetworkUsage(
-                    context = context,
-                    interval = NetworkInterval.DAY,
-                    filter = NetworkInterfaceFilter.ALL,
-                    targetDateMillis = System.currentTimeMillis()
-                )
-                val totalStr = when (currentType) {
-                    NetworkInterfaceFilter.MOBILE -> NetworkMonitor.formatBytes(summary.mobileBytes)
-                    NetworkInterfaceFilter.WIFI -> NetworkMonitor.formatBytes(summary.wifiBytes)
-                    NetworkInterfaceFilter.ALL -> NetworkMonitor.formatBytes(summary.totalBytes)
-                }
-                val labelStr = when (currentType) {
-                    NetworkInterfaceFilter.MOBILE -> "Mobile • Today"
-                    NetworkInterfaceFilter.WIFI -> "Wi-Fi • Today"
-                    NetworkInterfaceFilter.ALL -> "Today"
-                }
-                _uiState.update {
-                    it.copy(
-                        activeNetworkType = currentType,
-                        todayNetworkTotal = totalStr,
-                        todayNetworkLabel = labelStr
-                    )
-                }
-            } else {
-                _uiState.update {
-                    it.copy(activeNetworkType = currentType)
-                }
+        networkRequest.submit(load = {
+            withContext(Dispatchers.IO) {
+                val context = getApplication<Application>()
+                val type = NetworkMonitor.getActiveNetworkType(context)
+                val summary = if (NetworkMonitor.hasUsageAccess(context)) {
+                    NetworkMonitor.queryNetworkUsage(context, NetworkInterval.DAY, type,
+                        System.currentTimeMillis(), includeDetails = false)
+                } else null
+                Pair(type, summary)
             }
-        }
+        }, publish = { (type, summary) ->
+            _uiState.update {
+                it.copy(activeNetworkType = type,
+                    todayNetworkTotal = if (summary != null && !summary.hasErrors) NetworkMonitor.formatBytes(summary.totalBytes) else "",
+                    todayNetworkLabel = when (type) {
+                        NetworkInterfaceFilter.MOBILE -> "Mobile • Today"
+                        NetworkInterfaceFilter.WIFI -> "Wi-Fi • Today"
+                        NetworkInterfaceFilter.ALL -> "Today"
+                    })
+            }
+        })
     }
 
     private fun startProcessCountPolling() {
-        viewModelScope.launch {
+        viewModelScope.launchWhileSubscribed(_uiState) {
             preferencesManager.state
                 .map { it.diagnosticsInterval.millis }
                 .distinctUntilChanged()

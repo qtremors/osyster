@@ -58,7 +58,7 @@ class DeviceInfoViewModel(
     }
 
     private fun startStreaming() {
-        viewModelScope.launch {
+        viewModelScope.launchWhileSubscribed(_uiState) {
             SystemMonitor.streamBattery(getApplication(), 3000L).collectLatest { state ->
                 _uiState.update { it.copy(batteryState = state) }
             }

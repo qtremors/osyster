@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.qtremors.osyster.ui.util.collectAsVisibleState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.qtremors.osyster.monitor.CpuCoreState
 import dev.qtremors.osyster.monitor.CpuState
@@ -107,7 +107,7 @@ fun CpuDashboard(
     modifier: Modifier = Modifier,
     viewModel: CpuViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsVisibleState()
     CpuDashboardContent(
         uiState = uiState,
         modifier = modifier
@@ -343,14 +343,14 @@ fun CpuDashboardContent(
                                         color = MaterialTheme.colorScheme.outline
                                     )
                                     Text(
-                                        text = String.format(Locale.getDefault(), "%.0f%%", core.usagePercentage),
+                                        text = if (cpuState.isUsageRestricted) stringResource(R.string.not_applicable) else String.format(Locale.getDefault(), "%.0f%%", core.usagePercentage),
                                         style = MaterialTheme.typography.bodyMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
-                                LinearWavyProgressIndicator(
+                                if (!cpuState.isUsageRestricted) LinearWavyProgressIndicator(
                                     progress = { (core.usagePercentage / 100f).coerceIn(0f, 1f) },
                                     modifier = Modifier
                                         .fillMaxWidth()

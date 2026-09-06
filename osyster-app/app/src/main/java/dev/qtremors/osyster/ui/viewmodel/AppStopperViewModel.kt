@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 data class AppStopperUiState(
@@ -56,6 +55,9 @@ class AppStopperViewModel(
     private val _uiState = MutableStateFlow(AppStopperUiState(searchQuery = initialSearch))
     val uiState: StateFlow<AppStopperUiState> = _uiState.asStateFlow()
 
+    private val managedRequest = LatestRequest(viewModelScope)
+    private val installedRequest = LatestRequest(viewModelScope)
+
     fun setSearchQuery(query: String) {
         savedStateHandle[KEY_SEARCH_QUERY] = query
         _uiState.update { it.copy(searchQuery = query) }
@@ -74,37 +76,23 @@ class AppStopperViewModel(
     }
 
     fun loadManagedApps(packages: Set<String>) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = it.managedApps.isEmpty()) }
-            val list = withContext(Dispatchers.IO) {
-                AppStopperMonitor.loadManagedApps(getApplication(), packages)
-            }
-            _uiState.update {
-                it.copy(
-                    managedApps = list,
-                    isLoading = false
-                )
-            }
-        }
+        _uiState.update { it.copy(isLoading = it.managedApps.isEmpty()) }
+        managedRequest.submit(load = {
+            withContext(Dispatchers.IO) { AppStopperMonitor.loadManagedApps(getApplication(), packages) }
+        }, publish = { list ->
+            _uiState.update { it.copy(managedApps = list, isLoading = false) }
+        })
     }
 
     fun loadInstalledApps(alreadyManaged: Set<String>, includeSystem: Boolean) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isInstalledLoading = true, includeSystemApps = includeSystem) }
-            val list = withContext(Dispatchers.IO) {
-                AppStopperMonitor.loadAllInstalledApps(
-                    context = getApplication(),
-                    excludePackages = alreadyManaged,
-                    includeSystemApps = includeSystem
-                )
+        _uiState.update { it.copy(isInstalledLoading = true, includeSystemApps = includeSystem) }
+        installedRequest.submit(load = {
+            withContext(Dispatchers.IO) {
+                AppStopperMonitor.loadAllInstalledApps(getApplication(), alreadyManaged, includeSystem)
             }
-            _uiState.update {
-                it.copy(
-                    installedApps = list,
-                    isInstalledLoading = false
-                )
-            }
-        }
+        }, publish = { list ->
+            _uiState.update { it.copy(installedApps = list, isInstalledLoading = false) }
+        })
     }
 
     fun openAppInfo(packageName: String) {
@@ -124,6 +112,7 @@ class AppStopperViewModel(
 
     fun removeManagedApp(packageName: String, manager: OsysterPreferencesManager) {
         setSelectedAppForOptions(null)
+        managedRequest.cancel()
         manager.removeManagedStopPackage(packageName)
         AppStopperMonitor.removeAppLabel(getApplication(), packageName)
         _uiState.update { current ->

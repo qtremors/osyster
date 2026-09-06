@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import dev.qtremors.osyster.ui.util.collectAsVisibleState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.qtremors.osyster.monitor.AppStopperMonitor
 import dev.qtremors.osyster.monitor.BatteryState
@@ -98,7 +99,7 @@ fun BentoDashboard(
     val context = LocalContext.current
     val preferencesManager = remember { OsysterPreferencesManager.getInstance(context) }
     val prefsState by preferencesManager.state.collectAsStateWithLifecycle()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsVisibleState()
 
     LifecycleResumeEffect(prefsState.managedStopPackages) {
         viewModel.refreshAppStopperCounts(prefsState.managedStopPackages)

@@ -17,6 +17,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import dev.qtremors.osyster.ui.util.LocalTelemetryVisible
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 
@@ -96,9 +97,11 @@ fun TelemetryDashboard(
             label = "telemetry_content_transition",
             modifier = Modifier.fillMaxSize()
         ) { targetPage ->
-            when (targetPage) {
-                0 -> CpuDashboard(modifier = Modifier.fillMaxSize())
-                1 -> MemoryDashboard(modifier = Modifier.fillMaxSize())
+            CompositionLocalProvider(LocalTelemetryVisible provides (LocalTelemetryVisible.current && targetPage == selectedTab)) {
+                when (targetPage) {
+                    0 -> CpuDashboard(modifier = Modifier.fillMaxSize())
+                    1 -> MemoryDashboard(modifier = Modifier.fillMaxSize())
+                }
             }
         }
     }

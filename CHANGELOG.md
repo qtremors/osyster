@@ -1,8 +1,18 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.0.9
+> **Version:** 0.1.0
 > **Last Updated:** 2026-09-06
+
+---
+
+## [0.1.0] - 2026-09-06
+
+- **Accurate Diagnostics**: Removed frequency-based CPU utilization estimates, isolated CPU counter baselines, corrected memory accounting on 16 KB devices, and restricted thermal readings to identified CPU/SoC sensors.
+- **Foreground Monitoring & Fresh Data**: Paused recurring telemetry on hidden screens and in the background, prevented stale query results, refreshed current network usage, and exposed incomplete network reads.
+- **Permission Clarity & Accessible Controls**: Removed unused notification permission requests, clarified usage access, hid unsupported background-kill actions on Android 14+, improved accent contrast, and added accessible chart-period and website FAQ controls.
+- **Streamlined Artifact Packaging**: Standardized output APK naming across debug and release builds to use clean version-based filenames without redundant variant suffixes.
+- **Documentation & Website Accuracy**: Updated feature, privacy, and setup information to match current behavior; removed completed tasks while retaining unfinished fixes.
 
 ---
 

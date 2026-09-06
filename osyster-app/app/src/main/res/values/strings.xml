@@ -29,7 +29,7 @@
     <!-- Diagnostics & Monitoring Section -->
     <string name="section_diagnostics">Diagnostics &amp; Monitoring</string>
     <string name="update_interval">Update Interval</string>
-    <string name="update_interval_description">Sampling frequency for CPU, RAM, and thermal monitors</string>
+    <string name="update_interval_description">CPU, RAM, CPU temperature, and live network speed. Tasks refresh no faster than 2 seconds; battery refreshes every 3 seconds.</string>
     <string name="interval_fast">500 ms (Fast)</string>
     <string name="interval_normal">1000 ms (Normal)</string>
     <string name="interval_relaxed">2000 ms (Relaxed)</string>
@@ -102,12 +102,10 @@
     <string name="onboarding_feature_transparent_desc">Zero analytics frameworks, ad networks, or background trackers.</string>
 
     <string name="onboarding_permissions_title">System Access</string>
-    <string name="onboarding_permissions_subtitle">Optional elevated access to unlock advanced telemetry features.</string>
-    <string name="onboarding_permissions_optional_notice">Both permissions are optional. Core diagnostics work offline without them.</string>
-    <string name="onboarding_perm_notifications_title">Notifications</string>
-    <string name="onboarding_perm_notifications_desc">Live status bar readouts and thermal alerts</string>
+    <string name="onboarding_permissions_subtitle">Optional access to Android network usage records.</string>
+    <string name="onboarding_permissions_optional_notice">Usage access is optional. Core diagnostics work offline without it.</string>
     <string name="onboarding_perm_usage_title">Usage Access</string>
-    <string name="onboarding_perm_usage_desc">Per-app memory and CPU resource attribution</string>
+    <string name="onboarding_perm_usage_desc">Historical mobile and Wi-Fi data usage, including per-app totals</string>
     <string name="onboarding_perm_grant">Grant</string>
     <string name="onboarding_perm_granted">Enabled</string>
 
@@ -309,4 +307,7 @@
     <string name="dock_telemetry">Telemetry</string>
     <string name="dock_tasks">Tasks</string>
     <string name="dock_toggle_telemetry">Toggle CPU / Memory</string>
+    <string name="network_query_error">Some usage records could not be read. Totals may be incomplete. Check usage access and pull down to retry.</string>
+    <string name="network_select_period">Select time period</string>
+    <string name="network_period_usage">%1$s: %2$s download, %3$s upload</string>
 </resources>

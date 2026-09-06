@@ -13,14 +13,17 @@ import dev.qtremors.osyster.monitor.NetworkInterval
 import dev.qtremors.osyster.monitor.NetworkMonitor
 import dev.qtremors.osyster.monitor.NetworkUsageSummary
 import dev.qtremors.osyster.monitor.RealtimeSpeed
-import kotlinx.coroutines.Dispatchers
+import dev.qtremors.osyster.settings.OsysterPreferencesManager
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -86,13 +89,15 @@ data class NetworkUiState(
             return when (selectedInterval) {
                 NetworkInterval.DAY -> calNow.get(Calendar.YEAR) == calTarget.get(Calendar.YEAR) &&
                     calNow.get(Calendar.DAY_OF_YEAR) == calTarget.get(Calendar.DAY_OF_YEAR)
-                NetworkInterval.WEEK -> calTarget.timeInMillis >= now - 86400000L
+                NetworkInterval.WEEK -> calNow.get(Calendar.YEAR) == calTarget.get(Calendar.YEAR) &&
+                    calNow.get(Calendar.DAY_OF_YEAR) == calTarget.get(Calendar.DAY_OF_YEAR)
                 NetworkInterval.MONTH -> calNow.get(Calendar.YEAR) == calTarget.get(Calendar.YEAR) &&
                     calNow.get(Calendar.MONTH) == calTarget.get(Calendar.MONTH)
             }
         }
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class NetworkViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle
@@ -121,14 +126,33 @@ class NetworkViewModel(
     )
     val uiState: StateFlow<NetworkUiState> = _uiState.asStateFlow()
 
+    private var followsCurrentPeriod = _uiState.value.isCurrentPeriod
+    private val usageRequest = LatestRequest(viewModelScope)
+    private val preferencesManager = OsysterPreferencesManager.getInstance(application)
+
     init {
         startRealtimeStream()
-        loadUsage()
+        viewModelScope.launchWhileSubscribed(_uiState) {
+            try {
+                updateCurrentDate()
+                checkPermissions()
+                loadUsage()
+                while (true) {
+                    delay(30_000L)
+                    updateCurrentDate()
+                    checkPermissions()
+                    if (_uiState.value.isCurrentPeriod && !_uiState.value.isLoading) loadUsage(clearSummary = false)
+                }
+            } finally {
+                usageRequest.cancel()
+            }
+        }
     }
 
     private fun startRealtimeStream() {
-        viewModelScope.launch {
-            NetworkMonitor.streamRealtimeSpeed().collectLatest { speed ->
+        viewModelScope.launchWhileSubscribed(_uiState) {
+            preferencesManager.state.map { it.diagnosticsInterval.millis }.distinctUntilChanged()
+                .flatMapLatest { NetworkMonitor.streamRealtimeSpeed(it) }.collectLatest { speed ->
                 _uiState.update { it.copy(realtimeSpeed = speed) }
             }
         }
@@ -141,6 +165,10 @@ class NetworkViewModel(
         val changed = hasUsage != _uiState.value.hasPermission || hasPhone != _uiState.value.hasPhonePermission
         _uiState.update {
             it.copy(hasPermission = hasUsage, hasPhonePermission = hasPhone)
+        }
+        if (!hasUsage) {
+            usageRequest.cancel()
+            _uiState.update { it.copy(summary = NetworkMonitor.emptySummary(), isLoading = false, selectedBucketIndex = null, selectedAppDetails = null) }
         }
         if (changed && hasUsage) {
             loadUsage()
@@ -167,7 +195,16 @@ class NetworkViewModel(
     fun setTargetDateMillis(millis: Long) {
         savedStateHandle[KEY_TARGET_DATE] = millis
         _uiState.update { it.copy(targetDateMillis = millis) }
+        followsCurrentPeriod = _uiState.value.isCurrentPeriod
         loadUsage()
+    }
+
+    private fun updateCurrentDate() {
+        if (followsCurrentPeriod) {
+            val now = System.currentTimeMillis()
+            savedStateHandle[KEY_TARGET_DATE] = now
+            _uiState.update { it.copy(targetDateMillis = now) }
+        }
     }
 
     fun navigatePreviousDate() {
@@ -209,24 +246,23 @@ class NetworkViewModel(
         _uiState.update { it.copy(selectedAppDetails = app) }
     }
 
-    fun loadUsage() {
+    fun loadUsage(clearSummary: Boolean = true) {
         val state = _uiState.value
         if (!state.hasPermission) {
-            _uiState.update { it.copy(isLoading = false) }
+            usageRequest.cancel()
+            _uiState.update { it.copy(summary = NetworkMonitor.emptySummary(), isLoading = false) }
             return
         }
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, selectedBucketIndex = null) }
-            val result = withContext(Dispatchers.IO) {
-                NetworkMonitor.queryNetworkUsage(
-                    context = getApplication(),
-                    interval = state.selectedInterval,
-                    filter = state.selectedFilter,
-                    targetDateMillis = state.targetDateMillis
-                )
-            }
-            _uiState.update { it.copy(summary = result, isLoading = false) }
+        _uiState.update {
+            it.copy(isLoading = true, selectedBucketIndex = null, selectedAppDetails = null,
+                summary = if (clearSummary) NetworkMonitor.emptySummary() else it.summary)
         }
+        usageRequest.submit(load = {
+            NetworkMonitor.queryNetworkUsage(getApplication(), state.selectedInterval,
+                state.selectedFilter, state.targetDateMillis)
+        }, publish = { result ->
+            _uiState.update { it.copy(summary = result, isLoading = false) }
+        })
     }
 
     fun openUsageAccessSettings() {

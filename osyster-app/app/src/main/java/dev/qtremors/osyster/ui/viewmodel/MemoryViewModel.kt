@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 data class MemoryUiState(
     val memoryState: MemoryState = MemoryState(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L),
@@ -43,7 +42,7 @@ class MemoryViewModel(
     }
 
     private fun startStreaming() {
-        viewModelScope.launch {
+        viewModelScope.launchWhileSubscribed(_uiState) {
             preferencesManager.state
                 .map { it.diagnosticsInterval.millis }
                 .distinctUntilChanged()

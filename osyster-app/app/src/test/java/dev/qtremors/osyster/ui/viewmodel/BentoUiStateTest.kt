@@ -17,6 +17,8 @@ class BentoUiStateTest {
         assertEquals(0, state.processesCount)
         assertEquals(0, state.batteryState.levelPercentage)
     }
+
+    @Test
     fun ramUsedPercent_computesAccurately() {
         val mem = MemoryState(
             ramTotalKb = 10000000L,

@@ -15,6 +15,8 @@ import android.os.Process
 import android.provider.Settings
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -70,7 +72,8 @@ data class NetworkUsageSummary(
     val wifiBytes: Long,
     val totalBytes: Long,
     val timeline: List<NetworkBucket>,
-    val apps: List<AppNetworkUsage>
+    val apps: List<AppNetworkUsage>,
+    val hasErrors: Boolean = false
 )
 
 data class RealtimeSpeed(
@@ -160,11 +163,11 @@ object NetworkMonitor {
     fun streamRealtimeSpeed(intervalMs: Long = 1000L): Flow<RealtimeSpeed> = flow {
         var lastRx = TrafficStats.getTotalRxBytes()
         var lastTx = TrafficStats.getTotalTxBytes()
-        var lastTime = System.currentTimeMillis()
+        var lastTime = android.os.SystemClock.elapsedRealtime()
 
         while (true) {
             delay(intervalMs)
-            val now = System.currentTimeMillis()
+            val now = android.os.SystemClock.elapsedRealtime()
             val currentRx = TrafficStats.getTotalRxBytes()
             val currentTx = TrafficStats.getTotalTxBytes()
 
@@ -187,10 +190,30 @@ object NetworkMonitor {
         context: Context,
         interval: NetworkInterval,
         filter: NetworkInterfaceFilter,
-        targetDateMillis: Long
+        targetDateMillis: Long,
+        includeDetails: Boolean = true
     ): NetworkUsageSummary = withContext(Dispatchers.IO) {
         val networkStatsManager = context.getSystemService(Context.NETWORK_STATS_SERVICE) as? NetworkStatsManager
-            ?: return@withContext emptySummary()
+            ?: return@withContext emptySummary().copy(hasErrors = true)
+
+        var hasErrors = false
+        val queryContext = coroutineContext
+        fun <T> querySafely(block: () -> T): Result<T> {
+            queryContext.ensureActive()
+            return try {
+                Result.success(block())
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                hasErrors = true
+                Result.failure(failure)
+            }
+        }
+        val mobileSubscriberId = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && hasPhonePermission(context)) {
+            runCatching {
+                (context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager)?.subscriberId
+            }.getOrNull()
+        } else null
 
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = targetDateMillis
@@ -215,7 +238,7 @@ object NetworkMonitor {
                 rangeEnd = minOf(dayEnd, System.currentTimeMillis())
 
                 // 12 2-hour buckets
-                for (slot in 0..11) {
+                if (includeDetails) for (slot in 0..11) {
                     val startHour = slot * 2
                     val endHour = startHour + 2
 
@@ -248,10 +271,10 @@ object NetworkMonitor {
                         val queryEnd = minOf(bEnd, rangeEnd)
                         if (queryEnd > bStart) {
                             if (filter == NetworkInterfaceFilter.ALL || filter == NetworkInterfaceFilter.MOBILE) {
-                                runCatching {
+                                querySafely {
                                     val b = networkStatsManager.querySummaryForDevice(
                                         ConnectivityManager.TYPE_MOBILE,
-                                        null,
+                                        mobileSubscriberId,
                                         bStart,
                                         queryEnd
                                     )
@@ -260,7 +283,7 @@ object NetworkMonitor {
                                 }
                             }
                             if (filter == NetworkInterfaceFilter.ALL || filter == NetworkInterfaceFilter.WIFI) {
-                                runCatching {
+                                querySafely {
                                     val b = networkStatsManager.querySummaryForDevice(
                                         ConnectivityManager.TYPE_WIFI,
                                         null,
@@ -306,7 +329,7 @@ object NetworkMonitor {
                 val dayCal = Calendar.getInstance()
                 dayCal.timeInMillis = rangeStart
 
-                for (d in 0..6) {
+                if (includeDetails) for (d in 0..6) {
                     val bStart = dayCal.timeInMillis
                     val label = dayFormat.format(dayCal.time)
                     dayCal.add(Calendar.DAY_OF_YEAR, 1)
@@ -318,10 +341,10 @@ object NetworkMonitor {
                         val queryEnd = minOf(bEnd, rangeEnd)
                         if (queryEnd > bStart) {
                             if (filter == NetworkInterfaceFilter.ALL || filter == NetworkInterfaceFilter.MOBILE) {
-                                runCatching {
+                                querySafely {
                                     val b = networkStatsManager.querySummaryForDevice(
                                         ConnectivityManager.TYPE_MOBILE,
-                                        null,
+                                        mobileSubscriberId,
                                         bStart,
                                         queryEnd
                                     )
@@ -330,7 +353,7 @@ object NetworkMonitor {
                                 }
                             }
                             if (filter == NetworkInterfaceFilter.ALL || filter == NetworkInterfaceFilter.WIFI) {
-                                runCatching {
+                                querySafely {
                                     val b = networkStatsManager.querySummaryForDevice(
                                         ConnectivityManager.TYPE_WIFI,
                                         null,
@@ -377,7 +400,7 @@ object NetworkMonitor {
                 val dayCal = Calendar.getInstance()
                 dayCal.timeInMillis = rangeStart
 
-                for (d in 1..maxDays) {
+                if (includeDetails) for (d in 1..maxDays) {
                     val bStart = dayCal.timeInMillis
                     val label = if (d == 1 || d == 5 || d == 10 || d == 15 || d == 20 || d == 25 || d == maxDays) "$d" else ""
                     dayCal.add(Calendar.DAY_OF_MONTH, 1)
@@ -389,10 +412,10 @@ object NetworkMonitor {
                         val queryEnd = minOf(bEnd, rangeEnd)
                         if (queryEnd > bStart) {
                             if (filter == NetworkInterfaceFilter.ALL || filter == NetworkInterfaceFilter.MOBILE) {
-                                runCatching {
+                                querySafely {
                                     val b = networkStatsManager.querySummaryForDevice(
                                         ConnectivityManager.TYPE_MOBILE,
-                                        null,
+                                        mobileSubscriberId,
                                         bStart,
                                         queryEnd
                                     )
@@ -401,7 +424,7 @@ object NetworkMonitor {
                                 }
                             }
                             if (filter == NetworkInterfaceFilter.ALL || filter == NetworkInterfaceFilter.WIFI) {
-                                runCatching {
+                                querySafely {
                                     val b = networkStatsManager.querySummaryForDevice(
                                         ConnectivityManager.TYPE_WIFI,
                                         null,
@@ -436,17 +459,17 @@ object NetworkMonitor {
         var wifiTx = 0L
 
         if (rangeEnd > rangeStart) {
-            runCatching {
+            if (includeDetails || filter != NetworkInterfaceFilter.WIFI) querySafely {
                 val b = networkStatsManager.querySummaryForDevice(
                     ConnectivityManager.TYPE_MOBILE,
-                    null,
+                    mobileSubscriberId,
                     rangeStart,
                     rangeEnd
                 )
                 mobileRx = b.rxBytes
                 mobileTx = b.txBytes
             }
-            runCatching {
+            if (includeDetails || filter != NetworkInterfaceFilter.MOBILE) querySafely {
                 val b = networkStatsManager.querySummaryForDevice(
                     ConnectivityManager.TYPE_WIFI,
                     null,
@@ -467,65 +490,32 @@ object NetworkMonitor {
             NetworkInterfaceFilter.WIFI -> Pair(wifiRx, wifiTx)
         }
 
+        if (!includeDetails) return@withContext NetworkUsageSummary(
+            downloadBytes, uploadBytes, totalMobile, totalWifi, downloadBytes + uploadBytes,
+            emptyList(), emptyList(), hasErrors
+        )
+
         // Per-UID attribution separated by interface
         val mobileUidStats = mutableMapOf<Int, Pair<Long, Long>>()
         val wifiUidStats = mutableMapOf<Int, Pair<Long, Long>>()
 
         fun queryUidStats(networkType: Int, targetMap: MutableMap<Int, Pair<Long, Long>>) {
-            var queried = false
-            runCatching {
-                val stats = networkStatsManager.querySummary(networkType, null, rangeStart, rangeEnd)
-                val bucket = NetworkStats.Bucket()
-                while (stats.hasNextBucket()) {
-                    stats.getNextBucket(bucket)
-                    val uid = bucket.uid
-                    val prev = targetMap[uid] ?: Pair(0L, 0L)
-                    targetMap[uid] = Pair(prev.first + bucket.rxBytes, prev.second + bucket.txBytes)
-                }
-                stats.close()
-                queried = true
-            }
-
-            // Fallback for mobile on devices where subscriberId is needed
-            if (!queried && networkType == ConnectivityManager.TYPE_MOBILE) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                    @Suppress("DEPRECATION")
-                    runCatching {
-                        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-                        val subId = telephonyManager?.subscriberId
-                        if (!subId.isNullOrEmpty()) {
-                            val stats = networkStatsManager.querySummary(networkType, subId, rangeStart, rangeEnd)
-                            val bucket = NetworkStats.Bucket()
-                            while (stats.hasNextBucket()) {
-                                stats.getNextBucket(bucket)
-                                val uid = bucket.uid
-                                val prev = targetMap[uid] ?: Pair(0L, 0L)
-                                targetMap[uid] = Pair(prev.first + bucket.rxBytes, prev.second + bucket.txBytes)
-                            }
-                            stats.close()
-                        }
+            querySafely {
+                val collected = mutableMapOf<Int, Pair<Long, Long>>()
+                val subscriberId = if (networkType == ConnectivityManager.TYPE_MOBILE) mobileSubscriberId else null
+                val stats = networkStatsManager.querySummary(networkType, subscriberId, rangeStart, rangeEnd)
+                try {
+                    val bucket = NetworkStats.Bucket()
+                    while (stats.hasNextBucket()) {
+                        queryContext.ensureActive()
+                        stats.getNextBucket(bucket)
+                        val previous = collected[bucket.uid] ?: Pair(0L, 0L)
+                        collected[bucket.uid] = Pair(previous.first + bucket.rxBytes, previous.second + bucket.txBytes)
                     }
-                } else {
-                    // For API 29 and higher, identify network interfaces using SubscriptionManager and standard carrier metadata without querying subscriber identifiers
-                    @Suppress("MissingPermission")
-                    runCatching {
-                        val subscriptionManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as? SubscriptionManager
-                        if (hasPhonePermission(context)) {
-                            val activeSubs = subscriptionManager?.activeSubscriptionInfoList
-                            if (!activeSubs.isNullOrEmpty()) {
-                                val stats = networkStatsManager.querySummary(networkType, null, rangeStart, rangeEnd)
-                                val bucket = NetworkStats.Bucket()
-                                while (stats.hasNextBucket()) {
-                                    stats.getNextBucket(bucket)
-                                    val uid = bucket.uid
-                                    val prev = targetMap[uid] ?: Pair(0L, 0L)
-                                    targetMap[uid] = Pair(prev.first + bucket.rxBytes, prev.second + bucket.txBytes)
-                                }
-                                stats.close()
-                            }
-                        }
-                    }
+                } finally {
+                    stats.close()
                 }
+                targetMap.putAll(collected)
             }
         }
 
@@ -535,7 +525,7 @@ object NetworkMonitor {
         }
 
         val pm = context.packageManager
-        val installedApps = runCatching {
+        val installedApps = querySafely {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 pm.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0))
             } else {
@@ -552,6 +542,7 @@ object NetworkMonitor {
         val appList = mutableListOf<AppNetworkUsage>()
 
         for (uid in allUids) {
+            queryContext.ensureActive()
             val (mRx, mTx) = mobileUidStats[uid] ?: Pair(0L, 0L)
             val (wRx, wTx) = wifiUidStats[uid] ?: Pair(0L, 0L)
             val mTotal = mRx + mTx
@@ -590,7 +581,8 @@ object NetworkMonitor {
             wifiBytes = totalWifi,
             totalBytes = downloadBytes + uploadBytes,
             timeline = timelineBuckets,
-            apps = appList
+            apps = appList,
+            hasErrors = hasErrors
         )
     }
 
@@ -612,7 +604,7 @@ object NetworkMonitor {
             appMetaCache[uid] = meta
             return meta
         }
-        if (uid == 1073) {
+        if (uid == 1002) {
             val meta = CachedAppMeta("Bluetooth Service", "com.android.bluetooth")
             appMetaCache[uid] = meta
             return meta
@@ -623,7 +615,7 @@ object NetworkMonitor {
             return meta
         }
         if (uid == -4 || uid == -5) {
-            val label = if (uid == -4) "Tethering & Hotspot" else "Removed Applications"
+            val label = if (uid == -5) "Tethering & Hotspot" else "Removed Applications"
             val meta = CachedAppMeta(label, "system.network")
             appMetaCache[uid] = meta
             return meta

@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Memory
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Speed
@@ -209,9 +208,7 @@ fun OnboardingWelcomePage(
 
 @Composable
 fun OnboardingPermissionsPage(
-    hasNotificationPermission: Boolean,
     hasUsageAccessPermission: Boolean,
-    onRequestNotificationPermission: () -> Unit,
     onRequestUsageAccessPermission: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -228,17 +225,7 @@ fun OnboardingPermissionsPage(
         ) {
             OnboardingPermissionRow(
                 index = 0,
-                count = 2,
-                title = stringResource(R.string.onboarding_perm_notifications_title),
-                description = stringResource(R.string.onboarding_perm_notifications_desc),
-                icon = Icons.Default.Notifications,
-                granted = hasNotificationPermission,
-                onClick = onRequestNotificationPermission
-            )
-
-            OnboardingPermissionRow(
-                index = 1,
-                count = 2,
+                count = 1,
                 title = stringResource(R.string.onboarding_perm_usage_title),
                 description = stringResource(R.string.onboarding_perm_usage_desc),
                 icon = Icons.Default.QueryStats,

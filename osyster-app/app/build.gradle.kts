@@ -14,8 +14,8 @@ android {
         applicationId = "dev.qtremors.osyster"
         minSdk = 24
         targetSdk = 37
-        versionCode = 9
-        versionName = "0.0.9"
+        versionCode = 10
+        versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -97,7 +97,7 @@ androidComponents {
     onVariants { variant ->
         variant.outputs.forEach { output ->
             val version = output.versionName.get() ?: "0.0.0"
-            output.outputFileName.set("Osyster-$version-${variant.name}.apk")
+            output.outputFileName.set("Osyster-$version.apk")
         }
     }
 }

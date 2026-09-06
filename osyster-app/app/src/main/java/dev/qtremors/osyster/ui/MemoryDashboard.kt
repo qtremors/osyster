@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.qtremors.osyster.ui.util.collectAsVisibleState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.qtremors.osyster.monitor.MemoryState
 import dev.qtremors.osyster.R
@@ -35,7 +35,7 @@ fun MemoryDashboard(
     modifier: Modifier = Modifier,
     viewModel: MemoryViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsVisibleState()
     MemoryDashboardContent(
         uiState = uiState,
         modifier = modifier

@@ -2,7 +2,7 @@
 
 > Architecture, codebase structure, native statistics parsers, design tokens, and verification guidance for Osyster development.
 
-**Version:** 0.0.3 | **Last Updated:** 2026-09-04
+**Version:** 0.1.0 | **Last Updated:** 2026-09-06
 **Scope:** Internal development, system diagnostics, bento-grid UI paradigms, testing, and release maintenance.
 
 ---
@@ -45,8 +45,9 @@ Osyster is built around a reactive MVVM architecture utilizing native Kotlin Flo
 ```mermaid
 graph TD
     A["Compose Bento Dashboard"] -->|type-safe navigation| B["Detail Dashboards<br/>CPU / RAM / Tasks / Device Info"]
-    A -->|stream data| C["SystemMonitor Engine"]
-    B -->|stream data| C
+    A -->|collect state| V["Feature ViewModels"]
+    B -->|collect state| V
+    V -->|collect telemetry| C["SystemMonitor Engine"]
     C -->|parse delta jiffies| D["/proc/stat (CPU usage)"]
     C -->|parse memory tokens| E["/proc/meminfo (RAM/Swap)"]
     C -->|scan pids & statm| F["/proc/[pid] (Tasks memory & cmdline)"]
@@ -58,11 +59,11 @@ graph TD
 
 | Decision | Rationale |
 |---|---|
-| **Rootless Diagnostics** | Reads core processor, memory, device specifications, and battery metrics through standard Linux `/proc` and Android APIs accessible without root privileges. |
-| **Kotlin Flow Pipelines** | Emits real-time diagnostic snapshots across coroutine channels, allowing UI components to subscribe during active lifecycle states and automatically cancel when inactive. |
+| **Rootless Diagnostics** | Reads accessible `/proc` and `/sys` files and Android APIs without root; CPU, thermal, and process visibility varies by OS and device. |
+| **Kotlin Flow Pipelines** | ViewModels collect diagnostic flows and expose StateFlow to lifecycle-aware UI collectors. Producers run only while a visible, resumed screen collects their state. |
 | **Type-Safe Route Serialization** | Navigation destinations are modeled as `@Serializable` data objects via `kotlinx.serialization`, preventing route typos and enabling compile-time destination checks. |
-| **Custom Canvas Rendering** | Custom gauges (`OysterArcGauge`) and sparkline history paths are rendered directly on Hardware Canvas layers rather than heavyweight third-party charting libraries. |
-| **Zero-Network Architecture** | Manifest omits `android.permission.INTERNET`, providing hardware-enforced guarantees that no metrics can leave the device. |
+| **Custom Canvas Rendering** | `OysterArcGauge` wraps Material 3 wavy progress; sparklines and the network timeline use Canvas without a third-party charting library. |
+| **Zero-Network Architecture** | Manifest omits `android.permission.INTERNET`; diagnostics are processed locally. User-invoked links and copy actions hand content to other apps or the clipboard. |
 | **Package Separation** | Debug builds append `.debug` to applicationId and versionName, enabling side-by-side installation with release builds. |
 
 ---
@@ -73,13 +74,13 @@ graph TD
 |---|---|
 | Language and toolchain | Kotlin 2.4.10, Coroutines 1.11.0, Flow, JVM 11 target, AGP 9.3.2, Gradle 9.5.0, Foojay JDK 21 daemon |
 | Android platform | compileSdk 37, targetSdk 37, minSdk 24 (Android 7.0+) |
-| UI Framework | Jetpack Compose BOM 2026.08.00, Material 3 1.5.0-alpha26 (Expressive), MaterialKolor 5.0.0, Graphics Shapes 1.1.0 |
+| UI Framework | Jetpack Compose BOM 2026.08.00, Material 3 1.5.0-alpha26 (Expressive), Graphics Shapes 1.1.0 |
 | Navigation | Navigation Compose 2.9.8, Kotlinx Serialization 1.11.0, Material 3 Adaptive Navigation 1.3.0 |
-| State and telemetry | Native Kotlin Flow, StateFlow, Coroutines Dispatchers.IO |
+| State and telemetry | ViewModels, SavedStateHandle, StateFlow, SharedPreferences, Coroutines Dispatchers.IO |
 | System interface | Linux `/proc` and `/sys` virtual filesystems, Android Intent broadcasts |
-| Unit and UI tests | JUnit 4, AndroidX Test, Espresso Core, Compose UI Test |
+| Unit and UI tests | JUnit 4 and Coroutines Test; AndroidX Test, Espresso, and Compose UI Test dependencies are configured |
 
-Versions are centralized in `osyster-app/gradle/libs.versions.toml`. All Compose and Material 3 components align with the 2026.08.00 BOM line.
+Versions are centralized in `osyster-app/gradle/libs.versions.toml`. Compose uses the 2026.08.00 BOM; Material 3 and Adaptive have explicit version overrides.
 
 ---
 
@@ -94,24 +95,37 @@ osyster/
 │   │   ├── Osyster.png                          # Web emblem asset
 │   │   └── Tremors.jpg                          # Developer avatar
 │   ├── index.html                               # Landing page (Slate Tech bento design)
-│   ├── scripts.js                               # Real-time stats & interactive canvas preview
+│   ├── scripts.js                               # Public GitHub stats & simulated canvas preview
 │   └── styles.css                               # Custom bento card styling and glow effects
 ├── osyster-app/
 │   ├── app/
 │   │   ├── src/main/
 │   │   │   ├── AndroidManifest.xml              # App manifest (MainActivity, predictive back)
 │   │   │   ├── java/dev/qtremors/osyster/
-│   │   │   │   ├── MainActivity.kt              # App shell, edge-to-edge, bottom NavigationBar
+│   │   │   │   ├── MainActivity.kt              # App shell, edge-to-edge, main pager & floating dock
 │   │   │   │   ├── navigation/
 │   │   │   │   │   └── AppRoutes.kt             # Serializable type-safe navigation contracts
 │   │   │   │   ├── monitor/
-│   │   │   │   │   └── SystemMonitor.kt         # Real-time statistics collectors and proc parsers
+│   │   │   │   │   ├── SystemMonitor.kt         # CPU, memory, battery, and visible processes
+│   │   │   │   │   ├── NetworkMonitor.kt        # Local network history and live speeds
+│   │   │   │   │   ├── AppStopperMonitor.kt     # Managed apps and system shortcuts
+│   │   │   │   │   └── TelemetryResult.kt       # Available/restricted CPU and thermal values
+│   │   │   │   ├── settings/
+│   │   │   │   │   └── OsysterPreferences.kt    # Local preferences and managed packages
 │   │   │   │   └── ui/
 │   │   │   │       ├── BentoDashboard.kt        # Interactive Bento Grid home screen layout
 │   │   │   │       ├── CpuDashboard.kt          # CPU gauges, core list, and Sparkline graph
 │   │   │   │       ├── MemoryDashboard.kt       # RAM & Swap allocation gauges and specification rows
-│   │   │   │       ├── ProcessDashboard.kt      # Task list, search, details overlay, and SIGKILL trigger
+│   │   │   │       ├── ProcessDashboard.kt      # Visible tasks, search, details, and App Info actions
 │   │   │   │       ├── DeviceInfoDashboard.kt   # System hardware details & battery specifications
+│   │   │   │       ├── NetworkDashboard.kt      # Network history and per-app usage
+│   │   │   │       ├── AppStopperScreen.kt      # Managed app list and picker
+│   │   │   │       ├── TelemetryDashboard.kt    # CPU/RAM tab switcher
+│   │   │   │       ├── viewmodel/               # Feature StateFlow and action handlers
+│   │   │   │       ├── util/                    # Icon cache, insets, and haptics
+│   │   │   │       ├── onboarding/              # First-run setup and permissions
+│   │   │   │       ├── settings/                # Settings, About, and licenses
+│   │   │   │       ├── navigation/              # Floating dock
 │   │   │   │       └── theme/
 │   │   │   │           ├── Color.kt             # Dark/light theme color tokens
 │   │   │   │           ├── Shape.kt             # Material 3 Expressive shapes & segmented helpers
@@ -120,7 +134,7 @@ osyster/
 │   │   │   └── res/
 │   │   │       ├── values/
 │   │   │       │   ├── colors.xml               # Clean theme background tokens
-│   │   │       │   ├── strings.xml              # Application title resources
+│   │   │       │   ├── strings.xml              # Application strings and accessibility labels
 │   │   │       │   └── themes.xml               # NoActionBar window chrome setup
 │   │   │       └── xml/
 │   │   │           ├── backup_rules.xml         # Backup exclusion rules
@@ -130,7 +144,7 @@ osyster/
 │   ├── gradle/
 │   │   ├── libs.versions.toml                   # Centralized dependency catalog declarations
 │   │   └── gradle-daemon-jvm.properties         # Foojay JDK 21 daemon definition
-│   ├── signing.properties                       # Release keystore configuration
+│   ├── signing.properties                       # Optional local signing config (not tracked)
 │   ├── build.gradle.kts                         # Root-level build configuration plugin registration
 │   └── settings.gradle.kts                      # Project settings and repository configuration
 ├── CHANGELOG.md                                 # Stable release logs
@@ -145,16 +159,16 @@ osyster/
 
 ## Runtime Flow
 
-1. **Launch & Window Insets:** `MainActivity` triggers `enableEdgeToEdge()` on creation. Window insets are applied dynamically to both top app bars and bottom navigation rails, allowing content to draw fluidly beneath translucent system bars.
-2. **Predictive Back Navigation:** `android:enableOnBackInvokedCallback="true"` is declared on the application manifest, enabling smooth system back animations on Android 13 (API 33) and newer.
-3. **Main Navigation Host:** `MainActivity` initializes a `rememberNavController()` and binds bottom navigation destinations using `AppRoutes` contracts.
-4. **Bento Grid Dashboard:** `BentoDashboard` runs four coroutine collection jobs fetching live system metrics via Kotlin Flows:
-   - `SystemMonitor.streamCpu()` polls processor states at 1000ms intervals.
-   - `SystemMonitor.streamMemory()` polls memory statistics at 1000ms intervals.
+1. **Launch & Window Insets:** `MainActivity` triggers `enableEdgeToEdge()` on creation. Window insets are applied dynamically to top app bars and the floating bottom dock, allowing content to draw fluidly beneath translucent system bars.
+2. **Predictive Back Navigation:** `android:enableOnBackInvokedCallback="true"` is declared on the application manifest, with Compose predictive-back handlers for supported system gestures.
+3. **Main Navigation Host:** `MainActivity` initializes a `rememberNavController()` and uses `AppRoutes` for onboarding and subpages. The main dock selects Dashboard, Telemetry, or Tasks in a horizontal pager.
+4. **Bento Grid Dashboard:** `BentoViewModel` collects live system metrics and exposes them to `BentoDashboard`:
+   - `SystemMonitor.streamCpu()` polls processor states at the configured diagnostics interval.
+   - `SystemMonitor.streamMemory()` polls memory statistics at the configured diagnostics interval.
    - `SystemMonitor.streamBattery()` tracks battery properties at 3000ms intervals.
-   - Background polling updates active task counts every 4000ms.
-5. **Dashboard Transitions:** Tapping a bento card or bottom navigation item routes the user to the focused detail dashboard (`AppRoutes.Cpu`, `AppRoutes.Memory`, `AppRoutes.Processes`, or `AppRoutes.DeviceInfo`).
-6. **Volatile Memory Scoping:** When navigating away or backgrounding the application, Compose lifecycle scopes automatically cancel telemetry polling flows, ensuring zero CPU drain while idle.
+   - Process counts refresh at twice the diagnostics interval, clamped to 2000-10000ms; aggregate network speed also follows the preference.
+5. **Dashboard Transitions:** CPU, RAM, and Tasks shortcuts select pager content; Device Info, Network, App Stopper, Settings, About, and Licenses use NavHost destinations.
+6. **Volatile Memory Scoping:** UI collection stops when inactive, but producers launched in `viewModelScope` continue while their ViewModels remain alive. Foreground-only polling is an open task.
 
 ---
 
@@ -164,23 +178,23 @@ osyster/
 
 Osyster interacts with the Linux kernel through procfs (`/proc`) and sysfs (`/sys`). These are virtual, memory-backed filesystems maintained dynamically by the kernel:
 - **Zero Disk I/O:** Reading `/proc/stat` or `/proc/meminfo` incurs no physical flash storage wear; files are generated on-the-fly by kernel drivers during read operations.
-- **Rootless Boundary:** Core system telemetry files (`/proc/stat`, `/proc/meminfo`, `/sys/class/thermal/`) are readable by non-root applications. Process inspection (`/proc/[pid]/cmdline`, `/proc/[pid]/statm`) is accessible for the app's own process and visible system daemons within Android security sandbox limits.
+- **Rootless Boundary:** CPU, thermal, and process files may be restricted. Osyster reads only the files visible to its UID; this is not a complete device-wide process list.
 
 ### Rootless Diagnostics Boundaries
 
 Android security hardening restricts direct process table access on modern API levels. Osyster queries what procfs legally exposes to non-root users:
-- `/proc/stat` remains readable across Android versions, providing global CPU jiffies.
-- `/proc/meminfo` remains readable, exposing system-wide physical memory, cache, and swap statistics.
-- `/sys/devices/system/cpu/` nodes expose cluster frequency scaling tables and current frequencies.
+- `/proc/stat` provides CPU counters where the Android sandbox allows access.
+- `/proc/meminfo` provides system-wide memory and swap statistics where readable.
+- `/sys/devices/system/cpu/` may expose per-core and policy frequency nodes; vendor permissions vary.
 - Battery telemetry is collected via Android system broadcasts (`Intent.ACTION_BATTERY_CHANGED`) rather than restricted hardware nodes.
 
 ### Polling Cadence & Power Conservation
 
 Polling intervals balance smoothness with battery efficiency:
-- **CPU Usage:** 1000ms polling window to compute accurate delta jiffies without jitter.
-- **Memory & Swap:** 1000ms intervals to reflect dynamic allocation changes.
+- **CPU Usage:** User-configured 500, 1000, 2000, 3000, or 5000ms intervals; 1000ms is the default.
+- **Memory & Swap:** Follows the diagnostics interval preference.
 - **Battery:** 3000ms intervals (battery state changes slowly).
-- **Process Discovery:** 4000ms intervals to minimize coroutine overhead during heavy background activity.
+- **Process Discovery:** Dashboard counts use twice the preference, clamped to 2000-10000ms. Tasks follows the preference with a 2000ms minimum plus pull-to-refresh. Network live speed follows the preference; current-period usage summaries refresh every 30 seconds while visible.
 
 ---
 
@@ -190,7 +204,7 @@ Type-safe navigation is built with `kotlinx.serialization` on Jetpack Navigation
 
 ### Route Definitions (`AppRoutes.kt`)
 
-The navigation endpoints are modeled as serializable classes/objects under the `AppRoutes` namespace:
+The navigation contracts are serializable objects under `AppRoutes`. This excerpt shows the core contracts; CPU, Memory, and Processes select pager content rather than independent NavHost destinations:
 
 ```kotlin
 package dev.qtremors.osyster.navigation
@@ -219,9 +233,9 @@ sealed interface AppRoutes {
 ### Navigation & Back Stack Rules
 
 - **Destination Verification:** Navigation routes are checked at compile time using `composable<AppRoutes.X>`.
-- **Selected Tab State:** The bottom navigation bar matches the current destination using `currentDestination?.hasRoute(route::class) == true`.
-- **Back Stack Management:** Bottom navigation taps pop up to the start destination (`AppRoutes.Bento`) with `saveState = true` and `restoreState = true`, preventing deep stack accumulation.
-- **Single Top Launching:** Transitions set `launchSingleTop = true` to prevent duplicate screen instances when tapping an active navigation item multiple times.
+- **Selected Tab State:** The main dock follows `pagerState.currentPage`; subpage UI checks typed NavHost destinations.
+- **Back Stack Management:** Main dock taps scroll the pager. Subpages use the navigation back stack and return with `navigateUp()`.
+- **State Ownership:** Feature ViewModels retain state, with SavedStateHandle used for selected search/date/filter parameters. Not all UI state survives recreation.
 
 ### Screen Transitions & Animation Rules
 
@@ -238,8 +252,8 @@ sealed interface AppRoutes {
 ### Telemetry Pipeline Architecture
 
 1. **Dispatcher Scoping:** Kernel file I/O operations execute strictly on `Dispatchers.IO` to ensure the main UI thread is never blocked by procfs reads.
-2. **Channel Buffering:** Telemetry flows emit diagnostic snapshots at configured intervals, dropping stale frames if downstream consumers fall behind.
-3. **Lifecycle Scoping:** Composable screens collect telemetry using `LaunchedEffect` or `collectAsStateWithLifecycle()`, which automatically suspends or cancels polling when screens leave the foreground.
+2. **State Delivery:** Flow collectors update StateFlow snapshots. Consumers receive the current state; no explicit drop-oldest buffer is configured on the monitor streams.
+3. **Lifecycle Scoping:** `collectAsStateWithLifecycle()` controls UI collection. ViewModel producers currently outlive it; polling suspension and shared CPU sampler ownership remain open work.
 
 ---
 
@@ -263,7 +277,7 @@ $$\text{CPU Usage \%} = \left( \frac{\Delta \text{Active}}{\Delta \text{Total}} 
 
 ### Sparkline Rolling Window
 
-Historical CPU load values are maintained in a bounded rolling buffer (typically 30 samples). Each sample adds a data point to `SparklineGraph`, rendering a smooth cubic bezier curve with vertical gradient fill.
+`CpuViewModel` retains up to 25 available CPU samples. `Sparkline` renders straight line segments with a gradient fill. CPU load uses counter deltas with independent baselines per collector. If counters are unavailable, utilization is restricted and readable clock frequencies are shown separately.
 
 ---
 
@@ -288,7 +302,7 @@ Memory metrics are parsed directly from `/proc/meminfo`:
 - **Used RAM:** $\text{MemTotal} - \text{MemAvailable}$
 - **RAM Percentage:** $(\text{Used RAM} / \text{MemTotal}) \times 100$
 - **Used Swap:** $\text{SwapTotal} - \text{SwapFree}$
-- **Units:** Values are formatted using standard binary gigabyte (`GiB`) and megabyte (`MiB`) prefixes with 2-decimal precision.
+- **Units:** Formatters use binary divisors with KB/MB/GB labels and locale-sensitive decimals. Precision varies by screen.
 
 ---
 
@@ -300,13 +314,13 @@ The process engine discovers active tasks, parses process identity, and provides
 
 1. **PID Scanning:** Scans `/proc/` for directories with strictly numeric names.
 2. **Command Line Resolution:** Reads `/proc/[pid]/cmdline`, replacing null bytes (`\0`) with spaces. If empty (kernel thread or permission restricted), it parses the process name from parentheses in `/proc/[pid]/stat`.
-3. **Memory Footprint (RSS):** Reads the second column of `/proc/[pid]/statm`, representing Resident Set Size pages, and multiplies by memory page size (typically 4KB) to compute RSS in Kilobytes.
+3. **Memory Footprint (RSS):** Reads the second column of `/proc/[pid]/statm`, representing Resident Set Size pages, and multiplies by the runtime page size from `Os.sysconf(_SC_PAGESIZE)` to compute RSS in Kilobytes, including on 16 KB devices.
 
 ### Task Termination & Security
 
-- **Trigger:** Invokes `kill -9 [pid]` via JVM Runtime.
-- **Safety Dialogs:** Requires explicit user confirmation before executing SIGKILL.
-- **Permission Handlers:** Protected system processes blocked by SELinux are caught gracefully, displaying a non-disruptive feedback message rather than crashing.
+- **Trigger:** Package actions open App Info or call `ActivityManager.killBackgroundProcesses()`; arbitrary PID termination displays guidance.
+- **Force Stop:** The user performs force stop in Android's App Info screen. No raw shell kill command is executed.
+- **Platform Limit:** On Android 14+, background-process management can affect only Osyster's own processes. The background-kill action is hidden on Android 14+; App Info remains available.
 
 ---
 
@@ -315,8 +329,8 @@ The process engine discovers active tasks, parses process identity, and provides
 ### Hardware Specifications
 
 Hardware properties are queried from `android.os.Build`:
-- `MANUFACTURER`, `MODEL`, `BRAND`, `DEVICE`
-- `BOARD`, `HARDWARE`, `SOC_MANUFACTURER`
+- `MANUFACTURER`, `MODEL`
+- `BOARD`, `HARDWARE` (CPU model detection separately uses SoC APIs when available)
 - `SUPPORTED_ABIS`, `BOOTLOADER`
 - `VERSION.RELEASE`, `VERSION.SDK_INT`, `VERSION.SECURITY_PATCH`
 
@@ -327,7 +341,7 @@ Battery diagnostics subscribe to the sticky system broadcast `Intent.ACTION_BATT
 - **Voltage:** Extracted in millivolts (`BatteryManager.EXTRA_VOLTAGE`).
 - **Temperature:** Extracted in tenths of a degree Celsius and converted to Celsius and Fahrenheit.
 - **Health:** Evaluates health constants (`HEALTH_GOOD`, `HEALTH_OVERHEAT`, `HEALTH_DEAD`, `HEALTH_OVER_VOLTAGE`).
-- **Plugged Status:** Identifies power source (`AC`, `USB`, `WIRELESS`, `DOCK`, or `UNPLUGGED`).
+- **Plugged Status:** Recognizes AC, USB, and wireless; other values are displayed as Battery.
 
 ---
 
@@ -336,9 +350,9 @@ Battery diagnostics subscribe to the sticky system broadcast `Intent.ACTION_BATT
 ### Thermal Zones Discovery
 
 Osyster scans Linux thermal zones dynamically:
-- Probes `/sys/class/thermal/thermal_zone0/temp` through `thermal_zone20/temp`.
-- Reads millidegree Celsius integer values and converts to standard degrees.
-- Associates available zones with CPU cluster names or labels them by index.
+- Enumerates thermal zones and checks CPU/SoC-related type names before reading temperatures.
+- Parses Celsius or millidegree values and currently accepts only temperatures between 10 and 105°C.
+- Returns the first accepted CPU/SoC value. Unidentified or inaccessible sensors remain restricted; numbered paths are not treated as CPU sensors without a matching type.
 
 ### Frequency Scaling
 
@@ -354,8 +368,8 @@ CPU core frequencies are read from CPU frequency scaling governors:
 Osyster provides built-in system utilities and management capabilities:
 
 - **Rootless Operation:** All utilities operate strictly within user-space permissions.
-- **Direct System Actions:** Shortcut actions to Android developer settings, battery usage details, and application storage settings.
-- **Zero Background Footprint:** Utilities run on-demand without persistent foreground services or background battery drain.
+- **Direct System Actions:** App Stopper provides App Info, launch, Play Store, and managed-list removal actions; uninstalled packages remain as ghost entries.
+- **Current Scope:** App Stopper and network usage are implemented. Quick tiles, volume mixing, clipboard history, reboot tools, and notifications remain roadmap ideas.
 
 ---
 
@@ -366,43 +380,43 @@ Osyster implements a high-end, premium design system built on **Material 3 Expre
 ### 1. Theme & Customization Engine (`Theme.kt`, `Color.kt`)
 
 - **Theme Modes:**
-  - `DARK`: Standard slate tech theme using Dark Slate Navy (`#0C1115`) background and Surface Slate (`#141C22`).
+  - `DARK`: Standard slate tech theme using Dark Slate Navy (`#0B1015`) background and Surface Slate (`#111820`). System and Light modes are also available.
   - `OLED`: Deep pure-black container overrides for maximum battery efficiency on AMOLED panels.
 - **Color Tokens:**
-  - `BackgroundDark`: `#0C1115` (Deep Slate Navy)
-  - `SurfaceDark`: `#141C22` (Surface Slate)
-  - `SurfaceContainerHighDark`: `#1C2730` (Card Container Slate)
+  - `BackgroundDark`: `#0B1015` (Deep Slate Navy)
+  - `SurfaceDark`: `#111820` (Surface Slate)
+  - `SurfaceContainerHighDark`: `#222E39` (Card Container Slate)
   - `PrimaryDark`: `#00E6FF` (Electric Cyan Neon for gauges, highlights, and active states)
   - `SecondaryDark`: `#FFB300` (Warm Amber for warnings, battery, and memory allocations)
   - `TertiaryDark`: `#FF5252` (Coral Rose for thermal limits and critical alerts)
 - **Composition Locals:**
-  - `LocalSpacing`: Standardized padding and margin coordinates.
-  - `LocalHapticFeedback`: Respects system vibration and haptic settings.
+  - `LocalBottomContentPadding`: Dock-aware bottom padding for scrollable content.
+  - `LocalView`: Used by `OsysterHapticUtil` to perform feedback when the preference is enabled.
 
-### 2. Motion & Animation Tokens (`Motion.kt`, `AnimationTokens`)
+### 2. Motion & Animation Tokens (`Theme.kt`, Compose Animations)
 
 - **Bouncy Spring Physics:** Jetpack Compose spring animations use tuned damping ratios (`dampingRatio = 0.75f`, `stiffness = Spring.StiffnessMediumLow`) for responsive, tactile card feedback.
-- **Card Press Actions (`bounceClickable`):** Interactive cards scale smoothly on touch-down and touch-up with haptic response.
-- **Margin & Padding Safeguards:** Dynamic padding values are clamped to non-negative coordinates (`coerceAtLeast(0.dp)`) to prevent spring overshoot layout crashes.
+- **Card Press Actions:** Material cards and list controls provide bounded feedback; theme mode cards also animate scale.
+- **Margin & Padding Safeguards:** `LocalBottomContentPadding` coordinates screen padding with dock visibility and navigation insets.
 - **Transition States:** Predictive back navigation integrates with Android 13+ gesture handling.
 
 ### 3. Custom Layout Components
 
 - **Bento Grid Container (`BentoDashboard`):** High-density responsive grid organizing system telemetry into compact visual modules.
-- **Circular Arc Gauge (`OysterArcGauge`):** Hardware Canvas-drawn arc gauge featuring smooth track backgrounds, swept active arcs with `StrokeCap.Round`, and centered metrics.
-- **Sparkline Graph (`SparklineGraph`):** Canvas-rendered historical load graph with cubic bezier smoothing and semi-transparent vertical gradient fill.
-- **Glassmorphic Bottom Navigation (`NavigationBar`):** Floating bottom navigation bar styled with surface elevation and tonal tinting.
+- **Circular Arc Gauge (`OysterArcGauge`):** Wrapper around Material 3 `CircularWavyProgressIndicator`.
+- **Sparkline Graph (`Sparkline`):** Canvas-rendered historical load graph with straight segments and a semi-transparent gradient fill.
+- **Floating Bottom Navigation (`OsysterDock`):** `HorizontalFloatingToolbar` with selectable tabs and contextual actions.
 
 ### 4. Gesture Physics & Interactive Components
 
-- **Touch Down Scale:** Bento cards animate scale on touch down for immediate tactile feedback.
-- **Debounced Search:** Process list search filters PIDs and command names with debounced text queries to prevent frame drops.
-- **Confirmation Dialogs:** Destructive actions (such as process SIGKILL) require confirmation dialogs with haptic prompts.
+- **Touch Feedback:** Cards and controls use Material interactions; selected theme cards include press-scale animation.
+- **Search:** Process list search filters command names and exact PID matches immediately; there is no debounce.
+- **Guidance Dialogs:** Arbitrary PID termination explains the platform restriction and offers App Info for package-like names.
 
 ### 5. UI/UX Rules & Guidelines for Developers
 
 - **Real-Time Gauge Interpolation:** Animate gauge values with `animateFloatAsState` to prevent jarring metric jumps during polling updates.
-- **Volatile Memory Scoping:** Coroutine polling scopes must be tied to Composable lifecycle to guarantee zero idle CPU consumption.
+- **Volatile Memory Scoping:** Suspend producers when no visible consumer needs them. This remains a goal, not current ViewModel behavior.
 - **Scroll Preservation:** Retain list scroll state when navigating between detail views and the main Bento dashboard.
 - **Visual Continuity:** Compose screens using `Theme.kt` surface tokens, semantic typography, and standard 24.dp bento card corner shapes.
 
@@ -411,10 +425,10 @@ Osyster implements a high-end, premium design system built on **Material 3 Expre
 - **`ExperimentalMaterial3ExpressiveApi` Coverage:** Applied across dashboards for expressive components and layout containers.
 - **Semantic Typography (`Type.kt`):**
   - `Typography.titleLargeBold`: Emphasized bold title headers.
-  - `Typography.filename`: `titleMedium` styling with Medium weight and zero letter spacing for filenames and process names.
-  - `Typography.fileMetadata`: `bodySmall` styling with normal weight for memory, PIDs, and frequencies.
-  - `Typography.pathBreadcrumb`: `labelLarge` styling with Medium weight for navigation breadcrumbs.
-  - `Typography.storageMetric`: `headlineMedium` styling with SemiBold weight for telemetry percentages.
+  - `Typography.titleMediumBold`: Bold title-medium styling.
+  - `Typography.bodySmallMedium`: Medium body-small styling.
+  - `Typography.titleSmallSemiBold`: Semibold title-small styling.
+  - `Typography.bodyMediumBold`: Bold body-medium styling.
   - `Typography.sectionHeader`: `titleSmall` styling with Bold weight for section titles.
   - `Typography.dangerLabel`: `labelLarge` styling with SemiBold weight for alert notices.
   - *Weight Helpers:* `titleMediumBold`, `titleMediumSemiBold`, `titleSmallSemiBold`, `bodyLargeMedium`, `bodyMediumBold`, and `bodySmallMedium`.
@@ -426,33 +440,33 @@ Osyster implements a high-end, premium design system built on **Material 3 Expre
 ### 1. Bento Dashboard (`ui/BentoDashboard.kt`)
 
 - **Entry:** Main landing dashboard loaded as `AppRoutes.Bento`.
-- **State:** Live telemetry subscriptions to `streamCpu()`, `streamMemory()`, `streamBattery()`, and task count polling.
+- **State:** `BentoViewModel` owns CPU, memory, battery, live network speed, task counts, network summaries, and managed-app counts.
 - **Components:** High-density Bento Grid featuring interactive summary cards (CPU usage arc gauge, RAM/Swap metrics, active task counts, battery status, and device metadata).
 - **Navigation:** Dispatches typed destination contracts (`AppRoutes.Cpu`, `AppRoutes.Memory`, `AppRoutes.Processes`, `AppRoutes.DeviceInfo`).
 
 ### 2. CPU Dashboard (`ui/CpuDashboard.kt`)
 
 - **Telemetry:** Real-time overall processor usage, active core frequencies, core-by-core load breakdown, and thermal zones.
-- **Visuals:** Canvas-rendered `OysterArcGauge` for aggregate CPU percentage, real-time cubic bezier `SparklineGraph` historical trend line, and per-core progress indicators.
-- **Controls:** Polling interval configuration and core thermal alerts.
+- **Visuals:** Wavy progress for aggregate CPU percentage, Canvas `Sparkline` history, and per-core progress indicators.
+- **Controls:** Polling interval and temperature units are configured in Settings. Thermal alerts are not implemented.
 
 ### 3. Memory Dashboard (`ui/MemoryDashboard.kt`)
 
 - **Telemetry:** Total physical RAM, available RAM, used RAM, buffers, cached memory, and Swap/zram allocation parsed from `/proc/meminfo`.
 - **Visuals:** Segmented memory distribution gauges, free vs available distinction, and Swap utilization percentages.
-- **Specifications:** Formatted binary gigabyte representations (`GiB`) with raw kilobyte accuracy.
+- **Specifications:** Binary-divisor KB/MB/GB formatting with locale-sensitive decimals.
 
 ### 4. Process Manager (`ui/ProcessDashboard.kt`)
 
 - **Discovery:** Scans `/proc` PID directories, extracting executable command lines and Resident Set Size (RSS) memory consumption from `/proc/[pid]/statm`.
-- **Interactions:** Live debounced search filtering by process name and PID, sorted by memory footprint or PID.
-- **Termination:** Direct `SIGKILL` (`kill -9`) execution via JVM Runtime with user confirmation dialogs and permission failure handling.
+- **Interactions:** Immediate search by process name or exact PID, descending RSS sort, kernel-thread filtering, and pull-to-refresh.
+- **Termination:** App Info shortcuts, Android background-process management, and guidance for restricted arbitrary PID termination.
 
 ### 5. Device Info Dashboard (`ui/DeviceInfoDashboard.kt`)
 
 - **Hardware Profile:** Manufacturer, model, board, hardware platform, CPU architecture, supported ABIs, and bootloader version.
-- **Software Profile:** Android OS version, API level (SDK INT), build fingerprint, security patch level, and kernel version.
-- **Battery Health:** Live voltage, temperature, health status, charging technology, and connected power source from sticky battery broadcasts.
+- **Software Profile:** Android OS version, API level (SDK INT), security patch level, and bootloader. Kernel version and build fingerprint are not displayed.
+- **Battery Health:** Live voltage, temperature, health, charging state, and power source from sticky battery broadcasts.
 
 ---
 
@@ -471,8 +485,8 @@ Osyster implements a high-end, premium design system built on **Material 3 Expre
 |---|---|---|
 | `stream` | Continuous Kotlin Flow emission | `streamCpu(intervalMs)` |
 | `get` | Instantaneous telemetry read | `getCpuState()`, `getMemoryState()` |
-| `parse` | Data transformation from raw kernel files | `parseProcStat()`, `parseMeminfo()` |
-| `format` | Convert data for presentation | `formatMemorySize(kb)` |
+| `parse` | Data transformation from raw kernel files | `parseProcStatLine()`, `parseMemInfo()` |
+| `format` | Convert data for presentation | `NetworkMonitor.formatBytes(bytes)` |
 | `navigate` | Transition screens | `navController.navigate(route)` |
 | `is` / `has` | Boolean state validation | `hasSigningConfig`, `swapActive` |
 
@@ -489,8 +503,8 @@ Osyster implements a high-end, premium design system built on **Material 3 Expre
 | **Compile SDK** | 37 |
 | **Target SDK** | 37 |
 | **Min SDK** | 24 (Android 7.0+) |
-| **Version Code** | 3 |
-| **Version Name** | 0.0.3 |
+| **Version Code** | 10 |
+| **Version Name** | 0.1.0 |
 | **Java Target** | JVM 11 |
 | **Gradle Version** | 9.5.0 |
 | **AGP Version** | 9.3.2 |
@@ -502,6 +516,12 @@ Osyster implements a high-end, premium design system built on **Material 3 Expre
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -510,6 +530,7 @@ Osyster implements a high-end, premium design system built on **Material 3 Expre
         android:label="${appLabel}"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="false"
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="tiramisu"
         android:theme="@style/Theme.Osyster">
@@ -557,31 +578,31 @@ buildTypes {
 ```
 
 - **Debug Builds:** Packaged as `dev.qtremors.osyster.debug` (labeled **Osyster Debug**).
-- **Release Builds:** Packaged as `dev.qtremors.osyster` (labeled **Osyster**). Artifacts are output as `Osyster-$version.apk`.
+- **Release Builds:** Packaged as `dev.qtremors.osyster` (labeled **Osyster**). Artifacts follow `Osyster-${versionName}.apk`.
 
 ---
 
 ## Security & Privacy Practices
 
 1. **Rootless Operation:** All telemetry reading operates strictly within user-space permissions using readable Linux procfs/sysfs nodes and Android broadcasts.
-2. **Zero Network Access:** Osyster declares no internet permissions. It is architecturally impossible for metrics to be transmitted off the device.
-3. **Volatile In-Memory Processing:** Telemetry snapshots exist only in volatile RAM while the corresponding screen is active.
-4. **No Background Spying:** Diagnostic polling coroutines are scoped to the active composable lifecycle and are cancelled automatically when navigating away or backgrounding the application.
+2. **Zero Network Access:** The app declares no internet permission. External links open other apps; About copy actions place selected text on the system clipboard.
+3. **Volatile In-Memory Processing:** Diagnostic snapshots and short chart histories stay in process memory. Preferences, managed package names, and cached app labels are saved locally.
+4. **Polling Scope:** Recurring ViewModel telemetry runs only while a visible screen collects its state at the RESUMED lifecycle state. Hidden pager pages and outgoing telemetry tabs stop collecting.
 5. **No Third-Party Analytics:** Contains zero tracking SDKs, telemetry libraries, or crash reporting services.
-6. **Direct Local SIGKILL:** Process termination executes via local JVM Runtime without intermediate cloud commands or external helpers.
+6. **Local Process Actions:** App Info and Android background-process management replace raw shell execution; OS restrictions still apply.
 7. **Read-Only Virtual Files:** Sysfs and procfs nodes are accessed with standard read-only streams.
-8. **No Unnecessary Permissions:** Does not request storage management, contacts, camera, or location access.
-9. **Secure Release Signing:** Keystore properties are resolved locally via `signing.properties` and are strictly excluded from source control.
-10. **Predictable Back Behavior:** Full support for predictive back navigation guarantees transparent, predictable user navigation.
+8. **Permissions:** Usage access supports historical network data; package visibility supports app lists; optional phone access supports carrier metadata and older mobile queries. Notification permission is not requested; notifications remain unimplemented.
+9. **Secure Release Signing:** Keystore properties are resolved locally via `signing.properties` or `local.properties`, both excluded from source control. Backup rules exclude SharedPreferences, including saved settings and app labels.
+10. **Predictive Back Behavior:** Compose handlers return through main pager pages; subpages use the navigation back stack.
 
 ---
 
 ## Error Handling
 
-- **Procfs Read Resilience:** Kernel virtual file reads catch `IOException` and fallback to safe zero or baseline values when kernel nodes are unreadable.
-- **Offline Core Handling:** CPU clusters in low-power states may power down individual cores. The parser handles missing or inaccessible core frequency files gracefully by reporting offline status rather than crashing.
-- **Permission Denials:** If the OS restricts task termination for system-protected processes, `SystemMonitor.killProcess` catches security exceptions and reports failure cleanly without crashing the UI.
-- **Cancellation Safety:** Coroutine polling blocks catch and rethrow `CancellationException` to ensure proper coroutine channel cancellation:
+- **Procfs Read Resilience:** Collectors catch read failures. CPU/thermal models can report restricted access; memory read failures can still appear as zero. Network query failures show an incomplete-data message.
+- **Offline Core Handling:** Missing or inaccessible frequency files return zero; the UI can show N/A. Zero does not distinguish offline cores from denied access.
+- **Permission Denials:** Arbitrary PID termination shows guidance. Network queries expose failures and clear cached usage when access is revoked. Older requests cannot overwrite newer selections.
+- **Cancellation Safety:** When adding exception handling around suspending work, rethrow `CancellationException`. The following is a recommended pattern, not an excerpt from the current collectors:
 
 ```kotlin
 try {
@@ -600,23 +621,23 @@ Osyster uses JVM unit tests, Android test runners, and automated build conventio
 
 ### Test Distribution
 
-- **JVM Unit Tests:** Verify procfs string parsers, memory unit conversions, delta jiffy arithmetic, and state formatting.
-- **Instrumented UI Tests:** Verify composable rendering, canvas drawing bounds, and navigation stack transitions.
-- **Build Convention Checks:** Automated Gradle tasks validating version metadata and catalog consistency.
+- **JVM Unit Tests:** Cover procfs parsers, UID resolution, memory conversions, delta jiffies, formatting, state, and icon caching. Focused regressions cover independent CPU baselines, subscriber cancellation, stale query rejection, 16 KB RSS, thermal identification, and accent contrast.
+- **Instrumented UI Tests:** Dependencies are configured, but no instrumented test suite exists. Lifecycle helpers and query ordering have JVM coverage; device lifecycle and permission flows still need manual verification.
+- **Build Convention Checks:** Tasks check catalog sections and explicit version declarations only; they do not check dependency freshness, version arithmetic, signing, or docs.
 
 ### Verification Commands
 
 ```bash
-# Verify release version metadata and catalog freshness
+# Check explicit version declarations and catalog structure
 ./gradlew verifyOsysterBuildConventions
 
 # Run JVM unit tests
-./gradlew test
+./gradlew :app:testDebugUnitTest
 
 # Compile debug APK
 ./gradlew :app:assembleDebug
 
-# Compile minified, signed release APK
+# Compile minified release APK (signed only when configured)
 ./gradlew :app:assembleRelease
 ```
 
@@ -644,7 +665,7 @@ Commands are run from `osyster-app/` with JDK 21 and Android SDK 37 installed. U
 ./gradlew :app:assembleDebug
 
 # Install the debug APK after a successful build
-adb install -r app/build/outputs/apk/debug/Osyster-0.0.3-debug.apk
+adb install -r app/build/outputs/apk/debug/Osyster-0.1.0-debug.apk
 
 # Run app unit tests
 ./gradlew :app:testDebugUnitTest
@@ -652,13 +673,13 @@ adb install -r app/build/outputs/apk/debug/Osyster-0.0.3-debug.apk
 # Run convention verification
 ./gradlew :app:verifyOsysterBuildConventions
 
-# Generate the signed, minified release APK
+# Generate the minified release APK (signed only when configured)
 ./gradlew :app:assembleRelease
 ```
 
 ### Release Signing
 
-Release signing reads `signing.properties`, with `local.properties` as a fallback. Never commit production keystore files or passwords.
+Release signing reads `signing.properties`, falling back to `local.properties` only when the former is absent. All four signing properties must be present; otherwise the release is unsigned. Relative keystore paths resolve from the app module. Never commit production keystore files or passwords.
 
 ```properties
 signing.storeFile=my-release-key.jks
@@ -669,8 +690,8 @@ signing.keyPassword=your_key_password
 
 ### APK Naming Standards
 
-- **Osyster Debug:** `app/build/outputs/apk/debug/Osyster-0.0.3-debug.apk`
-- **Osyster Release:** `app/build/outputs/apk/release/Osyster-0.0.3.apk`
+- **Osyster Debug:** `app/build/outputs/apk/debug/Osyster-0.1.0-debug.apk`
+- **Osyster Release:** `app/build/outputs/apk/release/Osyster-0.1.0.apk`
 
 ---
 
@@ -678,10 +699,10 @@ signing.keyPassword=your_key_password
 
 | Aspect | Custom Implementation | Design Rationale |
 |---|---|---|
-| **Rootless /proc Parsing** | Reads Linux `/proc` pseudo-files directly without root daemons. | Enables instant diagnostic insights on non-rooted production devices. |
-| **Local Runtime SIGKILL** | Executes task termination directly via JVM Runtime process execution. | Provides immediate task management without external superuser managers. |
-| **No Network Declaration** | Entirely omits `android.permission.INTERNET`. | Delivers hardware-level privacy guarantees for all telemetry data. |
-| **Volatile State Storage** | Diagnostic snapshots are kept in volatile memory only. | Prevents unnecessary flash storage writes and battery drain. |
+| **Rootless /proc Parsing** | Reads accessible `/proc` files without root daemons. | Exposes diagnostics within OS and vendor restrictions. |
+| **System App Info** | Opens Android's application settings. | Lets the user apply platform force-stop controls. |
+| **No Network Declaration** | Entirely omits `android.permission.INTERNET`. | Keeps app diagnostics offline; external links open other applications. |
+| **Volatile State Storage** | Diagnostic snapshots are kept in volatile memory only. | Avoids storing a telemetry database; preferences and managed-app labels are persisted separately. |
 
 ---
 
@@ -691,21 +712,21 @@ When reviewing code changes, ensure:
 1. **Scope Compliance:** Telemetry collectors must remain within standard Linux sysfs and procfs boundaries.
 2. **Resource Efficiency:** Polling intervals must not exceed UI refresh requirements (e.g. 1000ms for CPU, 3000ms for battery).
 3. **Memory Safety:** Do not cache unbounded history lists; retain fixed-size rolling buffers for sparklines.
-4. **Clean Architecture:** Telemetry collection remains in `SystemMonitor.kt`; Composables handle presentation only.
+4. **Clean Architecture:** Monitor objects collect platform data, ViewModels own feature state, and content composables handle presentation.
 5. **Zero Em Dashes:** Do not use em dashes anywhere in documentation or code comments. Use hyphens or colons instead.
-6. **Hard Limits:** Production files remain at or below 500 lines, and Composables keep focused parameter counts.
+6. **Focused Files:** Keep new changes scoped and composables focused; existing production files vary in size.
 7. **Type-Safe Navigation:** Always use `@Serializable` `AppRoutes` objects for navigation destinations.
 8. **Platform Boundaries:** Composable functions must not inspect raw Linux `/proc` paths directly; all kernel parsing belongs in `SystemMonitor`.
-9. **Volatile State:** Telemetry state must remain in memory and cancel on lifecycle pause/stop.
+9. **Volatile State:** Keep telemetry history bounded and in memory; stop producers when their screen is inactive.
 10. **Focused Verification:** Run unit tests and convention checks before declaring milestones.
 
 ---
 
 ## Troubleshooting
 
-- **Inaccessible thermal zones:** Certain SoC vendors restrict thermal zones under custom sysfs paths. Osyster scans zones 0 through 20 and falls back gracefully when specific zones are restricted.
+- **Inaccessible thermal zones:** Vendors may restrict thermal files. Osyster reads identified CPU/SoC-related zones; unavailable or unidentified sensors are reported as restricted.
 - **CPU core frequency shows 0:** When CPU cores enter deep idle sleep (C-states), scaling frequency nodes may report zero or be unreadable until the core wakes. This is normal kernel behavior.
-- **Task kill fails:** Attempting to terminate system-critical processes (e.g. Zygote or system_server) without root privileges will be rejected by SELinux. Osyster catches the security denial cleanly.
+- **Task actions have no effect:** Arbitrary PID termination is restricted. On Android 14+, background-kill calls cannot affect other apps; use system App Info to force stop where Android allows it.
 - **Build toolchain errors:** Ensure Android SDK 37 is installed and Gradle daemon uses JDK 21 via the Foojay toolchain resolver.
 
 ---

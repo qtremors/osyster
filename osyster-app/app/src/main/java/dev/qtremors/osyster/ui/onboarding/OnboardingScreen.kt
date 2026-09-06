@@ -1,17 +1,13 @@
 package dev.qtremors.osyster.ui.onboarding
 
-import android.Manifest
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Process
 import android.provider.Settings
 import androidx.activity.compose.PredictiveBackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -68,8 +64,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -92,23 +86,13 @@ fun OnboardingScreen(
 
     val pagerState = rememberPagerState(pageCount = { 2 })
 
-    var hasNotificationPermission by remember {
-        mutableStateOf(checkNotificationPermission(context))
-    }
     var hasUsageAccessPermission by remember {
         mutableStateOf(checkUsageAccessPermission(context))
-    }
-
-    val notificationLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        hasNotificationPermission = granted || checkNotificationPermission(context)
     }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                hasNotificationPermission = checkNotificationPermission(context)
                 hasUsageAccessPermission = checkUsageAccessPermission(context)
             }
         }
@@ -194,16 +178,7 @@ fun OnboardingScreen(
             when (page) {
                 0 -> OnboardingWelcomePage()
                 1 -> OnboardingPermissionsPage(
-                    hasNotificationPermission = hasNotificationPermission,
                     hasUsageAccessPermission = hasUsageAccessPermission,
-                    onRequestNotificationPermission = {
-                        OsysterHapticUtil.performTick(view, prefsState.hapticFeedback)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        } else {
-                            openAppNotificationSettings(context)
-                        }
-                    },
                     onRequestUsageAccessPermission = {
                         OsysterHapticUtil.performTick(view, prefsState.hapticFeedback)
                         openUsageAccessSettings(context)
@@ -351,17 +326,6 @@ private fun OnboardingBottomBar(
     }
 }
 
-private fun checkNotificationPermission(context: Context): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
-    } else {
-        NotificationManagerCompat.from(context).areNotificationsEnabled()
-    }
-}
-
 private fun checkUsageAccessPermission(context: Context): Boolean {
     val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager ?: return false
     val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -378,23 +342,6 @@ private fun checkUsageAccessPermission(context: Context): Boolean {
         )
     }
     return mode == AppOpsManager.MODE_ALLOWED
-}
-
-private fun openAppNotificationSettings(context: Context) {
-    val intent = Intent().apply {
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
-                action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
-                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-            }
-            else -> {
-                action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                data = Uri.fromParts("package", context.packageName, null)
-            }
-        }
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    }
-    runCatching { context.startActivity(intent) }
 }
 
 private fun openUsageAccessSettings(context: Context) {

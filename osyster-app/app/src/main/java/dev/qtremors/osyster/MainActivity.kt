@@ -14,6 +14,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.CompositionLocalProvider
+import dev.qtremors.osyster.ui.util.LocalTelemetryVisible
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.BasicTextField
@@ -214,35 +216,37 @@ class MainActivity : ComponentActivity() {
                                             translationX = p * 40.dp.toPx()
                                         }
                                 ) { page ->
-                                    when (page) {
-                                        0 -> BentoDashboard(
-                                            onNavigateTo = { route ->
-                                                when (route) {
-                                                    is AppRoutes.Cpu -> {
-                                                        telemetryInitialTab = 0
-                                                        scope.launch { pagerState.animateScrollToPage(1) }
-                                                    }
-                                                    is AppRoutes.Memory -> {
-                                                        telemetryInitialTab = 1
-                                                        scope.launch { pagerState.animateScrollToPage(1) }
-                                                    }
-                                                    is AppRoutes.Processes -> {
-                                                        scope.launch { pagerState.animateScrollToPage(2) }
-                                                    }
-                                                    is AppRoutes.DeviceInfo -> {
-                                                        navController.navigate(AppRoutes.DeviceInfo)
-                                                    }
-                                                    else -> {
-                                                        navController.navigate(route)
+                                    CompositionLocalProvider(LocalTelemetryVisible provides (page == pagerState.currentPage)) {
+                                        when (page) {
+                                            0 -> BentoDashboard(
+                                                onNavigateTo = { route ->
+                                                    when (route) {
+                                                        is AppRoutes.Cpu -> {
+                                                            telemetryInitialTab = 0
+                                                            scope.launch { pagerState.animateScrollToPage(1) }
+                                                        }
+                                                        is AppRoutes.Memory -> {
+                                                            telemetryInitialTab = 1
+                                                            scope.launch { pagerState.animateScrollToPage(1) }
+                                                        }
+                                                        is AppRoutes.Processes -> {
+                                                            scope.launch { pagerState.animateScrollToPage(2) }
+                                                        }
+                                                        is AppRoutes.DeviceInfo -> {
+                                                            navController.navigate(AppRoutes.DeviceInfo)
+                                                        }
+                                                        else -> {
+                                                            navController.navigate(route)
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        )
-                                        1 -> TelemetryDashboard(
-                                            initialTab = telemetryInitialTab,
-                                            hapticEnabled = prefsState.hapticFeedback
-                                        )
-                                        2 -> ProcessDashboard()
+                                            )
+                                            1 -> TelemetryDashboard(
+                                                initialTab = telemetryInitialTab,
+                                                hapticEnabled = prefsState.hapticFeedback
+                                            )
+                                            2 -> ProcessDashboard()
+                                        }
                                     }
                                 }
                             }
