@@ -1,3 +1,313 @@
 <resources>
     <string name="app_name">Osyster</string>
+    <string name="app_tagline">Private Android System Monitor</string>
+    <string name="back">Back</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="section_appearance">Appearance</string>
+    <string name="theme_mode">Theme Mode</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_oled">OLED</string>
+    <string name="accent_palette">Accent Palette</string>
+    <string name="accent_cyan">Cyan</string>
+    <string name="accent_amber">Amber</string>
+    <string name="accent_rose">Rose</string>
+    <string name="accent_emerald">Emerald</string>
+    <string name="accent_purple">Purple</string>
+    <string name="accent_blue">Blue</string>
+    <string name="accent_dynamic">Dynamic</string>
+    <string name="accent_monochrome">Monochrome</string>
+    <string name="dynamic_color">Dynamic Color</string>
+    <string name="dynamic_color_description">Match system wallpaper colors on Android 12 and newer</string>
+    <string name="haptic_feedback">Haptic Feedback</string>
+    <string name="haptic_feedback_description">Provide tactile responses when interacting with controls</string>
+
+    <!-- Diagnostics & Monitoring Section -->
+    <string name="section_diagnostics">Diagnostics &amp; Monitoring</string>
+    <string name="update_interval">Update Interval</string>
+    <string name="update_interval_description">CPU, RAM, CPU temperature, and live network speed. Tasks refresh no faster than 2 seconds; battery refreshes every 3 seconds.</string>
+    <string name="interval_fast">500 ms (Fast)</string>
+    <string name="interval_normal">1000 ms (Normal)</string>
+    <string name="interval_relaxed">2000 ms (Relaxed)</string>
+    <string name="interval_saver">3000 ms (Battery Saver)</string>
+    <string name="interval_eco">5000 ms (Eco)</string>
+    <string name="temp_unit">Temperature Unit</string>
+    <string name="temp_unit_description">Show temperature readouts in Celsius or Fahrenheit</string>
+    <string name="unit_celsius">Celsius (°C)</string>
+    <string name="unit_fahrenheit">Fahrenheit (°F)</string>
+    <string name="process_filter">Process Filter</string>
+    <string name="process_filter_title">Show Kernel Threads</string>
+    <string name="process_filter_description">Include low-level kernel worker threads in the task list</string>
+
+    <!-- Info / About Section in Settings -->
+    <string name="section_info">Info</string>
+    <string name="about_headline">About Osyster</string>
+    <string name="about_description">App info, device specifications, privacy, and licenses</string>
+    <string name="device_specs_title">Device Specifications</string>
+
+    <!-- About Screen -->
+    <string name="about_title">About</string>
+    <string name="section_app_info">App Info</string>
+    <string name="version">Version</string>
+    <string name="developer">Developer</string>
+    <string name="developer_name">Tremors (@qtremors)</string>
+    <string name="developer_url">https://github.com/qtremors</string>
+    <string name="repository">Repository</string>
+    <string name="repository_url">github.com/qtremors/osyster</string>
+    <string name="repository_full_url">https://github.com/qtremors/osyster</string>
+    <string name="device">Device</string>
+    <string name="section_privacy">Privacy</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="privacy_description">"Osyster operates completely offline without network permissions. All system telemetry, process stats, and hardware metrics remain strictly on your device."</string>
+    <string name="privacy_policy_url">https://github.com/qtremors/osyster/blob/main/PRIVACY.md</string>
+    <string name="section_changelogs">Changelogs &amp; Support</string>
+    <string name="view_releases">View Releases</string>
+    <string name="view_releases_description">See what\'s new in the latest version</string>
+    <string name="view_releases_url">https://github.com/qtremors/osyster/releases</string>
+    <string name="report_issue">Report an Issue</string>
+    <string name="report_issue_description">Found a bug or have a suggestion? Let me know on GitHub.</string>
+    <string name="report_issue_url">https://github.com/qtremors/osyster/issues/new</string>
+    <string name="community_discord">Discord Community</string>
+    <string name="community_discord_description">Join the Tremors community on Discord</string>
+    <string name="community_discord_url">https://discord.gg/QgUjuNj9U8</string>
+    <string name="open_source_licenses">Licenses &amp; Credits</string>
+    <string name="open_source_licenses_description">View third-party software details and acknowledgments</string>
+
+    <!-- Licenses Screen -->
+    <string name="licenses_title">Licenses &amp; Credits</string>
+    <string name="licenses_notice">"Osyster is developed by Tremors. It utilizes the following open-source software and libraries, each subject to its own license terms:"</string>
+    <string name="section_credits">Credits &amp; Acknowledgments</string>
+    <string name="credit_author_title">Tremors (@qtremors)</string>
+    <string name="credit_author_desc">Creator and maintainer of Osyster</string>
+    <string name="credit_android_title">Android Open Source Project</string>
+    <string name="credit_android_desc">Core Android platform, Linux kernel diagnostics, and Jetpack APIs</string>
+    <string name="credit_kotlin_title">Kotlin &amp; JetBrains</string>
+    <string name="credit_kotlin_desc">Kotlin programming language, Coroutines, and Serialization</string>
+    <string name="section_libraries">Open Source Libraries</string>
+
+    <!-- Onboarding Flow -->
+    <string name="onboarding_welcome_title">Welcome to Osyster</string>
+    <string name="onboarding_welcome_subtitle">Private, real-time Android system telemetry and hardware diagnostics.</string>
+    <string name="onboarding_feature_offline">100% Offline</string>
+    <string name="onboarding_feature_offline_desc">Zero network permissions requested. No telemetry leaves your device.</string>
+    <string name="onboarding_feature_kernel">Direct Kernel Telemetry</string>
+    <string name="onboarding_feature_kernel_desc">Live CPU frequencies, cluster loads, and memory pools from /proc.</string>
+    <string name="onboarding_feature_thermal">Thermal &amp; Sensor Readouts</string>
+    <string name="onboarding_feature_thermal_desc">Real-time temperature readouts across SoC and hardware zones.</string>
+    <string name="onboarding_feature_transparent">Open &amp; Transparent</string>
+    <string name="onboarding_feature_transparent_desc">Zero analytics frameworks, ad networks, or background trackers.</string>
+
+    <string name="onboarding_permissions_title">System Access</string>
+    <string name="onboarding_permissions_subtitle">Optional access to Android network usage records.</string>
+    <string name="onboarding_permissions_optional_notice">Usage access is optional. Core diagnostics work offline without it.</string>
+    <string name="onboarding_perm_usage_title">Usage Access</string>
+    <string name="onboarding_perm_usage_desc">Historical mobile and Wi-Fi data usage, including per-app totals</string>
+    <string name="onboarding_perm_grant">Grant</string>
+    <string name="onboarding_perm_granted">Enabled</string>
+
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_launch">Launch Dashboard</string>
+
+    <!-- Network & Data Usage Monitoring -->
+    <string name="network_title">Network Usage</string>
+    <string name="network_interval_day">Day</string>
+    <string name="network_interval_week">Week</string>
+    <string name="network_interval_month">Month</string>
+    <string name="network_filter_all">Mobile and Wi-Fi</string>
+    <string name="network_filter_mobile">Mobile</string>
+    <string name="network_filter_wifi">Wi-Fi</string>
+    <string name="network_download">Download</string>
+    <string name="network_upload">Upload</string>
+    <string name="network_mobile_data">Mobile Data</string>
+    <string name="network_wifi_data">Wi-Fi</string>
+    <string name="network_total_data">Total Data</string>
+    <string name="network_card_data_usage">Data Usage</string>
+    <string name="network_search_hint">Search applications...</string>
+    <string name="network_no_data">No network usage recorded for this period</string>
+    <string name="network_perm_title">Usage Access Required</string>
+    <string name="network_perm_desc">Android requires Usage Access permission to read historical and per-app network consumption statistics.</string>
+    <string name="network_perm_grant">Grant Usage Access</string>
+    <string name="network_bento_title">Network Traffic</string>
+    <string name="network_app_details">Application Details</string>
+    <string name="network_app_info">App Settings</string>
+    <string name="network_system_app">System Application</string>
+    <string name="network_phone_perm_title">Cellular Attribution Permission</string>
+    <string name="network_phone_perm_desc">Android requires Phone permission to read cellular network statistics per application.</string>
+    <string name="network_phone_perm_grant">Grant Phone Permission</string>
+    <string name="network_traffic_wifi">Wi-Fi Traffic</string>
+    <string name="network_traffic_mobile">Mobile Data</string>
+    <string name="network_label_wifi_today">Wi-Fi • Today</string>
+    <string name="network_label_mobile_today">Mobile • Today</string>
+
+    <!-- Common & Badges -->
+    <string name="restricted">Restricted</string>
+    <string name="restricted_by_os">Restricted by OS</string>
+    <string name="status_active">Active</string>
+    <string name="status_inactive">Inactive</string>
+    <string name="not_applicable">N/A</string>
+    <string name="clear">Clear</string>
+    <string name="search">Search</string>
+    <string name="ok">OK</string>
+
+    <!-- App Stopper -->
+    <string name="app_stopper_title">App Stopper</string>
+    <string name="app_stopper_status_active">%d Active</string>
+    <string name="app_stopper_status_stopped">%d Stopped</string>
+    <string name="app_stopper_status_ghost">%d Ghost</string>
+    <string name="app_stopper_columns_format">%d Columns</string>
+    <string name="app_stopper_empty_title">No Managed Apps</string>
+    <string name="app_stopper_empty_desc">Add apps to monitor their stopped state in a high-density grid. Tap an app to open its App Info and force stop it.</string>
+    <string name="app_stopper_add_apps_button">Add Applications</string>
+    <string name="app_stopper_no_matching_query">No apps matching \"%s\"</string>
+    <string name="app_stopper_badge_uninstalled">UNINSTALLED</string>
+    <string name="app_stopper_badge_stopped">STOPPED</string>
+    <string name="app_stopper_badge_running">RUNNING</string>
+    <string name="app_stopper_uninstalled_notice">This app is uninstalled. Osyster keeps its ghost entry and will automatically resume monitoring when reinstalled.</string>
+    <string name="app_stopper_action_reinstall">Install from Play Store</string>
+    <string name="app_stopper_action_reinstall_desc">Open Google Play Store to reinstall</string>
+    <string name="app_stopper_action_remove">Remove from List</string>
+    <string name="app_stopper_action_remove_ghost_desc">Stop monitoring and remove ghost app</string>
+    <string name="app_stopper_action_force_stop">Open App Info (Force Stop)</string>
+    <string name="app_stopper_action_force_stop_desc">Go to system settings to force stop this app</string>
+    <string name="app_stopper_action_launch">Launch Application</string>
+    <string name="app_stopper_action_launch_desc">Open application main activity</string>
+    <string name="app_stopper_action_store">View in Play Store</string>
+    <string name="app_stopper_action_store_desc">Open Google Play Store listing</string>
+    <string name="app_stopper_action_remove_desc">Stop monitoring this application in Osyster</string>
+    <string name="app_stopper_label_ghost">Ghost</string>
+    <string name="app_stopper_label_stopped">Stopped</string>
+    <string name="app_stopper_label_active">Active</string>
+    <string name="app_stopper_add_sheet_title">Add Applications</string>
+    <string name="app_stopper_add_sheet_subtitle">%1$d selected (%2$d available)</string>
+    <string name="app_stopper_add_to_list">Add to List</string>
+    <string name="app_stopper_search_placeholder">Search installed apps...</string>
+    <string name="app_stopper_include_system">Include System Apps</string>
+    <string name="app_stopper_no_available_apps">No available applications found</string>
+    <string name="app_stopper_search_hint">Search apps...</string>
+    <string name="app_stopper_close_search">Close search</string>
+    <string name="app_stopper_clear_search">Clear search</string>
+    <string name="app_stopper_add_apps_desc">Add Applications</string>
+
+    <!-- Bento Dashboard -->
+    <string name="bento_processor_load">Processor Load</string>
+    <string name="bento_cpu_load_format">%.1f%% Load</string>
+    <string name="bento_active_ram">Active RAM</string>
+    <string name="bento_cpu_temp">CPU Temp</string>
+    <string name="bento_temp_elevated">Elevated</string>
+    <string name="bento_temp_stable">Stable Temp</string>
+    <string name="bento_running_tasks">Running Tasks</string>
+    <string name="bento_tap_to_manage">Tap to manage</string>
+    <string name="bento_battery_power">Battery Power</string>
+    <string name="bento_app_stopper_empty">No apps managed • Tap to add</string>
+    <string name="bento_app_stopper_with_uninstalled">%1$d monitored • %2$d uninstalled</string>
+    <string name="bento_app_stopper_monitored">%d monitored apps</string>
+    <string name="bento_virtual_swap">Virtual SWAP</string>
+
+    <!-- Telemetry Dashboard -->
+    <string name="telemetry_tab_cpu">CPU Telemetry</string>
+    <string name="telemetry_tab_ram">RAM &amp; Swap</string>
+
+    <!-- CPU Dashboard -->
+    <string name="cpu_processor_engine">Processor Engine</string>
+    <string name="cpu_load_label">CPU LOAD</string>
+    <string name="specifications">Specifications</string>
+    <string name="cpu_model_name">Model Name</string>
+    <string name="cpu_architecture">Architecture</string>
+    <string name="cpu_core_count">Core Count</string>
+    <string name="cpu_cores_format">%d Cores</string>
+    <string name="cpu_temperature">Temperature</string>
+    <string name="cpu_core_frequencies">Core Frequencies &amp; Load</string>
+    <string name="cpu_restricted_selinux">Per-core metrics restricted by SELinux</string>
+    <string name="cpu_core_label">Core %d</string>
+    <string name="cpu_freq_mhz">%d MHz</string>
+
+    <!-- Memory Dashboard -->
+    <string name="memory_system_ram_allocation">System RAM Allocation</string>
+    <string name="memory_ram_used_label">RAM USED</string>
+    <string name="memory_active_memory">Active Memory</string>
+    <string name="memory_available_capacity">Available Capacity</string>
+    <string name="memory_total_space">Total Space</string>
+    <string name="memory_virtual_swap_file">Virtual SWAP File</string>
+    <string name="memory_swap_load">SWAP Load</string>
+    <string name="memory_used_space">Used Space</string>
+    <string name="memory_free_space">Free Space</string>
+    <string name="memory_total_swap_size">Total SWAP size</string>
+    <string name="memory_swap_inactive">SWAP Space is inactive</string>
+    <string name="memory_allocation_segments">Allocation Segments</string>
+    <string name="memory_cached_space">Cached Space</string>
+    <string name="memory_buffers">Buffers</string>
+
+    <!-- Process Dashboard -->
+    <string name="process_search_placeholder">Search process by name or PID...</string>
+    <string name="process_active_tasks">Active Tasks</string>
+    <string name="process_running_count">%d running</string>
+    <string name="process_no_matches">No matching processes found</string>
+    <string name="process_item_subtext">PID: %1$d • %2$s</string>
+    <string name="process_details_title">Process Details</string>
+    <string name="process_name">Process Name</string>
+    <string name="process_pid">Process ID (PID)</string>
+    <string name="process_resident_memory">Resident Memory</string>
+    <string name="process_user_context">User Context</string>
+    <string name="process_kill_background">Kill Background Processes</string>
+    <string name="process_terminate_button">Terminate Process (PID %d)</string>
+    <string name="process_term_restricted_title">Process Termination Restricted</string>
+    <string name="process_term_restricted_desc">"On standard Android devices, terminating arbitrary processes (PID %d) directly is blocked by the SELinux security sandbox. Untrusted applications cannot signal processes owned by other UIDs.\n\nArbitrary process termination requires elevated Root, ADB shell, or Shizuku permissions."</string>
+    <string name="process_term_restricted_desc_app">"On standard Android devices, terminating arbitrary processes (PID %d) directly is blocked by the SELinux security sandbox. Untrusted applications cannot signal processes owned by other UIDs.\n\nArbitrary process termination requires elevated Root, ADB shell, or Shizuku permissions.\n\nFor third-party applications, you can stop background processes or open system App Info to force stop."</string>
+    <string name="process_open_app_info">Open App Info</string>
+
+    <!-- Network Dashboard Additional -->
+    <string name="network_unit_total_format">%s TOTAL</string>
+    <string name="network_activity_timeline">Activity Timeline</string>
+    <string name="network_peak_format">Peak: %s</string>
+    <string name="network_rx">Rx</string>
+    <string name="network_tx">Tx</string>
+    <string name="network_slot_format">Slot: %s</string>
+    <string name="network_slot_index_format">Slot %d</string>
+    <string name="network_breakdown_all">Application Breakdown (%d)</string>
+    <string name="network_breakdown_mobile">Mobile Breakdown (%d)</string>
+    <string name="network_breakdown_wifi">Wi-Fi Breakdown (%d)</string>
+    <string name="network_prev_period">Previous Period</string>
+    <string name="network_next_period">Next Period</string>
+    <string name="network_search_apps_desc">Search Applications</string>
+    <string name="network_app_subtitle_all">Mobile: %1$s • Wi-Fi: %2$s</string>
+    <string name="network_app_subtitle_mobile">Mobile • ↓ %1$s  ↑ %2$s</string>
+    <string name="network_app_subtitle_wifi">Wi-Fi • ↓ %1$s  ↑ %2$s</string>
+    <string name="network_total_consumption">Total Consumption</string>
+    <string name="network_download_rx">Download (Rx)</string>
+    <string name="network_upload_tx">Upload (Tx)</string>
+    <string name="network_app_uid">Application UID</string>
+
+    <!-- Device Info Dashboard -->
+    <string name="device_battery_status">Battery Status</string>
+    <string name="device_battery_health">Health: %s</string>
+    <string name="device_battery_specs">Battery Specifications</string>
+    <string name="device_voltage">Voltage</string>
+    <string name="device_power_connection">Power Connection</string>
+    <string name="device_hardware_specs">Hardware Specifications</string>
+    <string name="device_manufacturer">Manufacturer</string>
+    <string name="device_model">Device Model</string>
+    <string name="device_board_hardware">Board Hardware</string>
+    <string name="device_processor_platform">Processor Platform</string>
+    <string name="device_supported_architectures">Supported Architectures</string>
+    <string name="device_android_specs">Android System Specs</string>
+    <string name="device_android_version">Android Version</string>
+    <string name="device_api_level">API Level</string>
+    <string name="device_security_patch">Security Patch</string>
+    <string name="device_bootloader_release">Bootloader Release</string>
+
+    <!-- Onboarding Additional -->
+    <string name="onboarding_skip">Skip</string>
+
+    <!-- Dock Navigation -->
+    <string name="dock_dashboard">Dashboard</string>
+    <string name="dock_telemetry">Telemetry</string>
+    <string name="dock_tasks">Tasks</string>
+    <string name="dock_toggle_telemetry">Toggle CPU / Memory</string>
+    <string name="network_query_error">Some usage records could not be read. Totals may be incomplete. Check usage access and pull down to retry.</string>
+    <string name="network_select_period">Select time period</string>
+    <string name="network_period_usage">%1$s: %2$s download, %3$s upload</string>
 </resources>

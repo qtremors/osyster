@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package dev.qtremors.osyster.ui
 
 import androidx.compose.animation.*
@@ -7,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,8 +24,20 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
+import dev.qtremors.osyster.ui.util.collectAsVisibleState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.qtremors.osyster.monitor.CpuCoreState
 import dev.qtremors.osyster.monitor.CpuState
 import dev.qtremors.osyster.monitor.SystemMonitor
+import dev.qtremors.osyster.monitor.TelemetryResult
+import dev.qtremors.osyster.R
+import dev.qtremors.osyster.ui.theme.OsysterTheme
+import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
+import dev.qtremors.osyster.ui.util.RestrictedByOsBadge
+import dev.qtremors.osyster.ui.viewmodel.CpuUiState
+import dev.qtremors.osyster.ui.viewmodel.CpuViewModel
 import kotlinx.coroutines.flow.collectLatest
 import java.util.Locale
 
@@ -87,19 +103,25 @@ fun Sparkline(
 // =========================================================================
 
 @Composable
-fun CpuDashboard(modifier: Modifier = Modifier) {
-    var cpuState by remember { mutableStateOf(SystemMonitor.getCpuState()) }
-    val cpuHistory = remember { mutableStateListOf<Float>() }
+fun CpuDashboard(
+    modifier: Modifier = Modifier,
+    viewModel: CpuViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsVisibleState()
+    CpuDashboardContent(
+        uiState = uiState,
+        modifier = modifier
+    )
+}
 
-    LaunchedEffect(Unit) {
-        SystemMonitor.streamCpu(1000L).collectLatest { state ->
-            cpuState = state
-            cpuHistory.add(state.overallUsage)
-            if (cpuHistory.size > 25) {
-                cpuHistory.removeAt(0)
-            }
-        }
-    }
+@Composable
+fun CpuDashboardContent(
+    uiState: CpuUiState,
+    modifier: Modifier = Modifier
+) {
+    val cpuState = uiState.cpuState
+    val cpuHistory = uiState.cpuHistory
+    val temperatureUnit = uiState.temperatureUnit
 
     Column(
         modifier = modifier
@@ -121,7 +143,7 @@ fun CpuDashboard(modifier: Modifier = Modifier) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Processor Engine",
+                    text = stringResource(R.string.cpu_processor_engine),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -132,28 +154,51 @@ fun CpuDashboard(modifier: Modifier = Modifier) {
                     modifier = Modifier.size(160.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(
-                        progress = { cpuState.overallUsage / 100f },
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.primary,
-                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        strokeWidth = 8.dp,
-                        strokeCap = StrokeCap.Round
-                    )
+                    when (val usage = cpuState.overallUsage) {
+                        is TelemetryResult.Available -> {
+                            CircularWavyProgressIndicator(
+                                progress = { (usage.value / 100f).coerceIn(0f, 1f) },
+                                modifier = Modifier.fillMaxSize(),
+                                color = MaterialTheme.colorScheme.primary,
+                                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                            )
 
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = String.format(Locale.getDefault(), "%.1f%%", cpuState.overallUsage),
-                            style = MaterialTheme.typography.displayMedium,
-                            fontWeight = FontWeight.Black,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "CPU LOAD",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.outline,
-                            fontWeight = FontWeight.Bold
-                        )
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = String.format(Locale.getDefault(), "%.1f%%", usage.value),
+                                    style = MaterialTheme.typography.displayMedium,
+                                    fontWeight = FontWeight.Black,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = stringResource(R.string.cpu_load_label),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.outline,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                        is TelemetryResult.Restricted -> {
+                            CircularWavyProgressIndicator(
+                                progress = { 0f },
+                                modifier = Modifier.fillMaxSize(),
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                                trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
+                            )
+
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.outline,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                                RestrictedByOsBadge()
+                            }
+                        }
                     }
                 }
 
@@ -180,7 +225,7 @@ fun CpuDashboard(modifier: Modifier = Modifier) {
         ) {
             Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    text = "Specifications",
+                    text = stringResource(R.string.specifications),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary
@@ -190,7 +235,7 @@ fun CpuDashboard(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Model Name", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    Text(stringResource(R.string.cpu_model_name), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                     Text(
                         text = cpuState.cpuModel,
                         style = MaterialTheme.typography.bodyMedium,
@@ -203,7 +248,7 @@ fun CpuDashboard(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Architecture", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    Text(stringResource(R.string.cpu_architecture), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                     Text(
                         text = cpuState.cpuArchitecture,
                         style = MaterialTheme.typography.bodyMedium,
@@ -216,9 +261,9 @@ fun CpuDashboard(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Core Count", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    Text(stringResource(R.string.cpu_core_count), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
                     Text(
-                        text = "${cpuState.coreStates.size} Cores",
+                        text = stringResource(R.string.cpu_cores_format, cpuState.coreStates.size),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -227,15 +272,23 @@ fun CpuDashboard(modifier: Modifier = Modifier) {
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Temperature", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
-                    Text(
-                        text = String.format(Locale.getDefault(), "%.1f °C", cpuState.cpuTempCelsius),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (cpuState.cpuTempCelsius > 55f) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
-                    )
+                    Text(stringResource(R.string.cpu_temperature), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                    when (val temp = cpuState.cpuTempCelsius) {
+                        is TelemetryResult.Available -> {
+                            Text(
+                                text = temperatureUnit.format(temp.value),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = if (temp.value > 55f) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        is TelemetryResult.Restricted -> {
+                            RestrictedByOsBadge()
+                        }
+                    }
                 }
             }
         }
@@ -248,54 +301,92 @@ fun CpuDashboard(modifier: Modifier = Modifier) {
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
                 Text(
-                    text = "Core Frequencies & Load",
+                    text = stringResource(R.string.cpu_core_frequencies),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    cpuState.coreStates.forEach { core ->
-                        Column {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Core ${core.id}",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = if (core.currentFreqKhz > 0) "${core.currentFreqKhz / 1000} MHz" else "N/A",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.outline
-                                )
-                                Text(
-                                    text = String.format(Locale.getDefault(), "%.0f%%", core.usagePercentage),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
+                if (cpuState.coreStates.isEmpty() || (cpuState.overallUsage is TelemetryResult.Restricted && cpuState.coreStates.all { it.currentFreqKhz == 0L })) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = stringResource(R.string.cpu_restricted_selinux),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                        RestrictedByOsBadge()
+                    }
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        cpuState.coreStates.forEach { core ->
+                            Column {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.cpu_core_label, core.id),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = if (core.currentFreqKhz > 0) stringResource(R.string.cpu_freq_mhz, (core.currentFreqKhz / 1000).toInt()) else stringResource(R.string.not_applicable),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.outline
+                                    )
+                                    Text(
+                                        text = if (cpuState.isUsageRestricted) stringResource(R.string.not_applicable) else String.format(Locale.getDefault(), "%.0f%%", core.usagePercentage),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                if (!cpuState.isUsageRestricted) LinearWavyProgressIndicator(
+                                    progress = { (core.usagePercentage / 100f).coerceIn(0f, 1f) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(10.dp),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                                 )
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            LinearProgressIndicator(
-                                progress = { core.usagePercentage / 100f },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(6.dp)
-                                    .clip(RoundedCornerShape(100)),
-                                color = MaterialTheme.colorScheme.primary,
-                                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                            )
                         }
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(LocalBottomContentPadding.current))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CpuDashboardPreview() {
+    OsysterTheme {
+        CpuDashboardContent(
+            uiState = CpuUiState(
+                cpuState = CpuState(
+                    overallUsage = TelemetryResult.Available(42.5f),
+                    coreStates = listOf(
+                        CpuCoreState(0, 35f, 1800000L, 2400000L),
+                        CpuCoreState(1, 50f, 2000000L, 2400000L)
+                    ),
+                    cpuTempCelsius = TelemetryResult.Available(39.2f),
+                    cpuModel = "Snapdragon 8 Gen 2",
+                    cpuArchitecture = "aarch64"
+                ),
+                cpuHistory = listOf(20f, 30f, 25f, 40f, 38f, 42.5f)
+            )
+        )
     }
 }

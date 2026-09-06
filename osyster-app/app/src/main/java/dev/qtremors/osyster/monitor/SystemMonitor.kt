@@ -3,8 +3,10 @@ package dev.qtremors.osyster.monitor
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.BatteryManager
 import android.os.Build
+import android.os.Process
 import android.os.SystemClock
 import java.io.File
 import java.io.RandomAccessFile
@@ -25,13 +27,28 @@ data class CpuCoreState(
     val maxFreqKhz: Long
 )
 
-data class CpuState(
-    val overallUsage: Float,
-    val coreStates: List<CpuCoreState>,
-    val cpuTempCelsius: Float,
-    val cpuModel: String,
-    val cpuArchitecture: String
+data class CpuTimeSnapshot(
+    val coreId: Int?,
+    val activeTime: Long,
+    val idleTime: Long
 )
+
+data class CpuState(
+    val overallUsage: TelemetryResult<Float> = TelemetryResult.Available(0f),
+    val coreStates: List<CpuCoreState> = emptyList(),
+    val cpuTempCelsius: TelemetryResult<Float> = TelemetryResult.Restricted,
+    val cpuModel: String = "",
+    val cpuArchitecture: String = ""
+) {
+    val overallUsageOrZero: Float
+        get() = (overallUsage as? TelemetryResult.Available)?.value ?: 0f
+
+    val isUsageRestricted: Boolean
+        get() = overallUsage is TelemetryResult.Restricted
+
+    val isTempRestricted: Boolean
+        get() = cpuTempCelsius is TelemetryResult.Restricted
+}
 
 data class MemoryState(
     val ramTotalKb: Long,
@@ -63,102 +80,66 @@ data class BatteryState(
 
 object SystemMonitor {
 
-    private var lastCpuTime = 0L
-    private var lastIdleTime = 0L
-    private val lastCoresCpuTime = mutableMapOf<Int, Long>()
-    private val lastCoresIdleTime = mutableMapOf<Int, Long>()
-
     // =========================================================================
     // Subsection Comment: CPU Monitor Parser
     // =========================================================================
 
-    fun getCpuState(): CpuState {
+    fun parseProcStatLine(line: String): CpuTimeSnapshot? {
+        val trimmed = line.trim()
+        val isOverall = trimmed.startsWith("cpu ")
+        val isCore = trimmed.startsWith("cpu") && trimmed.length > 3 && trimmed[3].isDigit()
+        if (!isOverall && !isCore) return null
+
+        val parts = trimmed.split("\\s+".toRegex()).filter { it.isNotEmpty() }
+        if (parts.size < 5) return null
+
+        val coreId = if (isOverall) null else parts.firstOrNull()?.removePrefix("cpu")?.toIntOrNull()
+        if (!isOverall && coreId == null) return null
+
+        val user = parts[1].toLongOrNull() ?: 0L
+        val nice = parts[2].toLongOrNull() ?: 0L
+        val system = parts[3].toLongOrNull() ?: 0L
+        val idle = parts[4].toLongOrNull() ?: 0L
+        val iowait = if (parts.size > 5) parts[5].toLongOrNull() ?: 0L else 0L
+        val irq = if (parts.size > 6) parts[6].toLongOrNull() ?: 0L else 0L
+        val softirq = if (parts.size > 7) parts[7].toLongOrNull() ?: 0L else 0L
+
+        val active = user + nice + system + irq + softirq
+        val totalIdle = idle + iowait
+        return CpuTimeSnapshot(coreId = coreId, activeTime = active, idleTime = totalIdle)
+    }
+
+    fun calculateCpuUsage(deltaActive: Long, deltaTotal: Long): Float {
+        if (deltaTotal <= 0L || deltaActive < 0L) return 0f
+        return (deltaActive.toFloat() / deltaTotal.toFloat() * 100f).coerceIn(0f, 100f)
+    }
+
+    internal fun getCpuState(sampler: CpuUsageSampler = CpuUsageSampler()): CpuState {
         var overallUsage = 0f
         val coreStates = mutableListOf<CpuCoreState>()
-        var cpuModel = "Unknown Processor"
-        var cpuArchitecture = System.getProperty("os.arch") ?: "unknown"
+        val cpuModel = detectCpuModel()
+        val cpuArchitecture = System.getProperty("os.arch") ?: "unknown"
+        var procStatReadSuccess = false
 
         try {
-            // Read overall and per-core CPU usage
+            // Read overall and per-core CPU usage from /proc/stat
             val statFile = File("/proc/stat")
-            if (statFile.exists()) {
+            if (statFile.exists() && statFile.canRead()) {
                 statFile.useLines { lines ->
                     lines.forEach { line ->
-                        if (line.startsWith("cpu ")) {
-                            val parts = line.split("\\s+".toRegex()).filter { it.isNotEmpty() }
-                            if (parts.size >= 5) {
-                                val user = parts[1].toLong()
-                                val nice = parts[2].toLong()
-                                val system = parts[3].toLong()
-                                val idle = parts[4].toLong()
-                                val iowait = if (parts.size > 5) parts[5].toLong() else 0L
-                                val irq = if (parts.size > 6) parts[6].toLong() else 0L
-                                val softirq = if (parts.size > 7) parts[7].toLong() else 0L
-
-                                val active = user + nice + system + irq + softirq
-                                val total = active + idle + iowait
-
-                                val deltaActive = active - lastCpuTime
-                                val deltaTotal = total - (lastCpuTime + lastIdleTime)
-
-                                if (deltaTotal > 0) {
-                                    overallUsage = (deltaActive.toFloat() / deltaTotal.toFloat() * 100f).coerceIn(0f, 100f)
-                                }
-
-                                lastCpuTime = active
-                                lastIdleTime = idle + iowait
-                            }
-                        } else if (line.startsWith("cpu") && line[3].isDigit()) {
-                            val parts = line.split("\\s+".toRegex()).filter { it.isNotEmpty() }
-                            val coreId = line.substring(3, line.indexOf(' ')).toIntOrNull()
-                            if (coreId != null && parts.size >= 5) {
-                                val user = parts[1].toLong()
-                                val nice = parts[2].toLong()
-                                val system = parts[3].toLong()
-                                val idle = parts[4].toLong()
-                                val iowait = if (parts.size > 5) parts[5].toLong() else 0L
-                                val irq = if (parts.size > 6) parts[6].toLong() else 0L
-                                val softirq = if (parts.size > 7) parts[7].toLong() else 0L
-
-                                val active = user + nice + system + irq + softirq
-                                val total = active + idle + iowait
-
-                                val prevActive = lastCoresCpuTime[coreId] ?: 0L
-                                val prevIdle = lastCoresIdleTime[coreId] ?: 0L
-
-                                val deltaActive = active - prevActive
-                                val deltaTotal = total - (prevActive + prevIdle)
-
-                                var coreUsage = 0f
-                                if (deltaTotal > 0) {
-                                    coreUsage = (deltaActive.toFloat() / deltaTotal.toFloat() * 100f).coerceIn(0f, 100f)
-                                }
-
-                                lastCoresCpuTime[coreId] = active
-                                lastCoresIdleTime[coreId] = idle + iowait
+                        val snapshot = parseProcStatLine(line)
+                        if (snapshot != null) {
+                            procStatReadSuccess = true
+                            val usage = sampler.sample(snapshot)
+                            if (snapshot.coreId == null) {
+                                overallUsage = usage
+                            } else {
+                                val coreId = snapshot.coreId
+                                val coreUsage = usage
 
                                 val freq = getCoreFrequencyKhz(coreId)
                                 val maxFreq = getCoreMaxFrequencyKhz(coreId)
-
                                 coreStates.add(CpuCoreState(coreId, coreUsage, freq, maxFreq))
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Read CPU Model name
-            val cpuinfoFile = File("/proc/cpuinfo")
-            if (cpuinfoFile.exists()) {
-                cpuinfoFile.useLines { lines ->
-                    lines.forEach { line ->
-                        if (line.contains("Hardware", ignoreCase = true) || line.contains("Processor", ignoreCase = true)) {
-                            val parts = line.split(":")
-                            if (parts.size > 1) {
-                                val model = parts[1].trim()
-                                if (model.isNotEmpty()) {
-                                    cpuModel = model
-                                }
                             }
                         }
                     }
@@ -168,20 +149,27 @@ object SystemMonitor {
             e.printStackTrace()
         }
 
-        // Fallback for cores if /proc/stat is unreadable
-        if (coreStates.isEmpty()) {
-            val coresCount = Runtime.getRuntime().availableProcessors()
+        val usageResult: TelemetryResult<Float>
+        // Fallback for cores if /proc/stat is unreadable or restricted by SELinux
+        if (!procStatReadSuccess && coreStates.isEmpty()) {
+            val coresCount = Runtime.getRuntime().availableProcessors().coerceAtLeast(1)
             for (i in 0 until coresCount) {
-                val freq = getCoreFrequencyKhz(i)
-                val maxFreq = getCoreMaxFrequencyKhz(i)
-                coreStates.add(CpuCoreState(i, overallUsage, freq, maxFreq))
+                coreStates.add(CpuCoreState(i, 0f, getCoreFrequencyKhz(i), getCoreMaxFrequencyKhz(i)))
             }
+            // Clock frequency is not a measure of CPU utilization.
+            usageResult = TelemetryResult.Restricted
+        } else {
+            // If /proc/stat was readable but overallUsage is still 0 (e.g. initial delta), derive from cores
+            if (overallUsage == 0f && coreStates.any { it.usagePercentage > 0f }) {
+                overallUsage = coreStates.map { it.usagePercentage }.average().toFloat().coerceIn(0f, 100f)
+            }
+            usageResult = TelemetryResult.Available(overallUsage)
         }
 
         val temp = getCpuTemperature()
 
         return CpuState(
-            overallUsage = overallUsage,
+            overallUsage = usageResult,
             coreStates = coreStates.sortedBy { it.id },
             cpuTempCelsius = temp,
             cpuModel = cpuModel,
@@ -189,42 +177,116 @@ object SystemMonitor {
         )
     }
 
+    private fun detectCpuModel(): String {
+        // 1. Modern Android 12+ SoC Model API
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val socModel = Build.SOC_MODEL
+            if (!socModel.isNullOrBlank() && !socModel.equals("unknown", ignoreCase = true)) {
+                val socManufacturer = if (!Build.SOC_MANUFACTURER.isNullOrBlank() && !Build.SOC_MANUFACTURER.equals("unknown", ignoreCase = true)) {
+                    "${Build.SOC_MANUFACTURER} "
+                } else ""
+                return "$socManufacturer$socModel".trim()
+            }
+        }
+
+        // 2. /proc/cpuinfo inspection (ignoring numeric core lines like 'processor : 0')
+        try {
+            val cpuinfoFile = File("/proc/cpuinfo")
+            if (cpuinfoFile.exists() && cpuinfoFile.canRead()) {
+                cpuinfoFile.useLines { lines ->
+                    for (line in lines) {
+                        val trimmed = line.trim()
+                        if (trimmed.startsWith("Hardware", ignoreCase = true) ||
+                            trimmed.startsWith("model name", ignoreCase = true)
+                        ) {
+                            val parts = trimmed.split(":")
+                            if (parts.size > 1) {
+                                val candidate = parts[1].trim()
+                                if (candidate.isNotEmpty() && candidate.toIntOrNull() == null && !candidate.equals("unknown", ignoreCase = true)) {
+                                    return candidate
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (_: Exception) {}
+
+        // 3. Android Build hardware / board fallbacks
+        val hardware = Build.HARDWARE
+        if (!hardware.isNullOrBlank() && !hardware.equals("unknown", ignoreCase = true)) {
+            return hardware.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        }
+        val board = Build.BOARD
+        if (!board.isNullOrBlank() && !board.equals("unknown", ignoreCase = true)) {
+            return board.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        }
+
+        return "Unknown processor"
+    }
+
     private fun getCoreFrequencyKhz(coreId: Int): Long {
-        return readLongFromFile("/sys/devices/system/cpu/cpu$coreId/cpufreq/scaling_cur_freq", 0L)
+        val paths = listOf(
+            "/sys/devices/system/cpu/cpu$coreId/cpufreq/scaling_cur_freq",
+            "/sys/devices/system/cpu/cpu$coreId/cpufreq/cpuinfo_cur_freq",
+            "/sys/devices/system/cpu/cpufreq/policy$coreId/scaling_cur_freq",
+            "/sys/devices/system/cpu/cpufreq/policy$coreId/cpuinfo_cur_freq"
+        )
+        for (path in paths) {
+            val freq = readLongFromFile(path, 0L)
+            if (freq > 0L) return freq
+        }
+        return 0L
     }
 
     private fun getCoreMaxFrequencyKhz(coreId: Int): Long {
-        return readLongFromFile("/sys/devices/system/cpu/cpu$coreId/cpufreq/scaling_max_freq", 0L)
+        val paths = listOf(
+            "/sys/devices/system/cpu/cpu$coreId/cpufreq/scaling_max_freq",
+            "/sys/devices/system/cpu/cpu$coreId/cpufreq/cpuinfo_max_freq",
+            "/sys/devices/system/cpu/cpufreq/policy$coreId/scaling_max_freq",
+            "/sys/devices/system/cpu/cpufreq/policy$coreId/cpuinfo_max_freq"
+        )
+        for (path in paths) {
+            val freq = readLongFromFile(path, 0L)
+            if (freq > 0L) return freq
+        }
+        return 0L
     }
 
-    private fun getCpuTemperature(): Float {
-        // Scan multiple thermal paths commonly used on Android devices
-        val thermalPaths = listOf(
-            "/sys/class/thermal/thermal_zone0/temp",
-            "/sys/class/thermal/thermal_zone1/temp",
-            "/sys/devices/virtual/thermal/thermal_zone0/temp",
-            "/sys/class/thermal/thermal_zone10/temp"
-        )
-        for (path in thermalPaths) {
-            val file = File(path)
-            if (file.exists()) {
-                try {
-                    val raw = file.readText().trim().toFloatOrNull() ?: 0f
-                    if (raw > 0) {
-                        // Some systems represent temp in millidegrees (e.g. 43000 for 43C)
-                        return if (raw > 1000) raw / 1000f else raw
-                    }
-                } catch (_: Exception) {}
-            }
+    fun parseThermalTemp(rawText: String): TelemetryResult<Float> {
+        val raw = rawText.trim().toFloatOrNull() ?: 0f
+        if (raw > 0f) {
+            val temp = if (raw > 1000f) raw / 1000f else raw
+            if (temp in 10f..105f) return TelemetryResult.Available(temp)
         }
-        return 38.5f // Graceful standard fallback
+        return TelemetryResult.Restricted
+    }
+
+    internal fun isCpuThermalZone(type: String): Boolean {
+        val name = type.trim().lowercase(Locale.ROOT)
+        return name.contains("cpu") || name.contains("soc") || name.contains("cluster")
+    }
+
+    private fun getCpuTemperature(): TelemetryResult<Float> {
+        val zones = runCatching {
+            File("/sys/class/thermal").listFiles { f -> f.name.startsWith("thermal_zone") }
+        }.getOrNull() ?: return TelemetryResult.Restricted
+        for (zone in zones) {
+            val result = runCatching {
+                if (isCpuThermalZone(File(zone, "type").readText())) {
+                    parseThermalTemp(File(zone, "temp").readText())
+                } else TelemetryResult.Restricted
+            }.getOrDefault(TelemetryResult.Restricted)
+            if (result is TelemetryResult.Available) return result
+        }
+        return TelemetryResult.Restricted
     }
 
     // =========================================================================
     // Subsection Comment: Memory (RAM & SWAP) Monitor Parser
     // =========================================================================
 
-    fun getMemoryState(): MemoryState {
+    fun parseMemInfo(lines: Sequence<String>): MemoryState {
         var memTotal = 0L
         var memFree = 0L
         var memAvailable = 0L
@@ -233,30 +295,21 @@ object SystemMonitor {
         var swapTotal = 0L
         var swapFree = 0L
 
-        try {
-            val meminfoFile = File("/proc/meminfo")
-            if (meminfoFile.exists()) {
-                meminfoFile.useLines { lines ->
-                    lines.forEach { line ->
-                        val parts = line.split(":")
-                        if (parts.size > 1) {
-                            val key = parts[0].trim()
-                            val value = parts[1].replace("kB", "").trim().toLongOrNull() ?: 0L
-                            when (key) {
-                                "MemTotal" -> memTotal = value
-                                "MemFree" -> memFree = value
-                                "MemAvailable" -> memAvailable = value
-                                "Buffers" -> buffers = value
-                                "Cached" -> cached = value
-                                "SwapTotal" -> swapTotal = value
-                                "SwapFree" -> swapFree = value
-                            }
-                        }
-                    }
+        lines.forEach { line ->
+            val parts = line.split(":")
+            if (parts.size > 1) {
+                val key = parts[0].trim()
+                val value = parts[1].replace("kB", "").trim().toLongOrNull() ?: 0L
+                when (key) {
+                    "MemTotal" -> memTotal = value
+                    "MemFree" -> memFree = value
+                    "MemAvailable" -> memAvailable = value
+                    "Buffers" -> buffers = value
+                    "Cached" -> cached = value
+                    "SwapTotal" -> swapTotal = value
+                    "SwapFree" -> swapFree = value
                 }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
 
         // If MemAvailable is not reported, estimate it
@@ -264,8 +317,8 @@ object SystemMonitor {
             memAvailable = memFree + buffers + cached
         }
 
-        val ramUsed = memTotal - memAvailable
-        val swapUsed = swapTotal - swapFree
+        val ramUsed = (memTotal - memAvailable).coerceAtLeast(0L)
+        val swapUsed = (swapTotal - swapFree).coerceAtLeast(0L)
 
         return MemoryState(
             ramTotalKb = memTotal,
@@ -280,18 +333,69 @@ object SystemMonitor {
         )
     }
 
+    fun getMemoryState(): MemoryState {
+        try {
+            val meminfoFile = File("/proc/meminfo")
+            if (meminfoFile.exists() && meminfoFile.canRead()) {
+                return meminfoFile.useLines { parseMemInfo(it) }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return MemoryState(
+            ramTotalKb = 0L,
+            ramUsedKb = 0L,
+            ramAvailableKb = 0L,
+            ramFreeKb = 0L,
+            ramCachedKb = 0L,
+            ramBuffersKb = 0L,
+            swapTotalKb = 0L,
+            swapUsedKb = 0L,
+            swapFreeKb = 0L
+        )
+    }
+
     // =========================================================================
     // Subsection Comment: Active Processes Parser
     // =========================================================================
 
-    fun getActiveProcesses(): List<ProcessInfo> {
+    fun parseRssFromStatm(statmText: String, pageSizeBytes: Long = 4096L): Long {
+        val parts = statmText.trim().split("\\s+".toRegex()).filter { it.isNotEmpty() }
+        if (parts.size >= 2) {
+            val rssPages = parts[1].toLongOrNull() ?: 0L
+            return (rssPages * pageSizeBytes) / 1024L
+        }
+        return 0L
+    }
+
+    fun parseStatusUid(lines: Sequence<String>): Int? {
+        for (line in lines) {
+            if (line.startsWith("Uid:")) {
+                val parts = line.split("\\s+".toRegex()).filter { it.isNotEmpty() }
+                if (parts.size >= 2) {
+                    return parts[1].toIntOrNull()
+                }
+                break
+            }
+        }
+        return null
+    }
+
+    fun getActiveProcesses(
+        context: Context? = null,
+        showKernelThreads: Boolean = false
+    ): List<ProcessInfo> {
         val processes = mutableListOf<ProcessInfo>()
+        val packageManager = context?.packageManager
+        val uidCache = mutableMapOf<Int, String>()
+
         try {
             val procDir = File("/proc")
             val files = procDir.listFiles() ?: return emptyList()
 
-            // Page size is typically 4KB
-            val pageSizeBytes = 4096L
+            // Android devices can use 4 KB or 16 KB kernel pages.
+            val pageSizeBytes = android.system.Os.sysconf(android.system.OsConstants._SC_PAGESIZE).coerceAtLeast(0L)
 
             for (file in files) {
                 if (file.isDirectory) {
@@ -319,8 +423,9 @@ object SystemMonitor {
                             }
                         }
 
-                        if (processName.isEmpty() || processName.startsWith("[")) {
-                            // Skip system kernel threads for clean user dashboard listing
+                        val isKernelThread = processName.startsWith("[")
+                        if (processName.isEmpty() || (isKernelThread && !showKernelThreads)) {
+                            // Skip system kernel threads unless showKernelThreads is enabled
                             continue
                         }
 
@@ -328,16 +433,29 @@ object SystemMonitor {
                         val statmFile = File(file, "statm")
                         var ramKb = 0L
                         if (statmFile.exists()) {
-                            val statmText = statmFile.readText().trim()
-                            val parts = statmText.split("\\s+".toRegex())
-                            if (parts.size >= 2) {
-                                val rssPages = parts[1].toLongOrNull() ?: 0L
-                                ramKb = (rssPages * pageSizeBytes) / 1024L
-                            }
+                            ramKb = parseRssFromStatm(statmFile.readText(), pageSizeBytes)
                         }
 
-                        if (ramKb > 0) {
-                            processes.add(ProcessInfo(pid, processName, ramKb))
+                        // Parse UID status line from /proc/[pid]/status
+                        var userLabel = "unknown"
+                        val statusFile = File(file, "status")
+                        if (statusFile.exists()) {
+                            try {
+                                val uid = statusFile.useLines { parseStatusUid(it) }
+                                if (uid != null) {
+                                    userLabel = resolveUid(uid, packageManager, uidCache)
+                                }
+                            } catch (_: Exception) {}
+                        }
+
+                        if (userLabel == "unknown" && pid == Process.myPid()) {
+                            userLabel = resolveUid(Process.myUid(), packageManager, uidCache)
+                        } else if (userLabel == "unknown" && isKernelThread) {
+                            userLabel = "root"
+                        }
+
+                        if (ramKb > 0L || (showKernelThreads && isKernelThread)) {
+                            processes.add(ProcessInfo(pid, processName, ramKb, user = userLabel))
                         }
                     } catch (_: Exception) {}
                 }
@@ -347,6 +465,55 @@ object SystemMonitor {
         }
 
         return processes.sortedByDescending { it.ramKb }
+    }
+
+    fun resolveUid(
+        uid: Int,
+        packageManager: PackageManager? = null,
+        cache: MutableMap<Int, String>? = null
+    ): String {
+        cache?.get(uid)?.let { return it }
+
+        val resolved = when (uid) {
+            0 -> "root"
+            1000 -> "system"
+            1001 -> "radio"
+            1002 -> "bluetooth"
+            1010 -> "wifi"
+            1013 -> "media"
+            1014 -> "drm"
+            1021 -> "gps"
+            1023 -> "media_rw"
+            1024 -> "mtp"
+            1028 -> "audioserver"
+            1037 -> "cameraserver"
+            1066 -> "statsd"
+            1073 -> "incidentd"
+            2000 -> "shell"
+            9999 -> "nobody"
+            else -> {
+                var pkgName: String? = null
+                if (packageManager != null) {
+                    try {
+                        pkgName = packageManager.getNameForUid(uid)
+                    } catch (_: Exception) {}
+                }
+                if (!pkgName.isNullOrBlank()) {
+                    pkgName
+                } else {
+                    val userId = uid / 100000
+                    val appId = uid % 100000
+                    if (appId >= 10000) {
+                        "u${userId}_a${appId - 10000}"
+                    } else {
+                        "uid:$uid"
+                    }
+                }
+            }
+        }
+
+        cache?.put(uid, resolved)
+        return resolved
     }
 
     // =========================================================================
@@ -431,8 +598,9 @@ object SystemMonitor {
     // =========================================================================
 
     fun streamCpu(intervalMs: Long = 1000L): Flow<CpuState> = flow {
+        val sampler = CpuUsageSampler()
         while (true) {
-            emit(getCpuState())
+            emit(getCpuState(sampler))
             kotlinx.coroutines.delay(intervalMs)
         }
     }.flowOn(Dispatchers.IO)

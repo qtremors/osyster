@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package dev.qtremors.osyster.ui
 
 import androidx.compose.animation.*
@@ -6,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.BatteryStd
@@ -16,10 +19,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.qtremors.osyster.R
 import dev.qtremors.osyster.monitor.BatteryState
 import dev.qtremors.osyster.monitor.SystemMonitor
+import dev.qtremors.osyster.ui.util.OsysterHapticUtil
+import dev.qtremors.osyster.ui.theme.OsysterTheme
+import dev.qtremors.osyster.ui.viewmodel.DeviceInfoUiState
+import dev.qtremors.osyster.ui.viewmodel.DeviceInfoViewModel
+import androidx.compose.ui.tooling.preview.Preview
+import dev.qtremors.osyster.ui.util.collectAsVisibleState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
 import java.util.Locale
 
@@ -76,15 +89,34 @@ fun InfoRow(
 }
 
 @Composable
-fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    var batteryState by remember { mutableStateOf(SystemMonitor.getBatteryState(context)) }
+fun DeviceInfoDashboard(
+    modifier: Modifier = Modifier,
+    onNavigateBack: (() -> Unit)? = null,
+    hapticEnabled: Boolean = true,
+    viewModel: DeviceInfoViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsVisibleState()
+    val view = LocalView.current
 
-    LaunchedEffect(Unit) {
-        SystemMonitor.streamBattery(context, 3000L).collectLatest { state ->
-            batteryState = state
-        }
-    }
+    DeviceInfoDashboardContent(
+        uiState = uiState,
+        onNavigateBack = onNavigateBack?.let { back ->
+            {
+                OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
+                back()
+            }
+        },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun DeviceInfoDashboardContent(
+    uiState: DeviceInfoUiState,
+    onNavigateBack: (() -> Unit)? = null,
+    modifier: Modifier = Modifier
+) {
+    val batteryState = uiState.batteryState
 
     Column(
         modifier = modifier
@@ -93,7 +125,35 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Top Header Row: Back & Title
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (onNavigateBack != null) {
+                IconButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+            }
+            Text(
+                text = stringResource(R.string.device_specs_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
 
         // Battery level dial card
         Card(
@@ -112,17 +172,15 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
                     contentAlignment = Alignment.Center
                 ) {
                     val progress = batteryState.levelPercentage / 100f
-                    CircularProgressIndicator(
-                        progress = { progress },
+                    CircularWavyProgressIndicator(
+                        progress = { progress.coerceIn(0f, 1f) },
                         modifier = Modifier.fillMaxSize(),
                         color = when {
                             batteryState.status == "Charging" -> MaterialTheme.colorScheme.primary
                             batteryState.levelPercentage < 20 -> MaterialTheme.colorScheme.tertiary
                             else -> MaterialTheme.colorScheme.primary
                         },
-                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        strokeWidth = 6.dp,
-                        strokeCap = StrokeCap.Round
+                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                     )
 
                     Icon(
@@ -141,7 +199,7 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
 
                 Column {
                     Text(
-                        text = "Battery Status",
+                        text = stringResource(R.string.device_battery_status),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -153,7 +211,7 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "Health: ${batteryState.health}",
+                        text = stringResource(R.string.device_battery_health, batteryState.health),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.outline
                     )
@@ -163,7 +221,7 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
 
         // Section Title: Battery details
         Text(
-            text = "Battery Specifications",
+            text = stringResource(R.string.device_battery_specs),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.secondary,
@@ -172,14 +230,14 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
 
         // Segmented list for Battery Specs
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            InfoRow("Temperature", String.format(Locale.getDefault(), "%.1f °C", batteryState.tempCelsius), InfoGroupPosition.Top)
-            InfoRow("Voltage", "${batteryState.voltageMv} mV", InfoGroupPosition.Middle)
-            InfoRow("Power Connection", batteryState.powerSource, InfoGroupPosition.Bottom)
+            InfoRow(stringResource(R.string.cpu_temperature), if (batteryState.tempCelsius > 0f) uiState.temperatureUnit.format(batteryState.tempCelsius) else stringResource(R.string.not_applicable), InfoGroupPosition.Top)
+            InfoRow(stringResource(R.string.device_voltage), "${batteryState.voltageMv} mV", InfoGroupPosition.Middle)
+            InfoRow(stringResource(R.string.device_power_connection), batteryState.powerSource, InfoGroupPosition.Bottom)
         }
 
         // Section Title: Hardware Specs
         Text(
-            text = "Hardware Specifications",
+            text = stringResource(R.string.device_hardware_specs),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.secondary,
@@ -188,16 +246,16 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
 
         // Segmented list for Hardware Specs
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            InfoRow("Manufacturer", android.os.Build.MANUFACTURER, InfoGroupPosition.Top)
-            InfoRow("Device Model", android.os.Build.MODEL, InfoGroupPosition.Middle)
-            InfoRow("Board Hardware", android.os.Build.BOARD, InfoGroupPosition.Middle)
-            InfoRow("Processor Platform", android.os.Build.HARDWARE, InfoGroupPosition.Middle)
-            InfoRow("Supported Architectures", android.os.Build.SUPPORTED_ABIS.joinToString(", "), InfoGroupPosition.Bottom)
+            InfoRow(stringResource(R.string.device_manufacturer), uiState.manufacturer, InfoGroupPosition.Top)
+            InfoRow(stringResource(R.string.device_model), uiState.model, InfoGroupPosition.Middle)
+            InfoRow(stringResource(R.string.device_board_hardware), uiState.board, InfoGroupPosition.Middle)
+            InfoRow(stringResource(R.string.device_processor_platform), uiState.hardware, InfoGroupPosition.Middle)
+            InfoRow(stringResource(R.string.device_supported_architectures), uiState.supportedAbis, InfoGroupPosition.Bottom)
         }
 
         // Section Title: System Software OS
         Text(
-            text = "Android System Specs",
+            text = stringResource(R.string.device_android_specs),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.secondary,
@@ -206,12 +264,41 @@ fun DeviceInfoDashboard(modifier: Modifier = Modifier) {
 
         // Segmented list for OS Specs
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            InfoRow("Android Version", android.os.Build.VERSION.RELEASE, InfoGroupPosition.Top)
-            InfoRow("API Level", android.os.Build.VERSION.SDK_INT.toString(), InfoGroupPosition.Middle)
-            InfoRow("Security Patch", android.os.Build.VERSION.SECURITY_PATCH, InfoGroupPosition.Middle)
-            InfoRow("Bootloader Release", android.os.Build.BOOTLOADER, InfoGroupPosition.Bottom)
+            InfoRow(stringResource(R.string.device_android_version), uiState.androidVersion, InfoGroupPosition.Top)
+            InfoRow(stringResource(R.string.device_api_level), uiState.apiLevel, InfoGroupPosition.Middle)
+            InfoRow(stringResource(R.string.device_security_patch), uiState.securityPatch, InfoGroupPosition.Middle)
+            InfoRow(stringResource(R.string.device_bootloader_release), uiState.bootloader, InfoGroupPosition.Bottom)
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun DeviceInfoDashboardPreview() {
+    OsysterTheme {
+        DeviceInfoDashboardContent(
+            uiState = DeviceInfoUiState(
+                batteryState = dev.qtremors.osyster.monitor.BatteryState(
+                    levelPercentage = 85,
+                    tempCelsius = 31.5f,
+                    health = "Good",
+                    status = "Discharging",
+                    voltageMv = 4120,
+                    powerSource = "Battery"
+                ),
+                manufacturer = "Google",
+                model = "Pixel 8 Pro",
+                board = "husky",
+                hardware = "tensor_g3",
+                supportedAbis = "arm64-v8a",
+                androidVersion = "14",
+                apiLevel = "34",
+                securityPatch = "2026-08-05",
+                bootloader = "husky-1.0"
+            )
+        )
+    }
+}
+
