@@ -39,6 +39,23 @@ import kotlin.math.sqrt
 // Data Models for Hardware & System Specifications
 // =========================================================================
 
+data class DeviceHeroState(
+    val deviceName: String = Build.MODEL ?: "Android Device",
+    val manufacturer: String = Build.MANUFACTURER ?: "",
+    val model: String = Build.MODEL ?: "",
+    val androidVersion: String = "Android " + (Build.VERSION.RELEASE ?: ""),
+    val apiLevel: String = Build.VERSION.SDK_INT.toString(),
+    val securityPatch: String = Build.VERSION.SECURITY_PATCH ?: "",
+    val uptimeMillis: Long = 0L,
+    val awakeMillis: Long = 0L,
+    val deepSleepMillis: Long = 0L,
+    val deepSleepPercentage: Float = 0f,
+    val awakePercentage: Float = 0f,
+    val formattedUptime: String = "00:00:00",
+    val formattedDeepSleep: String = "0m",
+    val formattedAwake: String = "0m"
+)
+
 data class SystemSpecs(
     val androidVersion: String = Build.VERSION.RELEASE ?: "unknown",
     val apiLevel: String = Build.VERSION.SDK_INT.toString(),
@@ -884,5 +901,67 @@ object DeviceHardwareMonitor {
             MediaDrm.HDCP_NO_DIGITAL_OUTPUT -> "No digital output"
             else -> "Level $level"
         }
+    }
+
+    fun formatDurationCompact(millis: Long): String {
+        val totalSeconds = millis / 1000
+        val seconds = totalSeconds % 60
+        val minutes = (totalSeconds / 60) % 60
+        val hours = (totalSeconds / 3600) % 24
+        val days = totalSeconds / 86400
+        return when {
+            days > 0 -> "${days}d ${hours}h ${minutes}m"
+            hours > 0 -> "${hours}h ${minutes}m"
+            minutes > 0 -> "${minutes}m ${seconds}s"
+            else -> "${seconds}s"
+        }
+    }
+
+    fun getDeviceHeroState(): DeviceHeroState {
+        val elapsedRealtime = SystemClock.elapsedRealtime()
+        val uptimeMillis = SystemClock.uptimeMillis()
+        val deepSleepMillis = (elapsedRealtime - uptimeMillis).coerceAtLeast(0L)
+        val deepSleepPercent = if (elapsedRealtime > 0L) {
+            (deepSleepMillis.toFloat() / elapsedRealtime.toFloat()) * 100f
+        } else 0f
+        val awakePercent = (100f - deepSleepPercent).coerceIn(0f, 100f)
+
+        val manufacturer = Build.MANUFACTURER.orEmpty().replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+        }
+        val model = Build.MODEL.orEmpty()
+        val deviceName = if (model.startsWith(manufacturer, ignoreCase = true)) {
+            model
+        } else if (manufacturer.isNotBlank()) {
+            "$manufacturer $model"
+        } else {
+            model.ifBlank { "Android Device" }
+        }
+
+        val uptimeHours = elapsedRealtime / (1000 * 60 * 60)
+        val uptimeMinutes = (elapsedRealtime % (1000 * 60 * 60)) / (1000 * 60)
+        val uptimeSeconds = (elapsedRealtime % (1000 * 60)) / 1000
+        val formattedUptime = if (uptimeHours > 0) {
+            String.format(Locale.getDefault(), "%02d:%02d:%02d", uptimeHours, uptimeMinutes, uptimeSeconds)
+        } else {
+            String.format(Locale.getDefault(), "%02d:%02d", uptimeMinutes, uptimeSeconds)
+        }
+
+        return DeviceHeroState(
+            deviceName = deviceName,
+            manufacturer = manufacturer,
+            model = model,
+            androidVersion = "Android " + (Build.VERSION.RELEASE ?: "unknown"),
+            apiLevel = Build.VERSION.SDK_INT.toString(),
+            securityPatch = Build.VERSION.SECURITY_PATCH ?: "unknown",
+            uptimeMillis = elapsedRealtime,
+            awakeMillis = uptimeMillis,
+            deepSleepMillis = deepSleepMillis,
+            deepSleepPercentage = deepSleepPercent,
+            awakePercentage = awakePercent,
+            formattedUptime = formattedUptime,
+            formattedDeepSleep = formatDurationCompact(deepSleepMillis),
+            formattedAwake = formatDurationCompact(uptimeMillis)
+        )
     }
 }

@@ -197,6 +197,11 @@
     <string name="app_stopper_add_apps_desc">Add Applications</string>
 
     <!-- Bento Dashboard -->
+    <string name="bento_hero_device">Device Overview</string>
+    <string name="bento_uptime">Uptime</string>
+    <string name="bento_deep_sleep">Deep Sleep</string>
+    <string name="bento_awake">Awake</string>
+    <string name="bento_quick_jump">Quick Jump</string>
     <string name="bento_processor_load">Processor Load</string>
     <string name="bento_cpu_load_format">%.1f%% Load</string>
     <string name="bento_active_ram">Active RAM</string>
@@ -210,6 +215,17 @@
     <string name="bento_app_stopper_with_uninstalled">%1$d monitored • %2$d uninstalled</string>
     <string name="bento_app_stopper_monitored">%d monitored apps</string>
     <string name="bento_virtual_swap">Virtual SWAP</string>
+    <string name="bento_gpu_title">GPU &amp; Graphics</string>
+    <string name="bento_hardware_specs">Device Specs</string>
+    <string name="bento_software_specs">Software &amp; OS</string>
+    <string name="bento_internal_storage">Storage</string>
+    <string name="bento_storage_free_format">%s Free</string>
+    <string name="bento_sensors_title">Live Sensors</string>
+    <string name="bento_sensors_count_format">%d Sensors</string>
+    <string name="bento_camera_title">Cameras</string>
+    <string name="bento_media_drm">Media DRM</string>
+    <string name="bento_open_hub">Open Hub</string>
+    <string name="dock_network">Network</string>
 
     <!-- Telemetry Dashboard -->
     <string name="telemetry_tab_cpu">CPU Telemetry</string>

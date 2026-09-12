@@ -6,22 +6,29 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.BatteryStd
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SignalCellularAlt
+import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Wifi
@@ -36,7 +43,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
@@ -46,9 +55,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.qtremors.osyster.monitor.AppStopperMonitor
 import dev.qtremors.osyster.monitor.BatteryState
 import dev.qtremors.osyster.monitor.CpuState
+import dev.qtremors.osyster.monitor.DeviceHeroState
 import dev.qtremors.osyster.monitor.MemoryState
 import dev.qtremors.osyster.monitor.TelemetryResult
 import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
+import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 import dev.qtremors.osyster.ui.util.RestrictedByOsBadge
 import dev.qtremors.osyster.monitor.NetworkInterval
 import dev.qtremors.osyster.monitor.NetworkInterfaceFilter
@@ -62,6 +73,7 @@ import dev.qtremors.osyster.settings.OsysterPreferencesState
 import dev.qtremors.osyster.ui.theme.OsysterTheme
 import dev.qtremors.osyster.ui.viewmodel.BentoUiState
 import dev.qtremors.osyster.ui.viewmodel.BentoViewModel
+import dev.qtremors.osyster.ui.viewmodel.DeviceInfoCategory
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -143,8 +155,8 @@ fun BentoDashboardContent(
     uiState: BentoUiState,
     prefsState: OsysterPreferencesState,
     onNavigateTo: (AppRoutes) -> Unit,
-    onOpenSettings: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOpenSettings: () -> Unit = {}
 ) {
     val cpuState = uiState.cpuState
     val memoryState = uiState.memoryState
@@ -164,108 +176,153 @@ fun BentoDashboardContent(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Top Header Row
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // 1st Widget: Hero Device Identity & Uptime / Deep Sleep Widget
+        HeroDeviceWidget(
+            hero = uiState.heroState,
+            onClick = { onNavigateTo(AppRoutes.Display) }
+        )
+
+        // Quick Reach Jump Ribbon
+        QuickReachRibbon(
+            onNavigateTo = onNavigateTo,
+            hapticEnabled = prefsState.hapticFeedback
+        )
+
+        // Core Duo Row: CPU & GPU Diagnostics
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            IconButton(
-                onClick = onOpenSettings,
-                modifier = Modifier.size(40.dp)
+            // CPU Bento Block
+            Card(
+                onClick = { onNavigateTo(AppRoutes.Cpu) },
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                modifier = Modifier.weight(1f)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = stringResource(R.string.settings_title),
-                    tint = MaterialTheme.colorScheme.outline
-                )
-            }
-        }
+                Column(
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Speed,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        when (val temp = cpuState.cpuTempCelsius) {
+                            is TelemetryResult.Available -> {
+                                Text(
+                                    text = prefsState.temperatureUnit.format(temp.value),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (temp.value > 50f) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.outline
+                                )
+                            }
+                            else -> {}
+                        }
+                    }
 
-        // Large CPU Core Ring Bento Block
-        Card(
-            onClick = { onNavigateTo(AppRoutes.Cpu) },
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.bento_processor_load),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.outline
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+
                     when (val usage = cpuState.overallUsage) {
                         is TelemetryResult.Available -> {
                             Text(
-                                text = stringResource(R.string.bento_cpu_load_format, usage.value),
-                                style = MaterialTheme.typography.headlineMedium,
+                                text = String.format(Locale.getDefault(), "%.1f%%", usage.value),
+                                style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Black
                             )
                         }
                         is TelemetryResult.Restricted -> {
-                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(
-                                    text = stringResource(R.string.restricted),
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    fontWeight = FontWeight.Black,
-                                    color = MaterialTheme.colorScheme.outline
-                                )
-                                RestrictedByOsBadge()
-                            }
+                            RestrictedByOsBadge()
                         }
                     }
+
                     Text(
-                        text = cpuState.cpuModel,
-                        style = MaterialTheme.typography.bodySmall,
+                        text = cpuState.cpuModel.ifEmpty { stringResource(R.string.telemetry_tab_cpu) },
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.outline,
-                        maxLines = 1
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
+            }
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                val isUsageRestricted = cpuState.overallUsage is TelemetryResult.Restricted
-                val usagePercent = (cpuState.overallUsage as? TelemetryResult.Available)?.value ?: 0f
-
-                Box(
-                    modifier = Modifier.size(96.dp),
-                    contentAlignment = Alignment.Center
+            // GPU Bento Block
+            Card(
+                onClick = { onNavigateTo(AppRoutes.Gpu) },
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OysterArcGauge(
-                        percentage = usagePercent,
-                        modifier = Modifier.fillMaxSize(),
-                        color = if (isUsageRestricted) MaterialTheme.colorScheme.outline.copy(alpha = 0.3f) else MaterialTheme.colorScheme.primary
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DeveloperMode,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.secondary
+                        )
+                        Surface(
+                            shape = RoundedCornerShape(100),
+                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+                        ) {
+                            Text(
+                                text = if (uiState.gpuSpecs.vulkanVersion.isNotBlank()) "Vulkan" else "GLES",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+
+                    Text(
+                        text = stringResource(R.string.bento_gpu_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.outline
                     )
-                    Icon(
-                        imageVector = if (isUsageRestricted) Icons.Default.Lock else Icons.Default.Speed,
-                        contentDescription = null,
-                        tint = if (isUsageRestricted) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
+
+                    Text(
+                        text = uiState.gpuSpecs.renderer.ifBlank { "Integrated GPU" },
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Text(
+                        text = uiState.gpuSpecs.glEsVersion.ifBlank { stringResource(R.string.category_soc_gpu) },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
         }
 
-        // Two Column Grid Row (Memory & Thermal blocks)
+        // Core Duo Row: RAM & Internal Storage
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -283,129 +340,52 @@ fun BentoDashboardContent(
                         .fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Memory,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Memory,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        if (memoryState.swapTotalKb > 0) {
+                            Text(
+                                text = "SWAP",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
                     Text(
                         text = stringResource(R.string.bento_active_ram),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.outline
                     )
+
                     Text(
                         text = String.format(Locale.getDefault(), "%.1f%%", ramUsedPercent),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Black
                     )
 
-                    // Expressive Wavy RAM Bar
                     LinearWavyProgressIndicator(
                         progress = { ramUsedPercent / 100f },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(10.dp),
+                            .height(8.dp),
                         color = MaterialTheme.colorScheme.primary,
                         trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                     )
                 }
             }
 
-            // Thermal Bento Block
+            // Storage Bento Block
             Card(
-                onClick = { onNavigateTo(AppRoutes.Cpu) },
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier.weight(1f)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(18.dp)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    val isTempElevated = (cpuState.cpuTempCelsius as? TelemetryResult.Available)?.let { it.value > 50f } ?: false
-                    Icon(
-                        imageVector = Icons.Default.Thermostat,
-                        contentDescription = null,
-                        tint = if (isTempElevated) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary
-                    )
-                    Text(
-                        text = stringResource(R.string.bento_cpu_temp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                    when (val temp = cpuState.cpuTempCelsius) {
-                        is TelemetryResult.Available -> {
-                            Text(
-                                text = prefsState.temperatureUnit.format(temp.value),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Black
-                            )
-                            Text(
-                                text = if (temp.value > 50f) stringResource(R.string.bento_temp_elevated) else stringResource(R.string.bento_temp_stable),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = if (temp.value > 50f) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.outline
-                            )
-                        }
-                        is TelemetryResult.Restricted -> {
-                            Text(
-                                text = stringResource(R.string.restricted),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Black,
-                                color = MaterialTheme.colorScheme.outline
-                            )
-                            RestrictedByOsBadge()
-                        }
-                    }
-                }
-            }
-        }
-
-        // Two Column Grid Row (Tasks & Battery blocks)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Active Tasks block
-            Card(
-                onClick = { onNavigateTo(AppRoutes.Processes) },
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier.weight(1f)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(18.dp)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Terminal,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = stringResource(R.string.bento_running_tasks),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                    Text(
-                        text = "$processesCount",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Black
-                    )
-                    Text(
-                        text = stringResource(R.string.bento_tap_to_manage),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                }
-            }
-
-            // Battery Energy block
-            Card(
-                onClick = { onNavigateTo(AppRoutes.DeviceInfo) },
+                onClick = { onNavigateTo(AppRoutes.Storage) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
                 modifier = Modifier.weight(1f)
@@ -422,43 +402,121 @@ fun BentoDashboardContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = if (batteryState.status == "Charging") Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
+                            imageVector = Icons.Default.Storage,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.secondary
+                            tint = MaterialTheme.colorScheme.tertiary
                         )
-                        if (batteryState.tempCelsius > 0f) {
+                        if (uiState.storageStats.availableBytes > 0) {
                             Text(
-                                text = prefsState.temperatureUnit.format(batteryState.tempCelsius),
+                                text = NetworkMonitor.formatBytes(uiState.storageStats.availableBytes),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.outline
                             )
                         }
                     }
+
                     Text(
-                        text = stringResource(R.string.bento_battery_power),
+                        text = stringResource(R.string.bento_internal_storage),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.outline
                     )
+
                     Text(
-                        text = "${batteryState.levelPercentage}%",
+                        text = String.format(Locale.getDefault(), "%.1f%%", uiState.storageStats.usedPercentage),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Black
                     )
-                    Text(
-                        text = if (batteryState.powerSource.isNotBlank() && batteryState.powerSource != "Battery") {
-                            "${batteryState.status} • ${batteryState.powerSource}"
-                        } else {
-                            batteryState.status
-                        },
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary
+
+                    LinearProgressIndicator(
+                        progress = { uiState.storageStats.usedPercentage / 100f },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(100)),
+                        color = MaterialTheme.colorScheme.tertiary,
+                        trackColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.12f)
                     )
                 }
             }
         }
 
-        // Network Traffic Bento Block
+        // Battery Power Bento Block
+        Card(
+            onClick = { onNavigateTo(AppRoutes.Battery) },
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = if (batteryState.status == "Charging") Icons.Default.BatteryChargingFull else Icons.Default.BatteryStd,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column {
+                        Text(
+                            text = stringResource(R.string.bento_battery_power),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        val details = if (batteryState.powerSource.isNotBlank() && batteryState.powerSource != "Battery") {
+                            "${batteryState.status} • ${batteryState.powerSource}"
+                        } else {
+                            batteryState.status
+                        }
+                        Text(
+                            text = details,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "${batteryState.levelPercentage}%",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Black
+                        )
+                        if (batteryState.tempCelsius > 0f) {
+                            Text(
+                                text = prefsState.temperatureUnit.format(batteryState.tempCelsius),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+
+        // Network Hub Bento Block (Page 1 Destination Link)
         Card(
             onClick = { onNavigateTo(AppRoutes.Network) },
             shape = RoundedCornerShape(24.dp),
@@ -502,7 +560,7 @@ fun BentoDashboardContent(
                             text = when (activeNetworkType) {
                                 NetworkInterfaceFilter.MOBILE -> stringResource(R.string.network_traffic_mobile)
                                 NetworkInterfaceFilter.WIFI -> stringResource(R.string.network_traffic_wifi)
-                                else -> stringResource(R.string.network_bento_title)
+                                else -> stringResource(R.string.dock_network)
                             },
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold
@@ -552,7 +610,7 @@ fun BentoDashboardContent(
             }
         }
 
-        // App Stopper Bento Block
+        // Apps & App Stopper Bento Block (Page 2 Destination Link)
         Card(
             onClick = { onNavigateTo(AppRoutes.AppStopper) },
             shape = RoundedCornerShape(24.dp),
@@ -574,7 +632,7 @@ fun BentoDashboardContent(
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.Default.PowerSettingsNew,
+                                imageVector = Icons.Default.Apps,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(20.dp)
@@ -584,14 +642,14 @@ fun BentoDashboardContent(
                     Spacer(modifier = Modifier.width(14.dp))
                     Column {
                         Text(
-                            text = stringResource(R.string.app_stopper_title),
+                            text = stringResource(R.string.dock_tasks),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold
                         )
                         val subtitleText = when {
-                            appStopperCounts.totalCount == 0 -> stringResource(R.string.bento_app_stopper_empty)
-                            appStopperCounts.uninstalledCount > 0 -> stringResource(R.string.bento_app_stopper_with_uninstalled, appStopperCounts.installedCount, appStopperCounts.uninstalledCount)
-                            else -> stringResource(R.string.bento_app_stopper_monitored, appStopperCounts.installedCount)
+                            appStopperCounts.totalCount == 0 -> stringResource(R.string.bento_running_tasks) + ": $processesCount"
+                            appStopperCounts.uninstalledCount > 0 -> "$processesCount active • ${appStopperCounts.installedCount} managed"
+                            else -> "$processesCount active • ${appStopperCounts.installedCount} managed"
                         }
                         Text(
                             text = subtitleText,
@@ -610,54 +668,408 @@ fun BentoDashboardContent(
             }
         }
 
-        // SWAP File block (Bottom of grid)
-        Card(
-            onClick = { onNavigateTo(AppRoutes.Memory) },
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            modifier = Modifier.fillMaxWidth()
+        // Tools & Diagnostics Duo Row: Live Sensors & Security/DRM
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(18.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // Live Sensors Card
+            Card(
+                onClick = { onNavigateTo(AppRoutes.Sensors) },
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                modifier = Modifier.weight(1f)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Icon(
-                        imageVector = Icons.Default.DeveloperMode,
+                        imageVector = Icons.Default.Sensors,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.outline,
-                        modifier = Modifier.size(20.dp)
+                        tint = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = stringResource(R.string.bento_virtual_swap),
+                        text = stringResource(R.string.bento_sensors_title),
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    Text(
+                        text = if (uiState.sensorCount > 0) "${uiState.sensorCount} Sensors" else "Live Stream",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Black
+                    )
+                    Text(
+                        text = "Oscilloscope →",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
+            }
 
-                val swapActive = memoryState.swapTotalKb > 0
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(RoundedCornerShape(100))
-                            .background(if (swapActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
+            // DRM & Camera Diagnostics Card
+            Card(
+                onClick = { onNavigateTo(AppRoutes.Drm) },
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (swapActive) stringResource(R.string.status_active) else stringResource(R.string.status_inactive),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (swapActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                        text = stringResource(R.string.bento_media_drm),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    Text(
+                        text = "Widevine " + uiState.drmSecurityLevel.ifBlank { "L1" },
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Black
+                    )
+                    Text(
+                        text = if (uiState.cameraCount > 0) "${uiState.cameraCount} Cameras • ${uiState.maxCameraMp}" else "Media Security →",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+
+        // Hardware & Software Duo Row: Display & OS Kernel Specs
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Display & Specs Card
+            Card(
+                onClick = { onNavigateTo(AppRoutes.Display) },
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Smartphone,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.outline
+                    )
+                    Text(
+                        text = stringResource(R.string.bento_hardware_specs),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    Text(
+                        text = uiState.displaySpecs.resolution.ifBlank { "Display Screen" },
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = if (uiState.displaySpecs.refreshRateHz.isNotBlank()) "${uiState.displaySpecs.refreshRateHz}Hz Screen" else "View Specs →",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+            }
+
+            // Software & Kernel Card
+            Card(
+                onClick = { onNavigateTo(AppRoutes.System) },
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.outline
+                    )
+                    Text(
+                        text = stringResource(R.string.bento_software_specs),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    Text(
+                        text = "Linux " + uiState.systemSpecs.kernelVersion.substringBefore(" ").ifBlank { "Kernel" },
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "SELinux: " + uiState.systemSpecs.selinuxStatus,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline
                     )
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(LocalBottomContentPadding.current))
+    }
+}
+
+// =========================================================================
+// Hero Device Identity & Deep Sleep Widget (1st Widget)
+// =========================================================================
+
+@Composable
+fun HeroDeviceWidget(
+    hero: DeviceHeroState,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.Smartphone,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column {
+                        Text(
+                            text = hero.deviceName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Black,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = "${hero.androidVersion} • API ${hero.apiLevel}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                }
+
+                if (hero.securityPatch.isNotBlank()) {
+                    Surface(
+                        shape = RoundedCornerShape(100),
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        modifier = Modifier.padding(start = 8.dp)
+                    ) {
+                        Text(
+                            text = hero.securityPatch,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                        )
+                    }
+                }
+            }
+
+            // Split Bar for Deep Sleep vs Awake
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.bento_deep_sleep) + ": ${hero.formattedDeepSleep} (${String.format(Locale.getDefault(), "%.0f%%", hero.deepSleepPercentage)})",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    Text(
+                        text = stringResource(R.string.bento_awake) + ": ${hero.formattedAwake} (${String.format(Locale.getDefault(), "%.0f%%", hero.awakePercentage)})",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                // Dual progress split bar
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(10.dp)
+                        .clip(RoundedCornerShape(100))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                ) {
+                    val sleepWeight = (hero.deepSleepPercentage / 100f).coerceIn(0.02f, 0.98f)
+                    val awakeWeight = (hero.awakePercentage / 100f).coerceIn(0.02f, 0.98f)
+
+                    Box(
+                        modifier = Modifier
+                            .weight(sleepWeight)
+                            .fillMaxHeight()
+                            .background(MaterialTheme.colorScheme.secondary)
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Box(
+                        modifier = Modifier
+                            .weight(awakeWeight)
+                            .fillMaxHeight()
+                            .background(MaterialTheme.colorScheme.primary)
+                    )
+                }
+            }
+
+            // Bottom row: Uptime readout and link
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Speed,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.bento_uptime) + ": " + hero.formattedUptime,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(R.string.bento_hardware_specs),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+// =========================================================================
+// Quick Reach Jump Ribbon (Thumb Reachability)
+// =========================================================================
+
+@Composable
+fun QuickReachRibbon(
+    onNavigateTo: (AppRoutes) -> Unit,
+    hapticEnabled: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+    val jumpItems = remember {
+        listOf(
+            Triple("CPU", Icons.Default.Speed) { onNavigateTo(AppRoutes.Cpu) },
+            Triple("GPU", Icons.Default.DeveloperMode) { onNavigateTo(AppRoutes.Gpu) },
+            Triple("RAM", Icons.Default.Memory) { onNavigateTo(AppRoutes.Memory) },
+            Triple("Storage", Icons.Default.Storage) { onNavigateTo(AppRoutes.Storage) },
+            Triple("Network", Icons.Default.Wifi) { onNavigateTo(AppRoutes.Network) },
+            Triple("Apps", Icons.Default.Apps) { onNavigateTo(AppRoutes.AppStopper) },
+            Triple("Sensors", Icons.Default.Sensors) { onNavigateTo(AppRoutes.Sensors) },
+            Triple("Battery", Icons.Default.BatteryStd) { onNavigateTo(AppRoutes.Battery) },
+            Triple("Cameras", Icons.Default.CameraAlt) { onNavigateTo(AppRoutes.Camera) },
+            Triple("DRM", Icons.Default.Lock) { onNavigateTo(AppRoutes.Drm) },
+            Triple("Specs", Icons.Default.Smartphone) { onNavigateTo(AppRoutes.Display) },
+            Triple("OS", Icons.Default.CheckCircle) { onNavigateTo(AppRoutes.System) }
+        )
+    }
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        jumpItems.forEach { (label, icon, action) ->
+            Surface(
+                onClick = {
+                    OsysterHapticUtil.performSegmentTick(view, hapticEnabled)
+                    action()
+                },
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.height(36.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        }
     }
 }
 

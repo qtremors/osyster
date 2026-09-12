@@ -1,8 +1,21 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.1.2
+> **Version:** 0.1.3
 > **Last Updated:** 2026-09-12
+
+---
+
+## [0.1.3] - 2026-09-12
+
+- **Direct-Reach Overview Hub**: Redesigned master dashboard into a direct-reach control center with instant 1-tap access to all subsystems.
+- **Hero Device Identity & Deep Sleep**: Added a hero device card showing model identity, Android version, security patch, uptime, and deep sleep telemetry.
+- **Quick Reach Action Ribbon**: Added a scrollable action ribbon for instant thumb access to CPU, GPU, RAM, Storage, Network, Apps, Sensors, Battery, Cameras, DRM, and Specs.
+- **Three-Pillar Navigation Dock**: Streamlined the floating bottom dock into 3 core pillars: Overview, Network, and Apps.
+- **Dedicated Standalone Pages**: Replaced category tabs with independent, dedicated pages for GPU, Storage, Battery, Display, System, Cameras, Sensors, and DRM.
+- **Direct-Return Back Navigation**: Restored direct back navigation to the dashboard from Network and Apps, paired with floating dock back controls on all subpages.
+- **Tab-First Nested Swipe Navigation**: Upgraded inner tabs to nested pagers so horizontal swipes switch between available tabs before traversing parent pages.
+- **Clean Screen Tops**: Removed redundant top back buttons and page headers in favor of the floating bottom dock, and eliminated top header clutter on the Overview Dashboard.
 
 ---
 

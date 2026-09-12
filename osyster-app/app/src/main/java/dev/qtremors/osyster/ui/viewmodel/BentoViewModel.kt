@@ -8,12 +8,18 @@ import dev.qtremors.osyster.monitor.AppStopperCounts
 import dev.qtremors.osyster.monitor.AppStopperMonitor
 import dev.qtremors.osyster.monitor.BatteryState
 import dev.qtremors.osyster.monitor.CpuState
+import dev.qtremors.osyster.monitor.DeviceDisplaySpecs
+import dev.qtremors.osyster.monitor.DeviceHardwareMonitor
+import dev.qtremors.osyster.monitor.DeviceHeroState
+import dev.qtremors.osyster.monitor.GpuSpecs
 import dev.qtremors.osyster.monitor.MemoryState
 import dev.qtremors.osyster.monitor.NetworkInterfaceFilter
 import dev.qtremors.osyster.monitor.NetworkInterval
 import dev.qtremors.osyster.monitor.NetworkMonitor
 import dev.qtremors.osyster.monitor.RealtimeSpeed
+import dev.qtremors.osyster.monitor.StorageStats
 import dev.qtremors.osyster.monitor.SystemMonitor
+import dev.qtremors.osyster.monitor.SystemSpecs
 import dev.qtremors.osyster.settings.OsysterPreferencesManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,6 +35,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 data class BentoUiState(
     val cpuState: CpuState = CpuState(),
@@ -39,7 +46,16 @@ data class BentoUiState(
     val activeNetworkType: NetworkInterfaceFilter = NetworkInterfaceFilter.ALL,
     val todayNetworkTotal: String = "",
     val todayNetworkLabel: String = "Today",
-    val appStopperCounts: AppStopperCounts = AppStopperCounts(0, 0, 0)
+    val appStopperCounts: AppStopperCounts = AppStopperCounts(0, 0, 0),
+    val heroState: DeviceHeroState = DeviceHeroState(),
+    val storageStats: StorageStats = StorageStats(),
+    val gpuSpecs: GpuSpecs = GpuSpecs(),
+    val displaySpecs: DeviceDisplaySpecs = DeviceDisplaySpecs(),
+    val systemSpecs: SystemSpecs = SystemSpecs(),
+    val sensorCount: Int = 0,
+    val cameraCount: Int = 0,
+    val maxCameraMp: String = "",
+    val drmSecurityLevel: String = ""
 ) {
     val ramUsedPercent: Float
         get() = if (memoryState.ramTotalKb > 0) {
@@ -60,6 +76,8 @@ class BentoViewModel(
     private val networkRequest = LatestRequest(viewModelScope)
 
     init {
+        loadStaticHardwareSpecs()
+        startHeroStatePolling()
         startTelemetryStreams()
         viewModelScope.launchWhileSubscribed(_uiState) {
             try {
@@ -72,6 +90,49 @@ class BentoViewModel(
             }
         }
         startProcessCountPolling()
+    }
+
+    private fun loadStaticHardwareSpecs() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val context = getApplication<Application>()
+            val storage = DeviceHardwareMonitor.getStorageStats()
+            val gpu = DeviceHardwareMonitor.getGpuSpecs(context)
+            val display = DeviceHardwareMonitor.getDisplaySpecs(context)
+            val system = DeviceHardwareMonitor.getSystemSpecs(context)
+            val sensors = DeviceHardwareMonitor.getSensorList(context)
+            val cameras = DeviceHardwareMonitor.getCameraList(context)
+            val drm = DeviceHardwareMonitor.getMediaDrmSpecs()
+
+            val maxMp = cameras.maxOfOrNull { it.megapixels }?.let { mp ->
+                if (mp > 0f) String.format(Locale.getDefault(), "%.0f MP", mp) else ""
+            }.orEmpty()
+
+            _uiState.update {
+                it.copy(
+                    storageStats = storage,
+                    gpuSpecs = gpu,
+                    displaySpecs = display,
+                    systemSpecs = system,
+                    sensorCount = sensors.size,
+                    cameraCount = cameras.size,
+                    maxCameraMp = maxMp,
+                    drmSecurityLevel = drm.widevineSecurityLevel
+                )
+            }
+        }
+    }
+
+    private fun startHeroStatePolling() {
+        viewModelScope.launchWhileSubscribed(_uiState) {
+            flow {
+                while (true) {
+                    emit(DeviceHardwareMonitor.getDeviceHeroState())
+                    delay(1000L)
+                }
+            }.collectLatest { hero ->
+                _uiState.update { it.copy(heroState = hero) }
+            }
+        }
     }
 
     fun refreshAppStopperCounts(managedPackages: Set<String>) {

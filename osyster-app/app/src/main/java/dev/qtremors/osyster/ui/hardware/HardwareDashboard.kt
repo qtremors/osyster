@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.BatteryStd
@@ -252,34 +251,6 @@ fun DeviceInfoDashboardContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Spacer(modifier = Modifier.height(4.dp))
-
-        // Top Header Row: Back & Title
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (onNavigateBack != null) {
-                IconButton(
-                    onClick = onNavigateBack,
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                Spacer(modifier = Modifier.width(4.dp))
-            }
-            Text(
-                text = stringResource(R.string.device_specs_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
 
         // Category Filter Chips
         Row(
@@ -1009,7 +980,7 @@ fun DeviceInfoDashboardContent(
     }
 }
 
-private fun formatStorageBytes(bytes: Long): String {
+internal fun formatStorageBytes(bytes: Long): String {
     val gb = bytes.toDouble() / (1024.0 * 1024.0 * 1024.0)
     return if (gb >= 1.0) {
         String.format(Locale.getDefault(), "%.1f GB", gb)

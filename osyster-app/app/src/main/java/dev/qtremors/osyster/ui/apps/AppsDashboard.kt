@@ -2,8 +2,11 @@
 
 package dev.qtremors.osyster.ui.apps
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PowerSettingsNew
@@ -21,6 +24,7 @@ import dev.qtremors.osyster.R
 import dev.qtremors.osyster.settings.OsysterPreferencesManager
 import dev.qtremors.osyster.settings.OsysterPreferencesState
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppsDashboard(
@@ -30,11 +34,36 @@ fun AppsDashboard(
     initialTab: Int = 0,
     hapticEnabled: Boolean = true
 ) {
-    var selectedTab by remember(initialTab) { mutableIntStateOf(initialTab.coerceIn(0, 1)) }
+    val pagerState = rememberPagerState(
+        initialPage = initialTab.coerceIn(0, 1),
+        pageCount = { 2 }
+    )
+    val coroutineScope = rememberCoroutineScope()
     val view = LocalView.current
 
     LaunchedEffect(initialTab) {
-        selectedTab = initialTab.coerceIn(0, 1)
+        val target = initialTab.coerceIn(0, 1)
+        if (pagerState.currentPage != target) {
+            pagerState.scrollToPage(target)
+        }
+    }
+
+    LaunchedEffect(pagerState) {
+        var isFirst = true
+        snapshotFlow { pagerState.currentPage }
+            .collect {
+                if (isFirst) {
+                    isFirst = false
+                } else {
+                    OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
+                }
+            }
+    }
+
+    BackHandler(enabled = pagerState.currentPage == 1) {
+        coroutineScope.launch {
+            pagerState.animateScrollToPage(0)
+        }
     }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -47,18 +76,20 @@ fun AppsDashboard(
             horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
         ) {
             val tabs = listOf(
-                Triple(0, Icons.Default.Terminal, stringResource(R.string.apps_tab_running_processes)),
-                Triple(1, Icons.Default.PowerSettingsNew, stringResource(R.string.apps_tab_app_stopper))
+                Triple(0, Icons.Default.PowerSettingsNew, stringResource(R.string.apps_tab_app_stopper)),
+                Triple(1, Icons.Default.Terminal, stringResource(R.string.apps_tab_running_processes))
             )
 
             tabs.forEachIndexed { index, (_, iconVector, labelText) ->
-                val isSelected = selectedTab == index
+                val isSelected = pagerState.currentPage == index
                 ToggleButton(
                     checked = isSelected,
                     onCheckedChange = {
-                        if (selectedTab != index) {
+                        if (pagerState.currentPage != index) {
                             OsysterHapticUtil.performTick(view, hapticEnabled)
-                            selectedTab = index
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
                         }
                     },
                     shapes = when (index) {
@@ -83,30 +114,22 @@ fun AppsDashboard(
             }
         }
 
-        AnimatedContent(
-            targetState = selectedTab,
-            transitionSpec = {
-                if (targetState > initialState) {
-                    (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
-                        slideOutHorizontally { width -> -width } + fadeOut()
-                    )
-                } else {
-                    (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
-                        slideOutHorizontally { width -> width } + fadeOut()
-                    )
-                }
-            },
-            label = "apps_content_transition",
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { targetPage ->
             when (targetPage) {
-                0 -> ProcessDashboard(modifier = Modifier.fillMaxSize())
-                1 -> AppStopperDashboard(
+                0 -> AppStopperDashboard(
                     prefsState = prefsState,
                     manager = manager,
-                    onNavigateBack = { selectedTab = 0 },
+                    onNavigateBack = {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(0)
+                        }
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
+                1 -> ProcessDashboard(modifier = Modifier.fillMaxSize())
             }
         }
     }

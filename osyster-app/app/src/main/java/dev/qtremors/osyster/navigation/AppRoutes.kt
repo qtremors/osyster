@@ -36,4 +36,28 @@ sealed interface AppRoutes {
 
     @Serializable
     data object AppStopper : AppRoutes
+
+    @Serializable
+    data object Gpu : AppRoutes
+
+    @Serializable
+    data object Storage : AppRoutes
+
+    @Serializable
+    data object Battery : AppRoutes
+
+    @Serializable
+    data object Display : AppRoutes
+
+    @Serializable
+    data object System : AppRoutes
+
+    @Serializable
+    data object Camera : AppRoutes
+
+    @Serializable
+    data object Sensors : AppRoutes
+
+    @Serializable
+    data object Drm : AppRoutes
 }

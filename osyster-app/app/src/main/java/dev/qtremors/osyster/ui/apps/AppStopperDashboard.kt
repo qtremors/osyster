@@ -64,7 +64,7 @@ import dev.qtremors.osyster.ui.viewmodel.AppStopperViewModel
 fun AppStopperDashboard(
     prefsState: OsysterPreferencesState,
     manager: OsysterPreferencesManager,
-    onNavigateBack: () -> Unit,
+    onNavigateBack: () -> Unit = {},
     modifier: Modifier = Modifier,
     showAddSheet: Boolean = false,
     onShowAddSheetChange: (Boolean) -> Unit = {},

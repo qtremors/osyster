@@ -19,11 +19,13 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -39,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -47,8 +50,11 @@ import androidx.navigation.compose.rememberNavController
 import dev.qtremors.osyster.navigation.AppRoutes
 import dev.qtremors.osyster.settings.OsysterPreferencesManager
 import dev.qtremors.osyster.ui.apps.AppsDashboard
-import dev.qtremors.osyster.ui.hardware.HardwareDashboard
+import dev.qtremors.osyster.ui.hardware.*
+import dev.qtremors.osyster.ui.monitor.CpuDashboard
+import dev.qtremors.osyster.ui.monitor.MemoryDashboard
 import dev.qtremors.osyster.ui.monitor.MonitorDashboard
+import dev.qtremors.osyster.ui.monitor.NetworkDashboard
 import dev.qtremors.osyster.ui.overview.OverviewDashboard
 import dev.qtremors.osyster.ui.navigation.OsysterDock
 import dev.qtremors.osyster.ui.navigation.OsysterDockItem
@@ -60,6 +66,8 @@ import dev.qtremors.osyster.ui.theme.OsysterTheme
 import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
 import dev.qtremors.osyster.ui.util.LocalTelemetryVisible
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
+import dev.qtremors.osyster.ui.viewmodel.DeviceInfoCategory
+import dev.qtremors.osyster.ui.viewmodel.DeviceInfoViewModel
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -96,10 +104,10 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = currentDestination?.route
                 val isOnboarding = currentDestination?.hasRoute(AppRoutes.Onboarding::class) == true || currentRoute?.contains("Onboarding") == true
 
-                val pagerState = rememberPagerState(initialPage = 0, pageCount = { 4 })
+                val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
                 val scope = rememberCoroutineScope()
-                var monitorInitialTab by remember { mutableIntStateOf(0) }
                 var appsInitialTab by remember { mutableIntStateOf(0) }
+                val deviceInfoViewModel: DeviceInfoViewModel = viewModel()
 
                 var showSettings by rememberSaveable { mutableStateOf(false) }
                 var settingsSubpage by rememberSaveable { mutableStateOf(SettingsSubpage.SETTINGS) }
@@ -128,15 +136,11 @@ class MainActivity : ComponentActivity() {
                     val currentBucket = (fraction * 10).toInt()
                     if (fraction >= 1f && lastHapticBucket < 10) {
                         OsysterHapticUtil.performVirtualKey(view, true)
-                        lastHapticBucket = 10
-                    } else if (fraction < 1f && currentBucket != lastHapticBucket) {
+                    } else if (fraction > 0f && fraction < 1f) {
                         if (currentBucket > lastHapticBucket) {
                             OsysterHapticUtil.performSegmentTick(view, true)
                         }
                         lastHapticBucket = currentBucket
-                    }
-                    if (fraction == 0f) {
-                        lastHapticBucket = 0
                     }
                 }
 
@@ -152,14 +156,15 @@ class MainActivity : ComponentActivity() {
 
                 val backProgress = remember { Animatable(0f) }
 
-                PredictiveBackHandler(enabled = !showSettings && !isOnboarding && pagerState.currentPage != 0) { progress ->
+                val isBento = currentDestination?.hasRoute(AppRoutes.Bento::class) == true || currentRoute?.contains("Bento") == true
+
+                PredictiveBackHandler(enabled = !showSettings && !isOnboarding && isBento && pagerState.currentPage != 0) { progress ->
                     try {
                         progress.collect { backEvent ->
                             backProgress.snapTo(backEvent.progress)
                         }
-                        val targetPage = (pagerState.currentPage - 1).coerceAtLeast(0)
                         scope.launch {
-                            pagerState.animateScrollToPage(targetPage)
+                            pagerState.animateScrollToPage(0)
                         }
                         scope.launch {
                             backProgress.animateTo(0f, animationSpec = tween(350))
@@ -200,7 +205,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val navBarsBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-                val isDockVisible = !isOnboarding && !showSettings
+                val isDockVisible = !isOnboarding && !showSettings && isBento
                 val dynamicBottomPadding = if (isDockVisible) navBarsBottom + 108.dp else navBarsBottom + 16.dp
 
                 CompositionLocalProvider(LocalBottomContentPadding provides dynamicBottomPadding) {
@@ -254,28 +259,16 @@ class MainActivity : ComponentActivity() {
                                                     0 -> OverviewDashboard(
                                                         onNavigateTo = { route ->
                                                             when (route) {
-                                                                is AppRoutes.Cpu -> {
-                                                                    monitorInitialTab = 0
-                                                                    scope.launch { pagerState.animateScrollToPage(1) }
-                                                                }
-                                                                is AppRoutes.Memory -> {
-                                                                    monitorInitialTab = 1
-                                                                    scope.launch { pagerState.animateScrollToPage(1) }
-                                                                }
                                                                 is AppRoutes.Network -> {
-                                                                    monitorInitialTab = 2
                                                                     scope.launch { pagerState.animateScrollToPage(1) }
                                                                 }
                                                                 is AppRoutes.Processes -> {
-                                                                    appsInitialTab = 0
-                                                                    scope.launch { pagerState.animateScrollToPage(2) }
-                                                                }
-                                                                is AppRoutes.AppStopper -> {
                                                                     appsInitialTab = 1
                                                                     scope.launch { pagerState.animateScrollToPage(2) }
                                                                 }
-                                                                is AppRoutes.DeviceInfo -> {
-                                                                    scope.launch { pagerState.animateScrollToPage(3) }
+                                                                is AppRoutes.AppStopper -> {
+                                                                    appsInitialTab = 0
+                                                                    scope.launch { pagerState.animateScrollToPage(2) }
                                                                 }
                                                                 else -> {
                                                                     navController.navigate(route)
@@ -286,18 +279,15 @@ class MainActivity : ComponentActivity() {
                                                             showSettings = true
                                                         }
                                                     )
-                                                    1 -> MonitorDashboard(
-                                                        initialTab = monitorInitialTab,
+                                                    1 -> NetworkDashboard(
+                                                        modifier = Modifier.fillMaxSize(),
+                                                        onNavigateBack = null,
                                                         hapticEnabled = prefsState.hapticFeedback
                                                     )
                                                     2 -> AppsDashboard(
                                                         prefsState = prefsState,
                                                         manager = preferencesManager,
                                                         initialTab = appsInitialTab,
-                                                        hapticEnabled = prefsState.hapticFeedback
-                                                    )
-                                                    3 -> HardwareDashboard(
-                                                        onNavigateBack = null,
                                                         hapticEnabled = prefsState.hapticFeedback
                                                     )
                                                 }
@@ -347,6 +337,200 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
                                     }
+                                }
+                            }
+                            composable<AppRoutes.Cpu> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .statusBarsPadding()
+                                ) {
+                                    CpuDashboard(
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    OsysterDock(
+                                        modifier = Modifier.align(Alignment.BottomCenter),
+                                        title = stringResource(R.string.telemetry_tab_cpu),
+                                        onBackClick = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
+                                }
+                            }
+                            composable<AppRoutes.Memory> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .statusBarsPadding()
+                                ) {
+                                    MemoryDashboard(
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    OsysterDock(
+                                        modifier = Modifier.align(Alignment.BottomCenter),
+                                        title = stringResource(R.string.telemetry_tab_ram),
+                                        onBackClick = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
+                                }
+                            }
+                            composable<AppRoutes.Gpu> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .statusBarsPadding()
+                                ) {
+                                    GpuDashboard(
+                                        onNavigateBack = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback,
+                                        viewModel = deviceInfoViewModel,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    OsysterDock(
+                                        modifier = Modifier.align(Alignment.BottomCenter),
+                                        title = stringResource(R.string.bento_gpu_title),
+                                        onBackClick = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
+                                }
+                            }
+                            composable<AppRoutes.Storage> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .statusBarsPadding()
+                                ) {
+                                    StorageDashboard(
+                                        onNavigateBack = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback,
+                                        viewModel = deviceInfoViewModel,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    OsysterDock(
+                                        modifier = Modifier.align(Alignment.BottomCenter),
+                                        title = stringResource(R.string.storage_section_title),
+                                        onBackClick = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
+                                }
+                            }
+                            composable<AppRoutes.Battery> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .statusBarsPadding()
+                                ) {
+                                    BatteryDiagnosticsDashboard(
+                                        onNavigateBack = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback,
+                                        viewModel = deviceInfoViewModel,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    OsysterDock(
+                                        modifier = Modifier.align(Alignment.BottomCenter),
+                                        title = stringResource(R.string.telemetry_tab_battery),
+                                        onBackClick = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
+                                }
+                            }
+                            composable<AppRoutes.Display> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .statusBarsPadding()
+                                ) {
+                                    DeviceDisplayDashboard(
+                                        onNavigateBack = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback,
+                                        viewModel = deviceInfoViewModel,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    OsysterDock(
+                                        modifier = Modifier.align(Alignment.BottomCenter),
+                                        title = stringResource(R.string.category_device),
+                                        onBackClick = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
+                                }
+                            }
+                            composable<AppRoutes.System> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .statusBarsPadding()
+                                ) {
+                                    SystemDashboard(
+                                        onNavigateBack = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback,
+                                        viewModel = deviceInfoViewModel,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    OsysterDock(
+                                        modifier = Modifier.align(Alignment.BottomCenter),
+                                        title = stringResource(R.string.category_system),
+                                        onBackClick = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
+                                }
+                            }
+                            composable<AppRoutes.Camera> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .statusBarsPadding()
+                                ) {
+                                    CameraDashboard(
+                                        onNavigateBack = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback,
+                                        viewModel = deviceInfoViewModel,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    OsysterDock(
+                                        modifier = Modifier.align(Alignment.BottomCenter),
+                                        title = stringResource(R.string.camera_section_title),
+                                        onBackClick = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
+                                }
+                            }
+                            composable<AppRoutes.Sensors> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .statusBarsPadding()
+                                ) {
+                                    SensorsDashboard(
+                                        onNavigateBack = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback,
+                                        viewModel = deviceInfoViewModel,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    OsysterDock(
+                                        modifier = Modifier.align(Alignment.BottomCenter),
+                                        title = stringResource(R.string.category_sensors),
+                                        onBackClick = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
+                                }
+                            }
+                            composable<AppRoutes.Drm> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .statusBarsPadding()
+                                ) {
+                                    DrmDashboard(
+                                        onNavigateBack = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback,
+                                        viewModel = deviceInfoViewModel,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    OsysterDock(
+                                        modifier = Modifier.align(Alignment.BottomCenter),
+                                        title = stringResource(R.string.drm_section_title),
+                                        onBackClick = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
                                 }
                             }
                         }
@@ -419,10 +603,9 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.align(Alignment.BottomCenter)
                         ) {
                             val dashboardLabel = stringResource(R.string.dock_dashboard)
-                            val telemetryLabel = stringResource(R.string.dock_telemetry)
+                            val networkLabel = stringResource(R.string.dock_network)
                             val appsLabel = stringResource(R.string.dock_tasks)
-                            val hardwareLabel = stringResource(R.string.dock_hardware)
-                            val dockItems = remember(dashboardLabel, telemetryLabel, appsLabel, hardwareLabel) {
+                            val dockItems = remember(dashboardLabel, networkLabel, appsLabel) {
                                 listOf(
                                     OsysterDockItem(
                                         icon = Icons.Default.Dashboard,
@@ -430,19 +613,14 @@ class MainActivity : ComponentActivity() {
                                         onClick = { scope.launch { pagerState.animateScrollToPage(0) } }
                                     ),
                                     OsysterDockItem(
-                                        icon = Icons.Default.Speed,
-                                        label = telemetryLabel,
+                                        icon = Icons.Default.Wifi,
+                                        label = networkLabel,
                                         onClick = { scope.launch { pagerState.animateScrollToPage(1) } }
                                     ),
                                     OsysterDockItem(
-                                        icon = Icons.Default.Terminal,
+                                        icon = Icons.Default.Apps,
                                         label = appsLabel,
                                         onClick = { scope.launch { pagerState.animateScrollToPage(2) } }
-                                    ),
-                                    OsysterDockItem(
-                                        icon = Icons.Default.Smartphone,
-                                        label = hardwareLabel,
-                                        onClick = { scope.launch { pagerState.animateScrollToPage(3) } }
                                     )
                                 )
                             }

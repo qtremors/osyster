@@ -5,6 +5,8 @@ package dev.qtremors.osyster.ui.monitor
 import androidx.compose.animation.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
@@ -24,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.ui.util.LocalTelemetryVisible
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
+import kotlinx.coroutines.launch
 
 @Composable
 fun MonitorDashboard(
@@ -31,11 +34,30 @@ fun MonitorDashboard(
     initialTab: Int = 0,
     hapticEnabled: Boolean = true
 ) {
-    var selectedTab by remember(initialTab) { mutableIntStateOf(initialTab.coerceIn(0, 3)) }
+    val pagerState = rememberPagerState(
+        initialPage = initialTab.coerceIn(0, 3),
+        pageCount = { 4 }
+    )
+    val coroutineScope = rememberCoroutineScope()
     val view = LocalView.current
 
     LaunchedEffect(initialTab) {
-        selectedTab = initialTab.coerceIn(0, 3)
+        val target = initialTab.coerceIn(0, 3)
+        if (pagerState.currentPage != target) {
+            pagerState.scrollToPage(target)
+        }
+    }
+
+    LaunchedEffect(pagerState) {
+        var isFirst = true
+        snapshotFlow { pagerState.currentPage }
+            .collect {
+                if (isFirst) {
+                    isFirst = false
+                } else {
+                    OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
+                }
+            }
     }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -55,13 +77,15 @@ fun MonitorDashboard(
             )
 
             tabs.forEachIndexed { index, (_, iconVector, labelText) ->
-                val isSelected = selectedTab == index
+                val isSelected = pagerState.currentPage == index
                 ToggleButton(
                     checked = isSelected,
                     onCheckedChange = {
                         if (!isSelected) {
                             OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
-                            selectedTab = index
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
                         }
                     },
                     modifier = Modifier
@@ -87,23 +111,11 @@ fun MonitorDashboard(
             }
         }
 
-        AnimatedContent(
-            targetState = selectedTab,
-            transitionSpec = {
-                if (targetState > initialState) {
-                    (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
-                        slideOutHorizontally { width -> -width } + fadeOut()
-                    )
-                } else {
-                    (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
-                        slideOutHorizontally { width -> width } + fadeOut()
-                    )
-                }
-            },
-            label = "telemetry_content_transition",
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { targetPage ->
-            CompositionLocalProvider(LocalTelemetryVisible provides (LocalTelemetryVisible.current && targetPage == selectedTab)) {
+            CompositionLocalProvider(LocalTelemetryVisible provides (LocalTelemetryVisible.current && targetPage == pagerState.currentPage)) {
                 when (targetPage) {
                     0 -> CpuDashboard(modifier = Modifier.fillMaxSize())
                     1 -> MemoryDashboard(modifier = Modifier.fillMaxSize())
