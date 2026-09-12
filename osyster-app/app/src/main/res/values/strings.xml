@@ -47,6 +47,39 @@
     <string name="process_filter_title">Show Kernel Threads</string>
     <string name="process_filter_description">Include low-level kernel worker threads in the task list</string>
 
+    <!-- Backup & Restore Section -->
+    <string name="section_backup_restore">Backup &amp; Restore</string>
+    <string name="export_backup">Export Backup</string>
+    <string name="export_backup_description">Save your settings and preferences to a JSON file</string>
+    <string name="restore_backup">Restore Backup</string>
+    <string name="restore_backup_description">Apply settings from an exported JSON backup</string>
+    <string name="backup_exported_success">Settings backup exported successfully</string>
+    <string name="backup_restored_success">Settings restored successfully</string>
+    <string name="restore_backup_confirmation_title">Restore settings backup</string>
+    <string name="restore_backup_confirmation_message">Restoring will apply the settings from this backup. Continue?</string>
+    <string name="backup_preview_items_header">Backup contents:</string>
+    <string name="backup_failed">Backup operation failed: %1$s</string>
+    <string name="confirm_restore">Restore</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+
+    <!-- Settings Hero Actions -->
+    <string name="about_action_issues">Issues</string>
+    <string name="about_action_github">GitHub</string>
+    <string name="about_action_releases">Releases</string>
+    <string name="about_action_notices">Notices</string>
+    <string name="about_action_privacy">Privacy</string>
+    <string name="about_action_license">License</string>
+    <string name="check_for_updates">Check for updates</string>
+    <string name="checking_for_updates">Checking for updates…</string>
+
+    <!-- Legal & Notices -->
+    <string name="notices_introduction">Osyster includes independent open-source runtime components. The complete license terms are bundled with the app and identify source and license information.</string>
+    <string name="notices_full_document">Complete legal license terms</string>
+    <string name="notices_full_document_description">Read the bundled copy of the software license</string>
+    <string name="runtime_libraries_title">Runtime libraries &amp; components</string>
+    <string name="legal_document_unavailable">This bundled legal document could not be loaded.</string>
+
     <!-- Info / About Section in Settings -->
     <string name="section_info">Info</string>
     <string name="about_headline">About Osyster</string>

@@ -57,9 +57,10 @@ import dev.qtremors.osyster.ui.monitor.MonitorDashboard
 import dev.qtremors.osyster.ui.monitor.NetworkDashboard
 import dev.qtremors.osyster.ui.overview.OverviewDashboard
 import dev.qtremors.osyster.ui.navigation.OsysterDock
+import dev.qtremors.osyster.settings.PreferencesBackupManager
 import dev.qtremors.osyster.ui.navigation.OsysterDockItem
 import dev.qtremors.osyster.ui.onboarding.OnboardingScreen
-import dev.qtremors.osyster.ui.settings.AboutScreen
+import dev.qtremors.osyster.ui.settings.LegalDocumentScreen
 import dev.qtremors.osyster.ui.settings.LicensesScreen
 import dev.qtremors.osyster.ui.settings.SettingsScreen
 import dev.qtremors.osyster.ui.theme.OsysterTheme
@@ -72,7 +73,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 enum class SettingsSubpage {
-    SETTINGS, ABOUT, LICENSES
+    SETTINGS, LICENSES, LICENSE_DOCUMENT
 }
 
 class MainActivity : ComponentActivity() {
@@ -83,6 +84,7 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val view = LocalView.current
             val preferencesManager = remember { OsysterPreferencesManager.getInstance(context) }
+            val backupManager = remember(preferencesManager) { PreferencesBackupManager(context, preferencesManager) }
             val prefsState by preferencesManager.state.collectAsStateWithLifecycle()
 
             LaunchedEffect(prefsState.blockScreenCapture) {
@@ -111,10 +113,12 @@ class MainActivity : ComponentActivity() {
 
                 var showSettings by rememberSaveable { mutableStateOf(false) }
                 var settingsSubpage by rememberSaveable { mutableStateOf(SettingsSubpage.SETTINGS) }
+                var licenseParentSubpage by rememberSaveable { mutableStateOf(SettingsSubpage.SETTINGS) }
 
                 LaunchedEffect(showSettings) {
                     if (!showSettings) {
                         settingsSubpage = SettingsSubpage.SETTINGS
+                        licenseParentSubpage = SettingsSubpage.SETTINGS
                     }
                 }
 
@@ -145,12 +149,10 @@ class MainActivity : ComponentActivity() {
                 }
 
                 BackHandler(enabled = showSettings) {
-                    if (settingsSubpage == SettingsSubpage.LICENSES) {
-                        settingsSubpage = SettingsSubpage.ABOUT
-                    } else if (settingsSubpage == SettingsSubpage.ABOUT) {
-                        settingsSubpage = SettingsSubpage.SETTINGS
-                    } else {
-                        showSettings = false
+                    when (settingsSubpage) {
+                        SettingsSubpage.LICENSE_DOCUMENT -> settingsSubpage = licenseParentSubpage
+                        SettingsSubpage.LICENSES -> settingsSubpage = SettingsSubpage.SETTINGS
+                        SettingsSubpage.SETTINGS -> showSettings = false
                     }
                 }
 
@@ -325,11 +327,7 @@ class MainActivity : ComponentActivity() {
                                                     )
                                                     Spacer(modifier = Modifier.width(6.dp))
                                                     Text(
-                                                        text = if (displayFraction >= 1f) {
-                                                            stringResource(R.string.release_settings_hint)
-                                                        } else {
-                                                            stringResource(R.string.pull_down_settings_hint)
-                                                        },
+                                                        text = stringResource(R.string.settings_title),
                                                         style = MaterialTheme.typography.labelMedium,
                                                         fontWeight = if (displayFraction >= 1f) FontWeight.Bold else FontWeight.Medium
                                                     )
@@ -554,43 +552,77 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.fillMaxSize(),
                                 color = MaterialTheme.colorScheme.background
                             ) {
-                                AnimatedContent(
-                                    targetState = settingsSubpage,
-                                    transitionSpec = {
-                                        val order = listOf(
-                                            SettingsSubpage.SETTINGS,
-                                            SettingsSubpage.ABOUT,
-                                            SettingsSubpage.LICENSES
-                                        )
-                                        val targetIndex = order.indexOf(targetState)
-                                        val initialIndex = order.indexOf(initialState)
-                                        if (targetIndex > initialIndex) {
-                                            (slideInHorizontally { it } + fadeIn()).togetherWith(
-                                                slideOutHorizontally { -it } + fadeOut()
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    AnimatedContent(
+                                        targetState = settingsSubpage,
+                                        transitionSpec = {
+                                            val order = listOf(
+                                                SettingsSubpage.SETTINGS,
+                                                SettingsSubpage.LICENSES,
+                                                SettingsSubpage.LICENSE_DOCUMENT
                                             )
-                                        } else {
-                                            (slideInHorizontally { -it } + fadeIn()).togetherWith(
-                                                slideOutHorizontally { it } + fadeOut()
+                                            val targetIndex = order.indexOf(targetState)
+                                            val initialIndex = order.indexOf(initialState)
+                                            if (targetIndex > initialIndex) {
+                                                (slideInHorizontally { it } + fadeIn()).togetherWith(
+                                                    slideOutHorizontally { -it } + fadeOut()
+                                                )
+                                            } else {
+                                                (slideInHorizontally { -it } + fadeIn()).togetherWith(
+                                                    slideOutHorizontally { it } + fadeOut()
+                                                )
+                                            }
+                                        },
+                                        label = "settings_subpage_transition"
+                                    ) { subpage ->
+                                        when (subpage) {
+                                            SettingsSubpage.SETTINGS -> SettingsScreen(
+                                                state = prefsState,
+                                                manager = preferencesManager,
+                                                backupManager = backupManager,
+                                                onNavigateBack = { showSettings = false },
+                                                onNavigateToLicenses = { settingsSubpage = SettingsSubpage.LICENSES },
+                                                onNavigateToLicenseDocument = {
+                                                    licenseParentSubpage = SettingsSubpage.SETTINGS
+                                                    settingsSubpage = SettingsSubpage.LICENSE_DOCUMENT
+                                                },
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                            SettingsSubpage.LICENSES -> LicensesScreen(
+                                                onOpenLicenseDocument = {
+                                                    licenseParentSubpage = SettingsSubpage.LICENSES
+                                                    settingsSubpage = SettingsSubpage.LICENSE_DOCUMENT
+                                                },
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                            SettingsSubpage.LICENSE_DOCUMENT -> LegalDocumentScreen(
+                                                title = stringResource(R.string.about_action_license),
+                                                assetName = "LICENSE.md",
+                                                modifier = Modifier.fillMaxSize()
                                             )
                                         }
-                                    },
-                                    label = "settings_subpage_transition"
-                                ) { subpage ->
-                                    when (subpage) {
-                                        SettingsSubpage.SETTINGS -> SettingsScreen(
-                                            state = prefsState,
-                                            manager = preferencesManager,
-                                            onNavigateBack = { showSettings = false },
-                                            onNavigateToAbout = { settingsSubpage = SettingsSubpage.ABOUT }
-                                        )
-                                        SettingsSubpage.ABOUT -> AboutScreen(
-                                            onNavigateBack = { settingsSubpage = SettingsSubpage.SETTINGS },
-                                            onNavigateToLicenses = { settingsSubpage = SettingsSubpage.LICENSES }
-                                        )
-                                        SettingsSubpage.LICENSES -> LicensesScreen(
-                                            onNavigateBack = { settingsSubpage = SettingsSubpage.ABOUT }
-                                        )
                                     }
+
+                                    OsysterDock(
+                                        modifier = Modifier
+                                            .align(Alignment.BottomCenter)
+                                            .zIndex(1f),
+                                        title = stringResource(
+                                            when (settingsSubpage) {
+                                                SettingsSubpage.SETTINGS -> R.string.settings_title
+                                                SettingsSubpage.LICENSES -> R.string.about_action_notices
+                                                SettingsSubpage.LICENSE_DOCUMENT -> R.string.about_action_license
+                                            }
+                                        ),
+                                        onBackClick = {
+                                            when (settingsSubpage) {
+                                                SettingsSubpage.LICENSE_DOCUMENT -> settingsSubpage = licenseParentSubpage
+                                                SettingsSubpage.LICENSES -> settingsSubpage = SettingsSubpage.SETTINGS
+                                                SettingsSubpage.SETTINGS -> showSettings = false
+                                            }
+                                        },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
                                 }
                             }
                         }

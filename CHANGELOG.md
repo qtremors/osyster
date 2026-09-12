@@ -1,8 +1,19 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.1.3
+> **Version:** 0.1.4
 > **Last Updated:** 2026-09-12
+
+---
+
+## [0.1.4] - 2026-09-12
+
+- **Modern Settings Hub**: Redesigned settings with a fluid overscroll hero header, prominent app identity branding, split version and package pill, device hardware chip, and grouped external action buttons for issues, source code, releases, notices, privacy, and licenses.
+- **Simplified Pull-Down Indicator**: Streamlined the top dashboard pull-down pill to consistently display the settings icon and a clean "Settings" label without dynamic helper text.
+- **Preferences Backup & Restore**: Added offline export and import of application preferences via JSON files, complete with a structured confirmation preview dialog before applying changes.
+- **Open Source Notices & Dependency Catalog**: Added a dedicated Open Source Notices screen showcasing all bundled libraries, versions, repository links, and license identifiers.
+- **Bundled Legal Document Viewer**: Added a dedicated legal document viewer with selectable monospace typography for browsing full open source and project licenses directly inside the app.
+- **Tactile Motion & Component Styling**: Added squishy bounce click feedback across interactive controls, spring-animated theme mode selector, morphing accent palette selector, and cohesive container card grouping.
 
 ---
 
