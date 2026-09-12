@@ -81,6 +81,14 @@ class MainActivity : ComponentActivity() {
             val preferencesManager = remember { OsysterPreferencesManager.getInstance(context) }
             val prefsState by preferencesManager.state.collectAsStateWithLifecycle()
 
+            LaunchedEffect(prefsState.blockScreenCapture) {
+                if (prefsState.blockScreenCapture) {
+                    window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+                } else {
+                    window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+                }
+            }
+
             OsysterTheme(
                 themeMode = prefsState.themeMode,
                 accentPalette = prefsState.accentPalette,

@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Vibration
@@ -211,7 +212,8 @@ fun SettingsScreen(
                 SettingsSection(title = stringResource(R.string.temp_unit)) {
                     val units = listOf(
                         TemperatureUnit.CELSIUS to stringResource(R.string.unit_celsius),
-                        TemperatureUnit.FAHRENHEIT to stringResource(R.string.unit_fahrenheit)
+                        TemperatureUnit.FAHRENHEIT to stringResource(R.string.unit_fahrenheit),
+                        TemperatureUnit.KELVIN to stringResource(R.string.unit_kelvin)
                     )
 
                     units.forEachIndexed { index, (unit, label) ->
@@ -266,6 +268,21 @@ fun SettingsScreen(
                         index = 0,
                         count = 1,
                         leadingIcon = Icons.Default.AccountTree
+                    )
+                }
+            }
+
+            // Security & Privacy
+            item {
+                SettingsSection(title = stringResource(R.string.section_security_privacy)) {
+                    SettingsSwitchItem(
+                        title = stringResource(R.string.block_screen_capture),
+                        description = stringResource(R.string.block_screen_capture_description),
+                        checked = state.blockScreenCapture,
+                        onCheckedChange = manager::setBlockScreenCapture,
+                        index = 0,
+                        count = 1,
+                        leadingIcon = Icons.Default.Security
                     )
                 }
             }

@@ -36,6 +36,13 @@ class OsysterPreferencesTest {
         assertFalse(state.isOnboardingCompleted)
         assertTrue(state.managedStopPackages.isEmpty())
         assertEquals(4, state.appStopperGridColumns)
+        assertFalse(state.blockScreenCapture)
+    }
+
+    @Test
+    fun blockScreenCapture_stateUpdates() {
+        val state = OsysterPreferencesState(blockScreenCapture = true)
+        assertTrue(state.blockScreenCapture)
     }
 
     @Test
@@ -65,6 +72,13 @@ class OsysterPreferencesTest {
         val unit = TemperatureUnit.FAHRENHEIT
         assertEquals(77.0f, unit.convertFromCelsius(25.0f), 0.001f)
         assertEquals("77.0 °F", unit.format(25.0f))
+    }
+
+    @Test
+    fun temperatureUnit_kelvinConversion() {
+        val unit = TemperatureUnit.KELVIN
+        assertEquals(298.15f, unit.convertFromCelsius(25.0f), 0.001f)
+        assertEquals("298.1 K", unit.format(25.0f))
     }
 
     @Test

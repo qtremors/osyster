@@ -93,14 +93,18 @@ class SystemMonitorTest {
     fun temperatureUnit_convertsAndFormatsCorrectly() {
         val c = TemperatureUnit.CELSIUS
         val f = TemperatureUnit.FAHRENHEIT
+        val k = TemperatureUnit.KELVIN
 
         assertEquals(25.0f, c.convertFromCelsius(25.0f), 0.001f)
         assertEquals(77.0f, f.convertFromCelsius(25.0f), 0.001f)
         assertEquals(32.0f, f.convertFromCelsius(0.0f), 0.001f)
         assertEquals(212.0f, f.convertFromCelsius(100.0f), 0.001f)
+        assertEquals(298.15f, k.convertFromCelsius(25.0f), 0.001f)
+        assertEquals(273.15f, k.convertFromCelsius(0.0f), 0.001f)
 
         assertEquals("25.0 °C", c.format(25.0f))
         assertEquals("77.0 °F", f.format(25.0f))
+        assertEquals("298.1 K", k.format(25.0f))
     }
 
     @Test

@@ -2,17 +2,17 @@
 
 > **Project:** Osyster
 >
-> **Version:** 0.1.0
+> **Version:** 0.1.1
 >
-> **Last Updated:** 2026-09-06
+> **Last Updated:** 2026-09-12
 
 ---
 
 ## 1. System Monitoring & Kernel Telemetry
 
-- [ ] **Frequency Scaling & Governors:**
-  - [ ] Add real-time CPU frequency scaling governor inspector (interactive, schedutil, performance, powersave).
-  - [ ] Support per-cluster frequency tracking across big.LITTLE / DynamIQ topologies.
+- [x] **Frequency Scaling & Governors:**
+  - [x] Add real-time CPU frequency scaling governor inspector (interactive, schedutil, performance, powersave).
+  - [x] Support per-cluster frequency tracking across big.LITTLE / DynamIQ topologies.
 - [ ] **Storage I/O Diagnostics:**
   - [ ] Parse `/proc/diskstats` for live read/write bandwidth throughput metrics.
   - [ ] Add disk latency benchmarks for internal UFS/eMMC and external SD cards.
@@ -35,8 +35,8 @@
   - [ ] Create an independent volume slider overlay for concurrent media streams.
 - [ ] **System-Wide Clipboard History:**
   - [ ] Implement a local, encrypted clipboard history database with instant search and auto-clearing.
-- [ ] **Sensor Diagnostics & Calibration:**
-  - [ ] Add a comprehensive sensor bench: accelerometer, gyroscope, magnetometer, barometer, and proximity sensor tests.
+- [x] **Sensor Diagnostics & Calibration:**
+  - [x] Add a comprehensive sensor bench: accelerometer, gyroscope, magnetometer, barometer, and proximity sensor tests.
 - [ ] **App Freezer & Background Limiter:**
   - [ ] Implement dormant app suspension tools to reduce idle battery drain.
 

@@ -1,8 +1,18 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.1.0
-> **Last Updated:** 2026-09-06
+> **Version:** 0.1.1
+> **Last Updated:** 2026-09-12
+
+---
+
+## [0.1.1] - 2026-09-12
+
+- **Modular Hardware Diagnostics**: Expanded device specifications into segmented views for System, Device & Display, SoC & GPU clusters, Storage, Battery, Camera, Live Sensors, Connectivity, and Media DRM.
+- **Interactive Sensor Oscilloscope**: Added live multi-channel waveform visualization for device sensors with dynamic range scaling, real-time value inspector, and configurable sensor selector.
+- **Camera & Media DRM Inspection**: Added camera optical capabilities (facing, megapixels, resolution, aperture, OIS/EIS support) and DRM security levels (Widevine L1/L3, ClearKey, HDCP encryption).
+- **SoC Topology & Off-Screen GPU Querying**: Detailed CPU cluster core counts, ranges, and frequency scaling governors alongside OpenGL ES and Vulkan driver versions.
+- **Privacy & Unit Controls**: Added Kelvin temperature unit conversion and an optional screen capture blocking setting (FLAG_SECURE) to safeguard diagnostic telemetry from screenshots and screen recordings.
 
 ---
 

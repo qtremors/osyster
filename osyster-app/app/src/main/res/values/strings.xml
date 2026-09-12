@@ -36,9 +36,13 @@
     <string name="interval_saver">3000 ms (Battery Saver)</string>
     <string name="interval_eco">5000 ms (Eco)</string>
     <string name="temp_unit">Temperature Unit</string>
-    <string name="temp_unit_description">Show temperature readouts in Celsius or Fahrenheit</string>
+    <string name="temp_unit_description">Show temperature readouts in Celsius, Fahrenheit, or Kelvin</string>
     <string name="unit_celsius">Celsius (°C)</string>
     <string name="unit_fahrenheit">Fahrenheit (°F)</string>
+    <string name="unit_kelvin">Kelvin (K)</string>
+    <string name="section_security_privacy">Security &amp; Privacy</string>
+    <string name="block_screen_capture">Block Screen Capture</string>
+    <string name="block_screen_capture_description">Prevent screenshots and hide window preview in recent apps</string>
     <string name="process_filter">Process Filter</string>
     <string name="process_filter_title">Show Kernel Threads</string>
     <string name="process_filter_description">Include low-level kernel worker threads in the task list</string>
@@ -310,4 +314,148 @@
     <string name="network_query_error">Some usage records could not be read. Totals may be incomplete. Check usage access and pull down to retry.</string>
     <string name="network_select_period">Select time period</string>
     <string name="network_period_usage">%1$s: %2$s download, %3$s upload</string>
+
+    <!-- Device Specifications Hub & Categories -->
+    <string name="category_all">All</string>
+    <string name="category_system">System</string>
+    <string name="category_device">Device</string>
+    <string name="category_soc_gpu">SoC &amp; GPU</string>
+    <string name="category_storage">Storage</string>
+    <string name="category_battery">Battery</string>
+    <string name="category_camera">Camera</string>
+    <string name="category_sensors">Sensors</string>
+    <string name="category_connectivity">Network</string>
+    <string name="category_drm">Media DRM</string>
+
+    <!-- System Specs Additional -->
+    <string name="system_released_with">Released With</string>
+    <string name="system_play_update">Google Play System Update</string>
+    <string name="system_build_number">Build Number</string>
+    <string name="system_kernel">Kernel Version</string>
+    <string name="system_baseband">Baseband Version</string>
+    <string name="system_build_fingerprint">Build Fingerprint</string>
+    <string name="system_build_type">Build Type</string>
+    <string name="system_build_tags">Build Tags</string>
+    <string name="system_performance_class">Performance Class</string>
+    <string name="system_min_target_sdk">Minimum Target SDK</string>
+    <string name="system_language">System Language</string>
+    <string name="system_uptime">Device Uptime</string>
+    <string name="system_usb_debugging">USB Debugging</string>
+    <string name="system_selinux">SELinux Status</string>
+    <string name="system_root">Root Access</string>
+    <string name="system_emulator">Emulator</string>
+    <string name="system_page_size">Kernel Page Size</string>
+    <string name="system_treble">Project Treble</string>
+    <string name="system_seamless_updates">Seamless Updates (A/B)</string>
+    <string name="system_active_slot">Active Boot Slot</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="supported">Supported</string>
+    <string name="not_supported">Not supported</string>
+    <string name="detected">Detected</string>
+    <string name="not_detected">Not detected</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+    <!-- Device & Display Specs -->
+    <string name="device_brand">Brand</string>
+    <string name="device_product">Product</string>
+    <string name="device_sku">SKU</string>
+    <string name="display_section_title">Display Specifications</string>
+    <string name="display_name">Display Name</string>
+    <string name="display_resolution">Resolution</string>
+    <string name="display_size">Screen Size</string>
+    <string name="display_aspect_ratio">Aspect Ratio</string>
+    <string name="display_refresh_rate">Refresh Rate</string>
+    <string name="display_supported_refresh_rates">Supported Refresh Rates</string>
+    <string name="display_pixel_density">Pixel Density</string>
+    <string name="display_density_bucket">Density Bucket</string>
+    <string name="display_orientation">Default Orientation</string>
+    <string name="display_hdr">HDR Support</string>
+    <string name="features_section_title">Hardware Security Features</string>
+    <string name="feature_fingerprint">Fingerprint Sensor</string>
+    <string name="feature_face_auth">Face Authentication</string>
+    <string name="feature_vulkan">Vulkan Hardware</string>
+    <string name="feature_encryption">Storage Encryption</string>
+
+    <!-- SoC & GPU Specs -->
+    <string name="soc_clusters_title">CPU Cluster Topology</string>
+    <string name="soc_cluster_item">Cluster #%1$d (%2$d Cores)</string>
+    <string name="soc_cluster_cores">Cores: %s</string>
+    <string name="soc_cluster_freq_range">Frequency Range</string>
+    <string name="soc_cluster_governor">Scaling Governor</string>
+    <string name="gpu_section_title">GPU Diagnostics</string>
+    <string name="gpu_vendor">GPU Vendor</string>
+    <string name="gpu_renderer">GPU Renderer</string>
+    <string name="gpu_gles_version">OpenGL ES Version</string>
+    <string name="gpu_vulkan_version">Vulkan Version</string>
+
+    <!-- Storage & Memory Specs -->
+    <string name="storage_section_title">Internal Storage</string>
+    <string name="storage_total">Total Storage</string>
+    <string name="storage_used">Used Storage</string>
+    <string name="storage_available">Available Storage</string>
+    <string name="ram_low_ram_device">Low RAM Profile</string>
+
+    <!-- Battery Specs Additional -->
+    <string name="battery_current">Instantaneous Current</string>
+    <string name="battery_current_ma">%d mA</string>
+    <string name="battery_cycle_count">Cycle Count</string>
+    <string name="battery_technology">Battery Technology</string>
+    <string name="battery_thermal_status">Thermal Status</string>
+
+    <!-- Camera Specs -->
+    <string name="camera_section_title">Camera Systems</string>
+    <string name="camera_facing_front">Front Camera</string>
+    <string name="camera_facing_back">Back Camera</string>
+    <string name="camera_facing_external">External Camera</string>
+    <string name="camera_megapixels">Resolution</string>
+    <string name="camera_apertures">Available Apertures</string>
+    <string name="camera_ois">Optical Stabilization (OIS)</string>
+    <string name="camera_eis">Electronic Stabilization (EIS)</string>
+    <string name="camera_flash">Flashlight</string>
+    <string name="camera_focal_lengths">Focal Lengths</string>
+
+    <!-- Sensors Specs & Interactive Monitor -->
+    <string name="sensors_section_title">Onboard Sensors</string>
+    <string name="sensors_live_monitor">Live Sensor Oscilloscope</string>
+    <string name="sensors_select_hint">Tap a sensor below to stream real-time readings</string>
+    <string name="sensors_vendor">Sensor Vendor</string>
+    <string name="sensors_type">Sensor Type</string>
+    <string name="sensors_max_range">Max Range</string>
+    <string name="sensors_resolution">Resolution</string>
+    <string name="sensors_power">Power Draw</string>
+    <string name="sensors_version">Version</string>
+    <string name="sensors_no_sensors">No accessible sensors detected on this device</string>
+    <string name="sensors_reading_x">X: %.2f</string>
+    <string name="sensors_reading_y">Y: %.2f</string>
+    <string name="sensors_reading_z">Z: %.2f</string>
+
+    <!-- Connectivity Specs -->
+    <string name="conn_section_title">Network &amp; Connectivity</string>
+    <string name="conn_network_type">Active Network Type</string>
+    <string name="conn_link_speed">Link Down / Up</string>
+    <string name="conn_wifi_ssid">Wi-Fi SSID</string>
+    <string name="conn_wifi_frequency">Wi-Fi Frequency</string>
+    <string name="conn_wifi_signal">Signal Strength</string>
+    <string name="conn_local_ipv4">Local IPv4</string>
+    <string name="conn_local_ipv6">Local IPv6</string>
+    <string name="conn_gateway">Default Gateway</string>
+    <string name="conn_dns">DNS Servers</string>
+    <string name="conn_subnet_mask">Subnet Mask</string>
+    <string name="conn_bluetooth_title">Bluetooth Diagnostics</string>
+    <string name="conn_bluetooth_status">Bluetooth Status</string>
+    <string name="conn_bluetooth_le">Bluetooth Low Energy (LE)</string>
+
+    <!-- Media DRM Specs -->
+    <string name="drm_section_title">Digital Rights Management (DRM)</string>
+    <string name="drm_widevine">Google Widevine Modular CDM</string>
+    <string name="drm_security_level">Security Level</string>
+    <string name="drm_vendor">DRM Vendor</string>
+    <string name="drm_version">DRM Version</string>
+    <string name="drm_system_id">System ID</string>
+    <string name="drm_algorithms">Algorithms</string>
+    <string name="drm_hdcp_level">Connected HDCP</string>
+    <string name="drm_max_hdcp">Maximum HDCP</string>
+    <string name="drm_clearkey">ClearKey CDM</string>
 </resources>
