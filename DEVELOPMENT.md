@@ -2,7 +2,7 @@
 
 > Architecture, codebase structure, native statistics parsers, design tokens, and verification guidance for Osyster development.
 
-**Version:** 0.1.1 | **Last Updated:** 2026-09-12
+**Version:** 0.1.2 | **Last Updated:** 2026-09-12
 **Scope:** Internal development, system diagnostics, bento-grid UI paradigms, testing, and release maintenance.
 
 ---

@@ -1,8 +1,19 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.1.1
+> **Version:** 0.1.2
 > **Last Updated:** 2026-09-12
+
+---
+
+## [0.1.2] - 2026-09-12
+
+- **Streamlined 4-Pillar Navigation**: Reorganized navigation into 4 balanced, equal-access destinations on the floating bottom dock: Overview (Bento), Monitor (CPU, RAM, Network, Battery), Apps (Processes and App Stopper), and Hardware (Device Specs and Sensors).
+- **Consolidated Monitor Hub**: Integrated real-time CPU, RAM and SWAP, Network traffic, and Battery telemetry into a unified 4-tab monitor with connected button controls.
+- **Unified Application Manager**: Combined Active Processes and App Stopper under a single Apps hub, adding inline search and an accessible in-screen application management button.
+- **Pull-to-Reveal Settings Overlay**: Replaced the morphing dock button with an Acqua-inspired pull-down gesture that reveals a sleek settings capsule with progressive haptic feedback and slides Settings down from the top.
+- **Clean Symmetrical Dock**: Removed floating action button clutter from the bottom dock to ensure consistent and balanced navigation across all screens.
+- **Modular UI Architecture**: Refactored the UI layer into domain-specific packages (overview, monitor, apps, hardware) with backwards-compatible composable aliases.
 
 ---
 

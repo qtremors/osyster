@@ -1,6 +1,6 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 
-package dev.qtremors.osyster.ui
+package dev.qtremors.osyster.ui.overview
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.Canvas
@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SignalCellularAlt
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Terminal
@@ -91,9 +92,10 @@ fun OysterArcGauge(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun BentoDashboard(
+fun OverviewDashboard(
     onNavigateTo: (AppRoutes) -> Unit,
     modifier: Modifier = Modifier,
+    onOpenSettings: () -> Unit = {},
     viewModel: BentoViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -111,7 +113,27 @@ fun BentoDashboard(
         uiState = uiState,
         prefsState = prefsState,
         onNavigateTo = onNavigateTo,
+        onOpenSettings = onOpenSettings,
         modifier = modifier
+    )
+}
+
+@Deprecated(
+    message = "Use OverviewDashboard instead",
+    replaceWith = ReplaceWith("OverviewDashboard(onNavigateTo, modifier, onOpenSettings, viewModel)")
+)
+@Composable
+fun BentoDashboard(
+    onNavigateTo: (AppRoutes) -> Unit,
+    modifier: Modifier = Modifier,
+    onOpenSettings: () -> Unit = {},
+    viewModel: BentoViewModel = viewModel()
+) {
+    OverviewDashboard(
+        onNavigateTo = onNavigateTo,
+        modifier = modifier,
+        onOpenSettings = onOpenSettings,
+        viewModel = viewModel
     )
 }
 
@@ -121,6 +143,7 @@ fun BentoDashboardContent(
     uiState: BentoUiState,
     prefsState: OsysterPreferencesState,
     onNavigateTo: (AppRoutes) -> Unit,
+    onOpenSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val cpuState = uiState.cpuState
@@ -141,7 +164,32 @@ fun BentoDashboardContent(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
+        // Top Header Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.app_name),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            IconButton(
+                onClick = onOpenSettings,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = stringResource(R.string.settings_title),
+                    tint = MaterialTheme.colorScheme.outline
+                )
+            }
+        }
 
         // Large CPU Core Ring Bento Block
         Card(

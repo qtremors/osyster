@@ -1,4 +1,4 @@
-package dev.qtremors.osyster.ui
+package dev.qtremors.osyster.ui.apps
 
 import android.app.ActivityManager
 import android.content.Context

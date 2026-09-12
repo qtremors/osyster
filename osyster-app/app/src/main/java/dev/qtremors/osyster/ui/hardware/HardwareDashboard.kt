@@ -1,6 +1,6 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 
-package dev.qtremors.osyster.ui
+package dev.qtremors.osyster.ui.hardware
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.Canvas
@@ -182,7 +182,7 @@ fun SensorOscilloscope(
 }
 
 @Composable
-fun DeviceInfoDashboard(
+fun HardwareDashboard(
     modifier: Modifier = Modifier,
     onNavigateBack: (() -> Unit)? = null,
     hapticEnabled: Boolean = true,
@@ -208,6 +208,25 @@ fun DeviceInfoDashboard(
             viewModel.selectSensor(sensor)
         },
         modifier = modifier
+    )
+}
+
+@Deprecated(
+    message = "Use HardwareDashboard instead",
+    replaceWith = ReplaceWith("HardwareDashboard(modifier, onNavigateBack, hapticEnabled, viewModel)")
+)
+@Composable
+fun DeviceInfoDashboard(
+    modifier: Modifier = Modifier,
+    onNavigateBack: (() -> Unit)? = null,
+    hapticEnabled: Boolean = true,
+    viewModel: DeviceInfoViewModel = viewModel()
+) {
+    HardwareDashboard(
+        modifier = modifier,
+        onNavigateBack = onNavigateBack,
+        hapticEnabled = hapticEnabled,
+        viewModel = viewModel
     )
 }
 

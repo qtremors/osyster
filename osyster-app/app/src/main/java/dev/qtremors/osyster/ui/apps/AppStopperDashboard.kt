@@ -1,6 +1,6 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 
-package dev.qtremors.osyster.ui
+package dev.qtremors.osyster.ui.apps
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -61,7 +61,7 @@ import dev.qtremors.osyster.ui.viewmodel.AppStopperViewModel
 // =========================================================================
 
 @Composable
-fun AppStopperScreen(
+fun AppStopperDashboard(
     prefsState: OsysterPreferencesState,
     manager: OsysterPreferencesManager,
     onNavigateBack: () -> Unit,
@@ -83,6 +83,7 @@ fun AppStopperScreen(
         }
     }
 
+
     LifecycleResumeEffect(prefsState.managedStopPackages) {
         viewModel.loadManagedApps(prefsState.managedStopPackages)
         onPauseOrDispose { }
@@ -99,6 +100,7 @@ fun AppStopperScreen(
             viewModel.setShowAddSheet(true)
             onShowAddSheetChange(true)
         },
+        onSearchQueryChange = viewModel::setSearchQuery,
         onAppClick = { app ->
             if (app.isUninstalled) {
                 viewModel.setSelectedAppForOptions(app)
@@ -157,6 +159,33 @@ fun AppStopperScreen(
     }
 }
 
+@Deprecated(
+    message = "Use AppStopperDashboard instead",
+    replaceWith = ReplaceWith("AppStopperDashboard(prefsState, manager, onNavigateBack, modifier, showAddSheet, onShowAddSheetChange, searchQuery, viewModel)")
+)
+@Composable
+fun AppStopperScreen(
+    prefsState: OsysterPreferencesState,
+    manager: OsysterPreferencesManager,
+    onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    showAddSheet: Boolean = false,
+    onShowAddSheetChange: (Boolean) -> Unit = {},
+    searchQuery: String = "",
+    viewModel: AppStopperViewModel = viewModel()
+) {
+    AppStopperDashboard(
+        prefsState = prefsState,
+        manager = manager,
+        onNavigateBack = onNavigateBack,
+        modifier = modifier,
+        showAddSheet = showAddSheet,
+        onShowAddSheetChange = onShowAddSheetChange,
+        searchQuery = searchQuery,
+        viewModel = viewModel
+    )
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppStopperContent(
@@ -165,6 +194,7 @@ fun AppStopperContent(
     hapticFeedback: Boolean,
     onSetGridColumns: (Int) -> Unit,
     onOpenAddSheet: () -> Unit,
+    onSearchQueryChange: (String) -> Unit = {},
     onAppClick: (ManagedAppInfo) -> Unit,
     onAppLongClick: (ManagedAppInfo) -> Unit,
     modifier: Modifier = Modifier
@@ -281,65 +311,117 @@ fun AppStopperContent(
                     }
                 }
 
-                // Right: Grid size dropdown button
-                Box {
-                    Box(
-                        modifier = Modifier
-                            .sizeIn(minWidth = 48.dp, minHeight = 48.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable {
-                                OsysterHapticUtil.performVirtualKey(view, hapticFeedback)
-                                showGridMenu = true
-                            },
-                        contentAlignment = Alignment.Center
+                // Right: Add App button & Grid size dropdown button
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilledTonalIconButton(
+                        onClick = {
+                            OsysterHapticUtil.performVirtualKey(view, hapticFeedback)
+                            onOpenAddSheet()
+                        },
+                        modifier = Modifier.size(36.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     ) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                            modifier = Modifier.size(28.dp)
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.app_stopper_add_apps_button),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    Box {
+                        Box(
+                            modifier = Modifier
+                                .sizeIn(minWidth = 36.dp, minHeight = 36.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable {
+                                    OsysterHapticUtil.performVirtualKey(view, hapticFeedback)
+                                    showGridMenu = true
+                                },
+                            contentAlignment = Alignment.Center
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text(
-                                    text = "${gridColumns}x",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Black,
-                                    color = MaterialTheme.colorScheme.primary
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = "${gridColumns}x",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Black,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+
+                        DropdownMenu(
+                            expanded = showGridMenu,
+                            onDismissRequest = { showGridMenu = false },
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                        ) {
+                            listOf(4, 5, 6).forEach { cols ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = stringResource(R.string.app_stopper_columns_format, cols),
+                                            fontWeight = if (gridColumns == cols) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    },
+                                    leadingIcon = {
+                                        if (gridColumns == cols) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        OsysterHapticUtil.performVirtualKey(view, hapticFeedback)
+                                        onSetGridColumns(cols)
+                                        showGridMenu = false
+                                    }
                                 )
                             }
                         }
                     }
-
-                    DropdownMenu(
-                        expanded = showGridMenu,
-                        onDismissRequest = { showGridMenu = false },
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                    ) {
-                        listOf(4, 5, 6).forEach { cols ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = stringResource(R.string.app_stopper_columns_format, cols),
-                                        fontWeight = if (gridColumns == cols) FontWeight.Bold else FontWeight.Normal
-                                    )
-                                },
-                                leadingIcon = {
-                                    if (gridColumns == cols) {
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                },
-                                onClick = {
-                                    OsysterHapticUtil.performVirtualKey(view, hapticFeedback)
-                                    onSetGridColumns(cols)
-                                    showGridMenu = false
-                                }
-                            )
-                        }
-                    }
                 }
+            }
+
+            if (managedApps.isNotEmpty()) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = onSearchQueryChange,
+                    placeholder = { Text(stringResource(R.string.app_stopper_search_hint)) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(
+                                onClick = { onSearchQueryChange("") },
+                                modifier = Modifier.clip(CircleShape)
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.clear))
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(24.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                    ),
+                    singleLine = true
+                )
             }
 
             // Grid Content

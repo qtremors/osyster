@@ -1,51 +1,57 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 
-package dev.qtremors.osyster.ui
+package dev.qtremors.osyster.ui.monitor
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BatteryChargingFull
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
-import dev.qtremors.osyster.ui.util.LocalTelemetryVisible
 import dev.qtremors.osyster.R
+import dev.qtremors.osyster.ui.util.LocalTelemetryVisible
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 
 @Composable
-fun TelemetryDashboard(
+fun MonitorDashboard(
     modifier: Modifier = Modifier,
     initialTab: Int = 0,
     hapticEnabled: Boolean = true
 ) {
-    var selectedTab by remember(initialTab) { mutableIntStateOf(initialTab) }
+    var selectedTab by remember(initialTab) { mutableIntStateOf(initialTab.coerceIn(0, 3)) }
     val view = LocalView.current
 
     LaunchedEffect(initialTab) {
-        selectedTab = initialTab
+        selectedTab = initialTab.coerceIn(0, 3)
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-        // Material 3 Expressive Connected Button Group
+        // Material 3 Expressive Connected Button Group (4 Tabs)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
         ) {
             val tabs = listOf(
                 Triple(0, Icons.Default.Speed, stringResource(R.string.telemetry_tab_cpu)),
-                Triple(1, Icons.Default.Memory, stringResource(R.string.telemetry_tab_ram))
+                Triple(1, Icons.Default.Memory, stringResource(R.string.telemetry_tab_ram)),
+                Triple(2, Icons.Default.Wifi, stringResource(R.string.telemetry_tab_network)),
+                Triple(3, Icons.Default.BatteryChargingFull, stringResource(R.string.telemetry_tab_battery))
             )
 
             tabs.forEachIndexed { index, (_, iconVector, labelText) ->
@@ -53,29 +59,29 @@ fun TelemetryDashboard(
                 ToggleButton(
                     checked = isSelected,
                     onCheckedChange = {
-                        if (selectedTab != index) {
-                            OsysterHapticUtil.performTick(view, hapticEnabled)
+                        if (!isSelected) {
+                            OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
                             selectedTab = index
                         }
                     },
+                    modifier = Modifier
+                        .weight(1f)
+                        .semantics { role = Role.Tab },
                     shapes = when (index) {
                         0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
                         tabs.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                         else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .semantics { role = Role.RadioButton },
+                    }
                 ) {
                     Icon(
                         imageVector = iconVector,
                         contentDescription = null,
-                        modifier = Modifier.size(ButtonDefaults.IconSize),
+                        modifier = Modifier.size(18.dp)
                     )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    Spacer(Modifier.width(6.dp))
                     Text(
                         text = labelText,
-                        maxLines = 1,
+                        maxLines = 1
                     )
                 }
             }
@@ -101,8 +107,32 @@ fun TelemetryDashboard(
                 when (targetPage) {
                     0 -> CpuDashboard(modifier = Modifier.fillMaxSize())
                     1 -> MemoryDashboard(modifier = Modifier.fillMaxSize())
+                    2 -> NetworkDashboard(
+                        modifier = Modifier.fillMaxSize(),
+                        onNavigateBack = null,
+                        hapticEnabled = hapticEnabled
+                    )
+                    3 -> BatteryDashboard(modifier = Modifier.fillMaxSize())
                 }
             }
         }
     }
 }
+
+@Deprecated(
+    message = "Use MonitorDashboard instead",
+    replaceWith = ReplaceWith("MonitorDashboard(modifier, initialTab, hapticEnabled)")
+)
+@Composable
+fun TelemetryDashboard(
+    modifier: Modifier = Modifier,
+    initialTab: Int = 0,
+    hapticEnabled: Boolean = true
+) {
+    MonitorDashboard(
+        modifier = modifier,
+        initialTab = initialTab,
+        hapticEnabled = hapticEnabled
+    )
+}
+

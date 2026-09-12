@@ -307,10 +307,17 @@
     <string name="onboarding_skip">Skip</string>
 
     <!-- Dock Navigation -->
-    <string name="dock_dashboard">Dashboard</string>
-    <string name="dock_telemetry">Telemetry</string>
-    <string name="dock_tasks">Tasks</string>
+    <string name="dock_dashboard">Overview</string>
+    <string name="dock_telemetry">Monitor</string>
+    <string name="dock_tasks">Apps</string>
+    <string name="dock_hardware">Hardware</string>
     <string name="dock_toggle_telemetry">Toggle CPU / Memory</string>
+    <string name="pull_down_settings_hint">Pull down for Settings</string>
+    <string name="release_settings_hint">Release for Settings</string>
+    <string name="telemetry_tab_network">Network</string>
+    <string name="telemetry_tab_battery">Battery</string>
+    <string name="apps_tab_running_processes">Active Processes</string>
+    <string name="apps_tab_app_stopper">App Stopper</string>
     <string name="network_query_error">Some usage records could not be read. Totals may be incomplete. Check usage access and pull down to retry.</string>
     <string name="network_select_period">Select time period</string>
     <string name="network_period_usage">%1$s: %2$s download, %3$s upload</string>
