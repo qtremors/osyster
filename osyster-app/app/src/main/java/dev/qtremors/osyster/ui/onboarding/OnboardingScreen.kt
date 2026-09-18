@@ -72,6 +72,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.settings.OsysterPreferencesManager
 import dev.qtremors.osyster.settings.OsysterPreferencesState
+import dev.qtremors.osyster.ui.expressive.OsysterExpressiveButton
+import dev.qtremors.osyster.ui.theme.MotionTokens
+import dev.qtremors.osyster.ui.theme.pressBounce
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 import kotlinx.coroutines.launch
 
@@ -260,6 +263,7 @@ private fun OnboardingTopBar(
                     modifier = Modifier
                         .width(actionWidth)
                         .height(38.dp)
+                        .pressBounce()
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -289,7 +293,7 @@ private fun OnboardingTopBar(
                     val isSelected = index == currentPage
                     val width by animateDpAsState(
                         targetValue = if (isSelected) 24.dp else 8.dp,
-                        animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy),
+                        animationSpec = MotionTokens.MorphDpSpring,
                         label = "onboarding_step_width"
                     )
                     val color by animateColorAsState(
@@ -313,6 +317,7 @@ private fun OnboardingTopBar(
                     modifier = Modifier
                         .width(actionWidth)
                         .height(38.dp)
+                        .pressBounce()
                 ) {
                     Text(
                         text = stringResource(R.string.onboarding_skip),
@@ -342,28 +347,16 @@ private fun OnboardingBottomBar(
             .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(
+        OsysterExpressiveButton(
+            text = if (isFinal) stringResource(R.string.onboarding_launch) else stringResource(R.string.onboarding_continue),
+            icon = if (isFinal) Icons.Default.Check else Icons.AutoMirrored.Filled.ArrowForward,
             onClick = onNext,
-            shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            shape = RoundedCornerShape(24.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = 56.dp)
-        ) {
-            Icon(
-                imageVector = if (isFinal) Icons.Default.Check else Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = if (isFinal) stringResource(R.string.onboarding_launch) else stringResource(R.string.onboarding_continue),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
-            )
-        }
+                .height(56.dp)
+        )
     }
 }

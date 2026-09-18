@@ -51,6 +51,7 @@ import dev.qtremors.osyster.R
 import dev.qtremors.osyster.monitor.ScreenUsageHelper
 import dev.qtremors.osyster.ui.expressive.*
 import dev.qtremors.osyster.ui.onboarding.PermissionBottomSheet
+import dev.qtremors.osyster.ui.theme.MotionTokens
 import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
 import dev.qtremors.osyster.ui.util.rememberAsyncAppIcon
 import dev.qtremors.osyster.ui.viewmodel.*
@@ -365,7 +366,7 @@ private fun ScreenTimeHeroCard(
 
                 val animatedProgress by animateFloatAsState(
                     targetValue = progress,
-                    animationSpec = spring(dampingRatio = 0.5f, stiffness = 60f),
+                    animationSpec = MotionTokens.GaugeSmoothSpring,
                     label = "progress"
                 )
 
@@ -530,7 +531,7 @@ private fun ScreenTimeHistoryCard(
 
                     val animFraction by animateFloatAsState(
                         targetValue = fraction,
-                        animationSpec = spring(dampingRatio = 0.5f, stiffness = 60f),
+                        animationSpec = MotionTokens.GaugeSmoothSpring,
                         label = "bar_height"
                     )
 

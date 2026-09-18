@@ -113,6 +113,7 @@ fun OsysterTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
     val isSystemDark = isSystemInDarkTheme()
     val isDark = when (themeMode) {
         ThemeMode.SYSTEM -> isSystemDark
@@ -126,7 +127,6 @@ fun OsysterTheme(
 
     val baseScheme = when {
         useDynamic -> {
-            val context = LocalContext.current
             if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         themeMode == ThemeMode.OLED -> OledColorScheme
@@ -141,13 +141,27 @@ fun OsysterTheme(
         baseScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        shapes = ExpressiveShapes,
-        motionScheme = MotionScheme.expressive(),
-        content = content
-    )
+    val isSystemReducedMotion = remember(context) {
+        try {
+            android.provider.Settings.Global.getFloat(
+                context.contentResolver,
+                android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
+                1.0f
+            ) == 0f
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    androidx.compose.runtime.CompositionLocalProvider(LocalReducedMotionEnabled provides isSystemReducedMotion) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            shapes = ExpressiveShapes,
+            motionScheme = if (isSystemReducedMotion) MotionScheme.standard() else MotionScheme.expressive(),
+            content = content
+        )
+    }
 }
 
 @Composable

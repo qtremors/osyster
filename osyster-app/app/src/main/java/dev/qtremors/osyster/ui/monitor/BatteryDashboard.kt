@@ -2,6 +2,7 @@
 
 package dev.qtremors.osyster.ui.monitor
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +22,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.monitor.BatteryState
 import dev.qtremors.osyster.settings.TemperatureUnit
+import dev.qtremors.osyster.ui.expressive.DigitTicker
+import dev.qtremors.osyster.ui.theme.MotionTokens
 import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
 import dev.qtremors.osyster.ui.util.collectAsVisibleState
 import dev.qtremors.osyster.ui.viewmodel.DeviceInfoViewModel
@@ -44,6 +47,12 @@ fun BatteryDashboardContent(
     temperatureUnit: TemperatureUnit,
     modifier: Modifier = Modifier
 ) {
+    val animatedBatteryProgress by animateFloatAsState(
+        targetValue = (batteryState.levelPercentage / 100f).coerceIn(0f, 1f),
+        animationSpec = MotionTokens.GaugeSmoothSpring,
+        label = "battery_gauge_progress"
+    )
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -75,12 +84,11 @@ fun BatteryDashboardContent(
                     modifier = Modifier.size(160.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    val progress = (batteryState.levelPercentage / 100f).coerceIn(0f, 1f)
                     val isCharging = batteryState.status == "Charging"
                     val isLow = batteryState.levelPercentage < 20
 
                     CircularWavyProgressIndicator(
-                        progress = { progress },
+                        progress = { animatedBatteryProgress },
                         modifier = Modifier.fillMaxSize(),
                         color = when {
                             isCharging -> MaterialTheme.colorScheme.primary
@@ -106,11 +114,11 @@ fun BatteryDashboardContent(
                             modifier = Modifier.size(28.dp)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(
+                        DigitTicker(
                             text = "${batteryState.levelPercentage}%",
                             style = MaterialTheme.typography.displayMedium,
-                            fontWeight = FontWeight.Black,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            prefix = "battery_level"
                         )
                         Text(
                             text = batteryState.status,

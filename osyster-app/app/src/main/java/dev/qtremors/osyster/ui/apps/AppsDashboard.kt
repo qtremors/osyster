@@ -4,6 +4,8 @@ package dev.qtremors.osyster.ui.apps
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
+import dev.qtremors.osyster.ui.theme.MotionTokens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -85,11 +87,16 @@ fun AppsDashboard(
 
             tabs.forEachIndexed { index, (_, iconVector, labelText) ->
                 val isSelected = pagerState.currentPage == index
+                val animatedWeight by animateFloatAsState(
+                    targetValue = if (isSelected) 1.25f else 1f,
+                    animationSpec = MotionTokens.WeightSpring,
+                    label = "apps_tab_weight_$index"
+                )
                 ToggleButton(
                     checked = isSelected,
                     onCheckedChange = {
                         if (pagerState.currentPage != index) {
-                            OsysterHapticUtil.performTick(view, hapticEnabled)
+                            OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(index)
                             }
@@ -101,7 +108,7 @@ fun AppsDashboard(
                         else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                     },
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(animatedWeight)
                         .semantics { role = Role.RadioButton },
                 ) {
                     Icon(

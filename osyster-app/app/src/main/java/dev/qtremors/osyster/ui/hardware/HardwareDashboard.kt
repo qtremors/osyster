@@ -68,18 +68,10 @@ import java.util.Locale
 // Section Comment: Device Information & Modular Hardware Telemetry
 // =========================================================================
 
-enum class InfoGroupPosition {
-    Top, Middle, Bottom, Single
-}
+typealias InfoGroupPosition = dev.qtremors.osyster.ui.expressive.GroupPosition
 
-@Composable
 fun InfoGroupShape(position: InfoGroupPosition): RoundedCornerShape {
-    return when (position) {
-        InfoGroupPosition.Top -> RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 8.dp, bottomEnd = 8.dp)
-        InfoGroupPosition.Middle -> RoundedCornerShape(8.dp)
-        InfoGroupPosition.Bottom -> RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
-        InfoGroupPosition.Single -> RoundedCornerShape(24.dp)
-    }
+    return dev.qtremors.osyster.ui.expressive.expressiveGroupShape(position, outerCorner = 24.dp, innerCorner = 6.dp)
 }
 
 @Composable

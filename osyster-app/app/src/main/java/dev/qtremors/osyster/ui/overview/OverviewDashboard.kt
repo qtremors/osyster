@@ -3,6 +3,7 @@
 package dev.qtremors.osyster.ui.overview
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -72,7 +73,9 @@ import dev.qtremors.osyster.navigation.AppRoutes
 import dev.qtremors.osyster.settings.OsysterPreferencesManager
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.settings.OsysterPreferencesState
+import dev.qtremors.osyster.ui.theme.MotionTokens
 import dev.qtremors.osyster.ui.theme.OsysterTheme
+import dev.qtremors.osyster.ui.theme.pressBounce
 import dev.qtremors.osyster.ui.viewmodel.BentoUiState
 import dev.qtremors.osyster.ui.viewmodel.BentoViewModel
 import dev.qtremors.osyster.ui.viewmodel.DeviceInfoCategory
@@ -92,8 +95,13 @@ fun OysterArcGauge(
     color: Color = MaterialTheme.colorScheme.primary,
     trackColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
 ) {
+    val animatedProgress by animateFloatAsState(
+        targetValue = percentage.coerceIn(0f, 100f) / 100f,
+        animationSpec = MotionTokens.GaugeSmoothSpring,
+        label = "oyster_arc_gauge_progress"
+    )
     CircularWavyProgressIndicator(
-        progress = { percentage.coerceIn(0f, 100f) / 100f },
+        progress = { animatedProgress },
         modifier = modifier,
         color = color,
         trackColor = trackColor
@@ -171,6 +179,16 @@ fun BentoDashboardContent(
     val todayNetworkLabel = uiState.todayNetworkLabel
     val appStopperCounts = uiState.appStopperCounts
     val ramUsedPercent = uiState.ramUsedPercent
+    val animatedRamProgress by animateFloatAsState(
+        targetValue = (ramUsedPercent / 100f).coerceIn(0f, 1f),
+        animationSpec = MotionTokens.GaugeSmoothSpring,
+        label = "bento_ram_progress"
+    )
+    val animatedStorageProgress by animateFloatAsState(
+        targetValue = (uiState.storageStats.usedPercentage / 100f).coerceIn(0f, 1f),
+        animationSpec = MotionTokens.GaugeSmoothSpring,
+        label = "bento_storage_progress"
+    )
 
     Column(
         modifier = modifier
@@ -203,7 +221,9 @@ fun BentoDashboardContent(
                 onClick = { onNavigateTo(AppRoutes.Cpu) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .pressBounce()
             ) {
                 Column(
                     modifier = Modifier
@@ -268,7 +288,9 @@ fun BentoDashboardContent(
                 onClick = { onNavigateTo(AppRoutes.Gpu) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .pressBounce()
             ) {
                 Column(
                     modifier = Modifier
@@ -335,7 +357,9 @@ fun BentoDashboardContent(
                 onClick = { onNavigateTo(AppRoutes.Memory) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .pressBounce()
             ) {
                 Column(
                     modifier = Modifier
@@ -376,7 +400,7 @@ fun BentoDashboardContent(
                     )
 
                     LinearWavyProgressIndicator(
-                        progress = { ramUsedPercent / 100f },
+                        progress = { animatedRamProgress },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(8.dp),
@@ -391,7 +415,9 @@ fun BentoDashboardContent(
                 onClick = { onNavigateTo(AppRoutes.Storage) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .pressBounce()
             ) {
                 Column(
                     modifier = Modifier
@@ -432,7 +458,7 @@ fun BentoDashboardContent(
                     )
 
                     LinearProgressIndicator(
-                        progress = { uiState.storageStats.usedPercentage / 100f },
+                        progress = { animatedStorageProgress },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(8.dp)
@@ -449,7 +475,9 @@ fun BentoDashboardContent(
             onClick = { onNavigateTo(AppRoutes.Battery) },
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .pressBounce()
         ) {
             Row(
                 modifier = Modifier
@@ -524,7 +552,9 @@ fun BentoDashboardContent(
             onClick = { onNavigateTo(AppRoutes.Network) },
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .pressBounce()
         ) {
             Row(
                 modifier = Modifier
@@ -618,7 +648,9 @@ fun BentoDashboardContent(
             onClick = { onNavigateTo(AppRoutes.AppStopper) },
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .pressBounce()
         ) {
             Row(
                 modifier = Modifier
@@ -676,7 +708,9 @@ fun BentoDashboardContent(
             onClick = { onNavigateTo(AppRoutes.ScreenTime) },
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .pressBounce()
         ) {
             Row(
                 modifier = Modifier
@@ -750,7 +784,9 @@ fun BentoDashboardContent(
                 onClick = { onNavigateTo(AppRoutes.Sensors) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .pressBounce()
             ) {
                 Column(
                     modifier = Modifier
@@ -787,7 +823,9 @@ fun BentoDashboardContent(
                 onClick = { onNavigateTo(AppRoutes.Drm) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .pressBounce()
             ) {
                 Column(
                     modifier = Modifier
@@ -831,7 +869,9 @@ fun BentoDashboardContent(
                 onClick = { onNavigateTo(AppRoutes.Display) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .pressBounce()
             ) {
                 Column(
                     modifier = Modifier
@@ -869,7 +909,9 @@ fun BentoDashboardContent(
                 onClick = { onNavigateTo(AppRoutes.System) },
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .pressBounce()
             ) {
                 Column(
                     modifier = Modifier
@@ -921,7 +963,9 @@ fun HeroDeviceWidget(
         onClick = onClick,
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .pressBounce()
     ) {
         Column(
             modifier = Modifier
@@ -1018,17 +1062,27 @@ fun HeroDeviceWidget(
                 ) {
                     val sleepWeight = (hero.deepSleepPercentage / 100f).coerceIn(0.02f, 0.98f)
                     val awakeWeight = (hero.awakePercentage / 100f).coerceIn(0.02f, 0.98f)
+                    val animatedSleepWeight by animateFloatAsState(
+                        targetValue = sleepWeight,
+                        animationSpec = MotionTokens.GaugeSmoothSpring,
+                        label = "hero_sleep_weight"
+                    )
+                    val animatedAwakeWeight by animateFloatAsState(
+                        targetValue = awakeWeight,
+                        animationSpec = MotionTokens.GaugeSmoothSpring,
+                        label = "hero_awake_weight"
+                    )
 
                     Box(
                         modifier = Modifier
-                            .weight(sleepWeight)
+                            .weight(animatedSleepWeight)
                             .fillMaxHeight()
                             .background(MaterialTheme.colorScheme.secondary)
                     )
                     Spacer(modifier = Modifier.width(2.dp))
                     Box(
                         modifier = Modifier
-                            .weight(awakeWeight)
+                            .weight(animatedAwakeWeight)
                             .fillMaxHeight()
                             .background(MaterialTheme.colorScheme.primary)
                     )
@@ -1121,7 +1175,9 @@ fun QuickReachRibbon(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 contentColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.height(36.dp)
+                modifier = Modifier
+                    .height(36.dp)
+                    .pressBounce()
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 12.dp),

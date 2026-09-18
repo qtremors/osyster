@@ -64,6 +64,7 @@ import dev.qtremors.osyster.ui.screentime.ScreenTimeDashboard
 import dev.qtremors.osyster.ui.settings.LegalDocumentScreen
 import dev.qtremors.osyster.ui.settings.LicensesScreen
 import dev.qtremors.osyster.ui.settings.SettingsScreen
+import dev.qtremors.osyster.ui.theme.MotionTokens
 import dev.qtremors.osyster.ui.theme.OsysterTheme
 import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
 import dev.qtremors.osyster.ui.util.LocalTelemetryVisible
@@ -220,7 +221,55 @@ class MainActivity : ComponentActivity() {
                         NavHost(
                             navController = navController,
                             startDestination = if (prefsState.isOnboardingCompleted) AppRoutes.Bento else AppRoutes.Onboarding,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            enterTransition = {
+                                val isInitialOnboarding = initialState.destination.hasRoute(AppRoutes.Onboarding::class)
+                                val isTargetOnboarding = targetState.destination.hasRoute(AppRoutes.Onboarding::class)
+                                if (isInitialOnboarding || isTargetOnboarding) {
+                                    fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow))
+                                } else {
+                                    slideInHorizontally(
+                                        initialOffsetX = { it },
+                                        animationSpec = MotionTokens.NavigationSpring
+                                    ) + fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow))
+                                }
+                            },
+                            exitTransition = {
+                                val isInitialOnboarding = initialState.destination.hasRoute(AppRoutes.Onboarding::class)
+                                val isTargetOnboarding = targetState.destination.hasRoute(AppRoutes.Onboarding::class)
+                                if (isInitialOnboarding || isTargetOnboarding) {
+                                    fadeOut(animationSpec = spring(stiffness = Spring.StiffnessLow))
+                                } else {
+                                    slideOutHorizontally(
+                                        targetOffsetX = { -it / 3 },
+                                        animationSpec = MotionTokens.NavigationParallaxExitSpring
+                                    ) + fadeOut(animationSpec = spring(stiffness = Spring.StiffnessLow))
+                                }
+                            },
+                            popEnterTransition = {
+                                val isInitialOnboarding = initialState.destination.hasRoute(AppRoutes.Onboarding::class)
+                                val isTargetOnboarding = targetState.destination.hasRoute(AppRoutes.Onboarding::class)
+                                if (isInitialOnboarding || isTargetOnboarding) {
+                                    fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow))
+                                } else {
+                                    slideInHorizontally(
+                                        initialOffsetX = { -it / 3 },
+                                        animationSpec = MotionTokens.NavigationSpring
+                                    ) + fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow))
+                                }
+                            },
+                            popExitTransition = {
+                                val isInitialOnboarding = initialState.destination.hasRoute(AppRoutes.Onboarding::class)
+                                val isTargetOnboarding = targetState.destination.hasRoute(AppRoutes.Onboarding::class)
+                                if (isInitialOnboarding || isTargetOnboarding) {
+                                    fadeOut(animationSpec = spring(stiffness = Spring.StiffnessLow))
+                                } else {
+                                    slideOutHorizontally(
+                                        targetOffsetX = { it },
+                                        animationSpec = MotionTokens.NavigationParallaxExitSpring
+                                    ) + fadeOut(animationSpec = spring(stiffness = Spring.StiffnessLow))
+                                }
+                            }
                         ) {
                             composable<AppRoutes.Onboarding> {
                                 OnboardingScreen(
@@ -560,12 +609,12 @@ class MainActivity : ComponentActivity() {
                             visible = showSettings,
                             enter = slideInVertically(
                                 initialOffsetY = { -it },
-                                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-                            ) + fadeIn(),
+                                animationSpec = spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow)
+                            ) + fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)),
                             exit = slideOutVertically(
                                 targetOffsetY = { -it },
-                                animationSpec = tween(300)
-                            ) + fadeOut(),
+                                animationSpec = spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow)
+                            ) + fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)),
                             modifier = Modifier
                                 .fillMaxSize()
                                 .zIndex(10f)
@@ -586,12 +635,24 @@ class MainActivity : ComponentActivity() {
                                             val targetIndex = order.indexOf(targetState)
                                             val initialIndex = order.indexOf(initialState)
                                             if (targetIndex > initialIndex) {
-                                                (slideInHorizontally { it } + fadeIn()).togetherWith(
-                                                    slideOutHorizontally { -it } + fadeOut()
+                                                (slideInHorizontally(
+                                                    initialOffsetX = { it },
+                                                    animationSpec = MotionTokens.NavigationSpring
+                                                ) + fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow))).togetherWith(
+                                                    slideOutHorizontally(
+                                                        targetOffsetX = { -it / 3 },
+                                                        animationSpec = MotionTokens.NavigationParallaxExitSpring
+                                                    ) + fadeOut(animationSpec = spring(stiffness = Spring.StiffnessLow))
                                                 )
                                             } else {
-                                                (slideInHorizontally { -it } + fadeIn()).togetherWith(
-                                                    slideOutHorizontally { it } + fadeOut()
+                                                (slideInHorizontally(
+                                                    initialOffsetX = { -it / 3 },
+                                                    animationSpec = MotionTokens.NavigationSpring
+                                                ) + fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow))).togetherWith(
+                                                    slideOutHorizontally(
+                                                        targetOffsetX = { it },
+                                                        animationSpec = MotionTokens.NavigationParallaxExitSpring
+                                                    ) + fadeOut(animationSpec = spring(stiffness = Spring.StiffnessLow))
                                                 )
                                             }
                                         },

@@ -21,13 +21,18 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.qtremors.osyster.ui.theme.LocalReducedMotionEnabled
+import dev.qtremors.osyster.ui.theme.MotionTokens
+import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -42,7 +47,7 @@ enum class GroupPosition {
 fun expressiveGroupShape(
     position: GroupPosition,
     outerCorner: Dp = 24.dp,
-    innerCorner: Dp = 8.dp
+    innerCorner: Dp = 6.dp
 ): RoundedCornerShape {
     return when (position) {
         GroupPosition.Top -> RoundedCornerShape(
@@ -66,7 +71,7 @@ fun expressiveGroupShape(
     index: Int,
     total: Int,
     outerCorner: Dp = 24.dp,
-    innerCorner: Dp = 8.dp
+    innerCorner: Dp = 6.dp
 ): RoundedCornerShape {
     val position = when {
         total <= 1 -> GroupPosition.Single
@@ -173,6 +178,7 @@ fun OsysterExpressiveButton(
     text: String? = null,
     icon: ImageVector? = null,
     enabled: Boolean = true,
+    onDisabledClick: (() -> Unit)? = null,
     containerColor: Color? = null,
     contentColor: Color? = null,
     onHoldComplete: (() -> Unit)? = null,
@@ -182,35 +188,40 @@ fun OsysterExpressiveButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val haptic = LocalHapticFeedback.current
+    val reducedMotion = LocalReducedMotionEnabled.current
+    val view = LocalView.current
+    val density = LocalDensity.current
+    val scope = rememberCoroutineScope()
+    val shakeOffset = remember { Animatable(0f) }
 
     val holdProgress = remember { Animatable(0f) }
 
     LaunchedEffect(isPressed) {
         if (onHoldComplete != null || type == ExpressiveButtonType.Hold) {
             if (isPressed && enabled) {
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                holdProgress.animateTo(
-                    targetValue = 1f,
-                    animationSpec = tween(holdDuration.toInt())
-                )
+                OsysterHapticUtil.performVirtualKey(view, true)
+                val startTime = System.currentTimeMillis()
+                while (true) {
+                    val elapsed = System.currentTimeMillis() - startTime
+                    val p = (elapsed.toFloat() / holdDuration).coerceIn(0f, 1f)
+                    holdProgress.snapTo(p)
+                    if (p >= 1f) break
+                    delay(16)
+                }
                 if (holdProgress.value >= 1f) {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    OsysterHapticUtil.performSegmentTick(view, true)
                     onHoldComplete?.invoke()
                     onClick()
                 }
             } else {
-                holdProgress.snapTo(0f)
+                holdProgress.animateTo(0f, MotionTokens.TouchBounceSpring)
             }
         }
     }
 
     val scale by animateFloatAsState(
-        targetValue = if (isPressed && enabled) 0.95f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
+        targetValue = if (isPressed && enabled && !reducedMotion) 0.95f else 1f,
+        animationSpec = MotionTokens.TouchBounceSpring,
         label = "button_scale"
     )
 
@@ -224,11 +235,8 @@ fun OsysterExpressiveButton(
     val pressedCorner = 12.dp
 
     val cornerRadius by animateDpAsState(
-        targetValue = if (isPressed) pressedCorner else restCorner,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
+        targetValue = if (isPressed && !reducedMotion) pressedCorner else restCorner,
+        animationSpec = MotionTokens.MorphDpSpring,
         label = "button_corner"
     )
 
@@ -252,21 +260,33 @@ fun OsysterExpressiveButton(
 
     Surface(
         onClick = {
-            if (enabled && onHoldComplete == null && type != ExpressiveButtonType.Hold) {
-                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            if (!enabled) {
+                onDisabledClick?.invoke()
+                OsysterHapticUtil.performReject(view, true)
+                scope.launch {
+                    val intensity = with(density) { 6.dp.toPx() }
+                    shakeOffset.animateTo(intensity, MotionTokens.DisabledShakeSpring)
+                    shakeOffset.animateTo(-intensity, MotionTokens.DisabledShakeSpring)
+                    shakeOffset.animateTo(intensity / 2, MotionTokens.DisabledShakeSpring)
+                    shakeOffset.animateTo(-intensity / 2, MotionTokens.DisabledShakeSpring)
+                    shakeOffset.animateTo(0f, MotionTokens.DisabledShakeSpring)
+                }
+            } else if (onHoldComplete == null && type != ExpressiveButtonType.Hold) {
+                OsysterHapticUtil.performVirtualKey(view, true)
                 onClick()
             }
         },
-        enabled = enabled,
+        enabled = true,
         shape = buttonShape,
-        color = defaultBg,
-        contentColor = defaultFg,
+        color = if (!enabled) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.16f) else defaultBg,
+        contentColor = if (!enabled) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f) else defaultFg,
         border = if (type == ExpressiveButtonType.Outlined) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
         interactionSource = interactionSource,
         modifier = modifier
             .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
             .height(height)
             .graphicsLayer {
+                translationX = shakeOffset.value
                 scaleX = scale
                 scaleY = scale
             }
@@ -327,18 +347,44 @@ fun RowScope.OsysterButtonWeighted(
     text: String? = null,
     icon: ImageVector? = null,
     enabled: Boolean = true,
+    selected: Boolean = false,
+    onDisabledClick: (() -> Unit)? = null,
     containerColor: Color? = null,
     contentColor: Color? = null,
     shape: Shape? = null
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val reducedMotion = LocalReducedMotionEnabled.current
+    var isTapped by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    val animatedWeight by animateFloatAsState(
+        targetValue = when {
+            (isPressed || isTapped) && !reducedMotion -> weight * 1.25f
+            selected && !reducedMotion -> weight * 1.1f
+            else -> weight
+        },
+        animationSpec = MotionTokens.WeightSpring,
+        label = "osyster_weighted_anim"
+    )
+
     OsysterExpressiveButton(
-        onClick = onClick,
-        modifier = modifier.weight(weight),
+        onClick = {
+            scope.launch {
+                isTapped = true
+                delay(100)
+                isTapped = false
+            }
+            onClick()
+        },
+        modifier = modifier.weight(animatedWeight),
         type = type,
         size = size,
         text = text,
         icon = icon,
         enabled = enabled,
+        onDisabledClick = onDisabledClick,
         containerColor = containerColor,
         contentColor = contentColor,
         shape = shape
@@ -360,8 +406,19 @@ fun OsysterGroupedButton(
 }
 
 // =========================================================================
-// Expressive Loading Indicator
+// Expressive Loading Indicators
 // =========================================================================
+
+@Composable
+fun ExpressiveLoadingIndicator(
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary
+) {
+    LoadingIndicator(
+        modifier = modifier,
+        color = color
+    )
+}
 
 @Composable
 fun ExpressiveContainedLoadingIndicator(

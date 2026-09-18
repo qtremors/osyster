@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.monitor.SensorItem
+import dev.qtremors.osyster.ui.theme.pressBounce
 import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 import dev.qtremors.osyster.ui.util.collectAsVisibleState
@@ -154,7 +155,9 @@ fun SensorsDashboard(
                         colors = CardDefaults.cardColors(
                             containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .pressBounce()
                     ) {
                         Row(
                             modifier = Modifier

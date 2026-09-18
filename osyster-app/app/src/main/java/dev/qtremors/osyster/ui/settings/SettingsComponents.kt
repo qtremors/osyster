@@ -79,8 +79,10 @@ import androidx.compose.ui.unit.dp
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.settings.AccentPalette
 import dev.qtremors.osyster.settings.ThemeMode
+import dev.qtremors.osyster.ui.theme.MotionTokens
 import dev.qtremors.osyster.ui.theme.bounceClickable
 import dev.qtremors.osyster.ui.theme.expressiveSegmentedShapes
+import dev.qtremors.osyster.ui.theme.pressBounce
 
 // =========================================================================
 // Section Header & Container
@@ -312,6 +314,7 @@ fun SettingsActionRow(
         modifier = modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
+            .pressBounce()
     )
 }
 
@@ -428,7 +431,7 @@ private fun ThemeModeCard(
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.93f else 1f,
-        animationSpec = spring(dampingRatio = 0.8f),
+        animationSpec = MotionTokens.TouchBounceSpring,
         label = "modeCardScale"
     )
 
@@ -524,13 +527,13 @@ fun AccentPaletteSelector(
 
                 val animatedCornerRadius by animateDpAsState(
                     targetValue = if (isSelected) 14.dp else 24.dp,
-                    animationSpec = spring(dampingRatio = 0.7f, stiffness = 400f),
+                    animationSpec = MotionTokens.MorphDpSpring,
                     label = "swatchCorner"
                 )
 
                 val animatedScale by animateFloatAsState(
                     targetValue = if (isSelected) 1.08f else 1f,
-                    animationSpec = spring(dampingRatio = 0.7f, stiffness = 400f),
+                    animationSpec = MotionTokens.TouchBounceSpring,
                     label = "swatchScale"
                 )
 

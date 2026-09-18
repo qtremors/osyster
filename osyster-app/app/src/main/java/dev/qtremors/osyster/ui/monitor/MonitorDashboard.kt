@@ -3,6 +3,8 @@
 package dev.qtremors.osyster.ui.monitor
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
+import dev.qtremors.osyster.ui.theme.MotionTokens
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -78,6 +80,11 @@ fun MonitorDashboard(
 
             tabs.forEachIndexed { index, (_, iconVector, labelText) ->
                 val isSelected = pagerState.currentPage == index
+                val animatedWeight by animateFloatAsState(
+                    targetValue = if (isSelected) 1.25f else 1f,
+                    animationSpec = MotionTokens.WeightSpring,
+                    label = "monitor_tab_weight_$index"
+                )
                 ToggleButton(
                     checked = isSelected,
                     onCheckedChange = {
@@ -89,7 +96,7 @@ fun MonitorDashboard(
                         }
                     },
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(animatedWeight)
                         .semantics { role = Role.Tab },
                     shapes = when (index) {
                         0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()

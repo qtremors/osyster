@@ -1,8 +1,17 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.1.5
+> **Version:** 0.1.6
 > **Last Updated:** 2026-09-18
+
+---
+
+## [0.1.6] - 2026-09-18
+
+- **Unified Physics & Motion Tokens**: Established centralized spring physics specifications (`TouchBounceSpring`, `MorphSpring`, `NavigationSpring`, `GaugeSmoothSpring`, `WeightSpring`, `DisabledShakeSpring`) alongside non-consuming `Modifier.pressBounce`, tactile `Modifier.expressiveClickable`, and system-wide reduced motion compliance.
+- **Expressive Navigation & Fluid Transitions**: Upgraded `NavHost` screen routes to spring-driven horizontal slide and parallax exit transitions, paired with smooth spring motion for the settings drawer and subpage navigators.
+- **Telemetry Gauge Smoothing & Rolling Tickers**: Applied critically damped spring smoothing across all arc gauges, wavy progress bars, hero sleep distribution, and memory allocation segments, paired with rolling digit tickers for CPU, Memory, and Battery metrics.
+- **Fluid Components & Tactile Haptics**: Added fluid weight expansion to tab rows and button groups, shake rejection physics on disabled actions, tactile virtual key haptics, and standardized connected container shapes (24.dp outer, 6.dp inner).
 
 ---
 
