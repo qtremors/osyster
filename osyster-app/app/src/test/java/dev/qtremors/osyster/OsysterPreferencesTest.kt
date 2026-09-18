@@ -37,6 +37,21 @@ class OsysterPreferencesTest {
         assertTrue(state.managedStopPackages.isEmpty())
         assertEquals(4, state.appStopperGridColumns)
         assertFalse(state.blockScreenCapture)
+        assertEquals(0, state.screenTimeTargetMinutes)
+        assertFalse(state.onboardingStatsCompleted)
+        assertFalse(state.preferSystemUsageHistory)
+    }
+
+    @Test
+    fun screenTimePreferences_stateUpdates() {
+        val state = OsysterPreferencesState(
+            screenTimeTargetMinutes = 180,
+            onboardingStatsCompleted = true,
+            preferSystemUsageHistory = true
+        )
+        assertEquals(180, state.screenTimeTargetMinutes)
+        assertTrue(state.onboardingStatsCompleted)
+        assertTrue(state.preferSystemUsageHistory)
     }
 
     @Test

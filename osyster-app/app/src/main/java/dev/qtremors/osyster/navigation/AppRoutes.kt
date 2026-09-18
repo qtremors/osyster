@@ -60,4 +60,7 @@ sealed interface AppRoutes {
 
     @Serializable
     data object Drm : AppRoutes
+
+    @Serializable
+    data object ScreenTime : AppRoutes
 }

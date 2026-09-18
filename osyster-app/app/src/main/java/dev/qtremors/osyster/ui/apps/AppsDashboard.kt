@@ -10,6 +10,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.settings.OsysterPreferencesManager
 import dev.qtremors.osyster.settings.OsysterPreferencesState
+import dev.qtremors.osyster.ui.screentime.ScreenTimeDashboard
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 import kotlinx.coroutines.launch
 
@@ -35,14 +37,14 @@ fun AppsDashboard(
     hapticEnabled: Boolean = true
 ) {
     val pagerState = rememberPagerState(
-        initialPage = initialTab.coerceIn(0, 1),
-        pageCount = { 2 }
+        initialPage = initialTab.coerceIn(0, 2),
+        pageCount = { 3 }
     )
     val coroutineScope = rememberCoroutineScope()
     val view = LocalView.current
 
     LaunchedEffect(initialTab) {
-        val target = initialTab.coerceIn(0, 1)
+        val target = initialTab.coerceIn(0, 2)
         if (pagerState.currentPage != target) {
             pagerState.scrollToPage(target)
         }
@@ -60,7 +62,7 @@ fun AppsDashboard(
             }
     }
 
-    BackHandler(enabled = pagerState.currentPage == 1) {
+    BackHandler(enabled = pagerState.currentPage > 0) {
         coroutineScope.launch {
             pagerState.animateScrollToPage(0)
         }
@@ -77,7 +79,8 @@ fun AppsDashboard(
         ) {
             val tabs = listOf(
                 Triple(0, Icons.Default.PowerSettingsNew, stringResource(R.string.apps_tab_app_stopper)),
-                Triple(1, Icons.Default.Terminal, stringResource(R.string.apps_tab_running_processes))
+                Triple(1, Icons.Default.QueryStats, stringResource(R.string.screentime_title)),
+                Triple(2, Icons.Default.Terminal, stringResource(R.string.apps_tab_running_processes))
             )
 
             tabs.forEachIndexed { index, (_, iconVector, labelText) ->
@@ -94,7 +97,8 @@ fun AppsDashboard(
                     },
                     shapes = when (index) {
                         0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                        else -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                        tabs.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                     },
                     modifier = Modifier
                         .weight(1f)
@@ -129,7 +133,8 @@ fun AppsDashboard(
                     },
                     modifier = Modifier.fillMaxSize()
                 )
-                1 -> ProcessDashboard(modifier = Modifier.fillMaxSize())
+                1 -> ScreenTimeDashboard(modifier = Modifier.fillMaxSize())
+                2 -> ProcessDashboard(modifier = Modifier.fillMaxSize())
             }
         }
     }

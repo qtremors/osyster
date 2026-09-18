@@ -33,7 +33,9 @@ data class OsysterBackupData(
     val temperatureUnit: String = TemperatureUnit.CELSIUS.name,
     val showKernelThreads: Boolean = false,
     val appStopperGridColumns: Int = 4,
-    val blockScreenCapture: Boolean = false
+    val blockScreenCapture: Boolean = false,
+    val screenTimeTargetMinutes: Int = 0,
+    val preferSystemUsageHistory: Boolean = true
 )
 
 data class PreferencesBackupPreview(
@@ -67,7 +69,9 @@ class PreferencesBackupManager(
                 temperatureUnit = currentState.temperatureUnit.name,
                 showKernelThreads = currentState.showKernelThreads,
                 appStopperGridColumns = currentState.appStopperGridColumns,
-                blockScreenCapture = currentState.blockScreenCapture
+                blockScreenCapture = currentState.blockScreenCapture,
+                screenTimeTargetMinutes = currentState.screenTimeTargetMinutes,
+                preferSystemUsageHistory = currentState.preferSystemUsageHistory
             )
             val envelope = OsysterBackupEnvelope(preferences = backupData)
             val jsonString = json.encodeToString(envelope)
@@ -93,7 +97,9 @@ class PreferencesBackupManager(
                 PreferencesBackupItemPreview("Diagnostics Interval", prefs.diagnosticsInterval),
                 PreferencesBackupItemPreview("Temperature Unit", prefs.temperatureUnit),
                 PreferencesBackupItemPreview("Show Kernel Threads", if (prefs.showKernelThreads) "Enabled" else "Disabled"),
-                PreferencesBackupItemPreview("Block Screen Capture", if (prefs.blockScreenCapture) "Enabled" else "Disabled")
+                PreferencesBackupItemPreview("Block Screen Capture", if (prefs.blockScreenCapture) "Enabled" else "Disabled"),
+                PreferencesBackupItemPreview("Screen Time Target", if (prefs.screenTimeTargetMinutes > 0) "${prefs.screenTimeTargetMinutes / 60}h ${prefs.screenTimeTargetMinutes % 60}m" else "None"),
+                PreferencesBackupItemPreview("System Usage History", if (prefs.preferSystemUsageHistory) "Enabled" else "Disabled")
             )
             PreferencesBackupPreview(items = items)
         }
@@ -120,6 +126,8 @@ class PreferencesBackupManager(
             }
             preferencesManager.setShowKernelThreads(prefs.showKernelThreads)
             preferencesManager.setBlockScreenCapture(prefs.blockScreenCapture)
+            preferencesManager.setScreenTimeTargetMinutes(prefs.screenTimeTargetMinutes)
+            preferencesManager.setPreferSystemUsageHistory(prefs.preferSystemUsageHistory)
         }
     }
 

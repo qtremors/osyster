@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SignalCellularAlt
@@ -65,6 +66,7 @@ import dev.qtremors.osyster.monitor.NetworkInterval
 import dev.qtremors.osyster.monitor.NetworkInterfaceFilter
 import dev.qtremors.osyster.monitor.NetworkMonitor
 import dev.qtremors.osyster.monitor.RealtimeSpeed
+import dev.qtremors.osyster.monitor.ScreenUsageHelper
 import dev.qtremors.osyster.monitor.SystemMonitor
 import dev.qtremors.osyster.navigation.AppRoutes
 import dev.qtremors.osyster.settings.OsysterPreferencesManager
@@ -118,6 +120,7 @@ fun OverviewDashboard(
     LifecycleResumeEffect(prefsState.managedStopPackages) {
         viewModel.refreshAppStopperCounts(prefsState.managedStopPackages)
         viewModel.refreshNetworkSummary()
+        viewModel.refreshScreenTimeSummary()
         onPauseOrDispose { }
     }
 
@@ -668,6 +671,75 @@ fun BentoDashboardContent(
             }
         }
 
+        // Screen Time Bento Block
+        Card(
+            onClick = { onNavigateTo(AppRoutes.ScreenTime) },
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.QueryStats,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column {
+                        Text(
+                            text = stringResource(R.string.bento_screentime_title),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        val subtitle = when {
+                            !uiState.hasUsageAccess -> stringResource(R.string.onboarding_perm_usage_title)
+                            uiState.topUsedAppName.isNotBlank() -> "Most used: ${uiState.topUsedAppName}"
+                            else -> stringResource(R.string.bento_screentime_desc)
+                        }
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (uiState.hasUsageAccess && uiState.screenTimeTodayMillis > 0L) {
+                        Text(
+                            text = ScreenUsageHelper.formatDuration(uiState.screenTimeTodayMillis),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Black,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+
         // Tools & Diagnostics Duo Row: Live Sensors & Security/DRM
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1023,6 +1095,7 @@ fun QuickReachRibbon(
             Triple("Storage", Icons.Default.Storage) { onNavigateTo(AppRoutes.Storage) },
             Triple("Network", Icons.Default.Wifi) { onNavigateTo(AppRoutes.Network) },
             Triple("Apps", Icons.Default.Apps) { onNavigateTo(AppRoutes.AppStopper) },
+            Triple("Screen Time", Icons.Default.QueryStats) { onNavigateTo(AppRoutes.ScreenTime) },
             Triple("Sensors", Icons.Default.Sensors) { onNavigateTo(AppRoutes.Sensors) },
             Triple("Battery", Icons.Default.BatteryStd) { onNavigateTo(AppRoutes.Battery) },
             Triple("Cameras", Icons.Default.CameraAlt) { onNavigateTo(AppRoutes.Camera) },

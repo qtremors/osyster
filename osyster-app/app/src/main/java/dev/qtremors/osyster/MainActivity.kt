@@ -60,6 +60,7 @@ import dev.qtremors.osyster.ui.navigation.OsysterDock
 import dev.qtremors.osyster.settings.PreferencesBackupManager
 import dev.qtremors.osyster.ui.navigation.OsysterDockItem
 import dev.qtremors.osyster.ui.onboarding.OnboardingScreen
+import dev.qtremors.osyster.ui.screentime.ScreenTimeDashboard
 import dev.qtremors.osyster.ui.settings.LegalDocumentScreen
 import dev.qtremors.osyster.ui.settings.LicensesScreen
 import dev.qtremors.osyster.ui.settings.SettingsScreen
@@ -265,6 +266,10 @@ class MainActivity : ComponentActivity() {
                                                                     scope.launch { pagerState.animateScrollToPage(1) }
                                                                 }
                                                                 is AppRoutes.Processes -> {
+                                                                    appsInitialTab = 2
+                                                                    scope.launch { pagerState.animateScrollToPage(2) }
+                                                                }
+                                                                is AppRoutes.ScreenTime -> {
                                                                     appsInitialTab = 1
                                                                     scope.launch { pagerState.animateScrollToPage(2) }
                                                                 }
@@ -526,6 +531,23 @@ class MainActivity : ComponentActivity() {
                                     OsysterDock(
                                         modifier = Modifier.align(Alignment.BottomCenter),
                                         title = stringResource(R.string.drm_section_title),
+                                        onBackClick = { navController.popBackStack() },
+                                        hapticEnabled = prefsState.hapticFeedback
+                                    )
+                                }
+                            }
+                            composable<AppRoutes.ScreenTime> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .statusBarsPadding()
+                                ) {
+                                    ScreenTimeDashboard(
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                    OsysterDock(
+                                        modifier = Modifier.align(Alignment.BottomCenter),
+                                        title = stringResource(R.string.screentime_title),
                                         onBackClick = { navController.popBackStack() },
                                         hapticEnabled = prefsState.hapticFeedback
                                     )

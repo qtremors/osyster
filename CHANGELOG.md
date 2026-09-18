@@ -1,8 +1,18 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.1.4
-> **Last Updated:** 2026-09-12
+> **Version:** 0.1.5
+> **Last Updated:** 2026-09-18
+
+---
+
+## [0.1.5] - 2026-09-18
+
+- **Digital Wellbeing & Screen Time Tracker**: Added local screen time tracking featuring daily usage hero summary, animated digit ticker, daily target goal with linear wavy progress indicator, yesterday trend comparison, 7-day interactive history chart, 24-hour distribution breakdown, and per-app foreground time metrics.
+- **Onboarding Statistics & Permissions Flow**: Added a dedicated Statistics Experience step to onboarding with selectable options ("Start Fresh" vs "Populate with System Data"), pros and cons comparisons, and redesigned permission cards featuring connected containers, live permission status updates, and collapsible app stability controls.
+- **Interactive Permission Bottom Sheet**: Added a modal permission sheet accessible from screen time warnings with live status checking for Usage Access, Notifications, and Battery Optimization.
+- **Bento & Quick Reach Screen Time Access**: Added today's screen time overview Bento card and instant jump ribbon shortcuts directly from the main dashboard.
+- **Material 3 Expressive UI & Motion**: Implemented connected container groupings with morphing corner radii, smooth scale touch bounces, rolling digit tickers, wavy progress gauges, and segmented toggle groups across tabs and permission lists.
 
 ---
 

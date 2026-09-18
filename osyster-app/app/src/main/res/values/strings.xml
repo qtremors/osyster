@@ -514,4 +514,64 @@
     <string name="drm_hdcp_level">Connected HDCP</string>
     <string name="drm_max_hdcp">Maximum HDCP</string>
     <string name="drm_clearkey">ClearKey CDM</string>
+
+    <!-- Screen Time & Digital Wellbeing -->
+    <string name="dock_screentime">Screen Time</string>
+    <string name="screentime_title">Screen Time</string>
+    <string name="screentime_daily_headline">Daily Screen Time</string>
+    <string name="screentime_target_label">Target</string>
+    <string name="screentime_target_remaining">%1$s left</string>
+    <string name="screentime_target_exceeded">Limit reached! Time to rest</string>
+    <string name="screentime_yesterday">Yesterday</string>
+    <string name="screentime_trend">Trend</string>
+    <string name="screentime_history_title">Last 7 Days</string>
+    <string name="screentime_hourly_title">Hourly Usage</string>
+    <string name="screentime_hourly_tap_hint">Tap a bar for details</string>
+    <string name="screentime_top_apps">Top Used Apps</string>
+    <string name="screentime_all_apps">All App Usage</string>
+    <string name="screentime_search_hint">Search apps…</string>
+    <string name="screentime_other_apps">Other Apps (&lt; 1 min)</string>
+    <string name="screentime_set_target_title">Daily Screen Time Target</string>
+    <string name="screentime_set_target_desc">Set a mindful device usage goal for each day</string>
+    <string name="screentime_target_hours">Hours</string>
+    <string name="screentime_target_minutes">Minutes</string>
+    <string name="screentime_save_target">Save Target</string>
+    <string name="screentime_remove_target">Remove</string>
+    <string name="screentime_streak_label">Day Streak</string>
+    <string name="screentime_today">Today</string>
+    <string name="screentime_none">None</string>
+    <string name="screentime_opens">%d opens</string>
+    <string name="screentime_apps_at_hour">Apps at %02d:00</string>
+    <string name="screentime_clear_filter">Clear Filter</string>
+    <string name="screentime_no_target_hint">No daily target set • Tap to set a goal</string>
+    <string name="screentime_perm_title">Usage Access Required</string>
+    <string name="screentime_perm_desc">Grant Usage Stats permission to track screen time and app launches.</string>
+    <string name="screentime_perm_grant">Grant</string>
+    <string name="bento_screentime_title">Screen Time</string>
+    <string name="bento_screentime_desc">Today Device Usage</string>
+
+    <!-- Onboarding Statistics Experience & Permissions -->
+    <string name="onboarding_stats_title">Statistic Experience</string>
+    <string name="onboarding_stats_subtitle">Choose how you want to see your usage history starting from today.</string>
+    <string name="onboarding_stats_fresh_title">Start Fresh (Recommended)</string>
+    <string name="onboarding_stats_fresh_desc">Only show screen time recorded from now on. Previous days remain clean.</string>
+    <string name="onboarding_stats_fresh_pro1">Accurate tracking</string>
+    <string name="onboarding_stats_fresh_pro2">Clean visualization</string>
+    <string name="onboarding_stats_fresh_con1">No history for past days</string>
+    <string name="onboarding_stats_fresh_con2">Needs ongoing usage for stats</string>
+    <string name="onboarding_stats_system_title">Populate with System Data</string>
+    <string name="onboarding_stats_system_desc">Use Android system usage logs to fill history for previous days.</string>
+    <string name="onboarding_stats_system_pro1">Instant historical data</string>
+    <string name="onboarding_stats_system_pro2">Complete 7-day overview</string>
+    <string name="onboarding_stats_system_con1">Approximate from system logs</string>
+    <string name="onboarding_stats_system_con2">May include background tasks</string>
+    <string name="onboarding_permissions_setup_title">Setup Required</string>
+    <string name="onboarding_permissions_setup_subtitle">Osyster needs these permissions to monitor system telemetry and track your app screen time.</string>
+    <string name="onboarding_perm_ready">Everything is Ready!</string>
+    <string name="onboarding_perm_continue">Continue to App</string>
+    <string name="perm_notifications_title">Notifications</string>
+    <string name="perm_notifications_desc">For screen time target alerts and monitor status</string>
+    <string name="perm_stability_title">App Stability</string>
+    <string name="perm_battery_opt_title">Battery Optimization</string>
+    <string name="perm_battery_opt_desc">Prevent system from killing background monitoring</string>
 </resources>

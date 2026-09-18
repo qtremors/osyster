@@ -55,7 +55,10 @@ data class BentoUiState(
     val sensorCount: Int = 0,
     val cameraCount: Int = 0,
     val maxCameraMp: String = "",
-    val drmSecurityLevel: String = ""
+    val drmSecurityLevel: String = "",
+    val screenTimeTodayMillis: Long = 0L,
+    val topUsedAppName: String = "",
+    val hasUsageAccess: Boolean = false
 ) {
     val ramUsedPercent: Float
         get() = if (memoryState.ramTotalKb > 0) {
@@ -83,6 +86,7 @@ class BentoViewModel(
             try {
                 while (true) {
                     refreshNetworkSummary()
+                    refreshScreenTimeSummary()
                     delay(30_000L)
                 }
             } finally {
@@ -227,6 +231,36 @@ class BentoViewModel(
                 .collectLatest { count ->
                     _uiState.update { it.copy(processesCount = count) }
                 }
+        }
+    }
+
+    fun refreshScreenTimeSummary() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val context = getApplication<Application>()
+            val hasUsage = dev.qtremors.osyster.ui.onboarding.checkUsageAccessPermission(context)
+            if (!hasUsage) {
+                _uiState.update { it.copy(hasUsageAccess = false, screenTimeTodayMillis = 0L, topUsedAppName = "") }
+                return@launch
+            }
+            val usageStatsManager = context.getSystemService(android.content.Context.USAGE_STATS_SERVICE) as? android.app.usage.UsageStatsManager
+            if (usageStatsManager != null) {
+                val usageResult = dev.qtremors.osyster.monitor.ScreenUsageHelper.fetchDetailedUsageToday(usageStatsManager)
+                val topPackage = usageResult.appUsageMap.maxByOrNull { it.value }?.key.orEmpty()
+                val pm = context.packageManager
+                val topName = if (topPackage.isNotEmpty()) {
+                    runCatching {
+                        val appInfo = pm.getApplicationInfo(topPackage, 0)
+                        pm.getApplicationLabel(appInfo).toString()
+                    }.getOrDefault(topPackage.substringAfterLast('.'))
+                } else ""
+                _uiState.update {
+                    it.copy(
+                        hasUsageAccess = true,
+                        screenTimeTodayMillis = usageResult.totalGlobalUsage,
+                        topUsedAppName = topName
+                    )
+                }
+            }
         }
     }
 }

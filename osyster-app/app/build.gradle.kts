@@ -14,8 +14,8 @@ android {
         applicationId = "dev.qtremors.osyster"
         minSdk = 24
         targetSdk = 37
-        versionCode = 14
-        versionName = "0.1.4"
+        versionCode = 15
+        versionName = "0.1.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
