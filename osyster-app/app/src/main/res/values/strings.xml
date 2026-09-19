@@ -617,4 +617,16 @@
     <string name="widget_music_repeat_all_desc">Repeat all on; switch to repeat one</string>
     <string name="widget_music_repeat_one_desc">Repeat one on; turn repeat off</string>
     <string name="music_notification_service_label">Osyster Music Service</string>
+    <string name="stay_awake_title">Stay awake</string>
+    <string name="stay_awake_tile_desc">Keep the screen on while plugged in</string>
+    <string name="stay_awake_on">On</string>
+    <string name="stay_awake_off">Off</string>
+    <string name="stay_awake_setup">Setup</string>
+    <string name="stay_awake_setup_title">Enable ADB control</string>
+    <string name="stay_awake_setup_desc">Android protects the global Stay awake setting. Run this command once from a connected computer, then tap Check again. You can also manage Stay awake manually in Developer options.</string>
+    <string name="stay_awake_copy_command">Copy command</string>
+    <string name="stay_awake_command_copied">ADB command copied</string>
+    <string name="stay_awake_developer_options">Developer options</string>
+    <string name="stay_awake_check_again">Check again</string>
+    <string name="stay_awake_change_failed">Couldn\'t change the Stay awake setting</string>
 </resources>

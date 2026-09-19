@@ -1,8 +1,14 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.1.8
+> **Version:** 0.1.9
 > **Last Updated:** 2026-09-19
+
+---
+
+## [0.1.9] - 2026-09-19
+
+- **Stay Awake Control**: Added a compact dashboard toggle with one-time ADB permission setup and plugged-in screen control.
 
 ---
 

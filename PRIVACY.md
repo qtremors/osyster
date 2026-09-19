@@ -1,6 +1,6 @@
 # Privacy Policy for Osyster
 
-**Last Updated:** 2026-09-06
+**Last Updated:** 2026-09-19
 
 Osyster is built with a privacy-first, local-only architecture. This policy explains how the application handles your system and device information.
 
@@ -28,11 +28,12 @@ Osyster reads native Linux kernel interfaces and Android system broadcasts stric
 - **Device Information:** Android Build APIs provide manufacturer, model, hardware, and OS details.
 - **Network Usage:** Usage access permits historical per-app/device network queries; network-state permission supports connection detection. Optional phone permission supports carrier metadata and older mobile-query fallbacks. Below Android 10, mobile queries may read a subscriber ID locally; Osyster does not save or transmit it.
 - **Installed Apps:** Package visibility supports app names, icons, stopped-state checks, and App Stopper selection.
-- **Notifications:** Osyster does not request notification permission; status readouts and thermal-alert notifications are not implemented.
+- **Music Notifications:** Optional Notification Listener access reads active media-session notifications locally to show track details, artwork, and controls in music widgets. Unrelated notification content is ignored and never saved.
+- **Stay Awake:** The dashboard can read Android's plugged-in Stay awake setting. It can change only that setting after you explicitly grant the protected `WRITE_SECURE_SETTINGS` permission through ADB; the app never receives this access automatically.
 
 Diagnostic snapshots and short chart histories remain in process memory rather than a saved telemetry database. Recurring telemetry polling stops when its screen is hidden or the app is not resumed. Some collector failures print stack traces to local Android logs; no logs are uploaded.
 
-SharedPreferences save settings, onboarding completion, selected App Stopper packages, cached labels, and grid columns. Cached labels preserve ghost entries after uninstall. Removing a managed entry removes its saved package and label; clearing app storage removes saved preferences and managed-app information. Backup and device-transfer rules exclude SharedPreferences. About copy actions place the selected version or device summary on the Android clipboard at your request.
+SharedPreferences save settings, onboarding completion, selected App Stopper packages, cached labels, grid columns, and the last active media title, artist, package, and playback modes. Album artwork is kept in the app cache and can be removed by Android at any time. Cached labels preserve ghost entries after uninstall. Removing a managed entry removes its saved package and label; clearing app storage removes saved preferences and media cache. Backup and device-transfer rules exclude SharedPreferences, and cache files are not backed up. About copy actions place the selected version or device summary on the Android clipboard at your request.
 
 ## 5. Local Process Control
 

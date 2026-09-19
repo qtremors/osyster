@@ -2,6 +2,10 @@
 
 package dev.qtremors.osyster.ui.overview
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -10,6 +14,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -46,6 +52,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -73,6 +80,9 @@ import dev.qtremors.osyster.navigation.AppRoutes
 import dev.qtremors.osyster.settings.OsysterPreferencesManager
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.settings.OsysterPreferencesState
+import dev.qtremors.osyster.settings.StayAwakeChangeResult
+import dev.qtremors.osyster.settings.StayAwakeController
+import dev.qtremors.osyster.settings.StayAwakeState
 import dev.qtremors.osyster.ui.theme.MotionTokens
 import dev.qtremors.osyster.ui.theme.OsysterTheme
 import dev.qtremors.osyster.ui.theme.pressBounce
@@ -124,11 +134,15 @@ fun OverviewDashboard(
     val preferencesManager = remember { OsysterPreferencesManager.getInstance(context) }
     val prefsState by preferencesManager.state.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsVisibleState()
+    val stayAwakeChangeFailedMessage = stringResource(R.string.stay_awake_change_failed)
+    var stayAwakeState by remember { mutableStateOf(StayAwakeController.read(context)) }
+    var showStayAwakeSetup by remember { mutableStateOf(false) }
 
     LifecycleResumeEffect(prefsState.managedStopPackages) {
         viewModel.refreshAppStopperCounts(prefsState.managedStopPackages)
         viewModel.refreshNetworkSummary()
         viewModel.refreshScreenTimeSummary()
+        stayAwakeState = StayAwakeController.read(context)
         onPauseOrDispose { }
     }
 
@@ -137,8 +151,30 @@ fun OverviewDashboard(
         prefsState = prefsState,
         onNavigateTo = onNavigateTo,
         onOpenSettings = onOpenSettings,
+        stayAwakeState = stayAwakeState,
+        onToggleStayAwake = {
+            when (StayAwakeController.setEnabled(context, !stayAwakeState.enabled)) {
+                StayAwakeChangeResult.CHANGED -> stayAwakeState = StayAwakeController.read(context)
+                StayAwakeChangeResult.PERMISSION_REQUIRED -> showStayAwakeSetup = true
+                StayAwakeChangeResult.FAILED -> Toast.makeText(
+                    context,
+                    stayAwakeChangeFailedMessage,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        },
         modifier = modifier
     )
+
+    if (showStayAwakeSetup) {
+        StayAwakeSetupDialog(
+            onDismiss = { showStayAwakeSetup = false },
+            onPermissionRecheck = {
+                stayAwakeState = StayAwakeController.read(context)
+                if (stayAwakeState.canWrite) showStayAwakeSetup = false
+            }
+        )
+    }
 }
 
 @Deprecated(
@@ -167,7 +203,9 @@ fun BentoDashboardContent(
     prefsState: OsysterPreferencesState,
     onNavigateTo: (AppRoutes) -> Unit,
     modifier: Modifier = Modifier,
-    onOpenSettings: () -> Unit = {}
+    onOpenSettings: () -> Unit = {},
+    stayAwakeState: StayAwakeState = StayAwakeState(false, false, 0),
+    onToggleStayAwake: () -> Unit = {}
 ) {
     val cpuState = uiState.cpuState
     val memoryState = uiState.memoryState
@@ -209,6 +247,13 @@ fun BentoDashboardContent(
         QuickReachRibbon(
             onNavigateTo = onNavigateTo,
             hapticEnabled = prefsState.hapticFeedback
+        )
+
+        StayAwakeTile(
+            state = stayAwakeState,
+            hapticEnabled = prefsState.hapticFeedback,
+            onToggle = onToggleStayAwake,
+            modifier = Modifier.fillMaxWidth()
         )
 
         // Core Duo Row: CPU & GPU Diagnostics
@@ -947,6 +992,170 @@ fun BentoDashboardContent(
 
         Spacer(modifier = Modifier.height(LocalBottomContentPadding.current))
     }
+}
+
+@Composable
+private fun StayAwakeTile(
+    state: StayAwakeState,
+    hapticEnabled: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+    val active = state.enabled
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (active) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerHigh
+            }
+        ),
+        modifier = modifier
+            .toggleable(
+                value = active,
+                role = Role.Switch,
+                onValueChange = {
+                    OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
+                    onToggle()
+                }
+            )
+            .pressBounce()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = if (active) {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHighest
+                },
+                modifier = Modifier.size(44.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.DeveloperMode,
+                        contentDescription = null,
+                        tint = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.stay_awake_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Black
+                )
+                Text(
+                    text = stringResource(R.string.stay_awake_tile_desc),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Surface(
+                shape = RoundedCornerShape(100),
+                color = if (active) {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHighest
+                }
+            ) {
+                Text(
+                    text = stringResource(
+                        when {
+                            !state.canWrite -> R.string.stay_awake_setup
+                            active -> R.string.stay_awake_on
+                            else -> R.string.stay_awake_off
+                        }
+                    ),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StayAwakeSetupDialog(
+    onDismiss: () -> Unit,
+    onPermissionRecheck: () -> Unit
+) {
+    val context = LocalContext.current
+    val command = remember(context) { StayAwakeController.grantCommand(context) }
+    val copiedMessage = stringResource(R.string.stay_awake_command_copied)
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { Icon(Icons.Default.Terminal, contentDescription = null) },
+        title = { Text(stringResource(R.string.stay_awake_setup_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(R.string.stay_awake_setup_desc))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest
+                ) {
+                    SelectionContainer {
+                        Text(
+                            text = command,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(
+                        onClick = {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+                            clipboard?.setPrimaryClip(ClipData.newPlainText("ADB command", command))
+                            Toast.makeText(
+                                context,
+                                copiedMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    ) {
+                        Text(stringResource(R.string.stay_awake_copy_command))
+                    }
+                    TextButton(
+                        onClick = {
+                            runCatching { context.startActivity(StayAwakeController.developerOptionsIntent()) }
+                        }
+                    ) {
+                        Text(stringResource(R.string.stay_awake_developer_options))
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onPermissionRecheck) {
+                Text(stringResource(R.string.stay_awake_check_again))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(android.R.string.cancel))
+            }
+        }
+    )
 }
 
 // =========================================================================
