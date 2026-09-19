@@ -574,4 +574,23 @@
     <string name="perm_stability_title">App Stability</string>
     <string name="perm_battery_opt_title">Battery Optimization</string>
     <string name="perm_battery_opt_desc">Prevent system from killing background monitoring</string>
+
+    <!-- Data Usage Widgets -->
+    <string name="widget_day_title">Day</string>
+    <string name="widget_month_title">Month</string>
+    <string name="widget_day_data_usage_name">Day Data Usage</string>
+    <string name="widget_day_data_usage_desc">Displays today\'s cellular and Wi-Fi data usage</string>
+    <string name="widget_month_data_usage_name">Month Data Usage</string>
+    <string name="widget_month_data_usage_desc">Displays monthly cellular and Wi-Fi data usage</string>
+    <string name="widget_refresh_description">Refresh data usage</string>
+    <string name="widget_permission_required">Tap to set up</string>
+    <string name="network_mobile_label">Cellular data</string>
+    <string name="network_wifi_label">Wi-Fi data</string>
+    <string name="widget_combined_title">Data Usage</string>
+    <string name="widget_combined_data_usage_name">Data Usage (Combined)</string>
+    <string name="widget_combined_data_usage_desc">Displays both daily and monthly mobile data and Wi-Fi usage</string>
+    <string name="widget_label_today">Today</string>
+    <string name="widget_label_month">This Month</string>
+    <string name="widget_network_mobile">Mobile</string>
+    <string name="widget_network_wifi">Wi-Fi</string>
 </resources>

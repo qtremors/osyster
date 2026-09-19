@@ -2,12 +2,14 @@
 
 package dev.qtremors.osyster
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import dev.qtremors.osyster.widget.DataUsageWidgetUpdater
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -79,9 +81,13 @@ enum class SettingsSubpage {
 }
 
 class MainActivity : ComponentActivity() {
+
+    private var targetScreenState by mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        targetScreenState = intent?.getStringExtra("target_screen")
         setContent {
             val context = LocalContext.current
             val view = LocalView.current
@@ -122,6 +128,17 @@ class MainActivity : ComponentActivity() {
                         settingsSubpage = SettingsSubpage.SETTINGS
                         licenseParentSubpage = SettingsSubpage.SETTINGS
                     }
+                }
+
+                LaunchedEffect(targetScreenState, prefsState.isOnboardingCompleted) {
+                    if (targetScreenState == "network" && prefsState.isOnboardingCompleted) {
+                        pagerState.animateScrollToPage(1)
+                        targetScreenState = null
+                    }
+                }
+
+                LaunchedEffect(Unit) {
+                    DataUsageWidgetUpdater.updateAllActiveWidgets(context)
                 }
 
                 val pullRefreshState = rememberPullToRefreshState()
@@ -751,5 +768,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        targetScreenState = intent.getStringExtra("target_screen")
     }
 }

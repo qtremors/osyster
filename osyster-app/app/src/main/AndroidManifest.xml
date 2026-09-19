@@ -36,6 +36,48 @@
             </intent-filter>
         </activity>
 
+        <!-- Day Data Usage Widget -->
+        <receiver
+            android:name=".widget.DailyDataUsageWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_day_data_usage_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="dev.qtremors.osyster.action.REFRESH_DAY_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_day_data_usage_info" />
+        </receiver>
+
+        <!-- Month Data Usage Widget -->
+        <receiver
+            android:name=".widget.MonthlyDataUsageWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_month_data_usage_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="dev.qtremors.osyster.action.REFRESH_MONTH_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_month_data_usage_info" />
+        </receiver>
+
+        <!-- Combined 4x4 Data Usage Widget -->
+        <receiver
+            android:name=".widget.CombinedDataUsageWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_combined_data_usage_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="dev.qtremors.osyster.action.REFRESH_COMBINED_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_combined_data_usage_info" />
+        </receiver>
+
     </application>
 
 </manifest>

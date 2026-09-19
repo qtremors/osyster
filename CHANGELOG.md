@@ -1,8 +1,14 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.1.6
-> **Last Updated:** 2026-09-18
+> **Version:** 0.1.7
+> **Last Updated:** 2026-09-19
+
+---
+
+## [0.1.7] - 2026-09-19
+
+- **Data Usage Widgets**: Added Day, Month, and Combined home-screen widgets with cellular and Wi-Fi totals, refresh actions, and direct Network dashboard access.
 
 ---
 
