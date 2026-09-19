@@ -58,6 +58,7 @@ fun PermissionBottomSheet(
 
     var hasUsageAccess by remember { mutableStateOf(checkUsageAccessPermission(context)) }
     var hasNotifications by remember { mutableStateOf(checkNotificationPermission(context)) }
+    var hasNotificationAccess by remember { mutableStateOf(checkNotificationListenerPermission(context)) }
     var isIgnoringBatteryOptimizations by remember { mutableStateOf(checkBatteryOptimization(context)) }
     var stabilityExpanded by remember { mutableStateOf(false) }
 
@@ -76,6 +77,7 @@ fun PermissionBottomSheet(
             if (event == Lifecycle.Event.ON_RESUME) {
                 hasUsageAccess = checkUsageAccessPermission(context)
                 hasNotifications = checkNotificationPermission(context)
+                hasNotificationAccess = checkNotificationListenerPermission(context)
                 isIgnoringBatteryOptimizations = checkBatteryOptimization(context)
             }
         }
@@ -139,7 +141,7 @@ fun PermissionBottomSheet(
                 description = stringResource(R.string.perm_notifications_desc),
                 icon = Icons.Outlined.Notifications,
                 isGranted = hasNotifications,
-                position = GroupPosition.Bottom,
+                position = GroupPosition.Middle,
                 onClick = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         notificationLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
@@ -147,6 +149,18 @@ fun PermissionBottomSheet(
                         openNotificationSettings(context)
                     }
                 }
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Music & Notification Listener Access
+            PermissionCardRow(
+                title = stringResource(R.string.perm_music_listener_title),
+                description = stringResource(R.string.perm_music_listener_desc),
+                icon = Icons.Outlined.MusicNote,
+                isGranted = hasNotificationAccess,
+                position = GroupPosition.Bottom,
+                onClick = { openNotificationListenerSettings(context) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -456,4 +470,15 @@ fun openBatteryOptimizationSettings(context: Context) {
         }
         runCatching { context.startActivity(fallback) }
     }
+}
+
+fun checkNotificationListenerPermission(context: Context): Boolean {
+    return dev.qtremors.osyster.widget.music.MusicWidgetManager.hasNotificationAccess(context)
+}
+
+fun openNotificationListenerSettings(context: Context) {
+    val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    }
+    runCatching { context.startActivity(intent) }
 }

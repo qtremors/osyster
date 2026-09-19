@@ -78,6 +78,46 @@
                 android:resource="@xml/widget_combined_data_usage_info" />
         </receiver>
 
+        <!-- Music Notification Listener Service -->
+        <service
+            android:name=".widget.music.MusicNotificationListenerService"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".widget.music.MusicWidgetControlReceiver"
+            android:exported="false" />
+
+        <!-- Music 3x3 Circular Widget -->
+        <receiver
+            android:name=".widget.music.Music3x3WidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_music_3x3_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_music_3x3_info" />
+        </receiver>
+
+        <!-- Music 5x1 Pill Widget -->
+        <receiver
+            android:name=".widget.music.Music5x1WidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_music_5x1_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_music_5x1_info" />
+        </receiver>
+
     </application>
 
 </manifest>

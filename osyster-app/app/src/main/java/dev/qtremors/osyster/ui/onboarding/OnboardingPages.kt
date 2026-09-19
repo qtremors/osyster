@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.outlined.AutoGraph
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.BatteryStd
+import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.QueryStats
 import androidx.compose.material.icons.outlined.Security
@@ -389,6 +390,8 @@ fun OnboardingPermissionsPage(
     onRequestUsageAccessPermission: () -> Unit,
     hasNotificationPermission: Boolean,
     onRequestNotificationPermission: () -> Unit,
+    hasNotificationAccessPermission: Boolean = false,
+    onRequestNotificationAccessPermission: () -> Unit = {},
     isIgnoringBatteryOptimizations: Boolean,
     onRequestBatteryOptimization: () -> Unit,
     modifier: Modifier = Modifier
@@ -421,8 +424,19 @@ fun OnboardingPermissionsPage(
                 description = stringResource(R.string.perm_notifications_desc),
                 icon = Icons.Outlined.Notifications,
                 isGranted = hasNotificationPermission,
-                position = GroupPosition.Bottom,
+                position = GroupPosition.Middle,
                 onClick = onRequestNotificationPermission
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            PermissionCardRow(
+                title = stringResource(R.string.perm_music_listener_title),
+                description = stringResource(R.string.perm_music_listener_desc),
+                icon = Icons.Outlined.MusicNote,
+                isGranted = hasNotificationAccessPermission,
+                position = GroupPosition.Bottom,
+                onClick = onRequestNotificationAccessPermission
             )
 
             Spacer(modifier = Modifier.height(16.dp))

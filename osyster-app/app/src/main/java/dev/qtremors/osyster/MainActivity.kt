@@ -10,6 +10,7 @@ import androidx.activity.compose.PredictiveBackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import dev.qtremors.osyster.widget.DataUsageWidgetUpdater
+import dev.qtremors.osyster.widget.music.MusicWidgetUpdater
 import androidx.compose.animation.*
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -139,6 +140,7 @@ class MainActivity : ComponentActivity() {
 
                 LaunchedEffect(Unit) {
                     DataUsageWidgetUpdater.updateAllActiveWidgets(context)
+                    MusicWidgetUpdater.updateAllMusicWidgets(context)
                 }
 
                 val pullRefreshState = rememberPullToRefreshState()

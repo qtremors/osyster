@@ -574,6 +574,10 @@
     <string name="perm_stability_title">App Stability</string>
     <string name="perm_battery_opt_title">Battery Optimization</string>
     <string name="perm_battery_opt_desc">Prevent system from killing background monitoring</string>
+    <string name="perm_music_listener_title">Music &amp; Media Access</string>
+    <string name="perm_music_listener_desc">Reads active media notifications locally for widget artwork and controls; other notifications are ignored</string>
+    <string name="settings_permissions_title">App Permissions</string>
+    <string name="settings_permissions_desc">Manage usage access, notifications, and music controls</string>
 
     <!-- Data Usage Widgets -->
     <string name="widget_day_title">Day</string>
@@ -593,4 +597,24 @@
     <string name="widget_label_month">This Month</string>
     <string name="widget_network_mobile">Mobile</string>
     <string name="widget_network_wifi">Wi-Fi</string>
+    <string name="widget_music_3x3_name">Music Disc (3x3)</string>
+    <string name="widget_music_3x3_desc">Circular music player widget with album artwork and playback controls</string>
+    <string name="widget_music_5x1_name">Music Capsule (5x1)</string>
+    <string name="widget_music_5x1_desc">Horizontal pill music player widget with track details and controls</string>
+    <string name="widget_music_default_title">No Music Playing</string>
+    <string name="widget_music_default_artist">Start playback in a music app</string>
+    <string name="widget_music_access_needed_title">Music access needed</string>
+    <string name="widget_music_access_needed_desc">Tap here to enable notification access</string>
+    <string name="widget_music_play_desc">Play</string>
+    <string name="widget_music_pause_desc">Pause</string>
+    <string name="widget_music_next_desc">Next track</string>
+    <string name="widget_music_prev_desc">Previous track</string>
+    <string name="widget_music_shuffle_desc">Shuffle</string>
+    <string name="widget_music_repeat_desc">Repeat</string>
+    <string name="widget_music_shuffle_off_desc">Turn on shuffle</string>
+    <string name="widget_music_shuffle_on_desc">Shuffle on; turn off</string>
+    <string name="widget_music_repeat_off_desc">Turn on repeat</string>
+    <string name="widget_music_repeat_all_desc">Repeat all on; switch to repeat one</string>
+    <string name="widget_music_repeat_one_desc">Repeat one on; turn repeat off</string>
+    <string name="music_notification_service_label">Osyster Music Service</string>
 </resources>

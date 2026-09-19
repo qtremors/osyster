@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.Balance
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.LocalOffer
@@ -48,6 +49,7 @@ import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Security
+import dev.qtremors.osyster.ui.onboarding.PermissionBottomSheet
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Thermostat
@@ -141,6 +143,7 @@ fun SettingsScreen(
 
     val scrollState = rememberScrollState()
     val overscrollOffset = remember { Animatable(0f) }
+    var showPermissionSheet by remember { mutableStateOf(false) }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -406,8 +409,48 @@ fun SettingsScreen(
                     checked = state.blockScreenCapture,
                     onCheckedChange = manager::setBlockScreenCapture,
                     index = 0,
-                    count = 1,
+                    count = 2,
                     leadingIcon = Icons.Default.Security
+                )
+                SegmentedListItem(
+                    onClick = {
+                        OsysterHapticUtil.performTick(view, state.hapticFeedback)
+                        showPermissionSheet = true
+                    },
+                    shapes = expressiveSegmentedShapes(index = 1, count = 2),
+                    content = {
+                        Text(
+                            text = stringResource(R.string.settings_permissions_title),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium
+                        )
+                    },
+                    supportingContent = {
+                        Text(stringResource(R.string.settings_permissions_desc))
+                    },
+                    leadingContent = {
+                        Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.PrivacyTip,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    },
+                    trailingContent = {
+                        Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    },
+                    colors = ListItemDefaults.segmentedColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                    ),
+                    modifier = Modifier.height(IntrinsicSize.Min)
                 )
             }
         }
@@ -425,6 +468,12 @@ fun SettingsScreen(
         }
 
         Spacer(Modifier.height(12.dp))
+    }
+
+    if (showPermissionSheet) {
+        PermissionBottomSheet(
+            onDismissRequest = { showPermissionSheet = false }
+        )
     }
 }
 

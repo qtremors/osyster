@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/Theme.Osyster.AppWidget">
+
+    <!-- Adaptive Pill Background -->
+    <ImageView
+        android:id="@+id/widget_music_pill_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/widget_music_pill_background"
+        android:importantForAccessibility="no" />
+
+    <!-- Content Row with balanced padding to prevent overflow -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp">
+
+        <!-- Left artwork thumbnail: 52dp x 52dp with rounded corners, safely inset -->
+        <ImageView
+            android:id="@+id/widget_music_art_thumb"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="10dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/widget_music_default_title" />
+
+        <!-- Track Title & Artist Info -->
+        <LinearLayout
+            android:id="@+id/widget_music_info_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:id="@+id/widget_music_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="@string/widget_music_default_title"
+                android:textColor="@color/widget_music_primary_text"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:includeFontPadding="false" />
+
+            <TextView
+                android:id="@+id/widget_music_artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="@string/widget_music_default_artist"
+                android:textColor="@color/widget_music_secondary_text"
+                android:textSize="12sp"
+                android:includeFontPadding="false"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Playback Controls Row -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Shuffle -->
+            <ImageButton
+                android:id="@+id/widget_btn_shuffle"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="4dp"
+                android:background="@android:color/transparent"
+                android:padding="6dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_music_shuffle"
+                android:contentDescription="@string/widget_music_shuffle_desc" />
+
+            <!-- Previous -->
+            <ImageButton
+                android:id="@+id/widget_btn_prev"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="4dp"
+                android:background="@android:color/transparent"
+                android:padding="6dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_music_skip_previous"
+                android:contentDescription="@string/widget_music_prev_desc" />
+
+            <!-- Play / Pause Circular Button -->
+            <ImageButton
+                android:id="@+id/widget_btn_play_pause_5x1"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/widget_music_circle_background"
+                android:backgroundTint="@color/widget_music_button_bg"
+                android:padding="10dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_music_play"
+                android:contentDescription="@string/widget_music_play_desc" />
+
+            <!-- Next -->
+            <ImageButton
+                android:id="@+id/widget_btn_next"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="4dp"
+                android:background="@android:color/transparent"
+                android:padding="6dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_music_skip_next"
+                android:contentDescription="@string/widget_music_next_desc" />
+
+            <!-- Repeat -->
+            <ImageButton
+                android:id="@+id/widget_btn_repeat_5x1"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@android:color/transparent"
+                android:padding="6dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_music_repeat"
+                android:contentDescription="@string/widget_music_repeat_desc" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

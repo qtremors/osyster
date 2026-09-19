@@ -14,8 +14,8 @@ android {
         applicationId = "dev.qtremors.osyster"
         minSdk = 24
         targetSdk = 37
-        versionCode = 17
-        versionName = "0.1.7"
+        versionCode = 18
+        versionName = "0.1.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -174,6 +174,8 @@ dependencies {
     implementation(libs.androidx.compose.material3.adaptive.navigation)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.graphics.shapes)
+    implementation(libs.androidx.palette)
+    implementation(libs.androidx.media)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

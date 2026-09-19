@@ -1,8 +1,14 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.1.7
+> **Version:** 0.1.8
 > **Last Updated:** 2026-09-19
+
+---
+
+## [0.1.8] - 2026-09-19
+
+- **Music Widgets**: Added 3x3 disc and 5x1 capsule players with high-resolution artwork, stable multi-player session selection, live playback state, and compatible play, skip, shuffle, and repeat controls.
 
 ---
 

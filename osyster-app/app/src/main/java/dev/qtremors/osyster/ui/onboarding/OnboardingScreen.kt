@@ -97,6 +97,9 @@ fun OnboardingScreen(
     var hasNotificationPermission by remember {
         mutableStateOf(checkNotificationPermission(context))
     }
+    var hasNotificationAccessPermission by remember {
+        mutableStateOf(checkNotificationListenerPermission(context))
+    }
     var isIgnoringBatteryOptimizations by remember {
         mutableStateOf(checkBatteryOptimization(context))
     }
@@ -116,6 +119,7 @@ fun OnboardingScreen(
             if (event == Lifecycle.Event.ON_RESUME) {
                 hasUsageAccessPermission = checkUsageAccessPermission(context)
                 hasNotificationPermission = checkNotificationPermission(context)
+                hasNotificationAccessPermission = checkNotificationListenerPermission(context)
                 isIgnoringBatteryOptimizations = checkBatteryOptimization(context)
             }
         }
@@ -222,6 +226,11 @@ fun OnboardingScreen(
                         } else {
                             openNotificationSettings(context)
                         }
+                    },
+                    hasNotificationAccessPermission = hasNotificationAccessPermission,
+                    onRequestNotificationAccessPermission = {
+                        OsysterHapticUtil.performTick(view, prefsState.hapticFeedback)
+                        openNotificationListenerSettings(context)
                     },
                     isIgnoringBatteryOptimizations = isIgnoringBatteryOptimizations,
                     onRequestBatteryOptimization = {
