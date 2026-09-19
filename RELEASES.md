@@ -1,12 +1,85 @@
 # Osyster - Releases
 
 > **Project:** Osyster
-> **Version:** 0.1.0
-> **Last Updated:** 2026-09-06
+> **Version:** 0.2.0
+> **Last Updated:** 2026-09-19
 
 | Version | Release Date | Key Focus |
 | :--- | :--- | :--- |
+| [v0.2.0](#v020) | 2026-09-19 | Home-screen data and music widgets, expanded hardware diagnostics, Screen Time, modernized navigation and settings, and developer Stay Awake control |
 | [v0.1.0](#v010) | 2026-09-06 | First public release: offline system monitoring, Bento Grid dashboard, native kernel telemetry, App Stopper, network traffic tracking, and Material 3 Expressive UI |
+
+---
+
+# v0.2.0
+
+**Release Date:** September 19, 2026
+
+**Previous public release:** v0.1.0
+
+**Development range included:** v0.1.1 through v0.2.0
+
+**Known issues and roadmap:** Track active issues and ongoing engineering tasks in [TASKS.md](TASKS.md).
+
+Osyster v0.2.0 expands the private system monitor into a broader device utility suite. This release adds home-screen widgets, deeper hardware inspection, local Screen Time insights, streamlined navigation and settings, and an optional developer Stay Awake control while preserving the app's offline architecture.
+
+## Highlights
+
+- **Data Usage Widgets**: Place daily, monthly, or combined cellular and Wi-Fi totals on the home screen, refresh them directly, and jump into the Network dashboard.
+- **Music Widgets**: Choose a 3x3 artwork disc or 5x1 capsule player with track details, high-resolution artwork, live playback state, and player-supported play, skip, shuffle, and repeat controls.
+- **Stable Multi-Player Handling**: Music widgets follow one active media session at a time, keep controls and artwork attached to that player, and no longer prefer a specific music app.
+- **Developer Stay Awake**: Toggle Android's plugged-in Stay awake setting from a compact dashboard row after a guided one-time ADB permission grant.
+- **Screen Time Insights**: Review today's usage, a seven-day history, hourly activity, daily goals, and per-app foreground time using Android's local usage history.
+- **Expanded Hardware Diagnostics**: Inspect display, SoC and GPU, storage, battery, cameras, live sensors, connectivity, DRM, and security details from dedicated pages.
+- **Modernized Navigation and Motion**: Reach every subsystem from the Overview ribbon and three-pillar dock with spring transitions, tactile feedback, smoothed gauges, and rolling metric animations.
+- **Settings and Portability**: Use the redesigned Settings hub, export or restore preferences locally, review bundled licenses, and choose System, Light, Dark, or OLED presentation.
+
+## Home-Screen Widgets
+
+### Data Usage
+
+- Daily and monthly widgets show separate cellular and Wi-Fi totals.
+- The combined widget presents both time periods in one view.
+- Refresh controls update the displayed totals, while tapping the widget opens Network details.
+- Android Usage Access is required for historical totals. Widgets show a setup state when access is unavailable.
+
+### Music Playback
+
+- The 3x3 disc widget emphasizes album artwork; the 5x1 capsule adds track and artist text.
+- Artwork is loaded from the active media session at a resolution suited to the widget and cached only on the device.
+- Playback state updates immediately, while artwork processing runs away from the media callback path.
+- Shuffle and repeat use the selected player's media-session capabilities. Controls are hidden when a player does not expose support.
+- Optional Notification Listener access is used only to discover active media sessions and render local music controls.
+
+## Device and Usage Experience
+
+- Dedicated hardware pages expose GPU drivers, CPU topology, storage, display, battery, cameras, sensors, connectivity, and DRM capabilities.
+- The sensor oscilloscope plots live multi-channel readings with dynamic scaling and an interactive sensor selector.
+- Screen Time adds daily and weekly summaries, hourly distribution, goals, trends, and app-level foreground usage.
+- The Overview dashboard now includes device identity, uptime, deep sleep, Quick Reach shortcuts, and direct subsystem cards.
+- Settings adds local preference backup and restore, open-source notices, legal documents, theme controls, and telemetry refresh choices.
+- Onboarding and Settings present live access status and explain which statistics depend on Android Usage Access or optional Notification Listener access.
+- Privacy controls add optional screenshot and screen-recording protection for Osyster, while temperature formatting now includes Kelvin alongside Celsius and Fahrenheit.
+- Centralized motion physics provide reduced-motion-aware transitions, touch feedback, rolling metrics, and smoother telemetry gauges throughout the app.
+
+## Developer Stay Awake Setup
+
+Android protects the global plugged-in Stay awake setting. To authorize the installed release build once, connect the device through ADB and run:
+
+```bash
+adb shell pm grant dev.qtremors.osyster android.permission.WRITE_SECURE_SETTINGS
+```
+
+After the grant, enable **Stay awake** from the Overview dashboard. Android will keep the screen on while connected to AC, USB, wireless, or dock power and allow normal sleep when unplugged. Android Studio debug builds use the package `dev.qtremors.osyster.debug` instead.
+
+## Upgrade and Compatibility Notes
+
+- Android 7.0 or newer remains supported.
+- No root access is required.
+- Existing preferences and managed App Stopper entries are retained during an in-place upgrade.
+- Data widgets depend on launcher widget support and Android Usage Access.
+- Music behavior depends on the active player exposing a standards-compatible media session and the requested playback modes.
+- Osyster still declares no internet permission. Media metadata, artwork, diagnostics, and usage information remain on the device.
 
 ---
 

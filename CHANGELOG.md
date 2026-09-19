@@ -1,8 +1,98 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.1.0
-> **Last Updated:** 2026-09-06
+> **Version:** 0.2.0
+> **Last Updated:** 2026-09-19
+
+---
+
+## [0.2.0] - 2026-09-19
+
+- **Settings Diagnostics Redesign**: Modernized the Diagnostics and Telemetry settings section with compact horizontal segmented selectors for refresh intervals and temperature units, eliminating vertical clutter and integrating seamlessly into unified card containers.
+- **Touch Target Shape Clipping**: Fixed touch feedback, click indication, and ripple bounds across theme mode selectors, screen time history charts, expandable lists, and dashboard action chips to strictly conform to their rounded component boundaries.
+- **Showcase and Website Telemetry Cleanup**: Streamlined website preview graphics to feature live Screen Time, Data Usage, and Network Speedometer telemetry while removing OS restriction badges and unrepresentative process manager claims.
+
+---
+
+## [0.1.9] - 2026-09-19
+
+- **Stay Awake Control**: Added a compact dashboard toggle with one-time ADB permission setup and plugged-in screen control.
+
+---
+
+## [0.1.8] - 2026-09-19
+
+- **Music Widgets**: Added 3x3 disc and 5x1 capsule players with high-resolution artwork, stable multi-player session selection, live playback state, and compatible play, skip, shuffle, and repeat controls.
+
+---
+
+## [0.1.7] - 2026-09-19
+
+- **Data Usage Widgets**: Added Day, Month, and Combined home-screen widgets with cellular and Wi-Fi totals, refresh actions, and direct Network dashboard access.
+
+---
+
+## [0.1.6] - 2026-09-18
+
+- **Unified Physics & Motion Tokens**: Established centralized spring physics specifications (`TouchBounceSpring`, `MorphSpring`, `NavigationSpring`, `GaugeSmoothSpring`, `WeightSpring`, `DisabledShakeSpring`) alongside non-consuming `Modifier.pressBounce`, tactile `Modifier.expressiveClickable`, and system-wide reduced motion compliance.
+- **Expressive Navigation & Fluid Transitions**: Upgraded `NavHost` screen routes to spring-driven horizontal slide and parallax exit transitions, paired with smooth spring motion for the settings drawer and subpage navigators.
+- **Telemetry Gauge Smoothing & Rolling Tickers**: Applied critically damped spring smoothing across all arc gauges, wavy progress bars, hero sleep distribution, and memory allocation segments, paired with rolling digit tickers for CPU, Memory, and Battery metrics.
+- **Fluid Components & Tactile Haptics**: Added fluid weight expansion to tab rows and button groups, shake rejection physics on disabled actions, tactile virtual key haptics, and standardized connected container shapes (24.dp outer, 6.dp inner).
+
+---
+
+## [0.1.5] - 2026-09-18
+
+- **Digital Wellbeing & Screen Time Tracker**: Added local screen time tracking featuring daily usage hero summary, animated digit ticker, daily target goal with linear wavy progress indicator, yesterday trend comparison, 7-day interactive history chart, 24-hour distribution breakdown, and per-app foreground time metrics.
+- **Onboarding Statistics & Permissions Flow**: Added a dedicated Statistics Experience step to onboarding with selectable options ("Start Fresh" vs "Populate with System Data"), pros and cons comparisons, and redesigned permission cards featuring connected containers, live permission status updates, and collapsible app stability controls.
+- **Interactive Permission Bottom Sheet**: Added a modal permission sheet accessible from screen time warnings with live status checking for Usage Access, Notifications, and Battery Optimization.
+- **Bento & Quick Reach Screen Time Access**: Added today's screen time overview Bento card and instant jump ribbon shortcuts directly from the main dashboard.
+- **Material 3 Expressive UI & Motion**: Implemented connected container groupings with morphing corner radii, smooth scale touch bounces, rolling digit tickers, wavy progress gauges, and segmented toggle groups across tabs and permission lists.
+
+---
+
+## [0.1.4] - 2026-09-12
+
+- **Modern Settings Hub**: Redesigned settings with a fluid overscroll hero header, prominent app identity branding, split version and package pill, device hardware chip, and grouped external action buttons for issues, source code, releases, notices, privacy, and licenses.
+- **Simplified Pull-Down Indicator**: Streamlined the top dashboard pull-down pill to consistently display the settings icon and a clean "Settings" label without dynamic helper text.
+- **Preferences Backup & Restore**: Added offline export and import of application preferences via JSON files, complete with a structured confirmation preview dialog before applying changes.
+- **Open Source Notices & Dependency Catalog**: Added a dedicated Open Source Notices screen showcasing all bundled libraries, versions, repository links, and license identifiers.
+- **Bundled Legal Document Viewer**: Added a dedicated legal document viewer with selectable monospace typography for browsing full open source and project licenses directly inside the app.
+- **Tactile Motion & Component Styling**: Added squishy bounce click feedback across interactive controls, spring-animated theme mode selector, morphing accent palette selector, and cohesive container card grouping.
+
+---
+
+## [0.1.3] - 2026-09-12
+
+- **Direct-Reach Overview Hub**: Redesigned master dashboard into a direct-reach control center with instant 1-tap access to all subsystems.
+- **Hero Device Identity & Deep Sleep**: Added a hero device card showing model identity, Android version, security patch, uptime, and deep sleep telemetry.
+- **Quick Reach Action Ribbon**: Added a scrollable action ribbon for instant thumb access to CPU, GPU, RAM, Storage, Network, Apps, Sensors, Battery, Cameras, DRM, and Specs.
+- **Three-Pillar Navigation Dock**: Streamlined the floating bottom dock into 3 core pillars: Overview, Network, and Apps.
+- **Dedicated Standalone Pages**: Replaced category tabs with independent, dedicated pages for GPU, Storage, Battery, Display, System, Cameras, Sensors, and DRM.
+- **Direct-Return Back Navigation**: Restored direct back navigation to the dashboard from Network and Apps, paired with floating dock back controls on all subpages.
+- **Tab-First Nested Swipe Navigation**: Upgraded inner tabs to nested pagers so horizontal swipes switch between available tabs before traversing parent pages.
+- **Clean Screen Tops**: Removed redundant top back buttons and page headers in favor of the floating bottom dock, and eliminated top header clutter on the Overview Dashboard.
+
+---
+
+## [0.1.2] - 2026-09-12
+
+- **Streamlined 4-Pillar Navigation**: Reorganized navigation into 4 balanced, equal-access destinations on the floating bottom dock: Overview (Bento), Monitor (CPU, RAM, Network, Battery), Apps (Processes and App Stopper), and Hardware (Device Specs and Sensors).
+- **Consolidated Monitor Hub**: Integrated real-time CPU, RAM and SWAP, Network traffic, and Battery telemetry into a unified 4-tab monitor with connected button controls.
+- **Unified Application Manager**: Combined Active Processes and App Stopper under a single Apps hub, adding inline search and an accessible in-screen application management button.
+- **Pull-to-Reveal Settings Overlay**: Replaced the morphing dock button with an Acqua-inspired pull-down gesture that reveals a sleek settings capsule with progressive haptic feedback and slides Settings down from the top.
+- **Clean Symmetrical Dock**: Removed floating action button clutter from the bottom dock to ensure consistent and balanced navigation across all screens.
+- **Modular UI Architecture**: Refactored the UI layer into domain-specific packages (overview, monitor, apps, hardware) with backwards-compatible composable aliases.
+
+---
+
+## [0.1.1] - 2026-09-12
+
+- **Modular Hardware Diagnostics**: Expanded device specifications into segmented views for System, Device & Display, SoC & GPU clusters, Storage, Battery, Camera, Live Sensors, Connectivity, and Media DRM.
+- **Interactive Sensor Oscilloscope**: Added live multi-channel waveform visualization for device sensors with dynamic range scaling, real-time value inspector, and configurable sensor selector.
+- **Camera & Media DRM Inspection**: Added camera optical capabilities (facing, megapixels, resolution, aperture, OIS/EIS support) and DRM security levels (Widevine L1/L3, ClearKey, HDCP encryption).
+- **SoC Topology & Off-Screen GPU Querying**: Detailed CPU cluster core counts, ranges, and frequency scaling governors alongside OpenGL ES and Vulkan driver versions.
+- **Privacy & Unit Controls**: Added Kelvin temperature unit conversion and an optional screen capture blocking setting (FLAG_SECURE) to safeguard diagnostic telemetry from screenshots and screen recordings.
 
 ---
 

@@ -89,8 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.1 });
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-    initSparklineCanvas();
 });
 
 // Counter Animation
@@ -225,82 +223,4 @@ if (mobileMenuBtn && mobileMenu) {
             if (isMobileMenuOpen) toggleMobileMenu();
         });
     });
-}
-
-// Live Simulated Sparkline Canvas
-function initSparklineCanvas() {
-    const canvas = document.getElementById('sparkline-canvas');
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
-
-    const points = [18, 22, 19, 35, 42, 38, 55, 48, 62, 59, 45, 52, 68, 74, 58, 63, 71, 65, 82, 77];
-
-    function render() {
-        const width = rect.width;
-        const height = rect.height;
-
-        ctx.clearRect(0, 0, width, height);
-
-        // Draw sparkline curve
-        ctx.beginPath();
-        const step = width / (points.length - 1);
-
-        points.forEach((val, i) => {
-            const x = i * step;
-            const y = height - (val / 100) * (height - 16) - 8;
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        });
-
-        ctx.strokeStyle = '#00E6FF';
-        ctx.lineWidth = 2.5;
-        ctx.lineJoin = 'round';
-        ctx.lineCap = 'round';
-        ctx.stroke();
-
-        // Area fill
-        ctx.lineTo(width, height);
-        ctx.lineTo(0, height);
-        ctx.closePath();
-
-        const grad = ctx.createLinearGradient(0, 0, 0, height);
-        grad.addColorStop(0, 'rgba(0, 230, 255, 0.28)');
-        grad.addColorStop(1, 'rgba(0, 230, 255, 0.0)');
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        // Pulsing head point
-        const lastX = width;
-        const lastVal = points[points.length - 1];
-        const lastY = height - (lastVal / 100) * (height - 16) - 8;
-
-        ctx.beginPath();
-        ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
-        ctx.fillStyle = '#00E6FF';
-        ctx.fill();
-
-        const cpuReadout = document.getElementById('live-cpu-val');
-        if (cpuReadout) {
-            cpuReadout.innerText = `${Math.round(lastVal)}%`;
-        }
-    }
-
-    render();
-
-    // Subtle realtime shift every 1.5s
-    setInterval(() => {
-        const lastVal = points[points.length - 1];
-        const delta = (Math.random() - 0.48) * 14;
-        const nextVal = Math.min(94, Math.max(12, lastVal + delta));
-        points.shift();
-        points.push(nextVal);
-        render();
-    }, 1500);
 }

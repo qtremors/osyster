@@ -36,12 +36,49 @@
     <string name="interval_saver">3000 ms (Battery Saver)</string>
     <string name="interval_eco">5000 ms (Eco)</string>
     <string name="temp_unit">Temperature Unit</string>
-    <string name="temp_unit_description">Show temperature readouts in Celsius or Fahrenheit</string>
+    <string name="temp_unit_description">Show temperature readouts in Celsius, Fahrenheit, or Kelvin</string>
     <string name="unit_celsius">Celsius (°C)</string>
     <string name="unit_fahrenheit">Fahrenheit (°F)</string>
+    <string name="unit_kelvin">Kelvin (K)</string>
+    <string name="section_security_privacy">Security &amp; Privacy</string>
+    <string name="block_screen_capture">Block Screen Capture</string>
+    <string name="block_screen_capture_description">Prevent screenshots and hide window preview in recent apps</string>
     <string name="process_filter">Process Filter</string>
     <string name="process_filter_title">Show Kernel Threads</string>
     <string name="process_filter_description">Include low-level kernel worker threads in the task list</string>
+
+    <!-- Backup & Restore Section -->
+    <string name="section_backup_restore">Backup &amp; Restore</string>
+    <string name="export_backup">Export Backup</string>
+    <string name="export_backup_description">Save your settings and preferences to a JSON file</string>
+    <string name="restore_backup">Restore Backup</string>
+    <string name="restore_backup_description">Apply settings from an exported JSON backup</string>
+    <string name="backup_exported_success">Settings backup exported successfully</string>
+    <string name="backup_restored_success">Settings restored successfully</string>
+    <string name="restore_backup_confirmation_title">Restore settings backup</string>
+    <string name="restore_backup_confirmation_message">Restoring will apply the settings from this backup. Continue?</string>
+    <string name="backup_preview_items_header">Backup contents:</string>
+    <string name="backup_failed">Backup operation failed: %1$s</string>
+    <string name="confirm_restore">Restore</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+
+    <!-- Settings Hero Actions -->
+    <string name="about_action_issues">Issues</string>
+    <string name="about_action_github">GitHub</string>
+    <string name="about_action_releases">Releases</string>
+    <string name="about_action_notices">Notices</string>
+    <string name="about_action_privacy">Privacy</string>
+    <string name="about_action_license">License</string>
+    <string name="check_for_updates">Check for updates</string>
+    <string name="checking_for_updates">Checking for updates…</string>
+
+    <!-- Legal & Notices -->
+    <string name="notices_introduction">Osyster includes independent open-source runtime components. The complete license terms are bundled with the app and identify source and license information.</string>
+    <string name="notices_full_document">Complete legal license terms</string>
+    <string name="notices_full_document_description">Read the bundled copy of the software license</string>
+    <string name="runtime_libraries_title">Runtime libraries &amp; components</string>
+    <string name="legal_document_unavailable">This bundled legal document could not be loaded.</string>
 
     <!-- Info / About Section in Settings -->
     <string name="section_info">Info</string>
@@ -193,6 +230,11 @@
     <string name="app_stopper_add_apps_desc">Add Applications</string>
 
     <!-- Bento Dashboard -->
+    <string name="bento_hero_device">Device Overview</string>
+    <string name="bento_uptime">Uptime</string>
+    <string name="bento_deep_sleep">Deep Sleep</string>
+    <string name="bento_awake">Awake</string>
+    <string name="bento_quick_jump">Quick Jump</string>
     <string name="bento_processor_load">Processor Load</string>
     <string name="bento_cpu_load_format">%.1f%% Load</string>
     <string name="bento_active_ram">Active RAM</string>
@@ -206,6 +248,17 @@
     <string name="bento_app_stopper_with_uninstalled">%1$d monitored • %2$d uninstalled</string>
     <string name="bento_app_stopper_monitored">%d monitored apps</string>
     <string name="bento_virtual_swap">Virtual SWAP</string>
+    <string name="bento_gpu_title">GPU &amp; Graphics</string>
+    <string name="bento_hardware_specs">Device Specs</string>
+    <string name="bento_software_specs">Software &amp; OS</string>
+    <string name="bento_internal_storage">Storage</string>
+    <string name="bento_storage_free_format">%s Free</string>
+    <string name="bento_sensors_title">Live Sensors</string>
+    <string name="bento_sensors_count_format">%d Sensors</string>
+    <string name="bento_camera_title">Cameras</string>
+    <string name="bento_media_drm">Media DRM</string>
+    <string name="bento_open_hub">Open Hub</string>
+    <string name="dock_network">Network</string>
 
     <!-- Telemetry Dashboard -->
     <string name="telemetry_tab_cpu">CPU Telemetry</string>
@@ -303,11 +356,277 @@
     <string name="onboarding_skip">Skip</string>
 
     <!-- Dock Navigation -->
-    <string name="dock_dashboard">Dashboard</string>
-    <string name="dock_telemetry">Telemetry</string>
-    <string name="dock_tasks">Tasks</string>
+    <string name="dock_dashboard">Overview</string>
+    <string name="dock_telemetry">Monitor</string>
+    <string name="dock_tasks">Apps</string>
+    <string name="dock_hardware">Hardware</string>
     <string name="dock_toggle_telemetry">Toggle CPU / Memory</string>
+    <string name="pull_down_settings_hint">Pull down for Settings</string>
+    <string name="release_settings_hint">Release for Settings</string>
+    <string name="telemetry_tab_network">Network</string>
+    <string name="telemetry_tab_battery">Battery</string>
+    <string name="apps_tab_running_processes">Active Processes</string>
+    <string name="apps_tab_app_stopper">App Stopper</string>
     <string name="network_query_error">Some usage records could not be read. Totals may be incomplete. Check usage access and pull down to retry.</string>
     <string name="network_select_period">Select time period</string>
     <string name="network_period_usage">%1$s: %2$s download, %3$s upload</string>
+
+    <!-- Device Specifications Hub & Categories -->
+    <string name="category_all">All</string>
+    <string name="category_system">System</string>
+    <string name="category_device">Device</string>
+    <string name="category_soc_gpu">SoC &amp; GPU</string>
+    <string name="category_storage">Storage</string>
+    <string name="category_battery">Battery</string>
+    <string name="category_camera">Camera</string>
+    <string name="category_sensors">Sensors</string>
+    <string name="category_connectivity">Network</string>
+    <string name="category_drm">Media DRM</string>
+
+    <!-- System Specs Additional -->
+    <string name="system_released_with">Released With</string>
+    <string name="system_play_update">Google Play System Update</string>
+    <string name="system_build_number">Build Number</string>
+    <string name="system_kernel">Kernel Version</string>
+    <string name="system_baseband">Baseband Version</string>
+    <string name="system_build_fingerprint">Build Fingerprint</string>
+    <string name="system_build_type">Build Type</string>
+    <string name="system_build_tags">Build Tags</string>
+    <string name="system_performance_class">Performance Class</string>
+    <string name="system_min_target_sdk">Minimum Target SDK</string>
+    <string name="system_language">System Language</string>
+    <string name="system_uptime">Device Uptime</string>
+    <string name="system_usb_debugging">USB Debugging</string>
+    <string name="system_selinux">SELinux Status</string>
+    <string name="system_root">Root Access</string>
+    <string name="system_emulator">Emulator</string>
+    <string name="system_page_size">Kernel Page Size</string>
+    <string name="system_treble">Project Treble</string>
+    <string name="system_seamless_updates">Seamless Updates (A/B)</string>
+    <string name="system_active_slot">Active Boot Slot</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="supported">Supported</string>
+    <string name="not_supported">Not supported</string>
+    <string name="detected">Detected</string>
+    <string name="not_detected">Not detected</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+    <!-- Device & Display Specs -->
+    <string name="device_brand">Brand</string>
+    <string name="device_product">Product</string>
+    <string name="device_sku">SKU</string>
+    <string name="display_section_title">Display Specifications</string>
+    <string name="display_name">Display Name</string>
+    <string name="display_resolution">Resolution</string>
+    <string name="display_size">Screen Size</string>
+    <string name="display_aspect_ratio">Aspect Ratio</string>
+    <string name="display_refresh_rate">Refresh Rate</string>
+    <string name="display_supported_refresh_rates">Supported Refresh Rates</string>
+    <string name="display_pixel_density">Pixel Density</string>
+    <string name="display_density_bucket">Density Bucket</string>
+    <string name="display_orientation">Default Orientation</string>
+    <string name="display_hdr">HDR Support</string>
+    <string name="features_section_title">Hardware Security Features</string>
+    <string name="feature_fingerprint">Fingerprint Sensor</string>
+    <string name="feature_face_auth">Face Authentication</string>
+    <string name="feature_vulkan">Vulkan Hardware</string>
+    <string name="feature_encryption">Storage Encryption</string>
+
+    <!-- SoC & GPU Specs -->
+    <string name="soc_clusters_title">CPU Cluster Topology</string>
+    <string name="soc_cluster_item">Cluster #%1$d (%2$d Cores)</string>
+    <string name="soc_cluster_cores">Cores: %s</string>
+    <string name="soc_cluster_freq_range">Frequency Range</string>
+    <string name="soc_cluster_governor">Scaling Governor</string>
+    <string name="gpu_section_title">GPU Diagnostics</string>
+    <string name="gpu_vendor">GPU Vendor</string>
+    <string name="gpu_renderer">GPU Renderer</string>
+    <string name="gpu_gles_version">OpenGL ES Version</string>
+    <string name="gpu_vulkan_version">Vulkan Version</string>
+
+    <!-- Storage & Memory Specs -->
+    <string name="storage_section_title">Internal Storage</string>
+    <string name="storage_total">Total Storage</string>
+    <string name="storage_used">Used Storage</string>
+    <string name="storage_available">Available Storage</string>
+    <string name="ram_low_ram_device">Low RAM Profile</string>
+
+    <!-- Battery Specs Additional -->
+    <string name="battery_current">Instantaneous Current</string>
+    <string name="battery_current_ma">%d mA</string>
+    <string name="battery_cycle_count">Cycle Count</string>
+    <string name="battery_technology">Battery Technology</string>
+    <string name="battery_thermal_status">Thermal Status</string>
+
+    <!-- Camera Specs -->
+    <string name="camera_section_title">Camera Systems</string>
+    <string name="camera_facing_front">Front Camera</string>
+    <string name="camera_facing_back">Back Camera</string>
+    <string name="camera_facing_external">External Camera</string>
+    <string name="camera_megapixels">Resolution</string>
+    <string name="camera_apertures">Available Apertures</string>
+    <string name="camera_ois">Optical Stabilization (OIS)</string>
+    <string name="camera_eis">Electronic Stabilization (EIS)</string>
+    <string name="camera_flash">Flashlight</string>
+    <string name="camera_focal_lengths">Focal Lengths</string>
+
+    <!-- Sensors Specs & Interactive Monitor -->
+    <string name="sensors_section_title">Onboard Sensors</string>
+    <string name="sensors_live_monitor">Live Sensor Oscilloscope</string>
+    <string name="sensors_select_hint">Tap a sensor below to stream real-time readings</string>
+    <string name="sensors_vendor">Sensor Vendor</string>
+    <string name="sensors_type">Sensor Type</string>
+    <string name="sensors_max_range">Max Range</string>
+    <string name="sensors_resolution">Resolution</string>
+    <string name="sensors_power">Power Draw</string>
+    <string name="sensors_version">Version</string>
+    <string name="sensors_no_sensors">No accessible sensors detected on this device</string>
+    <string name="sensors_reading_x">X: %.2f</string>
+    <string name="sensors_reading_y">Y: %.2f</string>
+    <string name="sensors_reading_z">Z: %.2f</string>
+
+    <!-- Connectivity Specs -->
+    <string name="conn_section_title">Network &amp; Connectivity</string>
+    <string name="conn_network_type">Active Network Type</string>
+    <string name="conn_link_speed">Link Down / Up</string>
+    <string name="conn_wifi_ssid">Wi-Fi SSID</string>
+    <string name="conn_wifi_frequency">Wi-Fi Frequency</string>
+    <string name="conn_wifi_signal">Signal Strength</string>
+    <string name="conn_local_ipv4">Local IPv4</string>
+    <string name="conn_local_ipv6">Local IPv6</string>
+    <string name="conn_gateway">Default Gateway</string>
+    <string name="conn_dns">DNS Servers</string>
+    <string name="conn_subnet_mask">Subnet Mask</string>
+    <string name="conn_bluetooth_title">Bluetooth Diagnostics</string>
+    <string name="conn_bluetooth_status">Bluetooth Status</string>
+    <string name="conn_bluetooth_le">Bluetooth Low Energy (LE)</string>
+
+    <!-- Media DRM Specs -->
+    <string name="drm_section_title">Digital Rights Management (DRM)</string>
+    <string name="drm_widevine">Google Widevine Modular CDM</string>
+    <string name="drm_security_level">Security Level</string>
+    <string name="drm_vendor">DRM Vendor</string>
+    <string name="drm_version">DRM Version</string>
+    <string name="drm_system_id">System ID</string>
+    <string name="drm_algorithms">Algorithms</string>
+    <string name="drm_hdcp_level">Connected HDCP</string>
+    <string name="drm_max_hdcp">Maximum HDCP</string>
+    <string name="drm_clearkey">ClearKey CDM</string>
+
+    <!-- Screen Time & Digital Wellbeing -->
+    <string name="dock_screentime">Screen Time</string>
+    <string name="screentime_title">Screen Time</string>
+    <string name="screentime_daily_headline">Daily Screen Time</string>
+    <string name="screentime_target_label">Target</string>
+    <string name="screentime_target_remaining">%1$s left</string>
+    <string name="screentime_target_exceeded">Limit reached! Time to rest</string>
+    <string name="screentime_yesterday">Yesterday</string>
+    <string name="screentime_trend">Trend</string>
+    <string name="screentime_history_title">Last 7 Days</string>
+    <string name="screentime_hourly_title">Hourly Usage</string>
+    <string name="screentime_hourly_tap_hint">Tap a bar for details</string>
+    <string name="screentime_top_apps">Top Used Apps</string>
+    <string name="screentime_all_apps">All App Usage</string>
+    <string name="screentime_search_hint">Search apps…</string>
+    <string name="screentime_other_apps">Other Apps (&lt; 1 min)</string>
+    <string name="screentime_set_target_title">Daily Screen Time Target</string>
+    <string name="screentime_set_target_desc">Set a mindful device usage goal for each day</string>
+    <string name="screentime_target_hours">Hours</string>
+    <string name="screentime_target_minutes">Minutes</string>
+    <string name="screentime_save_target">Save Target</string>
+    <string name="screentime_remove_target">Remove</string>
+    <string name="screentime_streak_label">Day Streak</string>
+    <string name="screentime_today">Today</string>
+    <string name="screentime_none">None</string>
+    <string name="screentime_opens">%d opens</string>
+    <string name="screentime_apps_at_hour">Apps at %02d:00</string>
+    <string name="screentime_clear_filter">Clear Filter</string>
+    <string name="screentime_no_target_hint">No daily target set • Tap to set a goal</string>
+    <string name="screentime_perm_title">Usage Access Required</string>
+    <string name="screentime_perm_desc">Grant Usage Stats permission to track screen time and app launches.</string>
+    <string name="screentime_perm_grant">Grant</string>
+    <string name="bento_screentime_title">Screen Time</string>
+    <string name="bento_screentime_desc">Today Device Usage</string>
+
+    <!-- Onboarding Statistics Experience & Permissions -->
+    <string name="onboarding_stats_title">Statistic Experience</string>
+    <string name="onboarding_stats_subtitle">Choose how you want to see your usage history starting from today.</string>
+    <string name="onboarding_stats_fresh_title">Start Fresh (Recommended)</string>
+    <string name="onboarding_stats_fresh_desc">Only show screen time recorded from now on. Previous days remain clean.</string>
+    <string name="onboarding_stats_fresh_pro1">Accurate tracking</string>
+    <string name="onboarding_stats_fresh_pro2">Clean visualization</string>
+    <string name="onboarding_stats_fresh_con1">No history for past days</string>
+    <string name="onboarding_stats_fresh_con2">Needs ongoing usage for stats</string>
+    <string name="onboarding_stats_system_title">Populate with System Data</string>
+    <string name="onboarding_stats_system_desc">Use Android system usage logs to fill history for previous days.</string>
+    <string name="onboarding_stats_system_pro1">Instant historical data</string>
+    <string name="onboarding_stats_system_pro2">Complete 7-day overview</string>
+    <string name="onboarding_stats_system_con1">Approximate from system logs</string>
+    <string name="onboarding_stats_system_con2">May include background tasks</string>
+    <string name="onboarding_permissions_setup_title">Setup Required</string>
+    <string name="onboarding_permissions_setup_subtitle">Osyster needs these permissions to monitor system telemetry and track your app screen time.</string>
+    <string name="onboarding_perm_ready">Everything is Ready!</string>
+    <string name="onboarding_perm_continue">Continue to App</string>
+    <string name="perm_notifications_title">Notifications</string>
+    <string name="perm_notifications_desc">For screen time target alerts and monitor status</string>
+    <string name="perm_stability_title">App Stability</string>
+    <string name="perm_battery_opt_title">Battery Optimization</string>
+    <string name="perm_battery_opt_desc">Prevent system from killing background monitoring</string>
+    <string name="perm_music_listener_title">Music &amp; Media Access</string>
+    <string name="perm_music_listener_desc">Reads active media notifications locally for widget artwork and controls; other notifications are ignored</string>
+    <string name="settings_permissions_title">App Permissions</string>
+    <string name="settings_permissions_desc">Manage usage access, notifications, and music controls</string>
+
+    <!-- Data Usage Widgets -->
+    <string name="widget_day_title">Day</string>
+    <string name="widget_month_title">Month</string>
+    <string name="widget_day_data_usage_name">Day Data Usage</string>
+    <string name="widget_day_data_usage_desc">Displays today\'s cellular and Wi-Fi data usage</string>
+    <string name="widget_month_data_usage_name">Month Data Usage</string>
+    <string name="widget_month_data_usage_desc">Displays monthly cellular and Wi-Fi data usage</string>
+    <string name="widget_refresh_description">Refresh data usage</string>
+    <string name="widget_permission_required">Tap to set up</string>
+    <string name="network_mobile_label">Cellular data</string>
+    <string name="network_wifi_label">Wi-Fi data</string>
+    <string name="widget_combined_title">Data Usage</string>
+    <string name="widget_combined_data_usage_name">Data Usage (Combined)</string>
+    <string name="widget_combined_data_usage_desc">Displays both daily and monthly mobile data and Wi-Fi usage</string>
+    <string name="widget_label_today">Today</string>
+    <string name="widget_label_month">This Month</string>
+    <string name="widget_network_mobile">Mobile</string>
+    <string name="widget_network_wifi">Wi-Fi</string>
+    <string name="widget_music_3x3_name">Music Disc (3x3)</string>
+    <string name="widget_music_3x3_desc">Circular music player widget with album artwork and playback controls</string>
+    <string name="widget_music_5x1_name">Music Capsule (5x1)</string>
+    <string name="widget_music_5x1_desc">Horizontal pill music player widget with track details and controls</string>
+    <string name="widget_music_default_title">No Music Playing</string>
+    <string name="widget_music_default_artist">Start playback in a music app</string>
+    <string name="widget_music_access_needed_title">Music access needed</string>
+    <string name="widget_music_access_needed_desc">Tap here to enable notification access</string>
+    <string name="widget_music_play_desc">Play</string>
+    <string name="widget_music_pause_desc">Pause</string>
+    <string name="widget_music_next_desc">Next track</string>
+    <string name="widget_music_prev_desc">Previous track</string>
+    <string name="widget_music_shuffle_desc">Shuffle</string>
+    <string name="widget_music_repeat_desc">Repeat</string>
+    <string name="widget_music_shuffle_off_desc">Turn on shuffle</string>
+    <string name="widget_music_shuffle_on_desc">Shuffle on; turn off</string>
+    <string name="widget_music_repeat_off_desc">Turn on repeat</string>
+    <string name="widget_music_repeat_all_desc">Repeat all on; switch to repeat one</string>
+    <string name="widget_music_repeat_one_desc">Repeat one on; turn repeat off</string>
+    <string name="music_notification_service_label">Osyster Music Service</string>
+    <string name="stay_awake_title">Stay awake</string>
+    <string name="stay_awake_tile_desc">Keep the screen on while plugged in</string>
+    <string name="stay_awake_on">On</string>
+    <string name="stay_awake_off">Off</string>
+    <string name="stay_awake_setup">Setup</string>
+    <string name="stay_awake_setup_title">Enable ADB control</string>
+    <string name="stay_awake_setup_desc">Android protects the global Stay awake setting. Run this command once from a connected computer, then tap Check again. You can also manage Stay awake manually in Developer options.</string>
+    <string name="stay_awake_copy_command">Copy command</string>
+    <string name="stay_awake_command_copied">ADB command copied</string>
+    <string name="stay_awake_developer_options">Developer options</string>
+    <string name="stay_awake_check_again">Check again</string>
+    <string name="stay_awake_change_failed">Couldn\'t change the Stay awake setting</string>
 </resources>

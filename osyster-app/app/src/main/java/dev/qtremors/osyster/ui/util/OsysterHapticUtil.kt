@@ -24,4 +24,13 @@ object OsysterHapticUtil {
             view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
         }
     }
+
+    fun performReject(view: View, enabled: Boolean = true) {
+        if (!enabled) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            view.performHapticFeedback(HapticFeedbackConstants.REJECT)
+        } else {
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        }
+    }
 }

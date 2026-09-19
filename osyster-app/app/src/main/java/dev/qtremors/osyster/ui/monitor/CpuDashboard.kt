@@ -1,8 +1,9 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 
-package dev.qtremors.osyster.ui
+package dev.qtremors.osyster.ui.monitor
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -38,6 +39,8 @@ import dev.qtremors.osyster.ui.util.LocalBottomContentPadding
 import dev.qtremors.osyster.ui.util.RestrictedByOsBadge
 import dev.qtremors.osyster.ui.viewmodel.CpuUiState
 import dev.qtremors.osyster.ui.viewmodel.CpuViewModel
+import dev.qtremors.osyster.ui.expressive.DigitTicker
+import dev.qtremors.osyster.ui.theme.MotionTokens
 import kotlinx.coroutines.flow.collectLatest
 import java.util.Locale
 
@@ -156,19 +159,24 @@ fun CpuDashboardContent(
                 ) {
                     when (val usage = cpuState.overallUsage) {
                         is TelemetryResult.Available -> {
+                            val animatedCpuProgress by animateFloatAsState(
+                                targetValue = (usage.value / 100f).coerceIn(0f, 1f),
+                                animationSpec = MotionTokens.GaugeSmoothSpring,
+                                label = "cpu_gauge_progress"
+                            )
                             CircularWavyProgressIndicator(
-                                progress = { (usage.value / 100f).coerceIn(0f, 1f) },
+                                progress = { animatedCpuProgress },
                                 modifier = Modifier.fillMaxSize(),
                                 color = MaterialTheme.colorScheme.primary,
                                 trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                             )
 
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
+                                DigitTicker(
                                     text = String.format(Locale.getDefault(), "%.1f%%", usage.value),
                                     style = MaterialTheme.typography.displayMedium,
-                                    fontWeight = FontWeight.Black,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.primary,
+                                    prefix = "cpu_usage"
                                 )
                                 Text(
                                     text = stringResource(R.string.cpu_load_label),
@@ -326,39 +334,7 @@ fun CpuDashboardContent(
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         cpuState.coreStates.forEach { core ->
-                            Column {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.cpu_core_label, core.id),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = if (core.currentFreqKhz > 0) stringResource(R.string.cpu_freq_mhz, (core.currentFreqKhz / 1000).toInt()) else stringResource(R.string.not_applicable),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.outline
-                                    )
-                                    Text(
-                                        text = if (cpuState.isUsageRestricted) stringResource(R.string.not_applicable) else String.format(Locale.getDefault(), "%.0f%%", core.usagePercentage),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                if (!cpuState.isUsageRestricted) LinearWavyProgressIndicator(
-                                    progress = { (core.usagePercentage / 100f).coerceIn(0f, 1f) },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(10.dp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                                )
-                            }
+                            CpuCoreRow(core = core, isUsageRestricted = cpuState.isUsageRestricted)
                         }
                     }
                 }
@@ -366,6 +342,50 @@ fun CpuDashboardContent(
         }
 
         Spacer(modifier = Modifier.height(LocalBottomContentPadding.current))
+    }
+}
+
+@Composable
+private fun CpuCoreRow(core: CpuCoreState, isUsageRestricted: Boolean) {
+    val animatedProgress by animateFloatAsState(
+        targetValue = (core.usagePercentage / 100f).coerceIn(0f, 1f),
+        animationSpec = MotionTokens.GaugeSmoothSpring,
+        label = "core_progress_${core.id}"
+    )
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.cpu_core_label, core.id),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = if (core.currentFreqKhz > 0) stringResource(R.string.cpu_freq_mhz, (core.currentFreqKhz / 1000).toInt()) else stringResource(R.string.not_applicable),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.outline
+            )
+            Text(
+                text = if (isUsageRestricted) stringResource(R.string.not_applicable) else String.format(Locale.getDefault(), "%.0f%%", core.usagePercentage),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        if (!isUsageRestricted) {
+            LinearWavyProgressIndicator(
+                progress = { animatedProgress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(10.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+            )
+        }
     }
 }
 

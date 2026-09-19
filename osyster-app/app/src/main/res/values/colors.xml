@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="splash_background">#0C1115</color>
+    <color name="widget_music_surface">#F2F2F7</color>
+    <color name="widget_music_button_bg">#E5E5EA</color>
+    <color name="widget_music_primary_text">#1C1B1F</color>
+    <color name="widget_music_secondary_text">#49454F</color>
 </resources>

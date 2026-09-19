@@ -54,9 +54,9 @@ fun OsysterDock(
     val fontScale = LocalDensity.current.fontScale
     val screenWidth = configuration.screenWidthDp
 
-    val isLargeFont = fontScale > 1.25f
-    val isCompactScreen = screenWidth < 380
-    val shouldHideLabel = isLargeFont || (isCompactScreen && items.size > 2)
+    val isLargeFont = fontScale > 1.3f
+    val isCompactScreen = screenWidth < 350
+    val shouldHideLabel = isLargeFont || (isCompactScreen && items.size > 3)
 
     val toolbarContent: @Composable RowScope.() -> Unit = {
         if (customContent != null) {

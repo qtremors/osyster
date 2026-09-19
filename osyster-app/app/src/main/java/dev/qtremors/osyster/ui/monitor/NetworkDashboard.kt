@@ -1,6 +1,6 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 
-package dev.qtremors.osyster.ui
+package dev.qtremors.osyster.ui.monitor
 
 import android.content.Intent
 import android.graphics.Bitmap
@@ -198,51 +198,93 @@ fun NetworkDashboardContent(
                     }
                 }
 
+            // Row 1: Connection Filter on Left, Real-Time Speed Pill on Right
             item {
                 Spacer(modifier = Modifier.height(4.dp))
-
-                // Top Header Row: Back & Title on Left, Real-Time Speed Pill on Right
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .padding(vertical = 2.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (onNavigateBack != null) {
-                            IconButton(
-                                onClick = {
-                                    OsysterHapticUtil.performVirtualKey(view, hapticEnabled)
-                                    onNavigateBack()
-                                },
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(CircleShape)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = stringResource(R.string.back),
-                                    tint = MaterialTheme.colorScheme.onBackground
+                    // Left: Mobile & Wi-Fi Filter Chip
+                    Box {
+                        FilterChip(
+                            selected = true,
+                            onClick = {
+                                OsysterHapticUtil.performTick(view, hapticEnabled)
+                                filterMenuExpanded = true
+                            },
+                            label = {
+                                Text(
+                                    text = when (selectedFilter) {
+                                        NetworkInterfaceFilter.ALL -> stringResource(R.string.network_filter_all)
+                                        NetworkInterfaceFilter.MOBILE -> stringResource(R.string.network_filter_mobile)
+                                        NetworkInterfaceFilter.WIFI -> stringResource(R.string.network_filter_wifi)
+                                    },
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
-                            }
-                            Spacer(modifier = Modifier.width(4.dp))
-                        }
-                        Text(
-                            text = stringResource(R.string.network_title),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Black,
-                            color = MaterialTheme.colorScheme.onBackground
+                            },
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                selectedLabelColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            modifier = Modifier.height(36.dp)
                         )
+                        DropdownMenu(
+                            expanded = filterMenuExpanded,
+                            onDismissRequest = { filterMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.network_filter_all)) },
+                                onClick = {
+                                    OsysterHapticUtil.performTick(view, hapticEnabled)
+                                    onFilterChange(NetworkInterfaceFilter.ALL)
+                                    filterMenuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.network_filter_mobile)) },
+                                onClick = {
+                                    OsysterHapticUtil.performTick(view, hapticEnabled)
+                                    onFilterChange(NetworkInterfaceFilter.MOBILE)
+                                    filterMenuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.network_filter_wifi)) },
+                                onClick = {
+                                    OsysterHapticUtil.performTick(view, hapticEnabled)
+                                    onFilterChange(NetworkInterfaceFilter.WIFI)
+                                    filterMenuExpanded = false
+                                }
+                            )
+                        }
                     }
 
-                    // Real-Time Speed Pill
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    // Right: Real-Time Speed Pill (horizontally expanding with animation)
                     Surface(
                         shape = RoundedCornerShape(100),
-                        color = MaterialTheme.colorScheme.surfaceContainerHigh
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        modifier = Modifier
+                            .height(36.dp)
+                            .animateContentSize()
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            modifier = Modifier.padding(horizontal = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
@@ -271,6 +313,143 @@ fun NetworkDashboardContent(
                                 fontWeight = FontWeight.Bold,
                                 color = ColorEmeraldUpload
                             )
+                        }
+                    }
+                }
+            }
+
+            // Row 2: Interval Switcher on Left, Compact Date Stepper Capsule on Right
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Left: Day Switcher Chip (Day, Week, Month)
+                    Box {
+                        FilterChip(
+                            selected = true,
+                            onClick = {
+                                OsysterHapticUtil.performTick(view, hapticEnabled)
+                                intervalMenuExpanded = true
+                            },
+                            label = {
+                                Text(
+                                    text = when (selectedInterval) {
+                                        NetworkInterval.DAY -> stringResource(R.string.network_interval_day)
+                                        NetworkInterval.WEEK -> stringResource(R.string.network_interval_week)
+                                        NetworkInterval.MONTH -> stringResource(R.string.network_interval_month)
+                                    },
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            },
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                selectedLabelColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            modifier = Modifier.height(36.dp)
+                        )
+                        DropdownMenu(
+                            expanded = intervalMenuExpanded,
+                            onDismissRequest = { intervalMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.network_interval_day)) },
+                                onClick = {
+                                    OsysterHapticUtil.performTick(view, hapticEnabled)
+                                    onIntervalChange(NetworkInterval.DAY)
+                                    intervalMenuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.network_interval_week)) },
+                                onClick = {
+                                    OsysterHapticUtil.performTick(view, hapticEnabled)
+                                    onIntervalChange(NetworkInterval.WEEK)
+                                    intervalMenuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.network_interval_month)) },
+                                onClick = {
+                                    OsysterHapticUtil.performTick(view, hapticEnabled)
+                                    onIntervalChange(NetworkInterval.MONTH)
+                                    intervalMenuExpanded = false
+                                }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    // Right: Date Stepper Capsule (< Date >)
+                    Surface(
+                        shape = RoundedCornerShape(100),
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    OsysterHapticUtil.performTick(view, hapticEnabled)
+                                    onNavigatePreviousDate()
+                                },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ChevronLeft,
+                                    contentDescription = stringResource(R.string.network_prev_period),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+
+                            Text(
+                                text = dateLabel,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isCurrentPeriod) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable(enabled = !isCurrentPeriod) {
+                                        OsysterHapticUtil.performTick(view, hapticEnabled)
+                                        onResetToCurrentDate()
+                                    }
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+
+                            IconButton(
+                                onClick = {
+                                    if (!isCurrentPeriod) {
+                                        OsysterHapticUtil.performTick(view, hapticEnabled)
+                                        onNavigateNextDate()
+                                    }
+                                },
+                                enabled = !isCurrentPeriod,
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    contentDescription = stringResource(R.string.network_next_period),
+                                    tint = if (isCurrentPeriod) MaterialTheme.colorScheme.outlineVariant else MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -318,216 +497,6 @@ fun NetworkDashboardContent(
                                 Text(stringResource(R.string.network_perm_grant))
                             }
                         }
-                    }
-                }
-            }
-
-            // Chip Controls Row: Day Switcher on Left, Mobile/Data Filter on Right
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Left: Day Switcher Chip (Day, Week, Month)
-                    Box {
-                        FilterChip(
-                            selected = true,
-                            onClick = {
-                                OsysterHapticUtil.performTick(view, hapticEnabled)
-                                intervalMenuExpanded = true
-                            },
-                            label = {
-                                Text(
-                                    text = when (selectedInterval) {
-                                        NetworkInterval.DAY -> stringResource(R.string.network_interval_day)
-                                        NetworkInterval.WEEK -> stringResource(R.string.network_interval_week)
-                                        NetworkInterval.MONTH -> stringResource(R.string.network_interval_month)
-                                    },
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            },
-                            trailingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowDropDown,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                selectedLabelColor = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
-                        DropdownMenu(
-                            expanded = intervalMenuExpanded,
-                            onDismissRequest = { intervalMenuExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.network_interval_day)) },
-                                onClick = {
-                                    OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    onIntervalChange(NetworkInterval.DAY)
-                                    intervalMenuExpanded = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.network_interval_week)) },
-                                onClick = {
-                                    OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    onIntervalChange(NetworkInterval.WEEK)
-                                    intervalMenuExpanded = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.network_interval_month)) },
-                                onClick = {
-                                    OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    onIntervalChange(NetworkInterval.MONTH)
-                                    intervalMenuExpanded = false
-                                }
-                            )
-                        }
-                    }
-
-                    // Right: Mobile & Wi-Fi Filter Chip
-                    Box {
-                        FilterChip(
-                            selected = true,
-                            onClick = {
-                                OsysterHapticUtil.performTick(view, hapticEnabled)
-                                filterMenuExpanded = true
-                            },
-                            label = {
-                                Text(
-                                    text = when (selectedFilter) {
-                                        NetworkInterfaceFilter.ALL -> stringResource(R.string.network_filter_all)
-                                        NetworkInterfaceFilter.MOBILE -> stringResource(R.string.network_filter_mobile)
-                                        NetworkInterfaceFilter.WIFI -> stringResource(R.string.network_filter_wifi)
-                                    },
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            },
-                            trailingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowDropDown,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                selectedLabelColor = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
-                        DropdownMenu(
-                            expanded = filterMenuExpanded,
-                            onDismissRequest = { filterMenuExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.network_filter_all)) },
-                                onClick = {
-                                    OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    onFilterChange(NetworkInterfaceFilter.ALL)
-                                    filterMenuExpanded = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.network_filter_mobile)) },
-                                onClick = {
-                                    OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    onFilterChange(NetworkInterfaceFilter.MOBILE)
-                                    filterMenuExpanded = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.network_filter_wifi)) },
-                                onClick = {
-                                    OsysterHapticUtil.performTick(view, hapticEnabled)
-                                    onFilterChange(NetworkInterfaceFilter.WIFI)
-                                    filterMenuExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Date Stepper Row (< Date >)
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(
-                        onClick = {
-                            OsysterHapticUtil.performTick(view, hapticEnabled)
-                            onNavigatePreviousDate()
-                        },
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ChevronLeft,
-                            contentDescription = stringResource(R.string.network_prev_period),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(10.dp))
-
-                    Surface(
-                        onClick = {
-                            if (!isCurrentPeriod) {
-                                OsysterHapticUtil.performTick(view, hapticEnabled)
-                                onResetToCurrentDate()
-                            }
-                        },
-                        shape = RoundedCornerShape(100),
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    ) {
-                        Text(
-                            text = dateLabel,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(10.dp))
-
-                    IconButton(
-                        onClick = {
-                            if (!isCurrentPeriod) {
-                                OsysterHapticUtil.performTick(view, hapticEnabled)
-                                onNavigateNextDate()
-                            }
-                        },
-                        enabled = !isCurrentPeriod,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ChevronRight,
-                            contentDescription = stringResource(R.string.network_next_period),
-                            tint = if (isCurrentPeriod) MaterialTheme.colorScheme.outlineVariant else MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(20.dp)
-                        )
                     }
                 }
             }

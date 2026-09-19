@@ -48,6 +48,7 @@
                 <div class="hidden lg:flex items-center gap-7">
                     <a href="#features" class="text-sm font-medium text-brand-muted hover:text-brand-cyan transition-colors">Features</a>
                     <a href="#bento" class="text-sm font-medium text-brand-muted hover:text-brand-cyan transition-colors">Bento System</a>
+                    <a href="#widgets" class="text-sm font-medium text-brand-muted hover:text-brand-cyan transition-colors">Widgets</a>
                     <a href="#utilities" class="text-sm font-medium text-brand-muted hover:text-brand-cyan transition-colors">Baked-in Tools</a>
                     <a href="#tech" class="text-sm font-medium text-brand-muted hover:text-brand-cyan transition-colors">Architecture</a>
                     <a href="#developers" class="text-sm font-medium text-brand-muted hover:text-brand-cyan transition-colors">Developer</a>
@@ -81,6 +82,7 @@
         <div class="flex flex-col items-center gap-7">
             <a href="#features" class="mobile-link text-xl font-medium text-brand-muted hover:text-brand-cyan transition-colors">Features</a>
             <a href="#bento" class="mobile-link text-xl font-medium text-brand-muted hover:text-brand-cyan transition-colors">Bento System</a>
+            <a href="#widgets" class="mobile-link text-xl font-medium text-brand-muted hover:text-brand-cyan transition-colors">Widgets</a>
             <a href="#utilities" class="mobile-link text-xl font-medium text-brand-muted hover:text-brand-cyan transition-colors">Baked-in Tools</a>
             <a href="#tech" class="mobile-link text-xl font-medium text-brand-muted hover:text-brand-cyan transition-colors">Architecture</a>
             <a href="#developers" class="mobile-link text-xl font-medium text-brand-muted hover:text-brand-cyan transition-colors">Developer</a>
@@ -119,7 +121,7 @@
                 </h1>
                 
                 <p class="text-lg text-brand-muted max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
-                    A private, offline system monitor and power utility suite. Real-time CPU diagnostics, memory breakdown, network tracking, and app management in a clean Bento dashboard.
+                    A private, offline system monitor and power utility suite. Transparent hardware telemetry, home-screen widgets, screen time tracking, and deep system inspection in a clean Bento dashboard.
                 </p>
 
                 <!-- Live GitHub Stats -->
@@ -178,30 +180,45 @@
                     <div class="flex items-center justify-between pb-5 border-b border-slate-800/80 mb-5">
                         <div class="flex items-center gap-2.5">
                             <span class="w-3 h-3 rounded-full bg-brand-cyan animate-ping"></span>
-                            <span class="text-xs font-mono uppercase tracking-wider text-brand-muted">Live Preview</span>
+                            <span class="text-xs font-mono uppercase tracking-wider text-brand-muted">Live Overview</span>
                         </div>
                         <div class="px-2.5 py-1 rounded-md bg-slate-800 text-[11px] font-mono text-brand-cyan border border-brand-cyan/20">
-                            /proc/stat
+                            sysfs / procfs
                         </div>
                     </div>
 
                     <!-- Bento Grid Inside Simulated Screen -->
                     <div class="grid grid-cols-2 gap-4 mb-4">
-                        <!-- Simulated CPU Bento Card with Sparkline -->
-                        <div class="col-span-2 bg-slate-850 rounded-2xl p-4 border border-slate-800/80 flex flex-col justify-between">
-                            <div class="flex items-center justify-between mb-2">
+                        <!-- Simulated CPU & Kernel Bento Card -->
+                        <div class="col-span-2 bg-slate-850 rounded-2xl p-4 border border-slate-800/80 flex flex-col justify-between space-y-3">
+                            <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
                                     <i data-lucide="cpu" class="w-4 h-4 text-brand-cyan"></i>
-                                    <span class="text-xs font-semibold text-white">CPU Cluster Load</span>
+                                    <span class="text-xs font-semibold text-white">CPU & Cluster Telemetry</span>
                                 </div>
-                                <span id="live-cpu-val" class="text-sm font-mono font-bold text-brand-cyan">38%</span>
+                                <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-[10px] font-mono text-brand-cyan">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-brand-cyan"></span>
+                                    <span>8 Cores Online</span>
+                                </div>
                             </div>
-                            <div class="w-full h-20 relative overflow-hidden rounded-lg bg-slate-900/80 border border-slate-800">
-                                <canvas id="sparkline-canvas" class="w-full h-full block"></canvas>
+                            <div class="grid grid-cols-3 gap-2 font-mono text-xs">
+                                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                                    <span class="text-[10px] text-brand-muted block">LITTLE</span>
+                                    <span class="text-white font-semibold">1,420 MHz</span>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                                    <span class="text-[10px] text-brand-muted block">BIG</span>
+                                    <span class="text-white font-semibold">2,304 MHz</span>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-center">
+                                    <span class="text-[10px] text-brand-amber block">PRIME</span>
+                                    <span class="text-brand-amber font-semibold">2,841 MHz</span>
+                                </div>
                             </div>
-                            <div class="flex justify-between items-center text-[10px] font-mono text-brand-muted mt-2">
+                            <div class="flex justify-between items-center text-[10px] font-mono text-brand-muted pt-1 border-t border-slate-800/60">
                                 <span>8 Cores Active</span>
-                                <span>Thermal Zone 0: 41.2°C</span>
+                                <span>Deep Sleep: 82%</span>
+                                <span>Thermal: 41.2°C</span>
                             </div>
                         </div>
 
@@ -218,17 +235,17 @@
                             <span class="text-[10px] font-mono text-brand-muted">Swap: 2.1 GB Free</span>
                         </div>
 
-                        <!-- Simulated Tasks Bento Card -->
+                        <!-- Simulated Screen Time Bento Card -->
                         <div class="bg-slate-850 rounded-2xl p-4 border border-slate-800/80 flex flex-col justify-between">
                             <div class="flex items-center gap-2 mb-3">
-                                <i data-lucide="activity" class="w-4 h-4 text-brand-coral"></i>
-                                <span class="text-xs font-semibold text-white">Active Tasks</span>
+                                <i data-lucide="clock" class="w-4 h-4 text-brand-coral"></i>
+                                <span class="text-xs font-semibold text-white">Screen Time</span>
                             </div>
-                            <div class="text-2xl font-bold font-mono text-white mb-1">214 <span class="text-xs text-brand-muted">PIDs</span></div>
-                            <div class="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400">
-                                <i data-lucide="check" class="w-3 h-3"></i>
-                                <span>Active processes</span>
+                            <div class="text-2xl font-bold font-mono text-white mb-1">4h 18m <span class="text-xs text-brand-muted">Today</span></div>
+                            <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden mb-2">
+                                <div class="w-[72%] h-full bg-brand-coral rounded-full"></div>
                             </div>
+                            <span class="text-[10px] font-mono text-brand-muted">Daily Goal: 72%</span>
                         </div>
                     </div>
 
@@ -268,7 +285,7 @@
                 </div>
                 <div>
                     <h4 class="text-white font-semibold text-sm font-display">Kernel Telemetry</h4>
-                    <p class="text-xs text-brand-muted mt-0.5">Real-time CPU load and per-core frequencies.</p>
+                    <p class="text-xs text-brand-muted mt-0.5">Live per-core clock speeds and thermal zones.</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
@@ -305,7 +322,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="bento">
                 
-                <!-- Bento Item 1: Real-Time Kernel CPU Engine (Full Width - 3 cols) -->
+                <!-- Bento Item 1: Native CPU & Cluster Diagnostics (Full Width - 3 cols) -->
                 <div class="rounded-[32px] p-8 sm:p-10 relative overflow-hidden bento-card reveal opacity-0 translate-y-8 transition-all duration-700 ease-out md:col-span-2 lg:col-span-3">
                     <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
                         <div class="flex-1 space-y-4">
@@ -314,24 +331,29 @@
                                     <i data-lucide="cpu" class="w-7 h-7 text-brand-cyan"></i>
                                 </div>
                                 <div class="flex flex-wrap gap-2">
-                                    <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">Live CPU</span>
-                                    <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">Per-Core Speeds</span>
+                                    <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">Per-Core Clocks</span>
+                                    <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">Cluster Topology</span>
                                     <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">Thermal Zones</span>
+                                    <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">Governor State</span>
                                 </div>
                             </div>
-                            <h3 class="text-2xl sm:text-3xl font-bold text-white font-display">Real-Time CPU Diagnostics</h3>
+                            <h3 class="text-2xl sm:text-3xl font-bold text-white font-display">Native CPU & Cluster Diagnostics</h3>
                             <p class="text-brand-muted text-base leading-relaxed max-w-3xl">
-                                Track active processor load, monitor individual cluster frequencies, and watch temperature trends in real time with smooth Canvas sparkline graphs.
+                                Inspect real-time per-core scaling frequencies, CPU cluster architecture, scaling governors, and live thermal zone temperatures directly through kernel sysfs interfaces without battery overhead.
                             </p>
                         </div>
-                        <div class="w-full lg:w-72 p-5 bg-slate-900 rounded-2xl border border-slate-800 font-mono text-xs text-brand-muted space-y-2 shrink-0">
+                        <div class="w-full lg:w-72 p-5 bg-slate-900 rounded-2xl border border-slate-800 font-mono text-xs text-brand-muted space-y-2.5 shrink-0">
                             <div class="flex justify-between text-brand-cyan font-semibold border-b border-slate-800 pb-2">
                                 <span>Core Cluster</span>
-                                <span>Load / Freq</span>
+                                <span>Clock Speed</span>
                             </div>
                             <div class="flex justify-between"><span>Core 0..3 (Little)</span><span class="text-white">1,420 MHz</span></div>
                             <div class="flex justify-between"><span>Core 4..6 (Big)</span><span class="text-white">2,304 MHz</span></div>
                             <div class="flex justify-between"><span>Core 7 (Prime)</span><span class="text-brand-amber">2,841 MHz</span></div>
+                            <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-[11px]">
+                                <span class="text-brand-muted">Governor</span>
+                                <span class="text-brand-cyan font-semibold">schedutil</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -355,18 +377,18 @@
                     </div>
                 </div>
 
-                <!-- Bento Item 3: Active Tasks & Process Manager (1 col) -->
+                <!-- Bento Item 3: Network Traffic & Live Speeds (1 col) -->
                 <div class="rounded-[32px] p-8 relative overflow-hidden bento-card bento-card-coral reveal opacity-0 translate-y-8 transition-all duration-700 ease-out md:col-span-1 lg:col-span-1">
                     <div class="space-y-4">
                         <div class="flex items-center justify-between mb-4">
                             <div class="w-14 h-14 rounded-2xl bg-brand-coralDark/60 border border-brand-coral/30 flex items-center justify-center shrink-0">
-                                <i data-lucide="terminal" class="w-7 h-7 text-brand-coral"></i>
+                                <i data-lucide="activity" class="w-7 h-7 text-brand-coral"></i>
                             </div>
-                            <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-coral text-xs font-mono border border-slate-700">Process Control</span>
+                            <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-coral text-xs font-mono border border-slate-700">Live Traffic</span>
                         </div>
-                        <h3 class="text-xl sm:text-2xl font-bold text-white font-display">Active Task Manager</h3>
+                        <h3 class="text-xl sm:text-2xl font-bold text-white font-display">Network Speedometer</h3>
                         <p class="text-brand-muted text-sm leading-relaxed">
-                            Search and inspect running processes with live memory footprints, user IDs, and direct shortcuts to Android's App Info for easy management.
+                            Monitor live bandwidth upload and download speeds, track Wi-Fi and mobile data consumption, and inspect local interface routing without root.
                         </p>
                     </div>
                 </div>
@@ -387,7 +409,7 @@
                     </div>
                 </div>
 
-                <!-- Bento Item 5: Baked-in Power Tools (Roadmap) (2 cols) -->
+                <!-- Bento Item 5: Built-in OS Utilities (2 cols) -->
                 <div id="utilities" class="rounded-[32px] p-8 sm:p-10 relative overflow-hidden bento-card reveal opacity-0 translate-y-8 transition-all duration-700 ease-out md:col-span-2 lg:col-span-2">
                     <div class="space-y-4">
                         <div class="flex items-center justify-between mb-4">
@@ -407,6 +429,116 @@
                     </div>
                 </div>
 
+                <!-- Bento Item 6: Home-Screen Widgets (2 cols) -->
+                <div id="widgets" class="rounded-[32px] p-8 sm:p-10 relative overflow-hidden bento-card reveal opacity-0 translate-y-8 transition-all duration-700 ease-out md:col-span-2 lg:col-span-2">
+                    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                        <div class="flex-1 space-y-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="w-14 h-14 rounded-2xl bg-brand-cyanContainer/40 border border-brand-cyan/30 flex items-center justify-center shrink-0">
+                                    <i data-lucide="layout" class="w-7 h-7 text-brand-cyan"></i>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">Data Usage</span>
+                                    <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">Music Player</span>
+                                    <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">Local Only</span>
+                                </div>
+                            </div>
+                            <h3 class="text-2xl sm:text-3xl font-bold text-white font-display">Home-Screen Widgets</h3>
+                            <p class="text-brand-muted text-base leading-relaxed max-w-xl">
+                                Place daily, monthly, or combined cellular and Wi-Fi totals on your launcher with on-widget refresh. Control music via 3x3 album art discs or 5x1 capsule players with live playback state and local artwork caching.
+                            </p>
+                        </div>
+                        <div class="w-full lg:w-64 p-4 bg-slate-900 rounded-2xl border border-slate-800 font-mono text-xs text-brand-muted space-y-3 shrink-0">
+                            <!-- Mini Data Widget Simulation -->
+                            <div class="p-2.5 rounded-xl bg-slate-850 border border-slate-800">
+                                <div class="flex items-center justify-between text-brand-cyan text-[11px] font-semibold mb-1">
+                                    <span>DATA TODAY</span>
+                                    <i data-lucide="refresh-cw" class="w-3 h-3 text-brand-cyan"></i>
+                                </div>
+                                <div class="flex justify-between text-[11px]">
+                                    <span class="text-brand-muted">Wi-Fi: <span class="text-white">2.4 GB</span></span>
+                                    <span class="text-brand-muted">Cell: <span class="text-brand-amber">420 MB</span></span>
+                                </div>
+                            </div>
+                            <!-- Mini Music Widget Simulation -->
+                            <div class="p-2.5 rounded-xl bg-slate-850 border border-slate-800 flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-brand-cyan/20 border border-brand-cyan/40 flex items-center justify-center shrink-0">
+                                    <i data-lucide="disc" class="w-4 h-4 text-brand-cyan"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-[11px] font-medium text-white truncate">Active Track</div>
+                                    <div class="text-[10px] text-brand-muted truncate">Local Media Session</div>
+                                </div>
+                                <i data-lucide="play" class="w-3.5 h-3.5 text-white shrink-0"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bento Item 7: Digital Wellbeing & Screen Time (1 col) -->
+                <div class="rounded-[32px] p-8 relative overflow-hidden bento-card bento-card-amber reveal opacity-0 translate-y-8 transition-all duration-700 ease-out md:col-span-1 lg:col-span-1">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-14 h-14 rounded-2xl bg-brand-amberContainer/40 border border-brand-amber/30 flex items-center justify-center shrink-0">
+                                <i data-lucide="clock" class="w-7 h-7 text-brand-amber"></i>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-amber text-xs font-mono border border-slate-700">Usage Stats</span>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-bold text-white font-display">Screen Time Insights</h3>
+                        <p class="text-brand-muted text-sm leading-relaxed">
+                            Track today's screen time, daily goal targets with wavy progress gauges, 7-day history trends, 24-hour distribution, and per-app foreground usage locally.
+                        </p>
+                        <div class="pt-2">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <span class="text-2xl font-bold font-mono text-white">4h 18m</span>
+                                <span class="text-xs font-mono text-brand-amber">72% of goal</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
+                                <div class="w-[72%] h-full bg-brand-amber rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bento Item 8: Developer Stay Awake (1 col) -->
+                <div class="rounded-[32px] p-8 relative overflow-hidden bento-card bento-card-coral reveal opacity-0 translate-y-8 transition-all duration-700 ease-out md:col-span-1 lg:col-span-1">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-14 h-14 rounded-2xl bg-brand-coralDark/60 border border-brand-coral/30 flex items-center justify-center shrink-0">
+                                <i data-lucide="sun" class="w-7 h-7 text-brand-coral"></i>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-coral text-xs font-mono border border-slate-700">Developer Tool</span>
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-bold text-white font-display">Developer Stay Awake</h3>
+                        <p class="text-brand-muted text-sm leading-relaxed">
+                            Keep your display on while connected to AC, USB, dock, or wireless power. Requires a one-time ADB permission grant; sleeps normally when unplugged.
+                        </p>
+                        <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 font-mono text-[11px] text-brand-coral break-all">
+                            <code>adb shell pm grant ... WRITE_SECURE_SETTINGS</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bento Item 9: Modular Hardware & Sensor Oscilloscope (2 cols) -->
+                <div class="rounded-[32px] p-8 sm:p-10 relative overflow-hidden bento-card reveal opacity-0 translate-y-8 transition-all duration-700 ease-out md:col-span-2 lg:col-span-2">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-14 h-14 rounded-2xl bg-brand-cyanContainer/40 border border-brand-cyan/30 flex items-center justify-center shrink-0">
+                                <i data-lucide="activity" class="w-7 h-7 text-brand-cyan"></i>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">Sensor Waveforms</span>
+                                <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">GPU Drivers</span>
+                                <span class="px-3 py-1 rounded-full bg-slate-800 text-brand-cyan text-xs font-mono border border-slate-700">Widevine DRM</span>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl font-bold text-white font-display">Sensor Oscilloscope & Diagnostics</h3>
+                        <p class="text-brand-muted text-base leading-relaxed max-w-xl">
+                            Plot live multi-channel sensor readings with dynamic range scaling. Dedicated standalone pages reveal SoC topology, Vulkan/OpenGL ES drivers, display specs, optical camera capabilities, and DRM security levels.
+                        </p>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
@@ -421,7 +553,7 @@
                     </div>
                     <h2 class="text-4xl lg:text-5xl font-display font-bold text-white">Engineered for OLED.<br/>Built for speed.</h2>
                     <p class="text-brand-muted text-base sm:text-lg leading-relaxed">
-                        Crafted with deep slate surfaces, neon accents, and Material 3 Expressive components. Enjoy smooth wavy progress gauges, live Canvas charts, and dedicated dark and true OLED black themes.
+                        Crafted with deep slate surfaces, neon accents, and Material 3 Expressive components. Enjoy smooth wavy progress gauges, live sensor waveforms, and dedicated dark and true OLED black themes.
                     </p>
                     <ul class="space-y-3.5 font-medium text-white text-sm">
                         <li class="flex items-center gap-3">
@@ -432,15 +564,21 @@
                         </li>
                         <li class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-slate-850 flex items-center justify-center border border-slate-700">
-                                <i data-lucide="trending-up" class="w-4 h-4 text-brand-amber"></i>
+                                <i data-lucide="activity" class="w-4 h-4 text-brand-amber"></i>
                             </div>
-                            <span>Real-time Canvas sparklines tracking load trends</span>
+                            <span>Live multi-channel sensor oscilloscope waveforms</span>
                         </li>
                         <li class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-slate-850 flex items-center justify-center border border-slate-700">
                                 <i data-lucide="moon" class="w-4 h-4 text-brand-coral"></i>
                             </div>
                             <span>True OLED black and dark themes for battery efficiency</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-slate-850 flex items-center justify-center border border-slate-700">
+                                <i data-lucide="wind" class="w-4 h-4 text-emerald-400"></i>
+                            </div>
+                            <span>Unified spring physics, tactile haptics, and smoothed gauge transitions</span>
                         </li>
                     </ul>
                 </div>
@@ -509,6 +647,14 @@
                     <span class="text-white font-medium text-sm font-mono">Jetpack Compose</span>
                 </div>
                 <div class="px-5 py-3.5 bg-slate-850 rounded-2xl border border-slate-800 flex items-center gap-3">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-brand-cyan"></i>
+                    <span class="text-white font-medium text-sm font-mono">Material 3 Expressive</span>
+                </div>
+                <div class="px-5 py-3.5 bg-slate-850 rounded-2xl border border-slate-800 flex items-center gap-3">
+                    <i data-lucide="layout" class="w-5 h-5 text-purple-400"></i>
+                    <span class="text-white font-medium text-sm font-mono">App Widgets</span>
+                </div>
+                <div class="px-5 py-3.5 bg-slate-850 rounded-2xl border border-slate-800 flex items-center gap-3">
                     <i data-lucide="cpu" class="w-5 h-5 text-brand-coral"></i>
                     <span class="text-white font-medium text-sm font-mono">Linux ProcFS</span>
                 </div>
@@ -519,7 +665,7 @@
             </div>
             
             <p class="mt-8 text-brand-muted text-sm sm:text-base max-w-2xl mx-auto leading-relaxed reveal opacity-0 translate-y-8 transition-all duration-700 ease-out delay-200">
-                Built modern from the ground up using Jetpack Compose, Kotlin Coroutines, and clean architecture, with zero analytics or tracking libraries.
+                Built modern from the ground up using Jetpack Compose, Material 3 Expressive, Kotlin Coroutines, and clean architecture, with zero analytics or tracking libraries.
             </p>
         </div>
     </section>
@@ -572,7 +718,7 @@
                 <div class="space-y-4">
                     <!-- FAQ 1: Root access -->
                     <div class="bg-slate-850 rounded-2xl overflow-hidden cursor-pointer hover:border-brand-cyan/40 border border-slate-800 transition-colors bento-card">
-                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
+                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between rounded-2xl" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
                             <span class="text-white font-medium text-sm sm:text-base pr-4">Does Osyster require root privileges?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-brand-muted faq-icon shrink-0"></i>
                         </button>
@@ -583,9 +729,22 @@
                         </div>
                     </div>
 
-                    <!-- FAQ 2: Privacy -->
+                    <!-- FAQ 2: App Stopper & Power Tools -->
                     <div class="bg-slate-850 rounded-2xl overflow-hidden cursor-pointer hover:border-brand-cyan/40 border border-slate-800 transition-colors bento-card">
-                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
+                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between rounded-2xl" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
+                            <span class="text-white font-medium text-sm sm:text-base pr-4">How does App Stopper help manage battery and background apps?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-brand-muted faq-icon shrink-0"></i>
+                        </button>
+                        <div class="faq-content" aria-hidden="true" inert>
+                            <div class="faq-inner px-6 pb-5">
+                                <p class="text-brand-muted text-sm leading-relaxed">App Stopper lets you curate your most resource-heavy apps in a quick-access grid. With one tap, jump directly to system App Info to safely force-stop runaway background processes, reclaim device memory, and halt unwanted background battery drain without requiring root privileges.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 3: Privacy -->
+                    <div class="bg-slate-850 rounded-2xl overflow-hidden cursor-pointer hover:border-brand-cyan/40 border border-slate-800 transition-colors bento-card">
+                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between rounded-2xl" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
                             <span class="text-white font-medium text-sm sm:text-base pr-4">How do I know Osyster is 100% offline and private?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-brand-muted faq-icon shrink-0"></i>
                         </button>
@@ -596,9 +755,9 @@
                         </div>
                     </div>
 
-                    <!-- FAQ 3: Battery Impact -->
+                    <!-- FAQ 4: Battery Impact -->
                     <div class="bg-slate-850 rounded-2xl overflow-hidden cursor-pointer hover:border-brand-cyan/40 border border-slate-800 transition-colors bento-card">
-                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
+                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between rounded-2xl" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
                             <span class="text-white font-medium text-sm sm:text-base pr-4">Does real-time monitoring drain the device battery?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-brand-muted faq-icon shrink-0"></i>
                         </button>
@@ -608,26 +767,52 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- FAQ 5: Home-Screen Widgets -->
+                    <div class="bg-slate-850 rounded-2xl overflow-hidden cursor-pointer hover:border-brand-cyan/40 border border-slate-800 transition-colors bento-card">
+                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between rounded-2xl" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
+                            <span class="text-white font-medium text-sm sm:text-base pr-4">How do the home-screen Data and Music widgets work?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-brand-muted faq-icon shrink-0"></i>
+                        </button>
+                        <div class="faq-content" aria-hidden="true" inert>
+                            <div class="faq-inner px-6 pb-5">
+                                <p class="text-brand-muted text-sm leading-relaxed">Data widgets display daily, monthly, or combined cellular and Wi-Fi totals with on-widget refresh controls using Android's local UsageStatsManager. Music widgets connect to Android's active MediaSession to show high-resolution cached artwork and provide player-supported playback controls. Notification Listener access is optional and used solely to discover local active media sessions.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Column 2 -->
                 <div class="space-y-4">
-                    <!-- FAQ 4: Missing Android features -->
+                    <!-- FAQ 6: Missing Android features -->
                     <div class="bg-slate-850 rounded-2xl overflow-hidden cursor-pointer hover:border-brand-cyan/40 border border-slate-800 transition-colors bento-card">
-                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
+                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between rounded-2xl" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
                             <span class="text-white font-medium text-sm sm:text-base pr-4">What functionalities does Osyster add that Android lacks?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-brand-muted faq-icon shrink-0"></i>
                         </button>
                         <div class="faq-content" aria-hidden="true" inert>
                             <div class="faq-inner px-6 pb-5">
-                                <p class="text-brand-muted text-sm leading-relaxed">Osyster combines real-time kernel CPU stats, detailed RAM and swap breakdown, live and historical network monitoring, and the App Stopper utility into one unified, private dashboard.</p>
+                                <p class="text-brand-muted text-sm leading-relaxed">Osyster combines transparent CPU telemetry and per-core cluster clock speeds, detailed RAM and swap matrix, live and historical network tracking, home-screen data and music widgets, local screen time insights, developer Stay Awake control, and deep hardware inspection into one unified, private dashboard.</p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- FAQ 5: Supported Versions -->
+                    <!-- FAQ 7: Sensor Oscilloscope -->
                     <div class="bg-slate-850 rounded-2xl overflow-hidden cursor-pointer hover:border-brand-cyan/40 border border-slate-800 transition-colors bento-card">
-                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
+                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between rounded-2xl" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
+                            <span class="text-white font-medium text-sm sm:text-base pr-4">What can the live sensor oscilloscope monitor?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-brand-muted faq-icon shrink-0"></i>
+                        </button>
+                        <div class="faq-content" aria-hidden="true" inert>
+                            <div class="faq-inner px-6 pb-5">
+                                <p class="text-brand-muted text-sm leading-relaxed">The sensor oscilloscope visualizes hardware sensors exposed by your device, including the Accelerometer, Gyroscope, and Magnetometer, rendering live multi-channel waveforms with dynamic range scaling and interactive channel inspection.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 8: Supported Versions -->
+                    <div class="bg-slate-850 rounded-2xl overflow-hidden cursor-pointer hover:border-brand-cyan/40 border border-slate-800 transition-colors bento-card">
+                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between rounded-2xl" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
                             <span class="text-white font-medium text-sm sm:text-base pr-4">Which Android versions are supported?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-brand-muted faq-icon shrink-0"></i>
                         </button>
@@ -638,9 +823,22 @@
                         </div>
                     </div>
 
-                    <!-- FAQ 6: License & Source -->
+                    <!-- FAQ 9: Developer Stay Awake -->
                     <div class="bg-slate-850 rounded-2xl overflow-hidden cursor-pointer hover:border-brand-cyan/40 border border-slate-800 transition-colors bento-card">
-                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
+                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between rounded-2xl" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
+                            <span class="text-white font-medium text-sm sm:text-base pr-4">How do I enable the Developer Stay Awake feature?</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-brand-muted faq-icon shrink-0"></i>
+                        </button>
+                        <div class="faq-content" aria-hidden="true" inert>
+                            <div class="faq-inner px-6 pb-5">
+                                <p class="text-brand-muted text-sm leading-relaxed">Android protects the system-wide plugged-in stay awake setting. Osyster enables you to toggle it directly from your dashboard after a one-time ADB permission grant: <code>adb shell pm grant dev.qtremors.osyster android.permission.WRITE_SECURE_SETTINGS</code>. Once granted, your screen remains on while connected to power and sleeps normally when unplugged.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 10: License & Source -->
+                    <div class="bg-slate-850 rounded-2xl overflow-hidden cursor-pointer hover:border-brand-cyan/40 border border-slate-800 transition-colors bento-card">
+                        <button type="button" class="w-full text-left px-6 py-5 flex items-center justify-between rounded-2xl" aria-expanded="false" onclick="toggleFaq(this.parentElement)">
                             <span class="text-white font-medium text-sm sm:text-base pr-4">What is Osyster's license and can I contribute?</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 text-brand-muted faq-icon shrink-0"></i>
                         </button>
@@ -711,6 +909,7 @@
                     <h4 class="text-white font-semibold text-sm mb-4">Resources</h4>
                     <ul class="space-y-2.5 text-sm text-brand-muted">
                         <li><a href="https://github.com/qtremors/osyster/blob/main/README.md" target="_blank" class="hover:text-brand-cyan transition-colors">Documentation</a></li>
+                        <li><a href="https://github.com/qtremors/osyster/blob/main/RELEASES.md" target="_blank" class="hover:text-brand-cyan transition-colors">Release Notes</a></li>
                         <li><a href="https://github.com/qtremors/osyster/blob/main/CHANGELOG.md" target="_blank" class="hover:text-brand-cyan transition-colors">Changelog</a></li>
                         <li><a href="https://github.com/qtremors/osyster/blob/main/DEVELOPMENT.md" target="_blank" class="hover:text-brand-cyan transition-colors">Architecture Guide</a></li>
                         <li><a href="https://github.com/qtremors/osyster/blob/main/TASKS.md" target="_blank" class="hover:text-brand-cyan transition-colors">Roadmap & Tasks</a></li>

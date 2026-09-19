@@ -8,6 +8,8 @@ import android.os.Build
 import android.os.Process
 import android.provider.Settings
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -70,6 +72,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.settings.OsysterPreferencesManager
 import dev.qtremors.osyster.settings.OsysterPreferencesState
+import dev.qtremors.osyster.ui.expressive.OsysterExpressiveButton
+import dev.qtremors.osyster.ui.theme.MotionTokens
+import dev.qtremors.osyster.ui.theme.pressBounce
 import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 import kotlinx.coroutines.launch
 
@@ -84,16 +89,38 @@ fun OnboardingScreen(
     val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val pagerState = rememberPagerState(pageCount = { 2 })
+    val pagerState = rememberPagerState(pageCount = { 3 })
 
     var hasUsageAccessPermission by remember {
         mutableStateOf(checkUsageAccessPermission(context))
     }
+    var hasNotificationPermission by remember {
+        mutableStateOf(checkNotificationPermission(context))
+    }
+    var hasNotificationAccessPermission by remember {
+        mutableStateOf(checkNotificationListenerPermission(context))
+    }
+    var isIgnoringBatteryOptimizations by remember {
+        mutableStateOf(checkBatteryOptimization(context))
+    }
+
+    val notificationLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            hasNotificationPermission = isGranted
+            if (!isGranted) {
+                openNotificationSettings(context)
+            }
+        }
+    )
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 hasUsageAccessPermission = checkUsageAccessPermission(context)
+                hasNotificationPermission = checkNotificationPermission(context)
+                hasNotificationAccessPermission = checkNotificationListenerPermission(context)
+                isIgnoringBatteryOptimizations = checkBatteryOptimization(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -131,17 +158,17 @@ fun OnboardingScreen(
         topBar = {
             OnboardingTopBar(
                 currentPage = pagerState.currentPage,
-                pageCount = 2,
+                pageCount = 3,
                 onBack = {
                     OsysterHapticUtil.performTick(view, prefsState.hapticFeedback)
                     scope.launch {
-                        pagerState.animateScrollToPage(0)
+                        pagerState.animateScrollToPage(pagerState.currentPage - 1)
                     }
                 },
                 onSkip = {
                     OsysterHapticUtil.performTick(view, prefsState.hapticFeedback)
                     scope.launch {
-                        pagerState.animateScrollToPage(1)
+                        pagerState.animateScrollToPage(2)
                     }
                 }
             )
@@ -151,11 +178,12 @@ fun OnboardingScreen(
                 currentPage = pagerState.currentPage,
                 onNext = {
                     OsysterHapticUtil.performVirtualKey(view, prefsState.hapticFeedback)
-                    if (pagerState.currentPage == 0) {
+                    if (pagerState.currentPage < 2) {
                         scope.launch {
-                            pagerState.animateScrollToPage(1)
+                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         }
                     } else {
+                        preferencesManager.setOnboardingStatsCompleted(true)
                         preferencesManager.setOnboardingCompleted(true)
                         onFinish()
                     }
@@ -177,11 +205,37 @@ fun OnboardingScreen(
         ) { page ->
             when (page) {
                 0 -> OnboardingWelcomePage()
-                1 -> OnboardingPermissionsPage(
+                1 -> OnboardingStatsPage(
+                    preferSystemUsageHistory = prefsState.preferSystemUsageHistory,
+                    onSelectPreferSystem = { preferSystem ->
+                        OsysterHapticUtil.performTick(view, prefsState.hapticFeedback)
+                        preferencesManager.setPreferSystemUsageHistory(preferSystem)
+                    }
+                )
+                2 -> OnboardingPermissionsPage(
                     hasUsageAccessPermission = hasUsageAccessPermission,
                     onRequestUsageAccessPermission = {
                         OsysterHapticUtil.performTick(view, prefsState.hapticFeedback)
                         openUsageAccessSettings(context)
+                    },
+                    hasNotificationPermission = hasNotificationPermission,
+                    onRequestNotificationPermission = {
+                        OsysterHapticUtil.performTick(view, prefsState.hapticFeedback)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notificationLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            openNotificationSettings(context)
+                        }
+                    },
+                    hasNotificationAccessPermission = hasNotificationAccessPermission,
+                    onRequestNotificationAccessPermission = {
+                        OsysterHapticUtil.performTick(view, prefsState.hapticFeedback)
+                        openNotificationListenerSettings(context)
+                    },
+                    isIgnoringBatteryOptimizations = isIgnoringBatteryOptimizations,
+                    onRequestBatteryOptimization = {
+                        OsysterHapticUtil.performTick(view, prefsState.hapticFeedback)
+                        openBatteryOptimizationSettings(context)
                     }
                 )
             }
@@ -218,6 +272,7 @@ private fun OnboardingTopBar(
                     modifier = Modifier
                         .width(actionWidth)
                         .height(38.dp)
+                        .pressBounce()
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -247,7 +302,7 @@ private fun OnboardingTopBar(
                     val isSelected = index == currentPage
                     val width by animateDpAsState(
                         targetValue = if (isSelected) 24.dp else 8.dp,
-                        animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy),
+                        animationSpec = MotionTokens.MorphDpSpring,
                         label = "onboarding_step_width"
                     )
                     val color by animateColorAsState(
@@ -264,13 +319,14 @@ private fun OnboardingTopBar(
                 }
             }
 
-            if (currentPage == 0) {
+            if (currentPage < pageCount - 1) {
                 TextButton(
                     onClick = onSkip,
                     contentPadding = PaddingValues(horizontal = 8.dp),
                     modifier = Modifier
                         .width(actionWidth)
                         .height(38.dp)
+                        .pressBounce()
                 ) {
                     Text(
                         text = stringResource(R.string.onboarding_skip),
@@ -291,7 +347,7 @@ private fun OnboardingBottomBar(
     currentPage: Int,
     onNext: () -> Unit
 ) {
-    val isFinal = currentPage == 1
+    val isFinal = currentPage == 2
 
     Column(
         modifier = Modifier
@@ -300,61 +356,16 @@ private fun OnboardingBottomBar(
             .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Button(
+        OsysterExpressiveButton(
+            text = if (isFinal) stringResource(R.string.onboarding_launch) else stringResource(R.string.onboarding_continue),
+            icon = if (isFinal) Icons.Default.Check else Icons.AutoMirrored.Filled.ArrowForward,
             onClick = onNext,
-            shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            shape = RoundedCornerShape(24.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = 56.dp)
-        ) {
-            Icon(
-                imageVector = if (isFinal) Icons.Default.Check else Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = if (isFinal) stringResource(R.string.onboarding_launch) else stringResource(R.string.onboarding_continue),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-private fun checkUsageAccessPermission(context: Context): Boolean {
-    val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as? AppOpsManager ?: return false
-    val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        appOps.unsafeCheckOpNoThrow(
-            AppOpsManager.OPSTR_GET_USAGE_STATS,
-            Process.myUid(),
-            context.packageName
+                .height(56.dp)
         )
-    } else {
-        appOps.checkOpNoThrow(
-            AppOpsManager.OPSTR_GET_USAGE_STATS,
-            Process.myUid(),
-            context.packageName
-        )
-    }
-    return mode == AppOpsManager.MODE_ALLOWED
-}
-
-private fun openUsageAccessSettings(context: Context) {
-    val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
-        data = Uri.fromParts("package", context.packageName, null)
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-    }
-    runCatching {
-        context.startActivity(intent)
-    }.onFailure {
-        val fallbackIntent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        runCatching { context.startActivity(fallbackIntent) }
     }
 }

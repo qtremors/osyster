@@ -1,8 +1,9 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
 
-package dev.qtremors.osyster.ui
+package dev.qtremors.osyster.ui.monitor
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringResource
+import dev.qtremors.osyster.ui.expressive.DigitTicker
+import dev.qtremors.osyster.ui.theme.MotionTokens
 import dev.qtremors.osyster.ui.util.collectAsVisibleState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.qtremors.osyster.monitor.MemoryState
@@ -50,6 +53,16 @@ fun MemoryDashboardContent(
     val memoryState = uiState.memoryState
     val ramUsedPercent = uiState.ramUsedPercent
     val swapUsedPercent = uiState.swapUsedPercent
+    val animatedRamProgress by animateFloatAsState(
+        targetValue = (ramUsedPercent / 100f).coerceIn(0f, 1f),
+        animationSpec = MotionTokens.GaugeSmoothSpring,
+        label = "memory_ram_progress"
+    )
+    val animatedSwapProgress by animateFloatAsState(
+        targetValue = (swapUsedPercent / 100f).coerceIn(0f, 1f),
+        animationSpec = MotionTokens.GaugeSmoothSpring,
+        label = "memory_swap_progress"
+    )
 
     Column(
         modifier = modifier
@@ -83,18 +96,18 @@ fun MemoryDashboardContent(
                     contentAlignment = Alignment.Center
                 ) {
                     CircularWavyProgressIndicator(
-                        progress = { (ramUsedPercent / 100f).coerceIn(0f, 1f) },
+                        progress = { animatedRamProgress },
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.primary,
                         trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
                     )
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
+                        DigitTicker(
                             text = String.format(Locale.getDefault(), "%.1f%%", ramUsedPercent),
                             style = MaterialTheme.typography.displayMedium,
-                            fontWeight = FontWeight.Black,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            prefix = "ram_usage"
                         )
                         Text(
                             text = stringResource(R.string.memory_ram_used_label),
@@ -177,7 +190,7 @@ fun MemoryDashboardContent(
                         }
 
                         LinearWavyProgressIndicator(
-                            progress = { (swapUsedPercent / 100f).coerceIn(0f, 1f) },
+                            progress = { animatedSwapProgress },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(10.dp),
@@ -259,6 +272,27 @@ fun MemoryDashboardContent(
                 val buffersRatio = (memoryState.ramBuffersKb.toFloat() / totalRam).coerceAtLeast(0.001f)
                 val freeRatio = (memoryState.ramFreeKb.toFloat() / totalRam).coerceAtLeast(0.001f)
 
+                val animatedUsedRatio by animateFloatAsState(
+                    targetValue = usedRatio,
+                    animationSpec = MotionTokens.GaugeSmoothSpring,
+                    label = "ram_used_ratio"
+                )
+                val animatedCachedRatio by animateFloatAsState(
+                    targetValue = cachedRatio,
+                    animationSpec = MotionTokens.GaugeSmoothSpring,
+                    label = "ram_cached_ratio"
+                )
+                val animatedBuffersRatio by animateFloatAsState(
+                    targetValue = buffersRatio,
+                    animationSpec = MotionTokens.GaugeSmoothSpring,
+                    label = "ram_buffers_ratio"
+                )
+                val animatedFreeRatio by animateFloatAsState(
+                    targetValue = freeRatio,
+                    animationSpec = MotionTokens.GaugeSmoothSpring,
+                    label = "ram_free_ratio"
+                )
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -268,14 +302,14 @@ fun MemoryDashboardContent(
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .weight(usedRatio)
+                            .weight(animatedUsedRatio)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primary)
                     )
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .weight(cachedRatio)
+                            .weight(animatedCachedRatio)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.tertiary)
                     )
@@ -283,7 +317,7 @@ fun MemoryDashboardContent(
                         Box(
                             modifier = Modifier
                                 .fillMaxHeight()
-                                .weight(buffersRatio)
+                                .weight(animatedBuffersRatio)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.secondary)
                         )
@@ -291,7 +325,7 @@ fun MemoryDashboardContent(
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .weight(freeRatio)
+                            .weight(animatedFreeRatio)
                             .clip(CircleShape)
                             .background(Color.White.copy(alpha = 0.12f))
                     )

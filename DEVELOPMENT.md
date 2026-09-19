@@ -2,7 +2,7 @@
 
 > Architecture, codebase structure, native statistics parsers, design tokens, and verification guidance for Osyster development.
 
-**Version:** 0.1.0 | **Last Updated:** 2026-09-06
+**Version:** 0.2.0 | **Last Updated:** 2026-09-19
 **Scope:** Internal development, system diagnostics, bento-grid UI paradigms, testing, and release maintenance.
 
 ---
@@ -65,6 +65,7 @@ graph TD
 | **Custom Canvas Rendering** | `OysterArcGauge` wraps Material 3 wavy progress; sparklines and the network timeline use Canvas without a third-party charting library. |
 | **Zero-Network Architecture** | Manifest omits `android.permission.INTERNET`; diagnostics are processed locally. User-invoked links and copy actions hand content to other apps or the clipboard. |
 | **Package Separation** | Debug builds append `.debug` to applicationId and versionName, enabling side-by-side installation with release builds. |
+| **Developer Stay Awake Control** | The dashboard reads Android's global plugged-in stay-awake state. Direct toggling is available only after the user grants `WRITE_SECURE_SETTINGS` through ADB; otherwise the UI provides the exact command and a Developer options fallback. |
 
 ---
 
@@ -72,12 +73,12 @@ graph TD
 
 | Area | Technology |
 |---|---|
-| Language and toolchain | Kotlin 2.4.10, Coroutines 1.11.0, Flow, JVM 11 target, AGP 9.3.2, Gradle 9.5.0, Foojay JDK 21 daemon |
+| Language and toolchain | Kotlin 2.4.10, Coroutines 1.11.0, Flow, JVM 11 target, AGP 9.4.0, Gradle 9.6.0, Foojay JDK 21 daemon |
 | Android platform | compileSdk 37, targetSdk 37, minSdk 24 (Android 7.0+) |
 | UI Framework | Jetpack Compose BOM 2026.08.00, Material 3 1.5.0-alpha26 (Expressive), Graphics Shapes 1.1.0 |
 | Navigation | Navigation Compose 2.9.8, Kotlinx Serialization 1.11.0, Material 3 Adaptive Navigation 1.3.0 |
 | State and telemetry | ViewModels, SavedStateHandle, StateFlow, SharedPreferences, Coroutines Dispatchers.IO |
-| System interface | Linux `/proc` and `/sys` virtual filesystems, Android Intent broadcasts |
+| System interface | Linux `/proc` and `/sys` virtual filesystems, Android Intent broadcasts, MediaSession controllers, and AppWidget `RemoteViews` |
 | Unit and UI tests | JUnit 4 and Coroutines Test; AndroidX Test, Espresso, and Compose UI Test dependencies are configured |
 
 Versions are centralized in `osyster-app/gradle/libs.versions.toml`. Compose uses the 2026.08.00 BOM; Material 3 and Adaptive have explicit version overrides.
@@ -111,7 +112,10 @@ osyster/
 │   │   │   │   │   ├── AppStopperMonitor.kt     # Managed apps and system shortcuts
 │   │   │   │   │   └── TelemetryResult.kt       # Available/restricted CPU and thermal values
 │   │   │   │   ├── settings/
-│   │   │   │   │   └── OsysterPreferences.kt    # Local preferences and managed packages
+│   │   │   │   │   ├── OsysterPreferences.kt    # Local preferences and managed packages
+│   │   │   │   │   └── StayAwakeController.kt   # ADB-authorized plugged-in screen control
+│   │   │   │   ├── widget/                       # Data usage widget providers and renderer
+│   │   │   │   │   └── music/                   # Media-session selection, controls, and widgets
 │   │   │   │   └── ui/
 │   │   │   │       ├── BentoDashboard.kt        # Interactive Bento Grid home screen layout
 │   │   │   │       ├── CpuDashboard.kt          # CPU gauges, core list, and Sparkline graph
@@ -503,11 +507,11 @@ Osyster implements a high-end, premium design system built on **Material 3 Expre
 | **Compile SDK** | 37 |
 | **Target SDK** | 37 |
 | **Min SDK** | 24 (Android 7.0+) |
-| **Version Code** | 10 |
-| **Version Name** | 0.1.0 |
+| **Version Code** | 20 |
+| **Version Name** | 0.2.0 |
 | **Java Target** | JVM 11 |
-| **Gradle Version** | 9.5.0 |
-| **AGP Version** | 9.3.2 |
+| **Gradle Version** | 9.6.0 |
+| **AGP Version** | 9.4.0 |
 | **Compose BOM** | 2026.08.00 |
 
 ### Manifest Declarations
@@ -521,6 +525,8 @@ Osyster implements a high-end, premium design system built on **Material 3 Expre
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
 
     <application
         android:allowBackup="true"
@@ -591,7 +597,7 @@ buildTypes {
 5. **No Third-Party Analytics:** Contains zero tracking SDKs, telemetry libraries, or crash reporting services.
 6. **Local Process Actions:** App Info and Android background-process management replace raw shell execution; OS restrictions still apply.
 7. **Read-Only Virtual Files:** Sysfs and procfs nodes are accessed with standard read-only streams.
-8. **Permissions:** Usage access supports historical network data; package visibility supports app lists; optional phone access supports carrier metadata and older mobile queries. Notification permission is not requested; notifications remain unimplemented.
+8. **Permissions:** Usage access supports historical network data; Notification Listener access supplies local music-widget metadata and controls; and the protected `WRITE_SECURE_SETTINGS` permission is inactive unless the user explicitly grants it through ADB for the Stay awake tile.
 9. **Secure Release Signing:** Keystore properties are resolved locally via `signing.properties` or `local.properties`, both excluded from source control. Backup rules exclude SharedPreferences, including saved settings and app labels.
 10. **Predictive Back Behavior:** Compose handlers return through main pager pages; subpages use the navigation back stack.
 
@@ -665,7 +671,7 @@ Commands are run from `osyster-app/` with JDK 21 and Android SDK 37 installed. U
 ./gradlew :app:assembleDebug
 
 # Install the debug APK after a successful build
-adb install -r app/build/outputs/apk/debug/Osyster-0.1.0-debug.apk
+adb install -r app/build/outputs/apk/debug/Osyster-0.2.0-debug.apk
 
 # Run app unit tests
 ./gradlew :app:testDebugUnitTest
@@ -690,8 +696,8 @@ signing.keyPassword=your_key_password
 
 ### APK Naming Standards
 
-- **Osyster Debug:** `app/build/outputs/apk/debug/Osyster-0.1.0-debug.apk`
-- **Osyster Release:** `app/build/outputs/apk/release/Osyster-0.1.0.apk`
+- **Osyster Debug:** `app/build/outputs/apk/debug/Osyster-0.2.0-debug.apk`
+- **Osyster Release:** `app/build/outputs/apk/release/Osyster-0.2.0.apk`
 
 ---
 

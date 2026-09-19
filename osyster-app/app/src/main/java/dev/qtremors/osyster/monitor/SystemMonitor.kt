@@ -75,7 +75,11 @@ data class BatteryState(
     val health: String,
     val status: String,
     val voltageMv: Int,
-    val powerSource: String
+    val powerSource: String,
+    val technology: String = "",
+    val currentNowMa: Int = 0,
+    val cycleCount: Int = -1,
+    val thermalStatus: String = ""
 )
 
 object SystemMonitor {
@@ -528,6 +532,7 @@ object SystemMonitor {
         var scale = 100
         var tempCelsius = 0.0f
         var healthStr = "Unknown"
+        var technology = ""
         var statusStr = "Unknown"
         var voltage = 0
         var powerSource = "Battery"
@@ -537,6 +542,7 @@ object SystemMonitor {
             scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
             val rawTemp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
             tempCelsius = rawTemp / 10f // Celsius is represented in tenths
+            technology = intent.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY) ?: ""
 
             val health = intent.getIntExtra(BatteryManager.EXTRA_HEALTH, BatteryManager.BATTERY_HEALTH_UNKNOWN)
             healthStr = when (health) {
@@ -569,13 +575,57 @@ object SystemMonitor {
 
         val percentage = if (level >= 0 && scale > 0) (level * 100) / scale else 0
 
+        val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
+        val rawCurrent = runCatching {
+            batteryManager?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) ?: 0
+        }.getOrDefault(0)
+        // Some kernels report current in microamperes (uA), others in milliamperes (mA).
+        val currentNowMa = if (kotlin.math.abs(rawCurrent) > 10000) {
+            rawCurrent / 1000
+        } else {
+            rawCurrent
+        }
+
+        val cycleFromIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            batteryStatus?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
+        } else {
+            -1
+        }
+        val cycleCount = if (cycleFromIntent >= 0) {
+            cycleFromIntent
+        } else {
+            runCatching {
+                File("/sys/class/power_supply/battery/cycle_count").readText().trim().toIntOrNull() ?: -1
+            }.getOrDefault(-1)
+        }
+
+        val thermalStatus = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+            when (powerManager?.currentThermalStatus) {
+                android.os.PowerManager.THERMAL_STATUS_NONE -> "None"
+                android.os.PowerManager.THERMAL_STATUS_LIGHT -> "Light"
+                android.os.PowerManager.THERMAL_STATUS_MODERATE -> "Moderate"
+                android.os.PowerManager.THERMAL_STATUS_SEVERE -> "Severe"
+                android.os.PowerManager.THERMAL_STATUS_CRITICAL -> "Critical"
+                android.os.PowerManager.THERMAL_STATUS_EMERGENCY -> "Emergency"
+                android.os.PowerManager.THERMAL_STATUS_SHUTDOWN -> "Shutdown"
+                else -> "None"
+            }
+        } else {
+            "None"
+        }
+
         return BatteryState(
             levelPercentage = percentage,
             tempCelsius = tempCelsius,
             health = healthStr,
             status = statusStr,
             voltageMv = voltage,
-            powerSource = powerSource
+            powerSource = powerSource,
+            technology = technology,
+            currentNowMa = currentNowMa,
+            cycleCount = cycleCount,
+            thermalStatus = thermalStatus
         )
     }
 

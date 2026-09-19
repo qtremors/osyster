@@ -39,12 +39,14 @@ enum class DiagnosticsInterval(val millis: Long, val labelResName: String) {
 
 enum class TemperatureUnit(val symbol: String) {
     CELSIUS("°C"),
-    FAHRENHEIT("°F");
+    FAHRENHEIT("°F"),
+    KELVIN("K");
 
     fun convertFromCelsius(celsius: Float): Float {
         return when (this) {
             CELSIUS -> celsius
             FAHRENHEIT -> (celsius * 9f / 5f) + 32f
+            KELVIN -> celsius + 273.15f
         }
     }
 
@@ -64,7 +66,11 @@ data class OsysterPreferencesState(
     val showKernelThreads: Boolean = false,
     val isOnboardingCompleted: Boolean = false,
     val managedStopPackages: Set<String> = emptySet(),
-    val appStopperGridColumns: Int = 4
+    val appStopperGridColumns: Int = 4,
+    val blockScreenCapture: Boolean = false,
+    val screenTimeTargetMinutes: Int = 0,
+    val onboardingStatsCompleted: Boolean = false,
+    val preferSystemUsageHistory: Boolean = false
 )
 
 // =========================================================================
@@ -106,7 +112,11 @@ class OsysterPreferencesManager(context: Context) {
             showKernelThreads = prefs.getBoolean(KEY_SHOW_KERNEL_THREADS, false),
             isOnboardingCompleted = prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false),
             managedStopPackages = managedPackages,
-            appStopperGridColumns = gridCols
+            appStopperGridColumns = gridCols,
+            blockScreenCapture = prefs.getBoolean(KEY_BLOCK_SCREEN_CAPTURE, false),
+            screenTimeTargetMinutes = prefs.getInt(KEY_SCREEN_TIME_TARGET_MINUTES, 0),
+            onboardingStatsCompleted = prefs.getBoolean(KEY_ONBOARDING_STATS_COMPLETED, false),
+            preferSystemUsageHistory = prefs.getBoolean(KEY_PREFER_SYSTEM_USAGE_HISTORY, false)
         )
     }
 
@@ -175,6 +185,27 @@ class OsysterPreferencesManager(context: Context) {
         _state.value = _state.value.copy(appStopperGridColumns = clamped)
     }
 
+    fun setBlockScreenCapture(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_BLOCK_SCREEN_CAPTURE, enabled).apply()
+        _state.value = _state.value.copy(blockScreenCapture = enabled)
+    }
+
+    fun setScreenTimeTargetMinutes(minutes: Int) {
+        val clamped = minutes.coerceAtLeast(0)
+        prefs.edit().putInt(KEY_SCREEN_TIME_TARGET_MINUTES, clamped).apply()
+        _state.value = _state.value.copy(screenTimeTargetMinutes = clamped)
+    }
+
+    fun setOnboardingStatsCompleted(completed: Boolean) {
+        prefs.edit().putBoolean(KEY_ONBOARDING_STATS_COMPLETED, completed).apply()
+        _state.value = _state.value.copy(onboardingStatsCompleted = completed)
+    }
+
+    fun setPreferSystemUsageHistory(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_PREFER_SYSTEM_USAGE_HISTORY, enabled).apply()
+        _state.value = _state.value.copy(preferSystemUsageHistory = enabled)
+    }
+
     companion object {
         private const val PREFS_NAME = "osyster_settings_prefs"
         private const val KEY_THEME_MODE = "theme_mode"
@@ -187,6 +218,10 @@ class OsysterPreferencesManager(context: Context) {
         private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
         private const val KEY_MANAGED_STOP_PACKAGES = "managed_stop_packages"
         private const val KEY_APP_STOPPER_GRID_COLUMNS = "app_stopper_grid_columns"
+        private const val KEY_BLOCK_SCREEN_CAPTURE = "block_screen_capture"
+        private const val KEY_SCREEN_TIME_TARGET_MINUTES = "screen_time_target_minutes"
+        private const val KEY_ONBOARDING_STATS_COMPLETED = "onboarding_stats_completed"
+        private const val KEY_PREFER_SYSTEM_USAGE_HISTORY = "prefer_system_usage_history"
 
         @Volatile
         private var instance: OsysterPreferencesManager? = null

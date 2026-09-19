@@ -1,4 +1,4 @@
-package dev.qtremors.osyster.ui
+package dev.qtremors.osyster.ui.apps
 
 import android.app.ActivityManager
 import android.content.Context
@@ -38,6 +38,8 @@ import java.util.Locale
 
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringResource
+import dev.qtremors.osyster.ui.expressive.OsysterExpressiveButton
+import dev.qtremors.osyster.ui.theme.pressBounce
 import dev.qtremors.osyster.ui.util.collectAsVisibleState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.qtremors.osyster.ui.theme.OsysterTheme
@@ -165,7 +167,9 @@ fun ProcessDashboardContent(
                                 onClick = { onSelectProcess(proc) },
                                 shape = RoundedCornerShape(16.dp),
                                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .pressBounce()
                             ) {
                                 Row(
                                     modifier = Modifier
@@ -273,44 +277,34 @@ fun ProcessDashboardContent(
                     val isAppPackage = targetPackage.contains('.')
 
                     if (isAppPackage) {
-                        Button(
-                            onClick = {
-                                onOpenAppInfo(targetPackage)
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(100)
-                        ) {
-                            Icon(Icons.Default.Info, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.app_stopper_action_force_stop), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
-                        }
+                        OsysterExpressiveButton(
+                            text = stringResource(R.string.app_stopper_action_force_stop),
+                            icon = Icons.Default.Info,
+                            onClick = { onOpenAppInfo(targetPackage) },
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                        if (android.os.Build.VERSION.SDK_INT < 34) Button(
-                            onClick = {
-                                onKillBackgroundProcesses(targetPackage)
-                            },
-                            colors = ButtonDefaults.buttonColors(
+                        if (android.os.Build.VERSION.SDK_INT < 34) {
+                            OsysterExpressiveButton(
+                                text = stringResource(R.string.process_kill_background),
+                                onClick = { onKillBackgroundProcesses(targetPackage) },
                                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                            ),
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(100)
-                        ) {
-                            Text(stringResource(R.string.process_kill_background), fontWeight = FontWeight.Bold)
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
 
                     // Direct process termination action with guidance
-                    OutlinedButton(
-                        onClick = {
-                            onSetGuidanceTarget(proc)
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(100)
-                    ) {
-                        Text(stringResource(R.string.process_terminate_button, proc.pid), fontWeight = FontWeight.Bold)
-                    }
+                    OsysterExpressiveButton(
+                        text = stringResource(R.string.process_terminate_button, proc.pid),
+                        onClick = { onSetGuidanceTarget(proc) },
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
                 }
