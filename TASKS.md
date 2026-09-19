@@ -2,7 +2,7 @@
 
 > **Project:** Osyster
 >
-> **Version:** 0.1.9
+> **Version:** 0.2.0
 >
 > **Last Updated:** 2026-09-19
 
@@ -271,12 +271,3 @@ Completed implementation entries have been removed. The remaining items are prio
   - **Impact:** The highest-risk platform and lifecycle flows can regress while unit tests and a release assembly remain green.
   - **Fix:** Add a focused instrumented suite and release matrix for onboarding/permission denial and revocation, navigation/back restoration, network and screen-time error states, sensor lifecycle, backup SAF flows, App Info handoffs, widget discovery/update/control/resize flows, accessibility, and representative large data. Add macrobenchmarks for startup, overview, process lists, charts, and cold widget rendering; replace widget constant-only tests with behavior tests over `RemoteViews`, receiver lifecycle, media session selection, and failure recovery.
   - **Verification:** Run JVM and instrumented tests against API 24/25, 29, 33, and current target devices, including a 16 KB image and minified release APK; record fresh install, upgrade, denied/revoked access, offline, background/resume, rotation, process death, launcher restart, widget add/remove/resize, dark mode, large font, RTL, and rapid-input results.
-
-### Documentation Tasks
-
-- [ ] **DOC-0001 - Reconcile Developer Documentation With Version 0.1.9** `[Medium]`
-  - **Location:** `DEVELOPMENT.md` `TASKS.md` `README.md` `RELEASES.md` `osyster-app/app/build.gradle.kts` `osyster-app/gradle/libs.versions.toml` `osyster-app/gradle/wrapper/gradle-wrapper.properties`
-  - **Problem:** Developer documentation omits the 0.1.9 widget architecture and notification-listener data handling, shows obsolete package paths, and describes navigation, permissions, privacy, and implemented feature scope that changed in later releases.
-  - **Impact:** Contributors can follow incorrect setup, architecture, verification, and release instructions, increasing release mistakes and making the documented quality claims unreliable.
-  - **Fix:** Update current-version metadata, toolchain tables, project tree, runtime/navigation flow, permissions, build commands, output names, test status, and known limitations while preserving historical changelog and release entries as history.
-  - **Verification:** Follow the setup and release procedure from a clean checkout, compare every documented version and path with Gradle/source outputs, run all stated commands, and review README, privacy, changelog, release notes, and TASKS for consistent current behavior.

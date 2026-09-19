@@ -2,7 +2,7 @@
 
 > Architecture, codebase structure, native statistics parsers, design tokens, and verification guidance for Osyster development.
 
-**Version:** 0.1.9 | **Last Updated:** 2026-09-19
+**Version:** 0.2.0 | **Last Updated:** 2026-09-19
 **Scope:** Internal development, system diagnostics, bento-grid UI paradigms, testing, and release maintenance.
 
 ---
@@ -507,8 +507,8 @@ Osyster implements a high-end, premium design system built on **Material 3 Expre
 | **Compile SDK** | 37 |
 | **Target SDK** | 37 |
 | **Min SDK** | 24 (Android 7.0+) |
-| **Version Code** | 19 |
-| **Version Name** | 0.1.9 |
+| **Version Code** | 20 |
+| **Version Name** | 0.2.0 |
 | **Java Target** | JVM 11 |
 | **Gradle Version** | 9.6.0 |
 | **AGP Version** | 9.4.0 |
@@ -671,7 +671,7 @@ Commands are run from `osyster-app/` with JDK 21 and Android SDK 37 installed. U
 ./gradlew :app:assembleDebug
 
 # Install the debug APK after a successful build
-adb install -r app/build/outputs/apk/debug/Osyster-0.1.9-debug.apk
+adb install -r app/build/outputs/apk/debug/Osyster-0.2.0-debug.apk
 
 # Run app unit tests
 ./gradlew :app:testDebugUnitTest
@@ -696,8 +696,8 @@ signing.keyPassword=your_key_password
 
 ### APK Naming Standards
 
-- **Osyster Debug:** `app/build/outputs/apk/debug/Osyster-0.1.9-debug.apk`
-- **Osyster Release:** `app/build/outputs/apk/release/Osyster-0.1.9.apk`
+- **Osyster Debug:** `app/build/outputs/apk/debug/Osyster-0.2.0-debug.apk`
+- **Osyster Release:** `app/build/outputs/apk/release/Osyster-0.2.0.apk`
 
 ---
 

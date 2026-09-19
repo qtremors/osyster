@@ -46,6 +46,10 @@ Osyster requires no root access. It reads accessible sysfs/procfs files and Andr
 - **RAM & SWAP Matrix:** Comprehensive memory allocation breakdowns (total RAM, used RAM, available, buffers, and cache) parsed directly from `/proc/meminfo` with visual progress gauges.
 - **Active Tasks & Process Manager:** Lists OS-visible processes with command names, UID labels, RSS memory, search, and App Info shortcuts. Arbitrary PID termination is restricted; force stopping an app requires the user to act in Android's App Info screen.
 - **Network Usage:** Shows aggregate live transfer speeds and daily, weekly, and monthly usage with per-app and Mobile/Wi-Fi filters. Historical usage requires Android usage access.
+- **Data Usage Widgets:** Adds daily, monthly, and combined home-screen widgets for cellular and Wi-Fi totals, with refresh actions and direct Network dashboard access.
+- **Music Widgets:** Adds 3x3 disc and 5x1 capsule players with track details, high-resolution artwork, live playback state, and player-supported play, skip, shuffle, and repeat controls. Notification access is optional and used only for active media sessions.
+- **Screen Time:** Presents today's activity, daily goals, a seven-day history, hourly distribution, and per-app foreground usage from Android's local usage history.
+- **Developer Stay Awake:** Provides a compact dashboard toggle for Android's plugged-in Stay awake setting. Changing it requires a one-time ADB permission grant; the app provides the exact command and a Developer options fallback.
 - **App Stopper:** Keeps a managed app list with stopped-state indicators, App Info shortcuts, and ghost entries for uninstalled apps. An app marked Active is not force-stopped, but may have no running process.
 - **Device & Hardware Specifications:** Detailed breakdown of hardware manufacturer, device model, board configurations, processor platform, supported ABIs, Android OS versions, API levels, security patches, and bootloaders.
 - **Real-Time Battery Telemetry:** Monitors battery percentage, millivolt voltage levels, temperatures, health status, charging states, and connected power sources.

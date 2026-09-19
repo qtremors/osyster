@@ -50,15 +50,12 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Security
 import dev.qtremors.osyster.ui.onboarding.PermissionBottomSheet
-import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.SystemUpdate
-import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -238,112 +235,27 @@ fun SettingsScreen(
             }
         ) {
             SettingsSection(title = stringResource(R.string.section_diagnostics)) {
-                val intervals = listOf(
-                    DiagnosticsInterval.INTERVAL_500MS to stringResource(R.string.interval_fast),
-                    DiagnosticsInterval.INTERVAL_1000MS to stringResource(R.string.interval_normal),
-                    DiagnosticsInterval.INTERVAL_2000MS to stringResource(R.string.interval_relaxed),
-                    DiagnosticsInterval.INTERVAL_3000MS to stringResource(R.string.interval_saver),
-                    DiagnosticsInterval.INTERVAL_5000MS to stringResource(R.string.interval_eco)
-                )
-
-                intervals.forEachIndexed { index, (interval, label) ->
-                    val isSelected = state.diagnosticsInterval == interval
-                    SegmentedListItem(
-                        onClick = { manager.setDiagnosticsInterval(interval) },
-                        shapes = expressiveSegmentedShapes(index = index, count = intervals.size),
-                        content = {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                            )
-                        },
-                        supportingContent = if (index == 0) {
-                            { Text(stringResource(R.string.update_interval_description)) }
-                        } else null,
-                        leadingContent = if (index == 0) {
-                            {
-                                Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = Icons.Default.Speed,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-                            }
-                        } else null,
-                        trailingContent = {
-                            Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                                RadioButton(
-                                    selected = isSelected,
-                                    onClick = null
-                                )
-                            }
-                        },
-                        colors = ListItemDefaults.segmentedColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                        ),
-                        modifier = Modifier.height(IntrinsicSize.Min)
+                SettingsCardContainer(index = 0, count = 3) {
+                    DiagnosticsIntervalSelector(
+                        currentInterval = state.diagnosticsInterval,
+                        onIntervalSelected = manager::setDiagnosticsInterval
                     )
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
-
-                val units = listOf(
-                    TemperatureUnit.CELSIUS to stringResource(R.string.unit_celsius),
-                    TemperatureUnit.FAHRENHEIT to stringResource(R.string.unit_fahrenheit),
-                    TemperatureUnit.KELVIN to stringResource(R.string.unit_kelvin)
-                )
-
-                units.forEachIndexed { index, (unit, label) ->
-                    val isSelected = state.temperatureUnit == unit
-                    SegmentedListItem(
-                        onClick = { manager.setTemperatureUnit(unit) },
-                        shapes = expressiveSegmentedShapes(index = index, count = units.size),
-                        content = {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                            )
-                        },
-                        leadingContent = if (index == 0) {
-                            {
-                                Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = Icons.Default.Thermostat,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-                            }
-                        } else null,
-                        trailingContent = {
-                            Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                                RadioButton(
-                                    selected = isSelected,
-                                    onClick = null
-                                )
-                            }
-                        },
-                        colors = ListItemDefaults.segmentedColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                        ),
-                        modifier = Modifier.height(IntrinsicSize.Min)
+                SettingsCardContainer(index = 1, count = 3) {
+                    TemperatureUnitSelector(
+                        currentUnit = state.temperatureUnit,
+                        onUnitSelected = manager::setTemperatureUnit
                     )
                 }
-
-                Spacer(modifier = Modifier.height(6.dp))
 
                 SettingsSwitchRow(
                     title = stringResource(R.string.process_filter_title),
                     description = stringResource(R.string.process_filter_description),
                     checked = state.showKernelThreads,
                     onCheckedChange = manager::setShowKernelThreads,
-                    index = 0,
-                    count = 1,
+                    index = 2,
+                    count = 3,
                     leadingIcon = Icons.Default.AccountTree
                 )
             }

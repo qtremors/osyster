@@ -425,11 +425,12 @@ fun NetworkDashboardContent(
                                 fontWeight = FontWeight.Bold,
                                 color = if (isCurrentPeriod) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
                                     .clickable(enabled = !isCurrentPeriod) {
                                         OsysterHapticUtil.performTick(view, hapticEnabled)
                                         onResetToCurrentDate()
                                     }
-                                    .padding(horizontal = 6.dp)
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
                             )
 
                             IconButton(

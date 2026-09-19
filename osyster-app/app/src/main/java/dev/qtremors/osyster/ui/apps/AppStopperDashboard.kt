@@ -336,29 +336,24 @@ fun AppStopperContent(
                     }
 
                     Box {
-                        Box(
+                        Surface(
+                            onClick = {
+                                OsysterHapticUtil.performVirtualKey(view, hapticFeedback)
+                                showGridMenu = true
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
                             modifier = Modifier
-                                .sizeIn(minWidth = 36.dp, minHeight = 36.dp)
+                                .size(36.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .clickable {
-                                    OsysterHapticUtil.performVirtualKey(view, hapticFeedback)
-                                    showGridMenu = true
-                                },
-                            contentAlignment = Alignment.Center
                         ) {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                                modifier = Modifier.size(36.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(
-                                        text = "${gridColumns}x",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Black,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "${gridColumns}x",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Black,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
                             }
                         }
 

@@ -20,6 +20,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
@@ -147,6 +149,7 @@ fun Modifier.pressBounce(
  * Compresses slightly on press and springs back naturally, accompanied by virtual key haptics.
  */
 fun Modifier.expressiveClickable(
+    shape: Shape? = null,
     enabled: Boolean = true,
     role: Role? = Role.Button,
     hapticFeedback: Boolean = true,
@@ -164,7 +167,8 @@ fun Modifier.expressiveClickable(
         label = "expressiveClickScale"
     )
 
-    this
+    val baseModifier = if (shape != null) this.clip(shape) else this
+    baseModifier
         .graphicsLayer {
             scaleX = scale
             scaleY = scale
@@ -184,6 +188,7 @@ fun Modifier.expressiveClickable(
 }
 
 fun Modifier.bounceClickable(
+    shape: Shape? = null,
     enabled: Boolean = true,
     role: Role? = Role.Button,
     onClick: () -> Unit
@@ -199,7 +204,8 @@ fun Modifier.bounceClickable(
         label = "bounceClickScale"
     )
 
-    this
+    val baseModifier = if (shape != null) this.clip(shape) else this
+    baseModifier
         .graphicsLayer {
             scaleX = scale
             scaleY = scale
@@ -221,6 +227,7 @@ fun Modifier.bounceClickable(
 
 @OptIn(ExperimentalFoundationApi::class)
 fun Modifier.bounceCombinedClickable(
+    shape: Shape? = null,
     enabled: Boolean = true,
     role: Role? = Role.Button,
     onClickLabel: String? = null,
@@ -239,7 +246,8 @@ fun Modifier.bounceCombinedClickable(
         label = "bounceCombinedClickScale"
     )
 
-    this
+    val baseModifier = if (shape != null) this.clip(shape) else this
+    baseModifier
         .graphicsLayer {
             scaleX = scale
             scaleY = scale

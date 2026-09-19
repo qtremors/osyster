@@ -539,6 +539,7 @@ private fun ScreenTimeHistoryCard(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
                             .clickable { onSelectDate(if (isSelected) null else item.dateMillis) }
                     ) {
                         Box(
@@ -881,7 +882,9 @@ private fun LowUsageAppsCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { expanded = !expanded },
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { expanded = !expanded }
+                    .padding(vertical = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {

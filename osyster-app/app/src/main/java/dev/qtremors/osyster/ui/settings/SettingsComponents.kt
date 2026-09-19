@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -46,6 +47,8 @@ import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.SettingsSuggest
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -56,6 +59,7 @@ import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -68,6 +72,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -78,11 +83,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.settings.AccentPalette
+import dev.qtremors.osyster.settings.DiagnosticsInterval
+import dev.qtremors.osyster.settings.TemperatureUnit
 import dev.qtremors.osyster.settings.ThemeMode
 import dev.qtremors.osyster.ui.theme.MotionTokens
 import dev.qtremors.osyster.ui.theme.bounceClickable
 import dev.qtremors.osyster.ui.theme.expressiveSegmentedShapes
 import dev.qtremors.osyster.ui.theme.pressBounce
+import dev.qtremors.osyster.ui.util.OsysterHapticUtil
 
 // =========================================================================
 // Section Header & Container
@@ -444,31 +452,33 @@ private fun ThemeModeCard(
         label = "modeCardContent"
     )
 
+    val shape = if (isSelected) MaterialTheme.shapes.extraLarge else MaterialTheme.shapes.large
+
     Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .selectable(
-                selected = isSelected,
-                onClick = { onClick(mode) },
-                role = Role.RadioButton,
-                interactionSource = interactionSource,
-                indication = null
-            )
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            },
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Surface(
-            shape = if (isSelected) MaterialTheme.shapes.extraLarge else MaterialTheme.shapes.large,
+            shape = shape,
             color = containerColor,
             contentColor = contentColor,
             border = if (!isSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)) else null,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp)
+                .clip(shape)
+                .selectable(
+                    selected = isSelected,
+                    onClick = { onClick(mode) },
+                    role = Role.RadioButton,
+                    interactionSource = interactionSource,
+                    indication = ripple(bounded = true)
+                )
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
@@ -485,10 +495,237 @@ private fun ThemeModeCard(
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
             color = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = { onClick(mode) }
+            )
         )
     }
 }
+
+// =========================================================================
+// Diagnostics Interval Selector
+// =========================================================================
+
+@Composable
+fun DiagnosticsIntervalSelector(
+    currentInterval: DiagnosticsInterval,
+    onIntervalSelected: (DiagnosticsInterval) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+    val intervals = listOf(
+        DiagnosticsInterval.INTERVAL_500MS to "500ms",
+        DiagnosticsInterval.INTERVAL_1000MS to "1s",
+        DiagnosticsInterval.INTERVAL_2000MS to "2s",
+        DiagnosticsInterval.INTERVAL_3000MS to "3s",
+        DiagnosticsInterval.INTERVAL_5000MS to "5s"
+    )
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Speed,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.update_interval),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(R.string.update_interval_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            intervals.forEach { (interval, label) ->
+                val isSelected = currentInterval == interval
+                val shape = RoundedCornerShape(12.dp)
+
+                val containerColor by animateColorAsState(
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
+                    label = "intervalContainer"
+                )
+                val contentColor by animateColorAsState(
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                    label = "intervalContent"
+                )
+
+                Surface(
+                    shape = shape,
+                    color = containerColor,
+                    contentColor = contentColor,
+                    border = if (!isSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)) else null,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(40.dp)
+                        .clip(shape)
+                        .bounceClickable(shape = shape) {
+                            OsysterHapticUtil.performVirtualKey(view, true)
+                            onIntervalSelected(interval)
+                        }
+                        .semantics {
+                            selected = isSelected
+                            contentDescription = label
+                        }
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// =========================================================================
+// Temperature Unit Selector
+// =========================================================================
+
+@Composable
+fun TemperatureUnitSelector(
+    currentUnit: TemperatureUnit,
+    onUnitSelected: (TemperatureUnit) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val view = LocalView.current
+    val units = listOf(
+        TemperatureUnit.CELSIUS to stringResource(R.string.unit_celsius),
+        TemperatureUnit.FAHRENHEIT to stringResource(R.string.unit_fahrenheit),
+        TemperatureUnit.KELVIN to stringResource(R.string.unit_kelvin)
+    )
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Thermostat,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.temp_unit),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(R.string.temp_unit_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            units.forEach { (unit, label) ->
+                val isSelected = currentUnit == unit
+                val shape = RoundedCornerShape(14.dp)
+
+                val containerColor by animateColorAsState(
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
+                    label = "tempUnitContainer"
+                )
+                val contentColor by animateColorAsState(
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                    label = "tempUnitContent"
+                )
+
+                Surface(
+                    shape = shape,
+                    color = containerColor,
+                    contentColor = contentColor,
+                    border = if (!isSelected) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)) else null,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(44.dp)
+                        .clip(shape)
+                        .bounceClickable(shape = shape) {
+                            OsysterHapticUtil.performVirtualKey(view, true)
+                            onUnitSelected(unit)
+                        }
+                        .semantics {
+                            selected = isSelected
+                            contentDescription = label
+                        }
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 // =========================================================================
 // Acqua-Style Expressive Accent Palette Selector

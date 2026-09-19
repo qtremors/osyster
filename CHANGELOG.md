@@ -1,8 +1,16 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.1.9
+> **Version:** 0.2.0
 > **Last Updated:** 2026-09-19
+
+---
+
+## [0.2.0] - 2026-09-19
+
+- **Settings Diagnostics Redesign**: Modernized the Diagnostics and Telemetry settings section with compact horizontal segmented selectors for refresh intervals and temperature units, eliminating vertical clutter and integrating seamlessly into unified card containers.
+- **Touch Target Shape Clipping**: Fixed touch feedback, click indication, and ripple bounds across theme mode selectors, screen time history charts, expandable lists, and dashboard action chips to strictly conform to their rounded component boundaries.
+- **Showcase and Website Telemetry Cleanup**: Streamlined website preview graphics to feature live Screen Time, Data Usage, and Network Speedometer telemetry while removing OS restriction badges and unrepresentative process manager claims.
 
 ---
 
