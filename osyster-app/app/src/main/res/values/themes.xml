@@ -1,9 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme. Compose handles all UI; this is just the window chrome. -->
-    <style name="Theme.Osyster" parent="Theme.AppCompat.DayNight.NoActionBar" />
+    <!-- Window chrome only; Compose draws everything else. -->
+    <style name="Theme.Osyster" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
 
-    <style name="Theme.Osyster.AppWidget" parent="Theme.AppCompat.DayNight">
-        <item name="android:textColorPrimary">@color/widget_music_primary_text</item>
-        <item name="android:textColorSecondary">@color/widget_music_secondary_text</item>
+    <!-- Held until the saved theme loads, then replaced by Theme.Osyster. -->
+    <style name="Theme.Osyster.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/window_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.Osyster</item>
     </style>
 </resources>

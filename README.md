@@ -21,8 +21,8 @@
   <a href="https://github.com/qtremors/osyster/releases"><img src="https://img.shields.io/github/downloads/qtremors/osyster/latest/total?label=Latest%20Downloads&color=00E6FF" alt="Latest Downloads"></a>
 </p>
 <p align="center">
-  <img src="https://img.shields.io/badge/Android-7.0%2B-34A853?logo=android" alt="Android 7.0+">
-  <img src="https://img.shields.io/badge/License-TSL-red" alt="License">
+  <img src="https://img.shields.io/badge/Android-8.0%2B-34A853?logo=android" alt="Android 8.0+">
+  <img src="https://img.shields.io/badge/License-GPLv3-blue" alt="License: GPLv3">
 </p>
 
 > [!NOTE]
@@ -34,7 +34,7 @@ Osyster is an offline Android system monitor and OS utility suite built for spee
 
 ## Download
 
-Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyster/releases) and install it on any device running Android 7.0 (Nougat, API 24) or newer.
+Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyster/releases) and install it on any device running Android 8.0 (Oreo, API 26) or newer.
 
 Osyster requires no root access. It reads accessible sysfs/procfs files and Android APIs for diagnostics. CPU load, frequencies, thermal zones, and process visibility depend on Android's security restrictions and the device vendor. Current telemetry limitations are tracked in [TASKS.md](TASKS.md).
 
@@ -79,9 +79,9 @@ Architecture, project structure, technology choices, setup, build commands, test
 
 ## License
 
-Osyster is source-available under the **Tremors Source License (TSL)**. Viewing, forking, and derivative works require attribution; commercial use requires written permission.
+Osyster is free and open source under the **GNU General Public License v3.0**. You can use, study, change, and share it. If you distribute a modified version, you must release its full source under the same license.
 
-Read [LICENSE.md](LICENSE.md) or the [web version](https://qtremors.github.io/license).
+Read [LICENSE.md](LICENSE.md).
 
 ---
 

@@ -1,8 +1,20 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.2.0
-> **Last Updated:** 2026-09-19
+> **Version:** 0.2.1
+> **Last Updated:** 2026-09-20
+
+---
+
+## [0.2.1] - 2026-09-20
+
+- **Fresh Start**: Osyster is being rebuilt from the ground up with a calmer, more consistent design. This first build brings the new look and layout; device pages and tools return over the next updates.
+- **New Home**: A hero card with your phone's name, Android version, security patch, and chip, followed by every device page grouped into About this phone, Performance, Hardware, Connectivity, and Media and security.
+- **Tools Tab**: Usage, utilities, and power tools are listed in one place. Power tools say up front whether they need a one-time ADB grant, Shizuku, or root.
+- **Floating Toolbar**: Switch between Home, Tools, and Settings from a floating bar that turns into a Back button with the page title on detail pages.
+- **Appearance Settings**: Choose System, Light, or Dark theme, pure black for OLED screens, wallpaper colors or one of six presets, and turn haptic feedback or motion down.
+- **Credits and License**: Osyster is now open source under the GNU General Public License v3. Settings lists the projects it builds on.
+- **Android 8.0 or newer**: The minimum Android version is now 8.0 (Oreo).
 
 ---
 

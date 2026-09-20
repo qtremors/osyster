@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_back">Back</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_show_advanced">Show advanced</string>
+    <string name="action_hide_advanced">Hide advanced</string>
+    <plurals name="advanced_count">
+        <item quantity="one">%d more detail</item>
+        <item quantity="other">%d more details</item>
+    </plurals>
+    <string name="copied_value">%1$s copied</string>
+
+    <string name="availability_permission_required">Permission required</string>
+    <string name="availability_restricted">Restricted by Android</string>
+    <string name="availability_not_supported">Not supported on this device</string>
+    <string name="availability_not_reported">Not reported by this device</string>
+    <string name="availability_temporarily_unavailable">Temporarily unavailable</string>
+    <string name="availability_failed">Could not be read</string>
+
+    <string name="availability_short_permission">Needs access</string>
+    <string name="availability_short_restricted">Restricted</string>
+    <string name="availability_short_unsupported">Not supported</string>
+    <string name="availability_short_unknown">Unknown</string>
+</resources>

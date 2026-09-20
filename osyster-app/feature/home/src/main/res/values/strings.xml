@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_title">Osyster</string>
+    <string name="home_hero_subtitle">Android %1$s · API %2$d</string>
+    <string name="home_metric_patch">Security patch</string>
+    <string name="home_metric_chip">Chip</string>
+</resources>

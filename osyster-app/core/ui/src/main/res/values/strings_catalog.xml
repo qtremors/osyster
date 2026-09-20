@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Device pages -->
+    <string name="group_about">About this phone</string>
+    <string name="group_performance">Performance</string>
+    <string name="group_hardware">Hardware</string>
+    <string name="group_connectivity">Connectivity</string>
+    <string name="group_media_security">Media and security</string>
+
+    <string name="page_system">System</string>
+    <string name="page_system_summary">Android version, updates, build, and kernel</string>
+    <string name="page_device">Device</string>
+    <string name="page_device_summary">Model, platform, and hardware features</string>
+    <string name="page_processor">CPU and GPU</string>
+    <string name="page_processor_summary">Cores, clock speeds, graphics, and thermals</string>
+    <string name="page_memory">Memory and storage</string>
+    <string name="page_memory_summary">RAM, swap, and storage space</string>
+    <string name="page_battery">Battery</string>
+    <string name="page_battery_summary">Health, temperature, charging, and cycles</string>
+    <string name="page_display">Display</string>
+    <string name="page_display_summary">Resolution, refresh rate, HDR, and screen test</string>
+    <string name="page_cameras">Cameras</string>
+    <string name="page_cameras_summary">Lenses, megapixels, and stabilization</string>
+    <string name="page_sensors">Sensors</string>
+    <string name="page_sensors_summary">Motion, light, proximity, and live readings</string>
+    <string name="page_network">Network</string>
+    <string name="page_network_summary">Connection, Wi-Fi, and mobile network</string>
+    <string name="page_bluetooth">Bluetooth</string>
+    <string name="page_bluetooth_summary">Version, LE features, and audio codecs</string>
+    <string name="page_media">Media and DRM</string>
+    <string name="page_media_summary">Codecs, Widevine, and security level</string>
+    <string name="page_certificates">Certificates</string>
+    <string name="page_certificates_summary">Trusted system and user certificates</string>
+
+    <!-- Tools -->
+    <string name="tool_group_usage">Usage</string>
+    <string name="tool_group_utilities">Utilities</string>
+    <string name="tool_group_power">Power tools</string>
+
+    <string name="tool_data_usage">Data usage</string>
+    <string name="tool_data_usage_summary">Mobile and Wi-Fi data by day, week, or month</string>
+    <string name="tool_screen_usage">Screen usage</string>
+    <string name="tool_screen_usage_summary">Screen time and app opens</string>
+    <string name="tool_app_stopper">App stopper</string>
+    <string name="tool_app_stopper_summary">Keep a list of apps to stop quickly</string>
+    <string name="tool_stay_awake">Stay awake</string>
+    <string name="tool_stay_awake_summary">Keep the screen on for a while or while charging</string>
+    <string name="tool_bluetooth_batteries">Bluetooth batteries</string>
+    <string name="tool_bluetooth_batteries_summary">Battery levels of earbuds, watches, and more</string>
+    <string name="tool_flashlight">Flashlight</string>
+    <string name="tool_flashlight_summary">Brightness, fading, and notification pulse</string>
+    <string name="tool_activity_launcher">Activity launcher</string>
+    <string name="tool_activity_launcher_summary">Open or pin any app screen</string>
+    <string name="tool_link_actions">Link actions</string>
+    <string name="tool_link_actions_summary">Choose which app opens each link</string>
+    <string name="tool_widget_stack">Widget stack</string>
+    <string name="tool_widget_stack_summary">Stack widgets and swipe between them</string>
+    <string name="tool_widgets">Widgets</string>
+    <string name="tool_widgets_summary">Data usage, music, and battery widgets</string>
+    <string name="tool_quick_tiles">Quick Settings tiles</string>
+    <string name="tool_quick_tiles_summary">Tiles you can add to Quick Settings</string>
+    <string name="tool_power_setup">Set up power tools</string>
+    <string name="tool_power_setup_summary">Unlock with ADB once, Shizuku, or root</string>
+    <string name="tool_power_saving">Power saving</string>
+    <string name="tool_power_saving_summary">Choose what Battery Saver turns off</string>
+    <string name="tool_display_scale">Scale and animations</string>
+    <string name="tool_display_scale_summary">Display size, font size, and animation speed</string>
+    <string name="tool_status_bar_icons">Status bar icons</string>
+    <string name="tool_status_bar_icons_summary">Hide or show individual icons</string>
+    <string name="tool_night_light">Night light per app</string>
+    <string name="tool_night_light_summary">Turn Night Light on or off for chosen apps</string>
+    <string name="tool_system_tweaks">System tweaks</string>
+    <string name="tool_system_tweaks_summary">Hidden settings in one place</string>
+    <string name="tool_shut_up">Shut-Up!</string>
+    <string name="tool_shut_up_summary">Hide developer options from picky apps</string>
+    <string name="tool_standby_apps">Standby apps</string>
+    <string name="tool_standby_apps_summary">Limit what apps do in the background</string>
+    <string name="tool_app_volume">Per-app volume</string>
+    <string name="tool_app_volume_summary">Set a separate volume for each app</string>
+    <string name="tool_freeze">App freezing</string>
+    <string name="tool_freeze_summary">Disable rarely used apps until you need them</string>
+
+    <string name="access_secure_settings">ADB once, Shizuku, or root</string>
+    <string name="access_shizuku">Shizuku or root</string>
+    <string name="not_built_title">On its way</string>
+    <string name="not_built_message">This page is part of the rebuild and arrives in an upcoming update.</string>
+</resources>
