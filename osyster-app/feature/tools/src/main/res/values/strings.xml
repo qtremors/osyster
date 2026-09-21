@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="tools_title">Tools</string>
+    <string name="tools_pin">Pin to Home</string>
+    <string name="tools_unpin">Unpin from Home</string>
 </resources>

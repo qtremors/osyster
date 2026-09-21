@@ -45,6 +45,8 @@ import dev.qtremors.osyster.core.ui.catalog.label
 import dev.qtremors.osyster.core.ui.components.FloatingTabBar
 import dev.qtremors.osyster.core.ui.components.TabItem
 import dev.qtremors.osyster.core.ui.theme.LocalReduceMotion
+import dev.qtremors.osyster.feature.device.DeviceDestination
+import dev.qtremors.osyster.feature.device.registerDevicePageRoute
 import dev.qtremors.osyster.feature.home.HomeDestination
 import dev.qtremors.osyster.feature.home.registerHomeRoute
 import dev.qtremors.osyster.feature.settings.SettingsDestination
@@ -59,7 +61,8 @@ import dev.qtremors.osyster.feature.tools.registerToolsRoute
 @Composable
 fun OsysterAppShell(
     appVersion: String,
-    onOpenUrl: (String) -> Unit
+    onOpenUrl: (String) -> Unit,
+    onOpenBatteryUsage: () -> Unit
 ) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -85,6 +88,12 @@ fun OsysterAppShell(
             registerHomeRoute { target ->
                 when (target) {
                     is HomeDestination.DevicePage -> navController.navigate(DevicePageRoute(target.pageId))
+                    is HomeDestination.Tool -> navController.navigate(ToolRoute(target.toolId))
+                }
+            }
+            registerDevicePageRoute { target ->
+                when (target) {
+                    DeviceDestination.SystemBatteryUsage -> onOpenBatteryUsage()
                 }
             }
             registerToolsRoute { target ->
@@ -96,10 +105,6 @@ fun OsysterAppShell(
                 when (target) {
                     is SettingsDestination.OpenUrl -> onOpenUrl(target.url)
                 }
-            }
-            composable<DevicePageRoute> { entry ->
-                val page = DevicePage.fromId(entry.toRoute<DevicePageRoute>().pageId)
-                PlaceholderPage(title = page?.label?.title?.let { stringResource(it) }.orEmpty())
             }
             composable<ToolRoute> { entry ->
                 val tool = Tool.fromId(entry.toRoute<ToolRoute>().toolId)

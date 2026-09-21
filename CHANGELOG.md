@@ -1,8 +1,22 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.2.1
-> **Last Updated:** 2026-09-20
+> **Version:** 0.2.2
+> **Last Updated:** 2026-09-21
+
+---
+
+## [0.2.2] - 2026-09-21
+
+- **Live Hero Card**: Home now shows CPU, RAM, storage, and battery live. When Android blocks overall CPU load, the card shows the fastest core's clock instead and says so.
+- **System Page**: Android version, API level, security patch, Google Play system update, the Android version the phone launched with, build details, kernel, baseband, bootloader, runtime, uptime, and deep sleep.
+- **Device Page**: Model, manufacturer, codename, device type, chip, board, supported ABIs, and the hardware features the phone declares, such as NFC, UWB, eSIM, IR blaster, and fingerprint.
+- **CPU and GPU Page**: Every cluster's clock range and governor, live clock speed for each core, GPU vendor, renderer, OpenGL ES and Vulkan versions, thermal status, thermal headroom, and CPU temperature where readable.
+- **Memory and Storage Page**: Live RAM and swap use, low-memory point, and every storage volume Android exposes.
+- **Battery Page**: Live level, charging state, power source, time to full, health, temperature, voltage, charge cycles on Android 14 and newer, current, and power, with a shortcut to Android's battery usage by app.
+- **Honest Values**: Anything Android does not report says why (restricted, not supported, or not reported) instead of showing zero.
+- **Copy Any Value**: Long-press a value to copy it.
+- **Arrange Home**: Long-press a page to pin it to the top, move it within its group, or hide it. Hidden pages can be brought back from the bottom of Home. Tools can be pinned to Home from the Tools tab.
 
 ---
 

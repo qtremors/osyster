@@ -10,6 +10,7 @@ import dev.qtremors.osyster.core.navigation.HomeRoute
 /** Where Home wants to go next. The app shell maps these to routes. */
 sealed interface HomeDestination {
     data class DevicePage(val pageId: String) : HomeDestination
+    data class Tool(val toolId: String) : HomeDestination
 }
 
 fun NavGraphBuilder.registerHomeRoute(onNavigate: (HomeDestination) -> Unit) {
@@ -18,7 +19,14 @@ fun NavGraphBuilder.registerHomeRoute(onNavigate: (HomeDestination) -> Unit) {
         val state by viewModel.state.collectAsStateWithLifecycle()
         HomeScreen(
             state = state,
-            onOpenPage = { page -> onNavigate(HomeDestination.DevicePage(page.id)) }
+            actions = HomeActions(
+                onOpenPage = { page -> onNavigate(HomeDestination.DevicePage(page.id)) },
+                onOpenTool = { tool -> onNavigate(HomeDestination.Tool(tool.id)) },
+                onTogglePin = viewModel::togglePin,
+                onMove = viewModel::move,
+                onHide = viewModel::hide,
+                onShow = viewModel::show
+            )
         )
     }
 }

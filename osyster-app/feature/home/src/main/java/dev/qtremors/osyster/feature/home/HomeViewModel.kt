@@ -2,49 +2,62 @@ package dev.qtremors.osyster.feature.home
 
 import android.os.Build
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.qtremors.osyster.core.device.domain.DevicePage
-import dev.qtremors.osyster.core.device.domain.DevicePageGroup
+import dev.qtremors.osyster.core.device.domain.DeviceSummary
+import dev.qtremors.osyster.core.device.domain.DeviceSummarySource
+import dev.qtremors.osyster.core.device.domain.HomeLayout
+import dev.qtremors.osyster.core.device.domain.HomeLayoutRepository
+import dev.qtremors.osyster.core.device.domain.PinKey
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-/** Static identity for the hero card. Live CPU, RAM, and battery readings join in v0.2.2. */
+/** Who the phone is. Read once from Build; live readings come from [DeviceSummary]. */
 data class HeroIdentity(
     val name: String,
     val androidRelease: String,
-    val apiLevel: Int,
-    val securityPatch: String?,
-    val chip: String?
+    val apiLevel: Int
 )
 
 data class HomeState(
     val hero: HeroIdentity,
-    val groups: List<Pair<DevicePageGroup, List<DevicePage>>>
+    val summary: DeviceSummary?,
+    /** Null until the saved arrangement loads, so Home never flashes the default order. */
+    val layout: HomeLayout?
 )
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : ViewModel() {
-    private val _state = MutableStateFlow(
-        HomeState(
-            hero = buildIdentity(),
-            groups = DevicePage.entries.groupBy(DevicePage::group).toList()
-        )
-    )
-    val state: StateFlow<HomeState> = _state.asStateFlow()
-
-    private fun buildIdentity(): HeroIdentity = HeroIdentity(
+class HomeViewModel @Inject constructor(
+    summarySource: DeviceSummarySource,
+    private val layoutRepository: HomeLayoutRepository
+) : ViewModel() {
+    private val identity = HeroIdentity(
         name = displayName(Build.MANUFACTURER, Build.MODEL),
         androidRelease = Build.VERSION.RELEASE,
-        apiLevel = Build.VERSION.SDK_INT,
-        securityPatch = Build.VERSION.SECURITY_PATCH.takeIf { it.isNotBlank() },
-        chip = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Build.SOC_MODEL.takeIf { it.isNotBlank() && it != Build.UNKNOWN }
-        } else {
-            null
-        }
+        apiLevel = Build.VERSION.SDK_INT
     )
+
+    val state: StateFlow<HomeState> = combine(
+        summarySource.summary().onStart<DeviceSummary?> { emit(null) },
+        layoutRepository.layout.onStart<HomeLayout?> { emit(null) }
+    ) { summary, layout -> HomeState(identity, summary, layout) }
+        // Sampling stops shortly after Home leaves the screen.
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(3_000), HomeState(identity, null, null))
+
+    fun togglePin(key: PinKey) = update { it.togglePin(key) }
+    fun move(page: DevicePage, up: Boolean) = update { it.move(page, up) }
+    fun hide(page: DevicePage) = update { it.hide(page) }
+    fun show(page: DevicePage) = update { it.show(page) }
+
+    private fun update(transform: (HomeLayout) -> HomeLayout) {
+        viewModelScope.launch { layoutRepository.update(transform) }
+    }
 
     companion object {
         /**

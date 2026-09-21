@@ -52,7 +52,8 @@ class MainActivity : ComponentActivity() {
             OsysterTheme(options = options ?: ThemeOptions()) {
                 OsysterAppShell(
                     appVersion = BuildConfig.VERSION_NAME,
-                    onOpenUrl = ::openUrl
+                    onOpenUrl = ::openUrl,
+                    onOpenBatteryUsage = ::openBatteryUsage
                 )
             }
         }
@@ -63,6 +64,21 @@ class MainActivity : ComponentActivity() {
             startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
         } catch (_: ActivityNotFoundException) {
             // No browser installed: nothing to open, and nothing the user can fix from here.
+        }
+    }
+
+    /** The first battery screen this phone can open: per-app usage, then general battery settings. */
+    private fun openBatteryUsage() {
+        val candidates = listOf(
+            Intent(Intent.ACTION_POWER_USAGE_SUMMARY),
+            Intent(android.provider.Settings.ACTION_BATTERY_SAVER_SETTINGS)
+        )
+        candidates.firstOrNull { it.resolveActivity(packageManager) != null }?.let { intent ->
+            try {
+                startActivity(intent)
+            } catch (_: ActivityNotFoundException) {
+                // Resolved a moment ago but gone now; nothing else to offer.
+            }
         }
     }
 

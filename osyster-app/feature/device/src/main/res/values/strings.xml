@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="device_unknown_title">Page not found</string>
+    <string name="device_unknown_message">This page was removed or renamed. Go back and pick it again from Home.</string>
+    <string name="battery_usage_section">App usage</string>
+    <string name="battery_usage_title">Battery usage by app</string>
+    <string name="battery_usage_summary">Opens Android\'s own battery usage screen</string>
+</resources>

@@ -13,6 +13,8 @@ data class DeviceSummary(
     val androidVersion: String,
     val apiLevel: Int,
     val cpuLoadPercent: Availability<Int>,
+    /** Fastest current core clock, shown when Android restricts overall CPU load. */
+    val cpuClockMhz: Availability<Int>,
     val ramUsedBytes: Availability<Long>,
     val ramTotalBytes: Availability<Long>,
     val storageUsedBytes: Availability<Long>,

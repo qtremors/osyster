@@ -1,9 +1,24 @@
 package dev.qtremors.osyster.feature.tools
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material.icons.rounded.PushPin
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import dev.qtremors.osyster.core.navigation.Tool
@@ -25,33 +40,61 @@ sealed interface ToolsDestination {
 
 fun NavGraphBuilder.registerToolsRoute(onNavigate: (ToolsDestination) -> Unit) {
     composable<ToolsRoute> {
-        ToolsScreen(onOpen = { tool -> onNavigate(ToolsDestination.OpenTool(tool.id)) })
+        val viewModel: ToolsViewModel = hiltViewModel()
+        val pinned by viewModel.pinnedTools.collectAsStateWithLifecycle()
+        ToolsScreen(
+            pinned = pinned,
+            onOpen = { tool -> onNavigate(ToolsDestination.OpenTool(tool.id)) },
+            onTogglePin = viewModel::togglePin
+        )
     }
 }
 
 private val toolGroups: List<Pair<ToolGroup, List<Tool>>> = Tool.entries.groupBy(Tool::group).toList()
 
 @Composable
-internal fun ToolsScreen(onOpen: (Tool) -> Unit) {
+internal fun ToolsScreen(pinned: Set<String>, onOpen: (Tool) -> Unit, onTogglePin: (Tool) -> Unit) {
     OsysterScaffold(title = stringResource(R.string.tools_title)) { padding ->
         LazyColumn(contentPadding = padding) {
             items(toolGroups, key = { (group, _) -> group.name }) { (group, tools) ->
-                SectionHeader(stringResource(group.title))
-                ConnectedGroup {
-                    tools.forEach { tool ->
-                        val label = tool.label
-                        NavigationRow(
-                            title = stringResource(label.title),
-                            supporting = accessLine(tool.access)?.let { access ->
-                                stringResource(label.summary) + "\n" + access
-                            } ?: stringResource(label.summary),
-                            icon = label.icon,
-                            badgeKey = tool.id,
-                            onClick = { onOpen(tool) }
-                        )
+                Column {
+                    SectionHeader(stringResource(group.title))
+                    ConnectedGroup {
+                        tools.forEach { tool ->
+                            ToolRow(tool = tool, pinned = tool.id in pinned, onOpen = onOpen, onTogglePin = onTogglePin)
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+/** Long-press a tool to pin it to Home. */
+@Composable
+private fun ToolRow(tool: Tool, pinned: Boolean, onOpen: (Tool) -> Unit, onTogglePin: (Tool) -> Unit) {
+    var menuOpen by remember { mutableStateOf(false) }
+    val label = tool.label
+    val summary = stringResource(label.summary)
+    val access = accessLine(tool.access)
+    Box {
+        NavigationRow(
+            title = stringResource(label.title),
+            supporting = if (access == null) summary else summary + "\n" + access,
+            icon = label.icon,
+            badgeKey = tool.id,
+            onClick = { onOpen(tool) },
+            onLongClick = { menuOpen = true }
+        )
+        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(if (pinned) R.string.tools_unpin else R.string.tools_pin)) },
+                leadingIcon = { Icon(if (pinned) Icons.Outlined.PushPin else Icons.Rounded.PushPin, contentDescription = null) },
+                onClick = {
+                    menuOpen = false
+                    onTogglePin(tool)
+                }
+            )
         }
     }
 }

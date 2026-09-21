@@ -6,6 +6,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Lets the Battery page check that Android's battery usage screen exists before opening it. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.POWER_USAGE_SUMMARY" />
+        </intent>
+        <intent>
+            <action android:name="android.settings.BATTERY_SAVER_SETTINGS" />
+        </intent>
+    </queries>
+
     <application
         android:name=".OsysterApplication"
         android:allowBackup="true"

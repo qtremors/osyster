@@ -2,6 +2,29 @@
 <resources>
     <string name="home_title">Osyster</string>
     <string name="home_hero_subtitle">Android %1$s · API %2$d</string>
-    <string name="home_metric_patch">Security patch</string>
-    <string name="home_metric_chip">Chip</string>
+
+    <string name="home_metric_cpu">CPU</string>
+    <string name="home_metric_cpu_clock">CPU clock</string>
+    <string name="home_metric_cpu_load_restricted">Load is restricted by Android</string>
+    <string name="home_metric_ram">RAM</string>
+    <string name="home_metric_storage">Storage</string>
+    <string name="home_metric_battery">Battery</string>
+    <string name="home_metric_charging">Charging</string>
+    <string name="home_metric_on_battery">On battery</string>
+    <string name="home_metric_of_total">of %1$s</string>
+    <string name="home_metric_waiting">…</string>
+
+    <string name="home_pinned">Pinned</string>
+    <string name="home_pin">Pin to top</string>
+    <string name="home_unpin">Unpin</string>
+    <string name="home_move_up">Move up</string>
+    <string name="home_move_down">Move down</string>
+    <string name="home_hide">Hide from Home</string>
+    <plurals name="home_hidden_pages">
+        <item quantity="one">%d hidden page</item>
+        <item quantity="other">%d hidden pages</item>
+    </plurals>
+    <string name="home_hidden_pages_summary">Tap to bring pages back</string>
+    <string name="home_hidden_title">Hidden pages</string>
+    <string name="home_tap_to_show">Tap to show on Home</string>
 </resources>
