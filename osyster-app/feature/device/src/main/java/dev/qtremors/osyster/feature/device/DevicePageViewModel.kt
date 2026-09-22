@@ -8,6 +8,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.qtremors.osyster.core.device.domain.DevicePage
 import dev.qtremors.osyster.core.device.domain.DevicePageSource
 import dev.qtremors.osyster.core.device.domain.InfoSection
+import dev.qtremors.osyster.core.device.domain.SensorReading
+import dev.qtremors.osyster.core.device.domain.SensorReadingSource
+import kotlinx.coroutines.flow.Flow
 import dev.qtremors.osyster.core.navigation.DevicePageRoute
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,8 +29,12 @@ sealed interface DevicePageState {
 @HiltViewModel
 class DevicePageViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    source: DevicePageSource
+    source: DevicePageSource,
+    private val sensorSource: SensorReadingSource
 ) : ViewModel() {
+    /** Live values for the sensor sheet. Collected only while the sheet is open. */
+    fun sensorReadings(sensorKey: String): Flow<SensorReading> = sensorSource.readings(sensorKey)
+
     val page: DevicePage? = DevicePage.fromId(savedStateHandle.toRoute<DevicePageRoute>().pageId)
 
     /**

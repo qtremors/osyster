@@ -36,6 +36,7 @@ import dev.qtremors.osyster.core.device.domain.DevicePage
 import dev.qtremors.osyster.core.navigation.AppRoute
 import dev.qtremors.osyster.core.navigation.DevicePageRoute
 import dev.qtremors.osyster.core.navigation.HomeRoute
+import dev.qtremors.osyster.core.navigation.ScreenTesterRoute
 import dev.qtremors.osyster.core.navigation.SettingsRoute
 import dev.qtremors.osyster.core.navigation.Tool
 import dev.qtremors.osyster.core.navigation.ToolRoute
@@ -58,11 +59,19 @@ import dev.qtremors.osyster.feature.tools.registerToolsRoute
  * The only place that knows every feature. It maps each feature's neutral destinations to routes
  * and owns the floating toolbar that sits above all screens.
  */
+/** Things only the Activity can do: start other apps and system screens. */
+@androidx.compose.runtime.Immutable
+data class SystemActions(
+    val openUrl: (String) -> Unit,
+    val openBatteryUsage: () -> Unit,
+    val openAppSettings: () -> Unit,
+    val shareText: (String) -> Unit
+)
+
 @Composable
 fun OsysterAppShell(
     appVersion: String,
-    onOpenUrl: (String) -> Unit,
-    onOpenBatteryUsage: () -> Unit
+    system: SystemActions
 ) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -89,11 +98,14 @@ fun OsysterAppShell(
                 when (target) {
                     is HomeDestination.DevicePage -> navController.navigate(DevicePageRoute(target.pageId))
                     is HomeDestination.Tool -> navController.navigate(ToolRoute(target.toolId))
+                    is HomeDestination.ShareReport -> system.shareText(target.text)
                 }
             }
             registerDevicePageRoute { target ->
                 when (target) {
-                    DeviceDestination.SystemBatteryUsage -> onOpenBatteryUsage()
+                    DeviceDestination.SystemBatteryUsage -> system.openBatteryUsage()
+                    DeviceDestination.ScreenTester -> navController.navigate(ScreenTesterRoute)
+                    DeviceDestination.AppPermissionSettings -> system.openAppSettings()
                 }
             }
             registerToolsRoute { target ->
@@ -103,7 +115,7 @@ fun OsysterAppShell(
             }
             registerSettingsRoute(appVersion = appVersion) { target ->
                 when (target) {
-                    is SettingsDestination.OpenUrl -> onOpenUrl(target.url)
+                    is SettingsDestination.OpenUrl -> system.openUrl(target.url)
                 }
             }
             composable<ToolRoute> { entry ->
@@ -112,14 +124,17 @@ fun OsysterAppShell(
             }
         }
 
-        FloatingTabBar(
-            tabs = tabs,
-            selectedIndex = destination.selectedTabIndex(),
-            onSelect = { index -> navController.navigateToTab(TopLevelTab.entries[index].route) },
-            backTitle = backStackEntry.detailTitle(),
-            onBack = if (destination.isTopLevel()) null else ({ navController.popBackStack() }),
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
+        // Full-screen tests need every pixel; Back still works through the system gesture.
+        if (destination?.hasRoute<ScreenTesterRoute>() != true) {
+            FloatingTabBar(
+                tabs = tabs,
+                selectedIndex = destination.selectedTabIndex(),
+                onSelect = { index -> navController.navigateToTab(TopLevelTab.entries[index].route) },
+                backTitle = backStackEntry.detailTitle(),
+                onBack = if (destination.isTopLevel()) null else ({ navController.popBackStack() }),
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
     }
 }
 

@@ -26,6 +26,10 @@ data object SettingsRoute : AppRoute
 @Serializable
 data class DevicePageRoute(val pageId: String) : AppRoute
 
+/** Full-screen color and touch tests, opened from the Display page. */
+@Serializable
+data object ScreenTesterRoute : AppRoute
+
 /** One tool page, addressed by its stable tool id (for example "data_usage"). */
 @Serializable
 data class ToolRoute(val toolId: String) : AppRoute

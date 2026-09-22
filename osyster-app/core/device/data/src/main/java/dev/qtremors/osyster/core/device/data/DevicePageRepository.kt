@@ -1,12 +1,22 @@
 package dev.qtremors.osyster.core.device.data
 
 import android.content.Context
+import android.net.TrafficStats
+import android.os.SystemClock
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.qtremors.osyster.core.device.data.pages.BatteryPageCollector
+import dev.qtremors.osyster.core.device.data.pages.BluetoothPageCollector
+import dev.qtremors.osyster.core.device.data.pages.CameraPageCollector
+import dev.qtremors.osyster.core.device.data.pages.CertificatePageCollector
 import dev.qtremors.osyster.core.device.data.pages.DeviceInfoCollector
 import dev.qtremors.osyster.core.device.data.pages.DeviceText
+import dev.qtremors.osyster.core.device.data.pages.DisplayPageCollector
+import dev.qtremors.osyster.core.device.data.pages.LinkSpeed
+import dev.qtremors.osyster.core.device.data.pages.MediaPageCollector
 import dev.qtremors.osyster.core.device.data.pages.MemoryPageCollector
+import dev.qtremors.osyster.core.device.data.pages.NetworkPageCollector
 import dev.qtremors.osyster.core.device.data.pages.ProcessorPageCollector
+import dev.qtremors.osyster.core.device.data.pages.SensorPageCollector
 import dev.qtremors.osyster.core.device.data.pages.SystemPageCollector
 import dev.qtremors.osyster.core.device.data.read.BatteryReader
 import dev.qtremors.osyster.core.device.data.read.CpuReader
@@ -38,31 +48,65 @@ internal class DevicePageRepository @Inject constructor(
     private val processor = ProcessorPageCollector(context, text)
     private val memory = MemoryPageCollector(context, text)
     private val battery = BatteryPageCollector(text)
+    private val display = DisplayPageCollector(context, text)
+    private val cameras = CameraPageCollector(context, text)
+    private val sensors = SensorPageCollector(context, text)
+    private val network = NetworkPageCollector(context, text)
+    private val bluetooth = BluetoothPageCollector(context, text)
+    private val media = MediaPageCollector(text)
+    private val certificates = CertificatePageCollector(text)
 
     // The GPU never changes while the process lives, and probing it creates a GL context.
     private val gpuLock = Mutex()
     private var gpu: GpuInfo? = null
 
-    override fun isBuilt(page: DevicePage): Boolean = page in BUILT
+    override fun isBuilt(page: DevicePage): Boolean = true
 
     override fun sections(page: DevicePage): Flow<List<InfoSection>> = when (page) {
         DevicePage.SYSTEM -> once { system.collect() }
         DevicePage.DEVICE -> once { device.collect() }
-        DevicePage.PROCESSOR -> ticking(PROCESSOR_TICK_MS) {
-            val clusters = CpuReader.clusters()
-            processor.collect(clusters, gpuInfo(), cpuLoad.sample())
-        }
+        DevicePage.PROCESSOR -> ticking(PROCESSOR_TICK_MS) { processor.collect(CpuReader.clusters(), gpuInfo(), cpuLoad.sample()) }
         DevicePage.MEMORY -> ticking(MEMORY_TICK_MS) { memory.collect(MemoryReader.memory(context)) }
         DevicePage.BATTERY -> ticking(BATTERY_TICK_MS) { battery.collect(BatteryReader.read(context)) }
-        else -> flow { emit(emptyList()) }
+        DevicePage.DISPLAY -> once { display.collect() }
+        DevicePage.CAMERAS -> once(dispatchers.heavy) { cameras.collect() }
+        DevicePage.SENSORS -> once { sensors.collect() }
+        DevicePage.NETWORK -> networkFlow()
+        // Ticks slowly so turning Bluetooth on or off shows up without reopening the page.
+        DevicePage.BLUETOOTH -> ticking(BLUETOOTH_TICK_MS) { bluetooth.collect() }
+        DevicePage.MEDIA -> once(dispatchers.heavy) { media.collect() }
+        DevicePage.CERTIFICATES -> once(dispatchers.heavy) { certificates.collect() }
     }
+
+    /** Network refreshes every tick; speed is the byte delta since the previous tick. */
+    private fun networkFlow(): Flow<List<InfoSection>> = flow {
+        var lastRx = TrafficStats.getTotalRxBytes()
+        var lastTx = TrafficStats.getTotalTxBytes()
+        var lastAt = SystemClock.elapsedRealtime()
+        emit(network.collect(speed = null))
+        while (true) {
+            delay(NETWORK_TICK_MS)
+            val rx = TrafficStats.getTotalRxBytes()
+            val tx = TrafficStats.getTotalTxBytes()
+            val now = SystemClock.elapsedRealtime()
+            val seconds = ((now - lastAt) / 1000.0).coerceAtLeast(0.001)
+            val speed = if (rx < 0 || tx < 0 || lastRx < 0 || lastTx < 0) null else LinkSpeed(
+                downBytesPerSecond = ((rx - lastRx).coerceAtLeast(0) / seconds).toLong(),
+                upBytesPerSecond = ((tx - lastTx).coerceAtLeast(0) / seconds).toLong()
+            )
+            lastRx = rx
+            lastTx = tx
+            lastAt = now
+            emit(network.collect(speed))
+        }
+    }.flowOn(dispatchers.io)
 
     private suspend fun gpuInfo(): GpuInfo = gpuLock.withLock {
         gpu ?: GpuProbe.probe(context).also { gpu = it }
     }
 
-    private fun once(block: suspend () -> List<InfoSection>): Flow<List<InfoSection>> =
-        flow { emit(block()) }.flowOn(dispatchers.io)
+    private fun once(dispatcher: kotlinx.coroutines.CoroutineDispatcher = dispatchers.io, block: suspend () -> List<InfoSection>): Flow<List<InfoSection>> =
+        flow { emit(block()) }.flowOn(dispatcher)
 
     /** Emits now, then again every [periodMs] while someone collects (the page is open). */
     private fun ticking(periodMs: Long, block: suspend () -> List<InfoSection>): Flow<List<InfoSection>> =
@@ -74,9 +118,10 @@ internal class DevicePageRepository @Inject constructor(
         }.flowOn(dispatchers.io)
 
     private companion object {
-        val BUILT = setOf(DevicePage.SYSTEM, DevicePage.DEVICE, DevicePage.PROCESSOR, DevicePage.MEMORY, DevicePage.BATTERY)
         const val PROCESSOR_TICK_MS = 1_500L
         const val MEMORY_TICK_MS = 2_000L
         const val BATTERY_TICK_MS = 3_000L
+        const val NETWORK_TICK_MS = 2_000L
+        const val BLUETOOTH_TICK_MS = 5_000L
     }
 }

@@ -1,8 +1,24 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.2.2
-> **Last Updated:** 2026-09-21
+> **Version:** 0.2.3
+> **Last Updated:** 2026-09-22
+
+---
+
+## [0.2.3] - 2026-09-22
+
+- **Display Page**: Resolution, screen size, aspect ratio, density, current and supported refresh rates, HDR formats and brightness, wide color gamut, cutout, and rounded corners.
+- **Screen Tester**: Full-screen colors for dead or stuck pixels, a gray ramp for banding, and a multi-touch drawing test, opened from the Display page.
+- **Cameras Page**: Every camera's megapixels, aperture, focal length, stabilization, flash, Camera2 support level, zoom range, ISO range, and capabilities. No camera is ever opened.
+- **Sensors Page**: Every sensor grouped into motion, position, environment, and other. Tap one to watch its live readings; it stops the moment you close the sheet.
+- **Network Page**: Connection type, internet check, metered and VPN state, live download and upload speed, local addresses, Wi-Fi band, link speed, signal, standard, and security, plus carrier, SIM state, network type, and roaming.
+- **Bluetooth Page**: Adapter state, Low Energy features, LE Audio, and Auracast support, with the lowest Bluetooth version those features prove.
+- **Media and DRM Page**: Widevine security level, version, and HDCP, ClearKey support, and every audio and video codec marked hardware or software.
+- **Certificates Page**: The system and user certificate authorities your phone trusts, with issuer and expiry.
+- **Search Long Pages**: Media, Certificates, and Sensors have a search field that filters rows as you type and opens folded results.
+- **Ask Only When Needed**: The Wi-Fi name needs location access and mobile details need phone access. Each is asked only from its own section, with a sentence on why.
+- **Share Device Report**: Share a plain-text summary of your phone from Home. It leaves out network addresses, the Wi-Fi name, and long lists.
 
 ---
 

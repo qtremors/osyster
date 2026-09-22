@@ -16,6 +16,7 @@ import dev.qtremors.osyster.core.ui.theme.OsysterTheme
 import dev.qtremors.osyster.core.ui.theme.ThemeOptions
 import dev.qtremors.osyster.core.ui.theme.ThemeSettings
 import dev.qtremors.osyster.shell.OsysterAppShell
+import dev.qtremors.osyster.shell.SystemActions
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -50,20 +51,28 @@ class MainActivity : ComponentActivity() {
         setContent {
             val options by loadedOptions.collectAsStateWithLifecycle()
             OsysterTheme(options = options ?: ThemeOptions()) {
-                OsysterAppShell(
-                    appVersion = BuildConfig.VERSION_NAME,
-                    onOpenUrl = ::openUrl,
-                    onOpenBatteryUsage = ::openBatteryUsage
-                )
+                OsysterAppShell(appVersion = BuildConfig.VERSION_NAME, system = systemActions)
             }
         }
     }
 
-    private fun openUrl(url: String) {
+    private val systemActions = SystemActions(
+        openUrl = { url -> launch(Intent(Intent.ACTION_VIEW, url.toUri())) },
+        openBatteryUsage = ::openBatteryUsage,
+        openAppSettings = {
+            launch(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:$packageName".toUri()))
+        },
+        shareText = { text ->
+            val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
+            launch(Intent.createChooser(send, getString(R.string.share_report_title)))
+        }
+    )
+
+    /** Starts another app's screen; if it vanished, there is nothing the user can fix from here. */
+    private fun launch(intent: Intent) {
         try {
-            startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+            startActivity(intent)
         } catch (_: ActivityNotFoundException) {
-            // No browser installed: nothing to open, and nothing the user can fix from here.
         }
     }
 

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.qtremors.osyster.core.device.domain.DevicePage
+import dev.qtremors.osyster.core.device.domain.DeviceReportSource
 import dev.qtremors.osyster.core.device.domain.DeviceSummary
 import dev.qtremors.osyster.core.device.domain.DeviceSummarySource
 import dev.qtremors.osyster.core.device.domain.HomeLayout
@@ -35,8 +36,12 @@ data class HomeState(
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     summarySource: DeviceSummarySource,
-    private val layoutRepository: HomeLayoutRepository
+    private val layoutRepository: HomeLayoutRepository,
+    private val reportSource: DeviceReportSource
 ) : ViewModel() {
+    /** Builds the shareable text report; reads every page once, so it takes a moment. */
+    suspend fun buildReport(): String = reportSource.report()
+
     private val identity = HeroIdentity(
         name = displayName(Build.MANUFACTURER, Build.MODEL),
         androidRelease = Build.VERSION.RELEASE,

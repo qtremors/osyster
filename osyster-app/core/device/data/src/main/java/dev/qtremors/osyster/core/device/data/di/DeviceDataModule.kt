@@ -6,8 +6,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dev.qtremors.osyster.core.device.data.DevicePageRepository
 import dev.qtremors.osyster.core.device.data.DeviceSummaryRepository
+import dev.qtremors.osyster.core.device.data.DeviceReportRepository
 import dev.qtremors.osyster.core.device.data.HomeLayoutStore
+import dev.qtremors.osyster.core.device.data.SensorReadingRepository
 import dev.qtremors.osyster.core.device.domain.DevicePageSource
+import dev.qtremors.osyster.core.device.domain.DeviceReportSource
+import dev.qtremors.osyster.core.device.domain.SensorReadingSource
 import dev.qtremors.osyster.core.device.domain.DeviceSummarySource
 import dev.qtremors.osyster.core.device.domain.HomeLayoutRepository
 
@@ -22,4 +26,10 @@ internal abstract class DeviceDataModule {
 
     @Binds
     abstract fun homeLayout(store: HomeLayoutStore): HomeLayoutRepository
+
+    @Binds
+    abstract fun sensors(repository: SensorReadingRepository): SensorReadingSource
+
+    @Binds
+    abstract fun report(repository: DeviceReportRepository): DeviceReportSource
 }

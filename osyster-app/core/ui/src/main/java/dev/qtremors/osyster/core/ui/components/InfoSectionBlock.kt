@@ -36,7 +36,10 @@ import dev.qtremors.osyster.core.device.domain.Availability
 import dev.qtremors.osyster.core.device.domain.AvailabilityLabel
 import dev.qtremors.osyster.core.device.domain.InfoRow
 import dev.qtremors.osyster.core.device.domain.InfoSection
+import dev.qtremors.osyster.core.device.domain.PermissionKind
+import dev.qtremors.osyster.core.device.domain.RowAction
 import dev.qtremors.osyster.core.device.domain.label
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import dev.qtremors.osyster.core.ui.R
 import dev.qtremors.osyster.core.ui.theme.ValueTextStyle
 import dev.qtremors.osyster.core.ui.theme.spacing
@@ -49,13 +52,16 @@ import dev.qtremors.osyster.core.ui.theme.spacing
 fun InfoSectionBlock(
     section: InfoSection,
     onCopy: (label: String, value: String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onRowAction: (RowAction) -> Unit = {},
+    onGrant: (PermissionKind) -> Unit = {}
 ) {
     var showAdvanced by rememberSaveable(section.key) { mutableStateOf(false) }
     Column(modifier = modifier) {
         SectionHeader(section.title)
         ConnectedGroup {
-            section.primaryRows.forEach { row -> FactRow(row, onCopy) }
+            section.permission?.let { kind -> GrantRow(kind) { onGrant(kind) } }
+            section.primaryRows.forEach { row -> FactRow(row, onCopy, onRowAction) }
             if (section.advancedRows.isNotEmpty()) {
                 AdvancedToggle(expanded = showAdvanced, count = section.advancedRows.size) {
                     showAdvanced = !showAdvanced
@@ -64,7 +70,7 @@ fun InfoSectionBlock(
         }
         AnimatedVisibility(visible = showAdvanced && section.advancedRows.isNotEmpty()) {
             ConnectedGroup(modifier = Modifier.padding(top = 2.dp)) {
-                section.advancedRows.forEach { row -> FactRow(row, onCopy) }
+                section.advancedRows.forEach { row -> FactRow(row, onCopy, onRowAction) }
             }
         }
     }
@@ -76,12 +82,18 @@ fun InfoSectionBlock(
 fun FactRow(
     row: InfoRow,
     onCopy: (label: String, value: String) -> Unit,
+    onRowAction: (RowAction) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val colors = MaterialTheme.colorScheme
     val spacing = MaterialTheme.spacing
     val haptics = rememberAppHaptics()
     val value = row.value
+    val action = row.action
+    if (action != null) {
+        ActionFactRow(row, onClick = { onRowAction(action) }, modifier = modifier)
+        return
+    }
     val copyModifier = if (value is Availability.Available && row.copyable) {
         Modifier.combinedClickable(
             onClick = {},
@@ -107,6 +119,53 @@ fun FactRow(
             }
         }
     }
+}
+
+/** A fact that opens something, such as live sensor readings: label, value, and a chevron. */
+@Composable
+private fun ActionFactRow(row: InfoRow, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val value = row.value
+    ConnectedRow(
+        title = row.label,
+        supporting = (value as? Availability.Available)?.value,
+        modifier = modifier,
+        trailing = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        onClick = onClick
+    )
+}
+
+/** Offers the one permission a section is waiting on, with a sentence on why. */
+@Composable
+private fun GrantRow(kind: PermissionKind, onClick: () -> Unit) {
+    ConnectedRow(
+        title = stringResource(R.string.grant_access),
+        supporting = stringResource(kind.reason()),
+        leading = {
+            IconBadge(
+                icon = Icons.Rounded.Key,
+                key = "grant",
+                colors = BadgeColors(MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.onTertiaryContainer)
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceBright,
+        onClick = onClick
+    )
+}
+
+private fun PermissionKind.reason(): Int = when (this) {
+    PermissionKind.LOCATION -> R.string.grant_reason_location
+    PermissionKind.PHONE_STATE -> R.string.grant_reason_phone
+    PermissionKind.BLUETOOTH -> R.string.grant_reason_bluetooth
+    PermissionKind.USAGE_ACCESS -> R.string.grant_reason_usage
+    PermissionKind.NOTIFICATIONS -> R.string.grant_reason_notifications
+    PermissionKind.NOTIFICATION_ACCESS -> R.string.grant_reason_notification_access
+    PermissionKind.WRITE_SECURE_SETTINGS -> R.string.grant_reason_secure_settings
 }
 
 /** The muted explanation shown in place of a value Android does not give us. */

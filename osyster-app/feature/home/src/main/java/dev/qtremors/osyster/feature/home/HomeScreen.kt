@@ -6,8 +6,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -39,13 +43,25 @@ internal data class HomeActions(
     val onTogglePin: (PinKey) -> Unit,
     val onMove: (DevicePage, Boolean) -> Unit,
     val onHide: (DevicePage) -> Unit,
-    val onShow: (DevicePage) -> Unit
+    val onShow: (DevicePage) -> Unit,
+    val onShareReport: () -> Unit
 )
 
 @Composable
-internal fun HomeScreen(state: HomeState, actions: HomeActions) {
+internal fun HomeScreen(state: HomeState, sharing: Boolean, actions: HomeActions) {
     var showHidden by rememberSaveable { mutableStateOf(false) }
-    OsysterScaffold(title = stringResource(R.string.home_title)) { padding ->
+    OsysterScaffold(
+        title = stringResource(R.string.home_title),
+        actions = {
+            IconButton(onClick = actions.onShareReport, enabled = !sharing) {
+                if (sharing) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                } else {
+                    Icon(Icons.Rounded.Share, contentDescription = stringResource(R.string.home_share_report))
+                }
+            }
+        }
+    ) { padding ->
         LazyColumn(contentPadding = padding) {
             item(key = "hero") {
                 HeroCard(

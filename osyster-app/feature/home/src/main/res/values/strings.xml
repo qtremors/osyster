@@ -14,6 +14,7 @@
     <string name="home_metric_of_total">of %1$s</string>
     <string name="home_metric_waiting">…</string>
 
+    <string name="home_share_report">Share device report</string>
     <string name="home_pinned">Pinned</string>
     <string name="home_pin">Pin to top</string>
     <string name="home_unpin">Unpin</string>

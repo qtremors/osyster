@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared values -->
+    <string name="value_none">None</string>
+    <string name="value_hardware">hardware</string>
+    <string name="value_software">software</string>
+    <string name="value_tap_for_live">Tap a sensor to see live readings</string>
+
+    <!-- Display page -->
+    <string name="section_panel">Panel</string>
+    <string name="section_refresh">Refresh rate</string>
+    <string name="section_color_hdr">Color and HDR</string>
+    <string name="section_shape">Screen shape</string>
+    <string name="row_resolution">Resolution</string>
+    <string name="row_screen_size">Screen size</string>
+    <string name="row_aspect_ratio">Aspect ratio</string>
+    <string name="row_density">Density</string>
+    <string name="row_pixel_density">Pixel density</string>
+    <string name="row_display_name">Display name</string>
+    <string name="row_current_refresh">Current</string>
+    <string name="row_supported_refresh">Supported</string>
+    <string name="row_seamless_refresh">Seamless switching</string>
+    <string name="row_display_modes">Display modes</string>
+    <string name="row_hdr_formats">HDR formats</string>
+    <string name="row_wide_color_gamut">Wide color gamut</string>
+    <string name="row_hdr_headroom">HDR headroom now</string>
+    <string name="row_hdr_luminance">HDR brightness</string>
+    <string name="row_cutout">Camera cutout</string>
+    <string name="row_rounded_corners">Rounded corners</string>
+    <string name="value_cutouts">%1$d cutouts</string>
+    <string name="value_cutout_size">%1$d × %2$d px</string>
+    <string name="value_corner_radius">%1$d px radius</string>
+
+    <!-- Cameras page -->
+    <string name="section_cameras_summary">Overview</string>
+    <string name="section_camera">%1$s · camera %2$s</string>
+    <string name="row_camera_count">Cameras</string>
+    <string name="row_concurrent_cameras">Use two at once</string>
+    <string name="value_combinations">%1$d combinations</string>
+    <string name="row_megapixels">Megapixels</string>
+    <string name="row_aperture">Aperture</string>
+    <string name="row_focal_length">Focal length</string>
+    <string name="row_ois">Optical stabilization</string>
+    <string name="row_video_stabilization">Video stabilization</string>
+    <string name="row_flash">Flash</string>
+    <string name="row_camera2_level">Camera2 support</string>
+    <string name="row_sensor_size">Sensor size</string>
+    <string name="row_zoom_range">Zoom range</string>
+    <string name="row_max_digital_zoom">Maximum digital zoom</string>
+    <string name="row_iso_range">ISO range</string>
+    <string name="row_fps_ranges">Frame rates</string>
+    <string name="row_capabilities">Capabilities</string>
+    <string name="row_sensor_orientation">Sensor orientation</string>
+    <string name="row_physical_cameras">Physical cameras</string>
+    <string name="camera_back">Back</string>
+    <string name="camera_front">Front</string>
+    <string name="camera_external">External</string>
+    <string name="camera_level_legacy">Legacy</string>
+    <string name="camera_level_limited">Limited</string>
+    <string name="camera_level_full">Full</string>
+    <string name="camera_level_3">Level 3</string>
+    <string name="camera_level_external">External</string>
+    <string name="capability_manual">Manual controls</string>
+    <string name="capability_burst">Burst</string>
+    <string name="capability_depth">Depth</string>
+    <string name="capability_high_speed">High-speed video</string>
+    <string name="capability_logical">Multi-camera</string>
+    <string name="capability_monochrome">Monochrome</string>
+
+    <!-- Sensors page -->
+    <string name="section_sensors_summary">Overview</string>
+    <string name="section_sensors_motion">Motion</string>
+    <string name="section_sensors_position">Position</string>
+    <string name="section_sensors_environment">Environment</string>
+    <string name="section_sensors_other">Other</string>
+    <string name="row_sensor_count">Sensors</string>
+    <string name="row_wake_up_sensors">Wake-up sensors</string>
+    <string name="row_sensor_hint">Live readings</string>
+
+    <!-- Network page -->
+    <string name="section_connection">Connection</string>
+    <string name="section_wifi">Wi-Fi</string>
+    <string name="section_mobile">Mobile network</string>
+    <string name="row_connection_type">Connected through</string>
+    <string name="row_internet_validated">Internet working</string>
+    <string name="row_metered">Metered</string>
+    <string name="row_vpn">VPN</string>
+    <string name="row_download_speed">Download</string>
+    <string name="row_upload_speed">Upload</string>
+    <string name="row_local_ipv4">Local IP (IPv4)</string>
+    <string name="row_local_ipv6">Local IP (IPv6)</string>
+    <string name="row_dns">DNS servers</string>
+    <string name="row_private_dns">Private DNS active</string>
+    <string name="row_mtu">MTU</string>
+    <string name="row_estimated_bandwidth">Estimated bandwidth</string>
+    <string name="value_bandwidth">%1$d Mbps down · %2$d Mbps up</string>
+    <string name="row_wifi_enabled">Wi-Fi on</string>
+    <string name="row_wifi_connection">Connection</string>
+    <string name="row_wifi_name">Network name</string>
+    <string name="row_wifi_band">Band</string>
+    <string name="value_band">%1$s (%2$d MHz)</string>
+    <string name="row_link_speed">Link speed</string>
+    <string name="row_signal">Signal</string>
+    <string name="row_wifi_standard">Standard</string>
+    <string name="row_max_link_speed">Maximum link speed</string>
+    <string name="row_wifi_security">Security</string>
+    <string name="row_supports_5ghz">5 GHz support</string>
+    <string name="row_supports_6ghz">6 GHz support</string>
+    <string name="row_carrier">Carrier</string>
+    <string name="row_sim_state">SIM</string>
+    <string name="row_network_type">Network type</string>
+    <string name="row_roaming">Roaming</string>
+    <string name="row_signal_level">Signal</string>
+    <string name="value_signal_bars">%1$d of 4 bars</string>
+    <string name="row_sim_slots">Active SIM slots</string>
+    <string name="row_network_country">Network country</string>
+    <string name="transport_wifi">Wi-Fi</string>
+    <string name="transport_mobile">Mobile data</string>
+    <string name="transport_ethernet">Ethernet</string>
+    <string name="transport_bluetooth">Bluetooth tethering</string>
+    <string name="transport_vpn">VPN</string>
+    <string name="value_offline_network">Not connected</string>
+    <string name="value_not_connected">Not connected</string>
+    <string name="value_wifi_open">Open (no password)</string>
+    <string name="value_no_data_network">No data connection</string>
+    <string name="sim_ready">Ready</string>
+    <string name="sim_absent">No SIM</string>
+    <string name="sim_locked">Locked</string>
+    <string name="sim_network_locked">Carrier locked</string>
+
+    <!-- Bluetooth page -->
+    <string name="section_bluetooth_adapter">Adapter</string>
+    <string name="section_bluetooth_le">Low Energy</string>
+    <string name="section_bluetooth_audio">LE Audio</string>
+    <string name="row_bluetooth_present">Bluetooth hardware</string>
+    <string name="row_bluetooth_enabled">Bluetooth on</string>
+    <string name="row_bluetooth_version">Version</string>
+    <string name="bt_version_52">5.2 or newer (has LE Audio)</string>
+    <string name="bt_version_50">5.0 or newer (has 5.0 LE features)</string>
+    <string name="bt_version_40">4.0 or newer (has Low Energy)</string>
+    <string name="bt_version_classic">Classic Bluetooth only</string>
+    <string name="row_bluetooth_le">Low Energy</string>
+    <string name="row_le_2m_phy">2M PHY (faster LE)</string>
+    <string name="row_le_coded_phy">Coded PHY (longer range)</string>
+    <string name="row_le_extended_advertising">Extended advertising</string>
+    <string name="row_le_periodic_advertising">Periodic advertising</string>
+    <string name="row_le_multiple_advertising">Multiple advertising</string>
+    <string name="row_le_offloaded_filtering">Offloaded scan filtering</string>
+    <string name="row_le_audio">LE Audio</string>
+    <string name="row_le_audio_broadcast">Auracast broadcast</string>
+
+    <!-- Media and DRM page -->
+    <string name="section_widevine">Widevine DRM</string>
+    <string name="section_clearkey">ClearKey DRM</string>
+    <string name="section_video_decoders">Video decoders</string>
+    <string name="section_video_encoders">Video encoders</string>
+    <string name="section_audio_decoders">Audio decoders</string>
+    <string name="section_audio_encoders">Audio encoders</string>
+    <string name="section_codec_count">%1$s (%2$d)</string>
+    <string name="row_drm_supported">Supported</string>
+    <string name="row_security_level">Security level</string>
+    <string name="row_drm_version">Version</string>
+    <string name="row_drm_vendor">Vendor</string>
+    <string name="row_hdcp">HDCP now</string>
+    <string name="row_hdcp_max">HDCP maximum</string>
+    <string name="row_max_sessions">Maximum sessions</string>
+    <string name="row_algorithms">Algorithms</string>
+    <string name="row_system_id">System ID</string>
+    <string name="value_no_digital_output">No digital output</string>
+
+    <!-- Certificates page -->
+    <string name="section_system_certs">System certificates</string>
+    <string name="section_user_certs">Your certificates</string>
+    <string name="row_certificate_count">Certificates</string>
+    <string name="value_none_installed">None installed</string>
+    <string name="value_valid_until">valid until %1$s</string>
+    <string name="value_expired_on">expired %1$s</string>
+
+    <!-- Device report -->
+    <string name="report_title">Osyster device report for %1$s %2$s</string>
+    <string name="report_generated">Created %1$s</string>
+    <string name="report_permission_required">Permission required</string>
+    <string name="report_restricted">Restricted by Android</string>
+    <string name="report_not_supported">Not supported</string>
+    <string name="report_not_reported">Not reported</string>
+    <string name="report_page_system">System</string>
+    <string name="report_page_device">Device</string>
+    <string name="report_page_processor">CPU and GPU</string>
+    <string name="report_page_memory">Memory and storage</string>
+    <string name="report_page_battery">Battery</string>
+    <string name="report_page_display">Display</string>
+    <string name="report_page_cameras">Cameras</string>
+    <string name="report_page_sensors">Sensors</string>
+    <string name="report_page_network">Network</string>
+    <string name="report_page_bluetooth">Bluetooth</string>
+    <string name="report_page_media">Media and DRM</string>
+    <string name="report_page_certificates">Certificates</string>
+</resources>

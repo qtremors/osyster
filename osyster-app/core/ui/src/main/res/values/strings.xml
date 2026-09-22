@@ -2,6 +2,7 @@
 <resources>
     <string name="action_back">Back</string>
     <string name="action_copy">Copy</string>
+    <string name="action_clear_search">Clear search</string>
     <string name="action_show_advanced">Show advanced</string>
     <string name="action_hide_advanced">Hide advanced</string>
     <plurals name="advanced_count">
@@ -9,6 +10,15 @@
         <item quantity="other">%d more details</item>
     </plurals>
     <string name="copied_value">%1$s copied</string>
+
+    <string name="grant_access">Grant access</string>
+    <string name="grant_reason_location">Android shows the Wi-Fi network name only to apps with location access. Osyster never reads your location.</string>
+    <string name="grant_reason_phone">Needed for mobile network type and SIM details. Osyster never reads your number or calls.</string>
+    <string name="grant_reason_bluetooth">Needed to read Bluetooth adapter details.</string>
+    <string name="grant_reason_usage">Needed to read which apps used data or screen time.</string>
+    <string name="grant_reason_notifications">Needed to show this tool\'s notification.</string>
+    <string name="grant_reason_notification_access">Needed to see what is playing for the music widgets.</string>
+    <string name="grant_reason_secure_settings">Needed to change this system setting. Grant once with ADB, Shizuku, or root.</string>
 
     <string name="availability_permission_required">Permission required</string>
     <string name="availability_restricted">Restricted by Android</string>

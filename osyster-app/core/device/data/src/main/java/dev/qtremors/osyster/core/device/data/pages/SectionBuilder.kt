@@ -7,6 +7,8 @@ import dev.qtremors.osyster.core.device.data.R
 import dev.qtremors.osyster.core.device.domain.Availability
 import dev.qtremors.osyster.core.device.domain.InfoRow
 import dev.qtremors.osyster.core.device.domain.InfoSection
+import dev.qtremors.osyster.core.device.domain.PermissionKind
+import dev.qtremors.osyster.core.device.domain.RowAction
 
 /** Localized labels for collectors. Device facts themselves are shown as Android reports them. */
 internal class DeviceText(private val context: Context) {
@@ -21,6 +23,23 @@ internal class DeviceText(private val context: Context) {
 internal class SectionBuilder(private val text: DeviceText, private val source: String) {
     private val rows = mutableListOf<InfoRow>()
     private val now = System.currentTimeMillis()
+
+    /** Set when some rows wait on a permission; the page then offers to grant it. */
+    var permission: PermissionKind? = null
+
+    /** Rows after the first [count] are folded under "Show more", for long inventories. */
+    fun foldAfter(count: Int) {
+        for (index in count until rows.size) rows[index] = rows[index].copy(advanced = true)
+    }
+
+    fun row(key: String, label: String, value: Availability<String>, action: RowAction) {
+        rows += InfoRow(key, label, value, copyable = false, advanced = false, action = action)
+    }
+
+    fun needs(kind: PermissionKind): Availability<String> {
+        permission = kind
+        return Availability.PermissionRequired(kind)
+    }
 
     fun row(
         key: String,
@@ -56,7 +75,7 @@ internal class SectionBuilder(private val text: DeviceText, private val source: 
             Availability.Available(value, source, now)
         }
 
-    fun build(key: String, title: String): InfoSection = InfoSection(key, title, rows.toList())
+    fun build(key: String, title: String): InfoSection = InfoSection(key, title, rows.toList(), permission)
 
     companion object {
         const val NOT_REPORTED = "Not reported by the device"
