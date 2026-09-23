@@ -1,13 +1,5 @@
 package dev.qtremors.osyster.shell
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -46,6 +38,13 @@ import dev.qtremors.osyster.core.ui.catalog.label
 import dev.qtremors.osyster.core.ui.components.FloatingTabBar
 import dev.qtremors.osyster.core.ui.components.TabItem
 import dev.qtremors.osyster.core.ui.theme.LocalReduceMotion
+import androidx.compose.runtime.LaunchedEffect
+import dev.qtremors.osyster.feature.appstopper.AppStopperDestination
+import dev.qtremors.osyster.feature.appstopper.registerAppStopperRoute
+import dev.qtremors.osyster.feature.datausage.DataUsageDestination
+import dev.qtremors.osyster.feature.datausage.registerDataUsageRoute
+import dev.qtremors.osyster.feature.screenusage.ScreenUsageDestination
+import dev.qtremors.osyster.feature.screenusage.registerScreenUsageRoute
 import dev.qtremors.osyster.feature.device.DeviceDestination
 import dev.qtremors.osyster.feature.device.registerDevicePageRoute
 import dev.qtremors.osyster.feature.home.HomeDestination
@@ -65,15 +64,25 @@ data class SystemActions(
     val openUrl: (String) -> Unit,
     val openBatteryUsage: () -> Unit,
     val openAppSettings: () -> Unit,
-    val shareText: (String) -> Unit
+    val shareText: (String) -> Unit,
+    val openUsageAccess: () -> Unit,
+    val openAppInfo: (packageName: String) -> Unit
 )
 
 @Composable
 fun OsysterAppShell(
     appVersion: String,
-    system: SystemActions
+    system: SystemActions,
+    openTool: String? = null,
+    onToolOpened: () -> Unit = {}
 ) {
     val navController = rememberNavController()
+    // A widget or tile asked for a specific tool; open it once, on top of Home.
+    LaunchedEffect(openTool) {
+        val tool = openTool?.let(Tool::fromId) ?: return@LaunchedEffect
+        navController.navigate(tool.route())
+        onToolOpened()
+    }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val destination = backStackEntry?.destination
     val reduceMotion = LocalReduceMotion.current
@@ -89,15 +98,20 @@ fun OsysterAppShell(
             navController = navController,
             startDestination = HomeRoute,
             modifier = Modifier.fillMaxSize(),
-            enterTransition = { enter(reduceMotion) },
-            exitTransition = { exit(reduceMotion) },
-            popEnterTransition = { popEnter(reduceMotion) },
-            popExitTransition = { popExit(reduceMotion) }
+            enterTransition = { shellEnter(reduceMotion) },
+            exitTransition = { shellExit(reduceMotion) },
+            popEnterTransition = { shellPopEnter(reduceMotion) },
+            popExitTransition = { shellPopExit(reduceMotion) },
+            // Navigation 2.10 plays these, not the pop transitions, while the back gesture is in
+            // progress. Left at their defaults, the page shrinks into a sharp-cornered card and then
+            // switches animation on release. Using the same motion keeps the gesture continuous.
+            predictivePopEnterTransition = { shellPopEnter(reduceMotion) },
+            predictivePopExitTransition = { shellPopExit(reduceMotion) }
         ) {
             registerHomeRoute { target ->
                 when (target) {
                     is HomeDestination.DevicePage -> navController.navigate(DevicePageRoute(target.pageId))
-                    is HomeDestination.Tool -> navController.navigate(ToolRoute(target.toolId))
+                    is HomeDestination.Tool -> navController.navigate(toolRoute(target.toolId))
                     is HomeDestination.ShareReport -> system.shareText(target.text)
                 }
             }
@@ -110,12 +124,29 @@ fun OsysterAppShell(
             }
             registerToolsRoute { target ->
                 when (target) {
-                    is ToolsDestination.OpenTool -> navController.navigate(ToolRoute(target.toolId))
+                    is ToolsDestination.OpenTool -> navController.navigate(toolRoute(target.toolId))
                 }
             }
             registerSettingsRoute(appVersion = appVersion) { target ->
                 when (target) {
                     is SettingsDestination.OpenUrl -> system.openUrl(target.url)
+                }
+            }
+            registerDataUsageRoute { target ->
+                when (target) {
+                    DataUsageDestination.UsageAccessSettings -> system.openUsageAccess()
+                    is DataUsageDestination.AppInfo -> system.openAppInfo(target.packageName)
+                }
+            }
+            registerScreenUsageRoute { target ->
+                when (target) {
+                    ScreenUsageDestination.UsageAccessSettings -> system.openUsageAccess()
+                    is ScreenUsageDestination.AppInfo -> system.openAppInfo(target.packageName)
+                }
+            }
+            registerAppStopperRoute { target ->
+                when (target) {
+                    is AppStopperDestination.AppInfo -> system.openAppInfo(target.packageName)
                 }
             }
             composable<ToolRoute> { entry ->
@@ -131,19 +162,16 @@ fun OsysterAppShell(
                 selectedIndex = destination.selectedTabIndex(),
                 onSelect = { index -> navController.navigateToTab(TopLevelTab.entries[index].route) },
                 backTitle = backStackEntry.detailTitle(),
-                onBack = if (destination.isTopLevel()) null else ({ navController.popBackStack() }),
+                onBack = if (destination.isTopLevelPage()) null else ({ navController.popBackStack() }),
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
     }
 }
 
-private fun NavDestination?.isTopLevel(): Boolean =
-    this == null || hasRoute<HomeRoute>() || hasRoute<ToolsRoute>() || hasRoute<SettingsRoute>()
-
 private fun NavDestination?.selectedTabIndex(): Int = when {
     this == null -> 0
-    hasRoute<ToolsRoute>() || hasRoute<ToolRoute>() -> 1
+    hasRoute<ToolsRoute>() || isToolPage() -> 1
     hasRoute<SettingsRoute>() -> 2
     else -> 0
 }
@@ -154,7 +182,7 @@ private fun NavBackStackEntry?.detailTitle(): String? {
     val destination = entry.destination
     val titleRes = when {
         destination.hasRoute<DevicePageRoute>() -> DevicePage.fromId(entry.toRoute<DevicePageRoute>().pageId)?.label?.title
-        destination.hasRoute<ToolRoute>() -> Tool.fromId(entry.toRoute<ToolRoute>().toolId)?.label?.title
+        destination.isToolPage() -> toolOf(entry)?.label?.title
         else -> null
     }
     return titleRes?.let { stringResource(it) }
@@ -168,21 +196,3 @@ private fun NavHostController.navigateToTab(route: AppRoute) {
         restoreState = true
     }
 }
-
-private const val MOTION_MS = 320
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.enter(reduceMotion: Boolean): EnterTransition =
-    if (reduceMotion || targetState.destination.isTopLevel()) fadeIn(tween(if (reduceMotion) 0 else 200))
-    else slideInHorizontally(tween(MOTION_MS)) { it / 4 } + fadeIn(tween(MOTION_MS))
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.exit(reduceMotion: Boolean): ExitTransition =
-    if (reduceMotion || targetState.destination.isTopLevel()) fadeOut(tween(if (reduceMotion) 0 else 150))
-    else slideOutHorizontally(tween(MOTION_MS)) { -it / 8 } + fadeOut(tween(MOTION_MS))
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnter(reduceMotion: Boolean): EnterTransition =
-    if (reduceMotion) fadeIn(tween(0))
-    else slideInHorizontally(tween(MOTION_MS)) { -it / 8 } + fadeIn(tween(MOTION_MS))
-
-private fun AnimatedContentTransitionScope<NavBackStackEntry>.popExit(reduceMotion: Boolean): ExitTransition =
-    if (reduceMotion) fadeOut(tween(0))
-    else slideOutHorizontally(tween(MOTION_MS)) { it / 4 } + fadeOut(tween(MOTION_MS))

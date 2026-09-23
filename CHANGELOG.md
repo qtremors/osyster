@@ -1,8 +1,20 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.2.3
-> **Last Updated:** 2026-09-22
+> **Version:** 0.2.4
+> **Last Updated:** 2026-09-23
+
+---
+
+## [0.2.4] - 2026-09-23
+
+- **Data Usage**: See data used today, over the last 7 days, or this month, split into mobile and Wi-Fi, downloaded and uploaded, with a daily chart and every app's usage. Tap an app to open its App info.
+- **Live Speed**: Data usage shows the current download and upload speed.
+- **Data Usage Widgets**: Today, This month, and Combined home-screen widgets with a refresh button. Tapping one opens Data usage in Osyster.
+- **Screen Usage**: Screen time for each of the last 7 days, an hourly chart, and every app's time and number of opens. Tap a day in the chart to look at it.
+- **App Stopper**: Keep a list of apps you often stop. Each shows whether Android has it stopped, and Stop takes you straight to its App info. Removed apps stay listed until you remove them.
+- **Usage Access**: Data and screen usage explain why they need Usage access, open the right settings page, and load as soon as you come back.
+- **Smoother Back Gesture**: Swiping back now moves the page with your finger instead of shrinking it into a card, and the bottom bar no longer collapses into a circle on the way back.
 
 ---
 

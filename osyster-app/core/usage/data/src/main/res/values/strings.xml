@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="uid_removed">Removed apps</string>
+    <string name="uid_tethering">Hotspot and tethering</string>
+    <string name="uid_system">Android system</string>
+    <string name="uid_unknown">System process %1$d</string>
+</resources>

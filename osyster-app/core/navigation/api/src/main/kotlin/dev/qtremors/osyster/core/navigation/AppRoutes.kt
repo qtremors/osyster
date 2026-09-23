@@ -30,7 +30,16 @@ data class DevicePageRoute(val pageId: String) : AppRoute
 @Serializable
 data object ScreenTesterRoute : AppRoute
 
-/** One tool page, addressed by its stable tool id (for example "data_usage"). */
+@Serializable
+data object DataUsageRoute : AppRoute
+
+@Serializable
+data object ScreenUsageRoute : AppRoute
+
+@Serializable
+data object AppStopperRoute : AppRoute
+
+/** A tool page that has no feature module yet, addressed by its stable tool id. */
 @Serializable
 data class ToolRoute(val toolId: String) : AppRoute
 

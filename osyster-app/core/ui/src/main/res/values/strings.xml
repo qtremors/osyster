@@ -11,6 +11,8 @@
     </plurals>
     <string name="copied_value">%1$s copied</string>
 
+    <string name="usage_access_title">Usage access needed</string>
+    <string name="usage_access_action">Open Usage access</string>
     <string name="grant_access">Grant access</string>
     <string name="grant_reason_location">Android shows the Wi-Fi network name only to apps with location access. Osyster never reads your location.</string>
     <string name="grant_reason_phone">Needed for mobile network type and SIM details. Osyster never reads your number or calls.</string>

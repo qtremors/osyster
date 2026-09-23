@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stopper_how_title">How stopping works</string>
+    <string name="stopper_how_message">Android lets regular apps stop other apps only from App info. Tap Stop, then Force stop. With Shizuku or root, power tools can stop apps in one tap.</string>
+    <string name="stopper_add">Add apps</string>
+    <string name="stopper_empty_title">No apps yet</string>
+    <string name="stopper_empty_message">Add the apps you often want to stop, so they are one tap away.</string>
+    <string name="stopper_your_apps">Your apps (%1$d)</string>
+    <string name="stopper_status_stopped">Stopped. Stays stopped until you open it or something wakes it.</string>
+    <string name="stopper_status_can_run">Can run in the background</string>
+    <string name="stopper_status_uninstalled">No longer installed</string>
+    <string name="stopper_stop">Stop</string>
+    <string name="stopper_remove">Remove</string>
+    <string name="stopper_remove_from_list">Remove from list</string>
+    <string name="stopper_search">Search apps</string>
+    <string name="stopper_show_system">Show system apps</string>
+    <plurals name="stopper_add_count">
+        <item quantity="one">Add %d app</item>
+        <item quantity="other">Add %d apps</item>
+    </plurals>
+</resources>

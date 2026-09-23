@@ -12,6 +12,7 @@ import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import dev.qtremors.osyster.core.navigation.DeepLinks
 import dev.qtremors.osyster.core.ui.theme.OsysterTheme
 import dev.qtremors.osyster.core.ui.theme.ThemeOptions
 import dev.qtremors.osyster.core.ui.theme.ThemeSettings
@@ -33,10 +34,14 @@ class MainActivity : ComponentActivity() {
     private val themeOptions = MutableStateFlow<ThemeOptions?>(null)
     private val loadedOptions: StateFlow<ThemeOptions?> = themeOptions.asStateFlow()
 
+    /** A tool a widget or tile asked to open; cleared once the shell has navigated to it. */
+    private val pendingTool = MutableStateFlow<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        if (savedInstanceState == null) pendingTool.value = intent?.getStringExtra(DeepLinks.EXTRA_OPEN_TOOL)
 
         lifecycleScope.launch {
             themeSettings.options.collect { themeOptions.value = it }
@@ -50,8 +55,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val options by loadedOptions.collectAsStateWithLifecycle()
+            val openTool by pendingTool.collectAsStateWithLifecycle()
             OsysterTheme(options = options ?: ThemeOptions()) {
-                OsysterAppShell(appVersion = BuildConfig.VERSION_NAME, system = systemActions)
+                OsysterAppShell(
+                    appVersion = BuildConfig.VERSION_NAME,
+                    system = systemActions,
+                    openTool = openTool,
+                    onToolOpened = { pendingTool.value = null }
+                )
             }
         }
     }
@@ -65,8 +76,22 @@ class MainActivity : ComponentActivity() {
         shareText = { text ->
             val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
             launch(Intent.createChooser(send, getString(R.string.share_report_title)))
+        },
+        openUsageAccess = {
+            // Some phones support jumping straight to Osyster's entry; fall back to the full list.
+            val direct = Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS, "package:$packageName".toUri())
+            if (direct.resolveActivity(packageManager) != null) launch(direct)
+            else launch(Intent(android.provider.Settings.ACTION_USAGE_ACCESS_SETTINGS))
+        },
+        openAppInfo = { pkg ->
+            launch(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:$pkg".toUri()))
         }
     )
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        intent.getStringExtra(DeepLinks.EXTRA_OPEN_TOOL)?.let { pendingTool.value = it }
+    }
 
     /** Starts another app's screen; if it vanished, there is nothing the user can fix from here. */
     private fun launch(intent: Intent) {

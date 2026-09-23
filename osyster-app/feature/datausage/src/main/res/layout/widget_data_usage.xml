@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_card_background">
+
+    <!-- Main content container -->
+    <LinearLayout
+        android:id="@+id/widget_content_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <!-- Row 1: Month/Day label on start, Cellular data usage & icon on end -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/widget_interval_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/widget_day_title"
+                android:textColor="#9E9E9E"
+                android:textSize="12sp"
+                android:includeFontPadding="false" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/widget_mobile_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="0.00 B"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:includeFontPadding="false"
+                android:layout_marginEnd="6dp" />
+
+            <ImageView
+                android:id="@+id/widget_mobile_icon"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_mobile_data"
+                android:contentDescription="@string/network_mobile_label" />
+        </LinearLayout>
+
+        <!-- Row 2: Refresh action on start, Wi-Fi data usage & icon on end -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/widget_btn_refresh"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_refresh"
+                android:contentDescription="@string/widget_refresh_description" />
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/widget_wifi_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="0.00 B"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:includeFontPadding="false"
+                android:layout_marginEnd="6dp" />
+
+            <ImageView
+                android:id="@+id/widget_wifi_icon"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_wifi"
+                android:contentDescription="@string/network_wifi_label" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

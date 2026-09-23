@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="screen_access_message">Android records which apps were on screen and for how long. Osyster reads that record on your phone only; nothing leaves the device.</string>
+    <string name="screen_today">Today</string>
+    <string name="screen_last_week">Last 7 days</string>
+    <string name="screen_history_description">Screen time per day. %1$s</string>
+    <string name="screen_by_hour">By hour</string>
+    <string name="screen_hourly_description">Busiest hour %1$d:00 with %2$s</string>
+    <string name="screen_hourly_empty">No screen time recorded on this day</string>
+    <string name="screen_apps">By app</string>
+    <string name="screen_no_apps">No apps were used on this day.</string>
+    <string name="screen_show_all">Show all %1$d apps</string>
+    <string name="screen_show_fewer">Show fewer</string>
+    <plurals name="screen_opens">
+        <item quantity="one">Opened %d time</item>
+        <item quantity="other">Opened %d times</item>
+    </plurals>
+    <plurals name="screen_apps_and_opens">
+        <item quantity="one">%1$d app · %2$d opens</item>
+        <item quantity="other">%1$d apps · %2$d opens</item>
+    </plurals>
+</resources>

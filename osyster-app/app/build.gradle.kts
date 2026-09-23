@@ -33,8 +33,8 @@ android {
         minSdk = 26
         targetSdk = 37
         // versionCode is versionName without dots.
-        versionCode = 23
-        versionName = "0.2.3"
+        versionCode = 24
+        versionName = "0.2.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -137,9 +137,13 @@ dependencies {
     implementation(project(":core:device:domain"))
     // Concrete data modules are wired here only, so Hilt sees their bindings.
     implementation(project(":core:device:data"))
+    implementation(project(":core:usage:data"))
     implementation(project(":core:ui"))
     implementation(project(":feature:home"))
     implementation(project(":feature:device"))
+    implementation(project(":feature:datausage"))
+    implementation(project(":feature:screenusage"))
+    implementation(project(":feature:appstopper"))
     implementation(project(":feature:tools"))
     implementation(project(":feature:settings"))
 

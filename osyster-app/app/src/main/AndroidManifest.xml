@@ -14,6 +14,10 @@
         <intent>
             <action android:name="android.settings.BATTERY_SAVER_SETTINGS" />
         </intent>
+        <intent>
+            <action android:name="android.settings.USAGE_ACCESS_SETTINGS" />
+            <data android:scheme="package" />
+        </intent>
     </queries>
 
     <application

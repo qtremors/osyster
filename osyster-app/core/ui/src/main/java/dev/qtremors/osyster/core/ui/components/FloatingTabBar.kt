@@ -10,7 +10,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -37,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,6 +66,10 @@ fun FloatingTabBar(
 ) {
     val reduceMotion = LocalReduceMotion.current
     val colors = MaterialTheme.colorScheme
+    val currentOnBack by rememberUpdatedState(onBack)
+    // The mode is the animation's target, so the outgoing content keeps the title it had. Reading
+    // the live title instead made the leaving "Back + title" collapse to a lone circle mid-animation.
+    val mode = if (onBack != null) BarMode.Back(backTitle) else BarMode.Tabs
     HorizontalFloatingToolbar(
         expanded = true,
         modifier = modifier
@@ -77,25 +81,33 @@ fun FloatingTabBar(
         )
     ) {
         AnimatedContent(
-            targetState = onBack != null,
+            targetState = mode,
+            // Only switching between tabs and Back animates; a new title just updates in place.
+            contentKey = { it is BarMode.Back },
             transitionSpec = {
                 if (reduceMotion) {
                     fadeIn(snap()) togetherWith fadeOut(snap())
                 } else {
-                    (fadeIn() + scaleIn(initialScale = 0.85f)) togetherWith
-                        (fadeOut() + scaleOut(targetScale = 0.85f)) using SizeTransform(clip = false)
+                    (fadeIn(spring(stiffness = Spring.StiffnessMediumLow)) + scaleIn(spring(stiffness = Spring.StiffnessMediumLow), initialScale = 0.9f)) togetherWith
+                        fadeOut(spring(stiffness = Spring.StiffnessHigh)) using
+                        SizeTransform(clip = false) { _, _ -> spring(dampingRatio = 0.8f, stiffness = Spring.StiffnessMediumLow) }
                 }
             },
             contentAlignment = Alignment.Center,
             label = "toolbarMode"
-        ) { backMode ->
-            if (backMode) {
-                BackContent(title = backTitle, onBack = { onBack?.invoke() })
-            } else {
-                TabsContent(tabs = tabs, selectedIndex = selectedIndex, onSelect = onSelect)
+        ) { shown ->
+            when (shown) {
+                is BarMode.Back -> BackContent(title = shown.title, onBack = { currentOnBack?.invoke() })
+                BarMode.Tabs -> TabsContent(tabs = tabs, selectedIndex = selectedIndex, onSelect = onSelect)
             }
         }
     }
+}
+
+/** What the bar shows. The title travels with the Back mode so it survives the exit animation. */
+private sealed interface BarMode {
+    data object Tabs : BarMode
+    data class Back(val title: String?) : BarMode
 }
 
 @Composable
