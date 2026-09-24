@@ -17,7 +17,6 @@ import androidx.compose.material.icons.rounded.DoNotDisturbOn
 import androidx.compose.material.icons.rounded.EnergySavingsLeaf
 import androidx.compose.material.icons.rounded.FlashlightOn
 import androidx.compose.material.icons.rounded.FormatSize
-import androidx.compose.material.icons.rounded.Headset
 import androidx.compose.material.icons.rounded.HourglassBottom
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.NightsStay
@@ -85,7 +84,6 @@ val Tool.label: DestinationLabel
         Tool.SCREEN_USAGE -> DestinationLabel(R.string.tool_screen_usage, R.string.tool_screen_usage_summary, Icons.Rounded.HourglassBottom)
         Tool.APP_STOPPER -> DestinationLabel(R.string.tool_app_stopper, R.string.tool_app_stopper_summary, Icons.Rounded.StopCircle)
         Tool.STAY_AWAKE -> DestinationLabel(R.string.tool_stay_awake, R.string.tool_stay_awake_summary, Icons.Rounded.Coffee)
-        Tool.BLUETOOTH_BATTERIES -> DestinationLabel(R.string.tool_bluetooth_batteries, R.string.tool_bluetooth_batteries_summary, Icons.Rounded.Headset)
         Tool.FLASHLIGHT -> DestinationLabel(R.string.tool_flashlight, R.string.tool_flashlight_summary, Icons.Rounded.FlashlightOn)
         Tool.ACTIVITY_LAUNCHER -> DestinationLabel(R.string.tool_activity_launcher, R.string.tool_activity_launcher_summary, Icons.Rounded.RocketLaunch)
         Tool.LINK_ACTIONS -> DestinationLabel(R.string.tool_link_actions, R.string.tool_link_actions_summary, Icons.Rounded.Link)

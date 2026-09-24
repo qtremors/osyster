@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_search">Search apps</string>
+    <string name="launcher_apps">Apps (%1$d)</string>
+    <plurals name="launcher_activity_count">
+        <item quantity="one">%d screen</item>
+        <item quantity="other">%d screens</item>
+    </plurals>
+    <string name="launcher_screens">Screens</string>
+    <string name="launcher_screens_hint">Tap to open. Long-press to add to your home screen. Locked screens can only be opened by the app itself.</string>
+    <string name="launcher_locked">Locked</string>
+    <string name="launcher_pin">Add to home screen</string>
+    <string name="launcher_open_failed">That screen did not open. The app may need to be running first.</string>
+    <string name="launcher_pin_unsupported">Your launcher does not accept pinned shortcuts</string>
+    <string name="launcher_pin_requested">Check your launcher to place the shortcut</string>
+</resources>

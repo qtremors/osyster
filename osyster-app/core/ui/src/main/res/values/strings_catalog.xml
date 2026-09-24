@@ -45,8 +45,6 @@
     <string name="tool_app_stopper_summary">Keep a list of apps to stop quickly</string>
     <string name="tool_stay_awake">Stay awake</string>
     <string name="tool_stay_awake_summary">Keep the screen on for a while or while charging</string>
-    <string name="tool_bluetooth_batteries">Bluetooth batteries</string>
-    <string name="tool_bluetooth_batteries_summary">Battery levels of earbuds, watches, and more</string>
     <string name="tool_flashlight">Flashlight</string>
     <string name="tool_flashlight_summary">Brightness, fading, and notification pulse</string>
     <string name="tool_activity_launcher">Activity launcher</string>
@@ -56,7 +54,7 @@
     <string name="tool_widget_stack">Widget stack</string>
     <string name="tool_widget_stack_summary">Stack widgets and swipe between them</string>
     <string name="tool_widgets">Widgets</string>
-    <string name="tool_widgets_summary">Data usage, music, and battery widgets</string>
+    <string name="tool_widgets_summary">Data usage and music widgets</string>
     <string name="tool_quick_tiles">Quick Settings tiles</string>
     <string name="tool_quick_tiles_summary">Tiles you can add to Quick Settings</string>
     <string name="tool_power_setup">Set up power tools</string>

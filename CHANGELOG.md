@@ -1,8 +1,19 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.2.4
-> **Last Updated:** 2026-09-23
+> **Version:** 0.2.5
+> **Last Updated:** 2026-09-24
+
+---
+
+## [0.2.5] - 2026-09-24
+
+- **Stay Awake**: Keep the screen on for 15 minutes, 30 minutes, 1 hour, 2 hours, or until you stop it, with a countdown notification and a Stop button. Works with Osyster closed.
+- **Stay Awake While Charging**: Turn Android's developer setting on or off from Osyster. Until it is allowed, the page shows the one-time ADB command to copy and a shortcut to Developer options.
+- **Flashlight**: A big on and off switch, plus a brightness slider and 25, 50, 75, and 100 percent presets on phones that support brightness levels (Android 13 and newer).
+- **Activity Launcher**: Browse any app's screens, open the ones Android allows, and add them to your home screen.
+- **Link Actions**: Set Osyster as your default browser and every link asks which app should open it, with copy and share. Try any link from the tool page.
+- **Quick Settings Tiles**: Stay awake (each tap adds time), Awake while charging, Flashlight at your last brightness, RAM in use, and Data today. On Android 13 and newer, add any of them with one tap from the Quick Settings tiles page.
 
 ---
 

@@ -39,6 +39,13 @@ import dev.qtremors.osyster.core.ui.components.FloatingTabBar
 import dev.qtremors.osyster.core.ui.components.TabItem
 import dev.qtremors.osyster.core.ui.theme.LocalReduceMotion
 import androidx.compose.runtime.LaunchedEffect
+import dev.qtremors.osyster.feature.activitylauncher.registerActivityLauncherRoute
+import dev.qtremors.osyster.feature.flashlight.registerFlashlightRoute
+import dev.qtremors.osyster.feature.linkactions.LinkActionsDestination
+import dev.qtremors.osyster.feature.linkactions.registerLinkActionsRoute
+import dev.qtremors.osyster.feature.quicktiles.registerQuickTilesRoute
+import dev.qtremors.osyster.feature.stayawake.StayAwakeDestination
+import dev.qtremors.osyster.feature.stayawake.registerStayAwakeRoute
 import dev.qtremors.osyster.feature.appstopper.AppStopperDestination
 import dev.qtremors.osyster.feature.appstopper.registerAppStopperRoute
 import dev.qtremors.osyster.feature.datausage.DataUsageDestination
@@ -66,7 +73,9 @@ data class SystemActions(
     val openAppSettings: () -> Unit,
     val shareText: (String) -> Unit,
     val openUsageAccess: () -> Unit,
-    val openAppInfo: (packageName: String) -> Unit
+    val openAppInfo: (packageName: String) -> Unit,
+    val openDeveloperOptions: () -> Unit,
+    val openDefaultApps: () -> Unit
 )
 
 @Composable
@@ -149,6 +158,20 @@ fun OsysterAppShell(
                     is AppStopperDestination.AppInfo -> system.openAppInfo(target.packageName)
                 }
             }
+            registerStayAwakeRoute { target ->
+                when (target) {
+                    StayAwakeDestination.DeveloperOptions -> system.openDeveloperOptions()
+                }
+            }
+            registerFlashlightRoute()
+            registerActivityLauncherRoute()
+            registerLinkActionsRoute { target ->
+                when (target) {
+                    LinkActionsDestination.DefaultApps -> system.openDefaultApps()
+                    is LinkActionsDestination.Share -> system.shareText(target.text)
+                }
+            }
+            registerQuickTilesRoute()
             composable<ToolRoute> { entry ->
                 val tool = Tool.fromId(entry.toRoute<ToolRoute>().toolId)
                 PlaceholderPage(title = tool?.label?.title?.let { stringResource(it) }.orEmpty())

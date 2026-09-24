@@ -85,7 +85,9 @@ class MainActivity : ComponentActivity() {
         },
         openAppInfo = { pkg ->
             launch(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:$pkg".toUri()))
-        }
+        },
+        openDeveloperOptions = { launch(Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)) },
+        openDefaultApps = { launch(Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)) }
     )
 
     override fun onNewIntent(intent: Intent) {

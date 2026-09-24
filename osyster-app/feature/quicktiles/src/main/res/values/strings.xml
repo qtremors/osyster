@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tile_ram">RAM</string>
+    <string name="tile_ram_value">%1$s of %2$s</string>
+    <string name="tile_data_today">Data today</string>
+    <string name="tile_data_value">Mobile %1$s · Wi-Fi %2$s</string>
+    <string name="tile_needs_access">Needs Usage access</string>
+    <string name="tile_unknown">Not available</string>
+
+    <string name="qt_how_title">Add tiles to Quick Settings</string>
+    <string name="qt_how_request">Tap Add and confirm in the prompt Android shows.</string>
+    <string name="qt_how_manual">Swipe down twice, tap the pencil to edit, and drag Osyster\'s tiles in.</string>
+    <string name="qt_available">Osyster tiles</string>
+    <string name="qt_add">Add</string>
+    <string name="qt_stay_awake">Stay awake</string>
+    <string name="qt_stay_awake_summary">Each tap adds time: 15 min, 30 min, 1 h, 2 h, until stopped, then off</string>
+    <string name="qt_charging">Awake while charging</string>
+    <string name="qt_charging_summary">Android\'s Stay awake while charging setting</string>
+    <string name="qt_flashlight">Flashlight</string>
+    <string name="qt_flashlight_summary">Turns on at the brightness you last set</string>
+    <string name="qt_ram_summary">RAM in use</string>
+    <string name="qt_data_summary">Mobile and Wi-Fi data used today</string>
+</resources>

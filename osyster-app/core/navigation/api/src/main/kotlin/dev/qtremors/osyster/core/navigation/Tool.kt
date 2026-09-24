@@ -10,7 +10,6 @@ enum class Tool(val id: String, val group: ToolGroup, val access: ToolAccess = T
     APP_STOPPER("app_stopper", ToolGroup.USAGE),
 
     STAY_AWAKE("stay_awake", ToolGroup.UTILITIES),
-    BLUETOOTH_BATTERIES("bluetooth_batteries", ToolGroup.UTILITIES),
     FLASHLIGHT("flashlight", ToolGroup.UTILITIES),
     ACTIVITY_LAUNCHER("activity_launcher", ToolGroup.UTILITIES),
     LINK_ACTIONS("link_actions", ToolGroup.UTILITIES),

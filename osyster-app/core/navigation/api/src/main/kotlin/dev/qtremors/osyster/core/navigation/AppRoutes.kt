@@ -39,6 +39,21 @@ data object ScreenUsageRoute : AppRoute
 @Serializable
 data object AppStopperRoute : AppRoute
 
+@Serializable
+data object StayAwakeRoute : AppRoute
+
+@Serializable
+data object FlashlightRoute : AppRoute
+
+@Serializable
+data object ActivityLauncherRoute : AppRoute
+
+@Serializable
+data object LinkActionsRoute : AppRoute
+
+@Serializable
+data object QuickTilesRoute : AppRoute
+
 /** A tool page that has no feature module yet, addressed by its stable tool id. */
 @Serializable
 data class ToolRoute(val toolId: String) : AppRoute
