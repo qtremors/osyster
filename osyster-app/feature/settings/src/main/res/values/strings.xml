@@ -25,23 +25,82 @@
     <string name="settings_reduce_motion">Reduce motion</string>
     <string name="settings_reduce_motion_summary">Fewer bouncy and sliding animations</string>
 
+    <string name="settings_backup">Backup</string>
+    <string name="settings_export">Export settings</string>
+    <string name="settings_export_summary">Save theme, Home layout, app stopper list, and tool options to a file</string>
+    <string name="settings_import">Import settings</string>
+    <string name="settings_import_summary">Restore from an Osyster settings file</string>
+    <string name="settings_show_welcome">Show welcome again</string>
+    <string name="settings_show_welcome_summary">Walk through the first-run screens next time Osyster opens</string>
+    <string name="settings_exported">Settings exported</string>
+    <string name="settings_export_failed">Could not write the file. Try another folder.</string>
+    <string name="settings_imported">Settings restored</string>
+    <string name="settings_import_failed">Could not read the file</string>
+    <string name="settings_not_a_backup">That file is not an Osyster settings export</string>
+    <string name="settings_welcome_reset">The welcome screens show next time you open Osyster</string>
+
     <string name="settings_about">About</string>
-    <string name="settings_version">Version</string>
     <string name="settings_license">License</string>
     <string name="settings_license_summary">GNU General Public License v3. Free to use, study, and share; changes must stay open source.</string>
     <string name="settings_source">Source code</string>
     <string name="settings_source_summary">github.com/qtremors/osyster</string>
-    <string name="settings_credits">Credits</string>
-    <string name="settings_credits_summary">Projects Osyster builds on</string>
 
+    <string name="about_title">About Osyster</string>
+    <string name="about_summary">Version, developer, source code, and releases</string>
+    <string name="about_app_name">Osyster</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_tagline">Private device information and utilities. No internet access.</string>
+    <string name="about_project">Project</string>
+    <string name="about_developer">Developer</string>
+    <string name="about_developer_name">Tremors</string>
+    <string name="about_releases">Releases</string>
+    <string name="about_releases_summary">Download the latest version from GitHub</string>
+    <string name="about_issues">Report a problem</string>
+    <string name="about_issues_summary">Open an issue on GitHub</string>
+    <string name="about_legal">Legal</string>
+    <string name="about_privacy">Privacy</string>
+    <string name="about_privacy_summary">What Osyster reads and why</string>
+    <string name="about_licenses">Open source licenses</string>
+    <string name="about_licenses_summary">Projects Osyster builds on</string>
+    <string name="about_this_device">This device</string>
+    <string name="about_device_hint">Tap to copy for a bug report</string>
+
+    <string name="privacy_promises">Osyster\'s promises</string>
+    <string name="privacy_offline">No internet access</string>
+    <string name="privacy_offline_detail">Osyster does not request the internet permission, so it cannot send anything anywhere.</string>
+    <string name="privacy_local">Everything stays on your phone</string>
+    <string name="privacy_local_detail">No accounts, ads, analytics, or crash reporting. Settings are saved on the device and only leave it if you export them.</string>
+    <string name="privacy_identifiers">No permanent identifiers</string>
+    <string name="privacy_identifiers_detail">Serial numbers, IMEI, phone numbers, MAC addresses, and DRM device IDs are never read.</string>
+    <string name="privacy_permissions">Optional permissions</string>
+    <string name="privacy_perm_usage">Usage access</string>
+    <string name="privacy_perm_usage_detail">Data usage and screen time. Asked on those tools only.</string>
+    <string name="privacy_perm_location">Location</string>
+    <string name="privacy_perm_location_detail">Android shows the Wi-Fi network name only to apps with location access. Your location itself is never read.</string>
+    <string name="privacy_perm_phone">Phone</string>
+    <string name="privacy_perm_phone_detail">Mobile network type and SIM state. Your number, calls, and contacts are never read.</string>
+    <string name="privacy_perm_notifications">Notifications</string>
+    <string name="privacy_perm_notifications_detail">Shows the Stay awake countdown so you can stop it.</string>
+    <string name="privacy_perm_notification_access">Notification access</string>
+    <string name="privacy_perm_notification_access_detail">Music widgets and flashlight pulse. Notification text is never stored.</string>
+    <string name="privacy_perm_secure_settings">Change system settings</string>
+    <string name="privacy_perm_secure_settings_detail">Granted only by you through ADB, Shizuku, or root, for Stay awake while charging and power tools.</string>
+
+    <string name="licenses_intro">Osyster stands on these projects</string>
+    <string name="credit_osyster">Osyster</string>
+    <string name="credit_osyster_detail">Tremors. GNU General Public License v3.</string>
     <string name="credit_essentials">Essentials by Sameera Sandakelum</string>
-    <string name="credit_essentials_detail">Design reference and interface patterns. MIT License. Tap to read.</string>
-    <string name="credit_roboto_flex">Roboto Flex</string>
-    <string name="credit_roboto_flex_detail">The app font. SIL Open Font License 1.1.</string>
+    <string name="credit_essentials_detail">Design reference and interface patterns. MIT License.</string>
     <string name="credit_androidx">AndroidX, Jetpack Compose, and Material 3</string>
     <string name="credit_androidx_detail">Google. Apache License 2.0.</string>
+    <string name="credit_kotlin">Kotlin and kotlinx libraries</string>
+    <string name="credit_kotlin_detail">JetBrains. Apache License 2.0.</string>
+    <string name="credit_hilt">Dagger and Hilt</string>
+    <string name="credit_hilt_detail">Google. Apache License 2.0.</string>
+    <string name="credit_icons">Material Symbols</string>
+    <string name="credit_icons_detail">Google. Apache License 2.0.</string>
     <string name="credit_materialkolor">MaterialKolor</string>
-    <string name="credit_materialkolor_detail">Color scheme generation. MIT License.</string>
-
-    <string name="license_essentials_mit" translatable="false">MIT License\n\nCopyright (c) 2025 Sameera Sandakelum\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</string>
+    <string name="credit_materialkolor_detail">Jordon de Hoog. MIT License.</string>
+    <string name="credit_roboto_flex">Roboto Flex</string>
+    <string name="credit_roboto_flex_detail">The Roboto Flex Project Authors. SIL Open Font License 1.1.</string>
 </resources>

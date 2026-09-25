@@ -39,7 +39,7 @@ dependencies {
     // Contracts only: never another feature, never a concrete data module.
     implementation(project(":core:runtime"))
     implementation(project(":core:navigation:api"))
-    implementation(project(":core:device:domain"))
+    implementation(project(":core:preferences:domain"))
     implementation(project(":core:ui"))
 
     implementation(platform(libs.androidx.compose.bom))
@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.hilt.lifecycle.viewmodel.compose)

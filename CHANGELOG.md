@@ -1,8 +1,24 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.2.5
-> **Last Updated:** 2026-09-24
+> **Version:** 0.2.6
+> **Last Updated:** 2026-09-25
+
+---
+
+## [0.2.6] - 2026-09-25
+
+- **Welcome**: First launch walks through what Osyster is, its privacy promises, and the optional access a few tools use. Every step can be skipped.
+- **What's New**: After an update, a short sheet lists the highlights once.
+- **Search**: Search from Home for any device page, tool, setting, or device fact, including values like your chip name or Android version.
+- **Music Widgets**: Disc and capsule music players for the home screen, with album art and play, pause, and skip controls.
+- **Flashlight Pulse**: Blink the flashlight for new notifications while the screen is off. Ongoing notifications are skipped and bursts blink only once. Notification text is never read.
+- **About**: Version, developer, source code, releases, issues, privacy, license, and device in one place.
+- **Open Source Licenses**: Credits for every library and font, with each full license text.
+- **Privacy Page**: What Osyster reads, what it never reads, and why it has no internet access.
+- **Backup**: Export your theme, Home layout, app stopper list, and tool options to a file, and import them on another phone.
+- **About This Page**: Long-press any device page or tool for a plain explanation of what it shows and what it needs.
+- **Launcher Shortcuts**: Long-press the Osyster icon to open Data usage, Stay awake, Flashlight, or Screen time directly.
 
 ---
 

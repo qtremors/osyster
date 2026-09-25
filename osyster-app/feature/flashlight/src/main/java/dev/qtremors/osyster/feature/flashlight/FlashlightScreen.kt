@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FlashlightOff
 import androidx.compose.material.icons.rounded.FlashlightOn
 import androidx.compose.material.icons.rounded.NoFlash
+import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
@@ -41,11 +42,22 @@ import dev.qtremors.osyster.core.ui.components.ConnectedRow
 import dev.qtremors.osyster.core.ui.components.EmptyState
 import dev.qtremors.osyster.core.ui.components.OsysterScaffold
 import dev.qtremors.osyster.core.ui.components.SectionHeader
+import dev.qtremors.osyster.core.ui.components.ToggleRow
 import dev.qtremors.osyster.core.ui.components.rememberAppHaptics
 import kotlin.math.roundToInt
 
+/** Flashlight pulse state: the user's choice and whether notification access allows it. */
+internal data class PulseUi(val enabled: Boolean, val hasAccess: Boolean)
+
 @Composable
-internal fun FlashlightScreen(state: TorchState, onToggle: () -> Unit, onLevel: (Int) -> Unit) {
+internal fun FlashlightScreen(
+    state: TorchState,
+    pulse: PulseUi,
+    onToggle: () -> Unit,
+    onLevel: (Int) -> Unit,
+    onPulse: (Boolean) -> Unit,
+    onGrantAccess: () -> Unit
+) {
     OsysterScaffold(title = stringResource(Tool.FLASHLIGHT.label.title)) { padding ->
         LazyColumn(contentPadding = padding) {
             if (!state.hasFlash) {
@@ -65,6 +77,7 @@ internal fun FlashlightScreen(state: TorchState, onToggle: () -> Unit, onLevel: 
                     }
                 }
             }
+            item(key = "pulse") { PulseSection(pulse, onPulse, onGrantAccess) }
         }
     }
 }
@@ -147,5 +160,30 @@ private fun Brightness(state: TorchState, onLevel: (Int) -> Unit) {
             onSelect = { percent -> onLevel(((percent / 100f) * state.maxLevel).roundToInt().coerceAtLeast(1)) },
             modifier = Modifier.padding(top = 8.dp)
         )
+    }
+}
+
+/** Blink for notifications. Works only with notification access, shared with the music widgets. */
+@Composable
+private fun PulseSection(pulse: PulseUi, onPulse: (Boolean) -> Unit, onGrantAccess: () -> Unit) {
+    Column {
+        SectionHeader(stringResource(R.string.flash_pulse_section))
+        ConnectedGroup {
+            ToggleRow(
+                title = stringResource(R.string.flash_pulse),
+                supporting = stringResource(R.string.flash_pulse_detail),
+                icon = Icons.Rounded.NotificationsActive,
+                checked = pulse.enabled && pulse.hasAccess,
+                onCheckedChange = onPulse,
+                enabled = pulse.hasAccess
+            )
+            if (!pulse.hasAccess) {
+                ConnectedRow(
+                    title = stringResource(R.string.flash_pulse_access),
+                    supporting = stringResource(R.string.flash_pulse_access_detail),
+                    onClick = onGrantAccess
+                )
+            }
+        }
     }
 }

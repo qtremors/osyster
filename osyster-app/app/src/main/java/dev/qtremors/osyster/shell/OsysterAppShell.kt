@@ -25,7 +25,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dev.qtremors.osyster.R
 import dev.qtremors.osyster.core.device.domain.DevicePage
+import dev.qtremors.osyster.core.navigation.AboutRoute
 import dev.qtremors.osyster.core.navigation.AppRoute
+import dev.qtremors.osyster.core.navigation.LicensesRoute
+import dev.qtremors.osyster.core.navigation.PrivacyRoute
+import dev.qtremors.osyster.core.navigation.SearchRoute
 import dev.qtremors.osyster.core.navigation.DevicePageRoute
 import dev.qtremors.osyster.core.navigation.HomeRoute
 import dev.qtremors.osyster.core.navigation.ScreenTesterRoute
@@ -40,7 +44,10 @@ import dev.qtremors.osyster.core.ui.components.TabItem
 import dev.qtremors.osyster.core.ui.theme.LocalReduceMotion
 import androidx.compose.runtime.LaunchedEffect
 import dev.qtremors.osyster.feature.activitylauncher.registerActivityLauncherRoute
+import dev.qtremors.osyster.feature.flashlight.FlashlightDestination
 import dev.qtremors.osyster.feature.flashlight.registerFlashlightRoute
+import dev.qtremors.osyster.feature.search.SearchDestination
+import dev.qtremors.osyster.feature.search.registerSearchRoute
 import dev.qtremors.osyster.feature.linkactions.LinkActionsDestination
 import dev.qtremors.osyster.feature.linkactions.registerLinkActionsRoute
 import dev.qtremors.osyster.feature.quicktiles.registerQuickTilesRoute
@@ -75,7 +82,8 @@ data class SystemActions(
     val openUsageAccess: () -> Unit,
     val openAppInfo: (packageName: String) -> Unit,
     val openDeveloperOptions: () -> Unit,
-    val openDefaultApps: () -> Unit
+    val openDefaultApps: () -> Unit,
+    val openNotificationAccess: () -> Unit
 )
 
 @Composable
@@ -122,6 +130,7 @@ fun OsysterAppShell(
                     is HomeDestination.DevicePage -> navController.navigate(DevicePageRoute(target.pageId))
                     is HomeDestination.Tool -> navController.navigate(toolRoute(target.toolId))
                     is HomeDestination.ShareReport -> system.shareText(target.text)
+                    HomeDestination.Search -> navController.navigate(SearchRoute)
                 }
             }
             registerDevicePageRoute { target ->
@@ -139,6 +148,19 @@ fun OsysterAppShell(
             registerSettingsRoute(appVersion = appVersion) { target ->
                 when (target) {
                     is SettingsDestination.OpenUrl -> system.openUrl(target.url)
+                    SettingsDestination.About -> navController.navigate(AboutRoute)
+                    SettingsDestination.Privacy -> navController.navigate(PrivacyRoute)
+                    SettingsDestination.Licenses -> navController.navigate(LicensesRoute)
+                }
+            }
+            registerSearchRoute { target ->
+                when (target) {
+                    is SearchDestination.DevicePage -> navController.navigate(DevicePageRoute(target.pageId))
+                    is SearchDestination.Tool -> navController.navigate(toolRoute(target.toolId))
+                    SearchDestination.Settings -> navController.navigateToTab(SettingsRoute)
+                    SearchDestination.About -> navController.navigate(AboutRoute)
+                    SearchDestination.Privacy -> navController.navigate(PrivacyRoute)
+                    SearchDestination.Licenses -> navController.navigate(LicensesRoute)
                 }
             }
             registerDataUsageRoute { target ->
@@ -163,7 +185,11 @@ fun OsysterAppShell(
                     StayAwakeDestination.DeveloperOptions -> system.openDeveloperOptions()
                 }
             }
-            registerFlashlightRoute()
+            registerFlashlightRoute { target ->
+                when (target) {
+                    FlashlightDestination.NotificationAccess -> system.openNotificationAccess()
+                }
+            }
             registerActivityLauncherRoute()
             registerLinkActionsRoute { target ->
                 when (target) {
@@ -195,7 +221,7 @@ fun OsysterAppShell(
 private fun NavDestination?.selectedTabIndex(): Int = when {
     this == null -> 0
     hasRoute<ToolsRoute>() || isToolPage() -> 1
-    hasRoute<SettingsRoute>() -> 2
+    hasRoute<SettingsRoute>() || isSettingsPage() -> 2
     else -> 0
 }
 
@@ -206,10 +232,17 @@ private fun NavBackStackEntry?.detailTitle(): String? {
     val titleRes = when {
         destination.hasRoute<DevicePageRoute>() -> DevicePage.fromId(entry.toRoute<DevicePageRoute>().pageId)?.label?.title
         destination.isToolPage() -> toolOf(entry)?.label?.title
+        destination.hasRoute<AboutRoute>() -> R.string.title_about
+        destination.hasRoute<PrivacyRoute>() -> R.string.title_privacy
+        destination.hasRoute<LicensesRoute>() -> R.string.title_licenses
+        destination.hasRoute<SearchRoute>() -> R.string.title_search
         else -> null
     }
     return titleRes?.let { stringResource(it) }
 }
+
+private fun NavDestination.isSettingsPage(): Boolean =
+    hasRoute<AboutRoute>() || hasRoute<PrivacyRoute>() || hasRoute<LicensesRoute>()
 
 /** Tabs keep their own back stacks and scroll positions, like the system's own apps. */
 private fun NavHostController.navigateToTab(route: AppRoute) {

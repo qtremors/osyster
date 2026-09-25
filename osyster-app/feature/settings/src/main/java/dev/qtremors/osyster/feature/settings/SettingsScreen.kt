@@ -16,12 +16,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Animation
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Contrast
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.Gavel
+import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.PrivacyTip
+import androidx.compose.material.icons.rounded.Upload
+import androidx.compose.material.icons.rounded.WavingHand
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material3.Icon
@@ -30,10 +32,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -43,8 +45,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import dev.qtremors.osyster.core.ui.components.ChoiceRow
 import dev.qtremors.osyster.core.ui.components.ConnectedGroup
-import dev.qtremors.osyster.core.ui.components.ConnectedRow
-import dev.qtremors.osyster.core.ui.components.IconBadge
 import dev.qtremors.osyster.core.ui.components.LoadingState
 import dev.qtremors.osyster.core.ui.components.NavigationRow
 import dev.qtremors.osyster.core.ui.components.OsysterScaffold
@@ -65,19 +65,28 @@ internal data class SettingsActions(
     val onPreset: (ThemePreset) -> Unit,
     val onHaptics: (Boolean) -> Unit,
     val onReduceMotion: (Boolean) -> Unit,
-    val onOpenUrl: (String) -> Unit
+    val onExport: () -> Unit,
+    val onImport: () -> Unit,
+    val onShowWelcome: () -> Unit,
+    val onMessageShown: () -> Unit,
+    val onNavigate: (SettingsDestination) -> Unit
 )
-
-private const val SOURCE_URL = "https://github.com/qtremors/osyster"
 
 @Composable
 internal fun SettingsScreen(
     theme: ThemeOptions?,
-    appVersion: String,
+    message: SettingsMessage?,
     actions: SettingsActions
 ) {
-    var showCredits by rememberSaveable { mutableStateOf(false) }
-    OsysterScaffold(title = stringResource(R.string.settings_title)) { padding ->
+    val snackbar = remember { SnackbarHostState() }
+    val messageText = message?.let { stringResource(it.textRes()) }
+    LaunchedEffect(messageText) {
+        if (messageText != null) {
+            snackbar.showSnackbar(messageText)
+            actions.onMessageShown()
+        }
+    }
+    OsysterScaffold(title = stringResource(R.string.settings_title), snackbarHost = { SnackbarHost(snackbar) }) { padding ->
         LazyColumn(contentPadding = padding) {
             item(key = "appearance") {
                 if (theme == null) LoadingState() else AppearanceSection(theme, actions)
@@ -85,12 +94,10 @@ internal fun SettingsScreen(
             item(key = "feel") {
                 if (theme != null) FeelSection(theme, actions)
             }
-            item(key = "about") {
-                AboutSection(appVersion, onOpenUrl = actions.onOpenUrl, onCredits = { showCredits = true })
-            }
+            item(key = "backup") { BackupSection(actions) }
+            item(key = "about") { AboutSection(actions.onNavigate) }
         }
     }
-    if (showCredits) CreditsSheet(onDismiss = { showCredits = false })
 }
 
 @Composable
@@ -192,36 +199,36 @@ private fun PresetPicker(selected: ThemePreset, onSelect: (ThemePreset) -> Unit)
 }
 
 @Composable
-private fun AboutSection(appVersion: String, onOpenUrl: (String) -> Unit, onCredits: () -> Unit) {
+private fun BackupSection(actions: SettingsActions) {
+    Column {
+        SectionHeader(stringResource(R.string.settings_backup))
+        ConnectedGroup {
+            NavigationRow(stringResource(R.string.settings_export), Icons.Rounded.Upload, "export", actions.onExport, supporting = stringResource(R.string.settings_export_summary))
+            NavigationRow(stringResource(R.string.settings_import), Icons.Rounded.Download, "import", actions.onImport, supporting = stringResource(R.string.settings_import_summary))
+            NavigationRow(stringResource(R.string.settings_show_welcome), Icons.Rounded.WavingHand, "welcome", actions.onShowWelcome, supporting = stringResource(R.string.settings_show_welcome_summary))
+        }
+    }
+}
+
+@Composable
+private fun AboutSection(onNavigate: (SettingsDestination) -> Unit) {
     Column {
         SectionHeader(stringResource(R.string.settings_about))
         ConnectedGroup {
-            ConnectedRow(
-                title = stringResource(R.string.settings_version),
-                supporting = appVersion,
-                leading = { IconBadge(Icons.Rounded.Info, key = "version") }
-            )
-            ConnectedRow(
-                title = stringResource(R.string.settings_license),
-                supporting = stringResource(R.string.settings_license_summary),
-                leading = { IconBadge(Icons.Rounded.Gavel, key = "license") }
-            )
-            NavigationRow(
-                title = stringResource(R.string.settings_source),
-                supporting = stringResource(R.string.settings_source_summary),
-                icon = Icons.Rounded.Code,
-                badgeKey = "source",
-                onClick = { onOpenUrl(SOURCE_URL) }
-            )
-            NavigationRow(
-                title = stringResource(R.string.settings_credits),
-                supporting = stringResource(R.string.settings_credits_summary),
-                icon = Icons.Rounded.Favorite,
-                badgeKey = "credits",
-                onClick = onCredits
-            )
+            NavigationRow(stringResource(R.string.about_title), Icons.Rounded.Info, "about", { onNavigate(SettingsDestination.About) }, supporting = stringResource(R.string.about_summary))
+            NavigationRow(stringResource(R.string.about_privacy), Icons.Rounded.PrivacyTip, "privacy", { onNavigate(SettingsDestination.Privacy) }, supporting = stringResource(R.string.about_privacy_summary))
+            NavigationRow(stringResource(R.string.about_licenses), Icons.Rounded.Favorite, "licenses", { onNavigate(SettingsDestination.Licenses) }, supporting = stringResource(R.string.about_licenses_summary))
         }
     }
+}
+
+private fun SettingsMessage.textRes(): Int = when (this) {
+    SettingsMessage.EXPORTED -> R.string.settings_exported
+    SettingsMessage.EXPORT_FAILED -> R.string.settings_export_failed
+    SettingsMessage.IMPORTED -> R.string.settings_imported
+    SettingsMessage.IMPORT_FAILED -> R.string.settings_import_failed
+    SettingsMessage.NOT_A_BACKUP -> R.string.settings_not_a_backup
+    SettingsMessage.WELCOME_RESET -> R.string.settings_welcome_reset
 }
 
 private fun ThemeMode.labelRes(): Int = when (this) {

@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,6 +35,7 @@ import dev.qtremors.osyster.core.ui.components.ConnectedRow
 import dev.qtremors.osyster.core.ui.components.HeroCard
 import dev.qtremors.osyster.core.ui.components.LoadingState
 import dev.qtremors.osyster.core.ui.components.OsysterScaffold
+import dev.qtremors.osyster.core.ui.catalog.help
 import dev.qtremors.osyster.core.ui.components.SectionHeader
 
 @Immutable
@@ -44,6 +46,7 @@ internal data class HomeActions(
     val onMove: (DevicePage, Boolean) -> Unit,
     val onHide: (DevicePage) -> Unit,
     val onShow: (DevicePage) -> Unit,
+    val onSearch: () -> Unit,
     val onShareReport: () -> Unit
 )
 
@@ -53,6 +56,9 @@ internal fun HomeScreen(state: HomeState, sharing: Boolean, actions: HomeActions
     OsysterScaffold(
         title = stringResource(R.string.home_title),
         actions = {
+            IconButton(onClick = actions.onSearch) {
+                Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.home_search))
+            }
             IconButton(onClick = actions.onShareReport, enabled = !sharing) {
                 if (sharing) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
@@ -117,6 +123,7 @@ private fun PinnedSection(layout: HomeLayout, actions: HomeActions) {
                     PinKey.Kind.PAGE -> DevicePage.fromId(key.id)?.let { page ->
                         PinnedRow(
                             label = page.label,
+                            help = page.help,
                             badgeKey = page.id,
                             onOpen = { actions.onOpenPage(page) },
                             onUnpin = { actions.onTogglePin(key) }
@@ -125,6 +132,7 @@ private fun PinnedSection(layout: HomeLayout, actions: HomeActions) {
                     PinKey.Kind.TOOL -> Tool.fromId(key.id)?.let { tool ->
                         PinnedRow(
                             label = tool.label,
+                            help = tool.help,
                             badgeKey = tool.id,
                             onOpen = { actions.onOpenTool(tool) },
                             onUnpin = { actions.onTogglePin(key) }

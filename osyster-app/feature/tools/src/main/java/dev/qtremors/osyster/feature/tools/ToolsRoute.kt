@@ -26,9 +26,12 @@ import dev.qtremors.osyster.core.navigation.ToolAccess
 import dev.qtremors.osyster.core.navigation.ToolGroup
 import dev.qtremors.osyster.core.navigation.ToolsRoute
 import dev.qtremors.osyster.core.ui.R as UiR
+import dev.qtremors.osyster.core.ui.catalog.help
 import dev.qtremors.osyster.core.ui.catalog.label
 import dev.qtremors.osyster.core.ui.catalog.title
 import dev.qtremors.osyster.core.ui.components.ConnectedGroup
+import dev.qtremors.osyster.core.ui.components.HelpIcon
+import dev.qtremors.osyster.core.ui.components.HelpSheet
 import dev.qtremors.osyster.core.ui.components.NavigationRow
 import dev.qtremors.osyster.core.ui.components.OsysterScaffold
 import dev.qtremors.osyster.core.ui.components.SectionHeader
@@ -70,10 +73,11 @@ internal fun ToolsScreen(pinned: Set<String>, onOpen: (Tool) -> Unit, onTogglePi
     }
 }
 
-/** Long-press a tool to pin it to Home. */
+/** Long-press a tool to pin it to Home or read what it does. */
 @Composable
 private fun ToolRow(tool: Tool, pinned: Boolean, onOpen: (Tool) -> Unit, onTogglePin: (Tool) -> Unit) {
     var menuOpen by remember { mutableStateOf(false) }
+    var helpOpen by remember { mutableStateOf(false) }
     val label = tool.label
     val summary = stringResource(label.summary)
     val access = accessLine(tool.access)
@@ -95,8 +99,17 @@ private fun ToolRow(tool: Tool, pinned: Boolean, onOpen: (Tool) -> Unit, onToggl
                     onTogglePin(tool)
                 }
             )
+            DropdownMenuItem(
+                text = { Text(stringResource(UiR.string.help_about_tool)) },
+                leadingIcon = { Icon(HelpIcon, contentDescription = null) },
+                onClick = {
+                    menuOpen = false
+                    helpOpen = true
+                }
+            )
         }
     }
+    if (helpOpen) HelpSheet(label = label, help = tool.help, badgeKey = tool.id, onDismiss = { helpOpen = false }, needs = access)
 }
 
 /** Power tools say what unlocks them, so nobody taps into a page they cannot use. */

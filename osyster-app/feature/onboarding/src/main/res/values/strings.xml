@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_title">Osyster</string>
+    <string name="welcome_message">Everything about your phone, and the tools to tune it, in one private app.</string>
+    <string name="welcome_skip">Skip</string>
+    <string name="welcome_next">Next</string>
+    <string name="welcome_done">Start</string>
+
+    <string name="welcome_privacy_title">Private by design</string>
+    <string name="welcome_offline">No internet access</string>
+    <string name="welcome_offline_detail">Osyster cannot send anything anywhere; it never asks for the internet permission.</string>
+    <string name="welcome_local">Stays on your phone</string>
+    <string name="welcome_local_detail">No accounts, ads, analytics, or crash reports.</string>
+    <string name="welcome_ids">No permanent identifiers</string>
+    <string name="welcome_ids_detail">Serial numbers, IMEI, phone numbers, and MAC addresses are never read.</string>
+
+    <string name="welcome_access_title">Optional access</string>
+    <string name="welcome_access_message">A few tools need extra access. Allow what you want now; each tool also asks when you open it.</string>
+    <string name="welcome_usage">Usage access</string>
+    <string name="welcome_usage_detail">Data usage and screen time</string>
+    <string name="welcome_notifications">Notifications</string>
+    <string name="welcome_notifications_detail">The Stay awake countdown and its Stop button</string>
+    <string name="welcome_notification_access">Notification access</string>
+    <string name="welcome_notification_access_detail">Music widgets and flashlight pulse</string>
+    <string name="welcome_granted">Allowed</string>
+    <string name="welcome_access_later">Location and phone access are asked only on the Network page, when you choose to see those details.</string>
+
+    <string name="whats_new_title">What\'s new in %1$s</string>
+    <string name="whats_new_ok">Got it</string>
+    <string-array name="whats_new_items">
+        <item>Search: Find any page, tool, setting, or device fact from Home.</item>
+        <item>Music widgets: Disc and capsule players are back, with art and controls.</item>
+        <item>Flashlight pulse: Blink for new notifications while the screen is off.</item>
+        <item>Backup: Export your settings to a file and restore them on another phone.</item>
+        <item>About and licenses: Version, source, privacy, and every open source license.</item>
+    </string-array>
+</resources>

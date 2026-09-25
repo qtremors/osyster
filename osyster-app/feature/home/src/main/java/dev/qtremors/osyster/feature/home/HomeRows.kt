@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.home
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
@@ -21,10 +22,14 @@ import androidx.compose.ui.res.stringResource
 import dev.qtremors.osyster.core.device.domain.DevicePage
 import dev.qtremors.osyster.core.device.domain.PinKey
 import dev.qtremors.osyster.core.ui.catalog.DestinationLabel
+import dev.qtremors.osyster.core.ui.R as UiR
+import dev.qtremors.osyster.core.ui.catalog.help
 import dev.qtremors.osyster.core.ui.catalog.label
+import dev.qtremors.osyster.core.ui.components.HelpIcon
+import dev.qtremors.osyster.core.ui.components.HelpSheet
 import dev.qtremors.osyster.core.ui.components.NavigationRow
 
-/** A device page row. Long-press opens pin, move, and hide actions. */
+/** A device page row. Long-press opens pin, move, hide, and About this page. */
 @Composable
 internal fun PageRow(
     page: DevicePage,
@@ -34,6 +39,7 @@ internal fun PageRow(
     actions: HomeActions
 ) {
     var menuOpen by remember { mutableStateOf(false) }
+    var helpOpen by remember { mutableStateOf(false) }
     val label = page.label
     Box {
         NavigationRow(
@@ -68,19 +74,26 @@ internal fun PageRow(
                 menuOpen = false
                 actions.onHide(page)
             }
+            MenuItem(stringResource(UiR.string.help_about_page), HelpIcon) {
+                menuOpen = false
+                helpOpen = true
+            }
         }
     }
+    if (helpOpen) HelpSheet(label = label, help = page.help, badgeKey = page.id, onDismiss = { helpOpen = false })
 }
 
-/** A pinned shortcut. Long-press offers Unpin. */
+/** A pinned shortcut. Long-press offers Unpin and About this page. */
 @Composable
 internal fun PinnedRow(
     label: DestinationLabel,
+    @StringRes help: Int,
     badgeKey: String,
     onOpen: () -> Unit,
     onUnpin: () -> Unit
 ) {
     var menuOpen by remember { mutableStateOf(false) }
+    var helpOpen by remember { mutableStateOf(false) }
     Box {
         NavigationRow(
             title = stringResource(label.title),
@@ -95,8 +108,13 @@ internal fun PinnedRow(
                 menuOpen = false
                 onUnpin()
             }
+            MenuItem(stringResource(UiR.string.help_about_page), HelpIcon) {
+                menuOpen = false
+                helpOpen = true
+            }
         }
     }
+    if (helpOpen) HelpSheet(label = label, help = help, badgeKey = badgeKey, onDismiss = { helpOpen = false })
 }
 
 @Composable

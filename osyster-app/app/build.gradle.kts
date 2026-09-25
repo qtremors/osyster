@@ -33,8 +33,8 @@ android {
         minSdk = 26
         targetSdk = 37
         // versionCode is versionName without dots.
-        versionCode = 25
-        versionName = "0.2.5"
+        versionCode = 26
+        versionName = "0.2.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -139,6 +139,7 @@ dependencies {
     implementation(project(":core:device:data"))
     implementation(project(":core:usage:data"))
     implementation(project(":core:system:data"))
+    implementation(project(":core:preferences:domain"))
     implementation(project(":core:ui"))
     implementation(project(":feature:home"))
     implementation(project(":feature:device"))
@@ -150,6 +151,9 @@ dependencies {
     implementation(project(":feature:activitylauncher"))
     implementation(project(":feature:linkactions"))
     implementation(project(":feature:quicktiles"))
+    implementation(project(":feature:musicwidgets"))
+    implementation(project(":feature:onboarding"))
+    implementation(project(":feature:search"))
     implementation(project(":feature:tools"))
     implementation(project(":feature:settings"))
 
@@ -163,6 +167,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

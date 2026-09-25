@@ -17,6 +17,7 @@ sealed interface HomeDestination {
     data class DevicePage(val pageId: String) : HomeDestination
     data class Tool(val toolId: String) : HomeDestination
     data class ShareReport(val text: String) : HomeDestination
+    data object Search : HomeDestination
 }
 
 fun NavGraphBuilder.registerHomeRoute(onNavigate: (HomeDestination) -> Unit) {
@@ -35,6 +36,7 @@ fun NavGraphBuilder.registerHomeRoute(onNavigate: (HomeDestination) -> Unit) {
                 onMove = viewModel::move,
                 onHide = viewModel::hide,
                 onShow = viewModel::show,
+                onSearch = { onNavigate(HomeDestination.Search) },
                 onShareReport = {
                     if (!sharing) {
                         sharing = true

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="window_background">#F3F6F7</color>
+    <!-- Launcher shortcut icons are drawn by the launcher, so they use fixed brand colors. -->
+    <color name="shortcut_background">#CDE7EC</color>
+    <color name="shortcut_foreground">#00687A</color>
 </resources>

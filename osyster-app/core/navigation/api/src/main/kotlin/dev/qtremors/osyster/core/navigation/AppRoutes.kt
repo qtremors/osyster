@@ -26,6 +26,20 @@ data object SettingsRoute : AppRoute
 @Serializable
 data class DevicePageRoute(val pageId: String) : AppRoute
 
+/** Settings sub-pages. */
+@Serializable
+data object AboutRoute : AppRoute
+
+@Serializable
+data object PrivacyRoute : AppRoute
+
+@Serializable
+data object LicensesRoute : AppRoute
+
+/** Search across pages, tools, settings, and device facts. */
+@Serializable
+data object SearchRoute : AppRoute
+
 /** Full-screen color and touch tests, opened from the Display page. */
 @Serializable
 data object ScreenTesterRoute : AppRoute

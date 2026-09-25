@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/Theme.Osyster.AppWidget">
+
+    <ImageView
+        android:id="@+id/widget_music_art_disc"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="4dp"
+        android:layout_centerInParent="true"
+        android:adjustViewBounds="false"
+        android:scaleType="fitCenter"
+        android:src="@drawable/widget_music_circle_background"
+        android:contentDescription="@string/widget_music_default_title" />
+
+    <ImageButton
+        android:id="@+id/widget_btn_repeat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/widget_music_art_disc"
+        android:layout_alignEnd="@+id/widget_music_art_disc"
+        android:layout_margin="4dp"
+        android:background="@drawable/widget_music_circle_background"
+        android:backgroundTint="@color/widget_music_button_bg"
+        android:padding="14dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_music_repeat"
+        android:contentDescription="@string/widget_music_repeat_desc" />
+
+    <ImageButton
+        android:id="@+id/widget_btn_play_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/widget_music_art_disc"
+        android:layout_alignBottom="@+id/widget_music_art_disc"
+        android:layout_margin="4dp"
+        android:background="@drawable/widget_music_button_background"
+        android:backgroundTint="@color/widget_music_button_bg"
+        android:padding="18dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_music_play"
+        android:contentDescription="@string/widget_music_play_desc" />
+
+</RelativeLayout>

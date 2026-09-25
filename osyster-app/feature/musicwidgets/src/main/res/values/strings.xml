@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_music_3x3_name">Music disc</string>
+    <string name="widget_music_3x3_desc">Round player with album art and playback controls</string>
+    <string name="widget_music_5x1_name">Music capsule</string>
+    <string name="widget_music_5x1_desc">One-row player with track details and controls</string>
+    <string name="widget_music_default_title">Nothing playing</string>
+    <string name="widget_music_default_artist">Start music in any app</string>
+    <string name="widget_music_access_needed_title">Notification access needed</string>
+    <string name="widget_music_access_needed_desc">Tap to allow it, so the widget can see what is playing</string>
+    <string name="widget_music_play_desc">Play</string>
+    <string name="widget_music_pause_desc">Pause</string>
+    <string name="widget_music_next_desc">Next track</string>
+    <string name="widget_music_prev_desc">Previous track</string>
+    <string name="widget_music_shuffle_desc">Shuffle</string>
+    <string name="widget_music_repeat_desc">Repeat</string>
+    <string name="widget_music_shuffle_off_desc">Turn on shuffle</string>
+    <string name="widget_music_shuffle_on_desc">Shuffle on; turn off</string>
+    <string name="widget_music_repeat_off_desc">Turn on repeat</string>
+    <string name="widget_music_repeat_all_desc">Repeat all on; switch to repeat one</string>
+    <string name="widget_music_repeat_one_desc">Repeat one on; turn repeat off</string>
+    <string name="notification_listener_label">Osyster music widgets and flashlight pulse</string>
+</resources>

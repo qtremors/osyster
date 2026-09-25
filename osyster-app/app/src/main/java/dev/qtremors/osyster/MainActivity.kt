@@ -16,6 +16,8 @@ import dev.qtremors.osyster.core.navigation.DeepLinks
 import dev.qtremors.osyster.core.ui.theme.OsysterTheme
 import dev.qtremors.osyster.core.ui.theme.ThemeOptions
 import dev.qtremors.osyster.core.ui.theme.ThemeSettings
+import dev.qtremors.osyster.feature.onboarding.OnboardingDestination
+import dev.qtremors.osyster.feature.onboarding.StartGate
 import dev.qtremors.osyster.shell.OsysterAppShell
 import dev.qtremors.osyster.shell.SystemActions
 import javax.inject.Inject
@@ -57,12 +59,22 @@ class MainActivity : ComponentActivity() {
             val options by loadedOptions.collectAsStateWithLifecycle()
             val openTool by pendingTool.collectAsStateWithLifecycle()
             OsysterTheme(options = options ?: ThemeOptions()) {
-                OsysterAppShell(
+                StartGate(
                     appVersion = BuildConfig.VERSION_NAME,
-                    system = systemActions,
-                    openTool = openTool,
-                    onToolOpened = { pendingTool.value = null }
-                )
+                    onNavigate = { target ->
+                        when (target) {
+                            OnboardingDestination.UsageAccess -> systemActions.openUsageAccess()
+                            OnboardingDestination.NotificationAccess -> systemActions.openNotificationAccess()
+                        }
+                    }
+                ) {
+                    OsysterAppShell(
+                        appVersion = BuildConfig.VERSION_NAME,
+                        system = systemActions,
+                        openTool = openTool,
+                        onToolOpened = { pendingTool.value = null }
+                    )
+                }
             }
         }
     }
@@ -87,7 +99,8 @@ class MainActivity : ComponentActivity() {
             launch(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:$pkg".toUri()))
         },
         openDeveloperOptions = { launch(Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)) },
-        openDefaultApps = { launch(Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)) }
+        openDefaultApps = { launch(Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)) },
+        openNotificationAccess = { launch(Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
     )
 
     override fun onNewIntent(intent: Intent) {
