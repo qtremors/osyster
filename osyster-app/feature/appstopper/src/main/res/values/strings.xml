@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="stopper_how_title">How stopping works</string>
-    <string name="stopper_how_message">Android lets regular apps stop other apps only from App info. Tap Stop, then Force stop. With Shizuku or root, power tools can stop apps in one tap.</string>
+    <string name="stopper_how_message">Android lets regular apps stop other apps only from App info. Tap Stop, then Force stop. With Shizuku or root set up in Power setup, Stop works in one tap.</string>
+    <string name="stopper_stop_all">Stop all</string>
     <string name="stopper_add">Add apps</string>
     <string name="stopper_empty_title">No apps yet</string>
     <string name="stopper_empty_message">Add the apps you often want to stop, so they are one tap away.</string>

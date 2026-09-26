@@ -28,10 +28,10 @@
     <string name="whats_new_title">What\'s new in %1$s</string>
     <string name="whats_new_ok">Got it</string>
     <string-array name="whats_new_items">
-        <item>Search: Find any page, tool, setting, or device fact from Home.</item>
-        <item>Music widgets: Disc and capsule players are back, with art and controls.</item>
-        <item>Flashlight pulse: Blink for new notifications while the screen is off.</item>
-        <item>Backup: Export your settings to a file and restore them on another phone.</item>
-        <item>About and licenses: Version, source, privacy, and every open source license.</item>
+        <item>Power tools: Power saving, scale and animations, status bar icons, and system tweaks.</item>
+        <item>Shizuku and root: Set up once in Power setup; Osyster can then grant itself settings access.</item>
+        <item>Shut-Up!: Open picky banking apps with debugging hidden, then restore it in one tap.</item>
+        <item>Freeze and standby: Disable unused apps and limit background apps.</item>
+        <item>New tiles: Private DNS, USB debugging, Developer options, blur, tap to wake, and Freeze.</item>
     </string-array>
 </resources>

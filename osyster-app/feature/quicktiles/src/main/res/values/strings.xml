@@ -20,4 +20,18 @@
     <string name="qt_flashlight_summary">Turns on at the brightness you last set</string>
     <string name="qt_ram_summary">RAM in use</string>
     <string name="qt_data_summary">Mobile and Wi-Fi data used today</string>
+    <string name="qt_private_dns">Private DNS</string>
+    <string name="qt_private_dns_summary">Off, automatic, or your saved provider. Needs settings access.</string>
+    <string name="qt_usb_debugging">USB debugging</string>
+    <string name="qt_usb_debugging_summary">Turn ADB on and off. Needs settings access.</string>
+    <string name="qt_developer_options">Developer options</string>
+    <string name="qt_developer_options_summary">Show or hide Developer options. Needs settings access.</string>
+    <string name="qt_blur">Window blur</string>
+    <string name="qt_blur_summary">Blurred panels on or off. Needs settings access.</string>
+    <string name="qt_tap_to_wake">Tap to wake</string>
+    <string name="qt_tap_to_wake_summary">Tap the screen to check your phone. Needs settings access.</string>
+    <string name="qt_freeze">Freeze</string>
+    <string name="qt_freeze_summary">Freeze or unfreeze your Freeze list. Needs Shizuku or root.</string>
+    <string name="qt_restart_systemui">Restart SystemUI</string>
+    <string name="qt_restart_systemui_summary">Fix a stuck status bar or panel. Needs root.</string>
 </resources>

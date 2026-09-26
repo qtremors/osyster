@@ -21,11 +21,9 @@ enum class Tool(val id: String, val group: ToolGroup, val access: ToolAccess = T
     POWER_SAVING("power_saving", ToolGroup.POWER, ToolAccess.SECURE_SETTINGS),
     DISPLAY_SCALE("display_scale", ToolGroup.POWER, ToolAccess.SECURE_SETTINGS),
     STATUS_BAR_ICONS("status_bar_icons", ToolGroup.POWER, ToolAccess.SECURE_SETTINGS),
-    NIGHT_LIGHT("night_light", ToolGroup.POWER, ToolAccess.SECURE_SETTINGS),
     SYSTEM_TWEAKS("system_tweaks", ToolGroup.POWER, ToolAccess.SECURE_SETTINGS),
     SHUT_UP("shut_up", ToolGroup.POWER, ToolAccess.SECURE_SETTINGS),
     STANDBY_APPS("standby_apps", ToolGroup.POWER, ToolAccess.SHIZUKU),
-    APP_VOLUME("app_volume", ToolGroup.POWER, ToolAccess.SHIZUKU),
     FREEZE("freeze", ToolGroup.POWER, ToolAccess.SHIZUKU);
 
     companion object {

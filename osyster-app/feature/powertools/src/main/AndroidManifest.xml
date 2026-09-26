@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Shut-Up! home screen shortcuts open this; it hides debugging, opens the app, and closes. -->
+        <activity
+            android:name=".QuietLaunchActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <!-- The Restore button on the Shut-Up! notification. -->
+        <receiver
+            android:name=".RestoreDebuggingReceiver"
+            android:exported="false" />
+
+        <!-- Quick Settings tiles. Each opens Power setup when its access is missing. -->
+        <service
+            android:name=".PrivateDnsTile"
+            android:exported="true"
+            android:icon="@drawable/ic_qt_dns"
+            android:label="@string/tile_private_dns"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".UsbDebuggingTile"
+            android:exported="true"
+            android:icon="@drawable/ic_qt_usb"
+            android:label="@string/tile_usb_debugging"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".DeveloperOptionsTile"
+            android:exported="true"
+            android:icon="@drawable/ic_qt_developer"
+            android:label="@string/tile_developer_options"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".BlurTile"
+            android:exported="true"
+            android:icon="@drawable/ic_qt_blur"
+            android:label="@string/tile_blur"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".TapToWakeTile"
+            android:exported="true"
+            android:icon="@drawable/ic_qt_tap"
+            android:label="@string/tile_tap_to_wake"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".RestartSystemUiTile"
+            android:exported="true"
+            android:icon="@drawable/ic_qt_restart"
+            android:label="@string/tile_restart_systemui"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".FreezeTile"
+            android:exported="true"
+            android:icon="@drawable/ic_qt_freeze"
+            android:label="@string/tile_freeze"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

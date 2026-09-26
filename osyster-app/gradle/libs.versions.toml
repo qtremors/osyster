@@ -24,6 +24,7 @@ material-kolor = "5.0.1"
 graphicsShapes = "1.1.0"
 media = "1.7.1"
 palette = "1.0.0"
+shizuku = "13.1.5"
 robolectric = "4.17"
 mockk = "1.14.11"
 turbine = "1.2.1"
@@ -31,6 +32,8 @@ archUnit = "1.5.1"
 kotlinxSerialization = "1.11.0"
 
 [libraries]
+shizuku-api = { group = "dev.rikka.shizuku", name = "api", version.ref = "shizuku" }
+shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref = "shizuku" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit4" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

@@ -28,6 +28,7 @@ import dev.qtremors.osyster.core.device.domain.DevicePage
 import dev.qtremors.osyster.core.navigation.AboutRoute
 import dev.qtremors.osyster.core.navigation.AppRoute
 import dev.qtremors.osyster.core.navigation.LicensesRoute
+import dev.qtremors.osyster.core.navigation.PowerToolRoute
 import dev.qtremors.osyster.core.navigation.PrivacyRoute
 import dev.qtremors.osyster.core.navigation.SearchRoute
 import dev.qtremors.osyster.core.navigation.DevicePageRoute
@@ -50,6 +51,8 @@ import dev.qtremors.osyster.feature.search.SearchDestination
 import dev.qtremors.osyster.feature.search.registerSearchRoute
 import dev.qtremors.osyster.feature.linkactions.LinkActionsDestination
 import dev.qtremors.osyster.feature.linkactions.registerLinkActionsRoute
+import dev.qtremors.osyster.feature.powertools.PowerToolsDestination
+import dev.qtremors.osyster.feature.powertools.registerPowerToolsRoute
 import dev.qtremors.osyster.feature.quicktiles.registerQuickTilesRoute
 import dev.qtremors.osyster.feature.stayawake.StayAwakeDestination
 import dev.qtremors.osyster.feature.stayawake.registerStayAwakeRoute
@@ -198,6 +201,12 @@ fun OsysterAppShell(
                 }
             }
             registerQuickTilesRoute()
+            registerPowerToolsRoute { target ->
+                when (target) {
+                    PowerToolsDestination.Setup -> navController.navigate(PowerToolRoute(Tool.POWER_SETUP.id))
+                    is PowerToolsDestination.OpenUrl -> system.openUrl(target.url)
+                }
+            }
             composable<ToolRoute> { entry ->
                 val tool = Tool.fromId(entry.toRoute<ToolRoute>().toolId)
                 PlaceholderPage(title = tool?.label?.title?.let { stringResource(it) }.orEmpty())

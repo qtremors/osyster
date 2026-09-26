@@ -41,10 +41,8 @@ val Tool.help: Int
         Tool.POWER_SAVING -> R.string.help_tool_power_saving
         Tool.DISPLAY_SCALE -> R.string.help_tool_display_scale
         Tool.STATUS_BAR_ICONS -> R.string.help_tool_status_bar_icons
-        Tool.NIGHT_LIGHT -> R.string.help_tool_night_light
         Tool.SYSTEM_TWEAKS -> R.string.help_tool_system_tweaks
         Tool.SHUT_UP -> R.string.help_tool_shut_up
         Tool.STANDBY_APPS -> R.string.help_tool_standby_apps
-        Tool.APP_VOLUME -> R.string.help_tool_app_volume
         Tool.FREEZE -> R.string.help_tool_freeze
     }

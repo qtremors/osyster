@@ -38,6 +38,7 @@ private val credits = listOf(
     Credit(R.string.credit_hilt, R.string.credit_hilt_detail, "licenses/apache-2.0.txt"),
     Credit(R.string.credit_icons, R.string.credit_icons_detail, "licenses/apache-2.0.txt"),
     Credit(R.string.credit_materialkolor, R.string.credit_materialkolor_detail, "licenses/mit-materialkolor.txt"),
+    Credit(R.string.credit_shizuku, R.string.credit_shizuku_detail, "licenses/mit-shizuku.txt"),
     Credit(R.string.credit_roboto_flex, R.string.credit_roboto_flex_detail, "licenses/ofl-roboto-flex.txt")
 )
 

@@ -101,6 +101,8 @@
     <string name="credit_icons_detail">Google. Apache License 2.0.</string>
     <string name="credit_materialkolor">MaterialKolor</string>
     <string name="credit_materialkolor_detail">Jordon de Hoog. MIT License.</string>
+    <string name="credit_shizuku">Shizuku API</string>
+    <string name="credit_shizuku_detail">RikkaW. MIT License. Lets power tools run commands through Shizuku.</string>
     <string name="credit_roboto_flex">Roboto Flex</string>
     <string name="credit_roboto_flex_detail">The Roboto Flex Project Authors. SIL Open Font License 1.1.</string>
 </resources>

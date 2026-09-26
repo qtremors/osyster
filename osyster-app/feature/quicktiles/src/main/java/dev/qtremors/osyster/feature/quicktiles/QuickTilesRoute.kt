@@ -2,6 +2,7 @@ package dev.qtremors.osyster.feature.quicktiles
 
 import android.app.StatusBarManager
 import android.content.ComponentName
+import dev.qtremors.osyster.core.ui.R as UiR
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.DrawableRes
@@ -45,7 +46,14 @@ private val tiles = listOf(
     TileEntry("dev.qtremors.osyster.feature.stayawake.StayAwakeChargingTile", R.string.qt_charging, R.string.qt_charging_summary, R.drawable.ic_qt_charging),
     TileEntry("dev.qtremors.osyster.feature.flashlight.FlashlightTile", R.string.qt_flashlight, R.string.qt_flashlight_summary, R.drawable.ic_qt_flashlight),
     TileEntry("dev.qtremors.osyster.feature.quicktiles.RamTile", R.string.tile_ram, R.string.qt_ram_summary, R.drawable.ic_qt_ram),
-    TileEntry("dev.qtremors.osyster.feature.quicktiles.DataTodayTile", R.string.tile_data_today, R.string.qt_data_summary, R.drawable.ic_qt_data)
+    TileEntry("dev.qtremors.osyster.feature.quicktiles.DataTodayTile", R.string.tile_data_today, R.string.qt_data_summary, R.drawable.ic_qt_data),
+    TileEntry("dev.qtremors.osyster.feature.powertools.PrivateDnsTile", R.string.qt_private_dns, R.string.qt_private_dns_summary, UiR.drawable.ic_qt_dns),
+    TileEntry("dev.qtremors.osyster.feature.powertools.UsbDebuggingTile", R.string.qt_usb_debugging, R.string.qt_usb_debugging_summary, UiR.drawable.ic_qt_usb),
+    TileEntry("dev.qtremors.osyster.feature.powertools.DeveloperOptionsTile", R.string.qt_developer_options, R.string.qt_developer_options_summary, UiR.drawable.ic_qt_developer),
+    TileEntry("dev.qtremors.osyster.feature.powertools.BlurTile", R.string.qt_blur, R.string.qt_blur_summary, UiR.drawable.ic_qt_blur),
+    TileEntry("dev.qtremors.osyster.feature.powertools.TapToWakeTile", R.string.qt_tap_to_wake, R.string.qt_tap_to_wake_summary, UiR.drawable.ic_qt_tap),
+    TileEntry("dev.qtremors.osyster.feature.powertools.FreezeTile", R.string.qt_freeze, R.string.qt_freeze_summary, UiR.drawable.ic_qt_freeze),
+    TileEntry("dev.qtremors.osyster.feature.powertools.RestartSystemUiTile", R.string.qt_restart_systemui, R.string.qt_restart_systemui_summary, UiR.drawable.ic_qt_restart)
 )
 
 fun NavGraphBuilder.registerQuickTilesRoute() {

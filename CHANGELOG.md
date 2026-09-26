@@ -1,8 +1,24 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.2.6
-> **Last Updated:** 2026-09-25
+> **Version:** 0.2.7
+> **Last Updated:** 2026-09-26
+
+---
+
+## [0.2.7] - 2026-09-26
+
+- **Power Setup**: Unlock power tools with a one-time ADB command, Shizuku, or root. With Shizuku or root, Osyster grants itself settings access once, so settings tools keep working when neither is running.
+- **Power Saving**: Battery saver on or off, the level that turns it on by itself, and which limits it applies. Reset puts back your phone's defaults.
+- **Scale and Animations**: All animation speeds at once, font sizes past the Settings slider, and display size in five steps (Shizuku or root).
+- **Status Bar Icons**: Hide icons you never look at and show the battery percentage. One tap shows them all again.
+- **System Tweaks**: Developer options, USB and wireless debugging, window blur, tap to wake, pop-up notifications, touch indicators, and Private DNS with your own provider.
+- **Shut-Up!**: Open banking apps that refuse to run with developer options on. Debugging turns off first, and Restore in the notification puts back exactly what you had. Pin any of them to your home screen.
+- **Standby Apps**: See and change each app's standby bucket (Shizuku or root).
+- **App Freezing**: Freeze apps you rarely use and unfreeze them in one tap or all at once (Shizuku or root).
+- **New Tiles**: Private DNS, USB debugging, Developer options, Window blur, Tap to wake, Freeze, and Restart SystemUI (root).
+- **App Stopper**: With Shizuku or root, Stop works in one tap and Stop all appears.
+- **Fewer, Honest Tools**: Per-app volume and Night light per app are gone. Both needed hidden system interfaces or background app watching, which Osyster does not use.
 
 ---
 

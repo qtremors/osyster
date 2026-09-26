@@ -33,8 +33,8 @@ android {
         minSdk = 26
         targetSdk = 37
         // versionCode is versionName without dots.
-        versionCode = 26
-        versionName = "0.2.6"
+        versionCode = 27
+        versionName = "0.2.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -140,6 +140,7 @@ dependencies {
     implementation(project(":core:usage:data"))
     implementation(project(":core:system:data"))
     implementation(project(":core:preferences:domain"))
+    implementation(project(":core:privilege:data"))
     implementation(project(":core:ui"))
     implementation(project(":feature:home"))
     implementation(project(":feature:device"))
@@ -154,6 +155,7 @@ dependencies {
     implementation(project(":feature:musicwidgets"))
     implementation(project(":feature:onboarding"))
     implementation(project(":feature:search"))
+    implementation(project(":feature:powertools"))
     implementation(project(":feature:tools"))
     implementation(project(":feature:settings"))
 

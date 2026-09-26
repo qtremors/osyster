@@ -21,7 +21,7 @@
 
     <string name="help_tool_data_usage">Mobile and Wi-Fi data per day, week, or month, with the apps that used the most. Numbers come from the system\'s own data counters, so they match Settings. Needs usage access.</string>
     <string name="help_tool_screen_usage">How long you used each app today and on past days, read from the system\'s usage history. Nothing is tracked by Osyster itself. Needs usage access.</string>
-    <string name="help_tool_app_stopper">Keep a list of apps you often stop. Tapping one opens its App info page, where Force stop is one tap away. With Shizuku or root, a later version stops them directly.</string>
+    <string name="help_tool_app_stopper">Keep a list of apps you often stop. Without Shizuku or root, Stop opens the app\'s App info page, where Force stop is one tap away. With either set up in Power setup, Stop works directly and Stop all appears.</string>
     <string name="help_tool_stay_awake">Keeps the screen on. Timer mode runs for a set time and shows a countdown notification with Stop. While charging mode uses the system\'s own developer option, which needs a one-time permission granted from a computer, Shizuku, or root.</string>
     <string name="help_tool_flashlight">Turn the torch on and set its brightness on phones that allow it. Flashlight pulse can blink the torch for new notifications while the screen is off; it needs notification access and never reads notification text.</string>
     <string name="help_tool_activity_launcher">Lists every app\'s exported screens so you can open hidden settings pages directly. Only screens apps allow others to open are shown.</string>
@@ -29,14 +29,12 @@
     <string name="help_tool_widget_stack">Stack several widgets in one spot and swipe between them. Coming in a later version.</string>
     <string name="help_tool_widgets">Osyster\'s home screen widgets: data usage, and music players that show the current song with controls. Music widgets need notification access to see what is playing.</string>
     <string name="help_tool_quick_tiles">Quick Settings tiles Osyster adds: Stay awake, Flashlight, RAM, and Data today. Add them by editing your Quick Settings panel.</string>
-    <string name="help_tool_power_setup">Connect Shizuku or root, or grant the secure settings permission once from a computer. Power tools stay locked until one of these is set up.</string>
-    <string name="help_tool_power_saving">Turn system power saving on or off and adjust what it limits, without digging through Settings.</string>
-    <string name="help_tool_display_scale">Change display size and font scale in finer steps than the system slider offers.</string>
-    <string name="help_tool_status_bar_icons">Hide status bar icons you never look at, such as alarm, VPN, or NFC. Undo anytime.</string>
-    <string name="help_tool_night_light">Turn the system night light on automatically for chosen apps, and off again when you leave them.</string>
-    <string name="help_tool_system_tweaks">Small system settings that have no switch in Settings, such as animation speeds, each one reversible.</string>
-    <string name="help_tool_shut_up">Mute media, ringer, or notifications on a schedule, then restore your levels afterwards.</string>
-    <string name="help_tool_standby_apps">See and change each app\'s standby bucket, which controls how often it may run in the background.</string>
-    <string name="help_tool_app_volume">Set a separate volume for each app. Needs Shizuku or root while in use.</string>
-    <string name="help_tool_freeze">Disable apps you do not use without uninstalling them, and bring them back in one tap.</string>
+    <string name="help_tool_power_setup">Choose how power tools get access: a one-time ADB command from a computer, Shizuku, or root. With Shizuku or root, Osyster can also grant the settings permission to itself so settings tools keep working when neither is running.</string>
+    <string name="help_tool_power_saving">Battery saver on or off, the level that turns it on by itself, and which limits it applies, such as dark theme, vibration, or background network. Reset puts back what your phone shipped with.</string>
+    <string name="help_tool_display_scale">Animation speed for all three animation scales at once, font sizes beyond the Settings slider, and display size in five steps. Display size needs Shizuku or root.</string>
+    <string name="help_tool_status_bar_icons">Hide status bar icons you never look at, such as alarm, VPN, or NFC, and show the battery percentage. Show all icons undoes everything. Some phones ignore a few of these.</string>
+    <string name="help_tool_system_tweaks">Switches that have no place in Settings or are buried in Developer options: debugging, window blur, tap to wake, pop-up notifications, touch indicators, and Private DNS with your own provider.</string>
+    <string name="help_tool_shut_up">Some banking and payment apps refuse to run while developer options or USB debugging are on. Open them from here, or from a home screen shortcut, and debugging turns off first. Restore puts back exactly what you had.</string>
+    <string name="help_tool_standby_apps">See each app\'s standby bucket and move it. Lower buckets run less in the background and save battery. Android may move apps again as you use them. Needs Shizuku or root.</string>
+    <string name="help_tool_freeze">Disable apps you rarely use without uninstalling them. Frozen apps cannot run or notify and their data stays. Unfreeze one tap at a time, all at once, or from the Freeze tile. Needs Shizuku or root.</string>
 </resources>

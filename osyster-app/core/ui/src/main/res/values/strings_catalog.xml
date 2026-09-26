@@ -65,16 +65,12 @@
     <string name="tool_display_scale_summary">Display size, font size, and animation speed</string>
     <string name="tool_status_bar_icons">Status bar icons</string>
     <string name="tool_status_bar_icons_summary">Hide or show individual icons</string>
-    <string name="tool_night_light">Night light per app</string>
-    <string name="tool_night_light_summary">Turn Night Light on or off for chosen apps</string>
     <string name="tool_system_tweaks">System tweaks</string>
     <string name="tool_system_tweaks_summary">Hidden settings in one place</string>
     <string name="tool_shut_up">Shut-Up!</string>
     <string name="tool_shut_up_summary">Hide developer options from picky apps</string>
     <string name="tool_standby_apps">Standby apps</string>
     <string name="tool_standby_apps_summary">Limit what apps do in the background</string>
-    <string name="tool_app_volume">Per-app volume</string>
-    <string name="tool_app_volume_summary">Set a separate volume for each app</string>
     <string name="tool_freeze">App freezing</string>
     <string name="tool_freeze_summary">Disable rarely used apps until you need them</string>
 

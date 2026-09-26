@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -42,6 +43,7 @@ import dev.qtremors.osyster.core.usage.domain.ManagedApp
 @Immutable
 internal data class AppStopperActions(
     val onStop: (String) -> Unit,
+    val onStopAll: () -> Unit,
     val onRemove: (String) -> Unit,
     val onOpenPicker: () -> Unit,
     val onPickerSystem: (Boolean) -> Unit,
@@ -49,7 +51,7 @@ internal data class AppStopperActions(
 )
 
 @Composable
-internal fun AppStopperScreen(apps: List<ManagedApp>?, picker: PickerState, actions: AppStopperActions) {
+internal fun AppStopperScreen(apps: List<ManagedApp>?, picker: PickerState, oneTap: Boolean, actions: AppStopperActions) {
     var showPicker by rememberSaveable { mutableStateOf(false) }
     OsysterScaffold(title = stringResource(Tool.APP_STOPPER.label.title)) { padding ->
         LazyColumn(contentPadding = padding) {
@@ -64,7 +66,14 @@ internal fun AppStopperScreen(apps: List<ManagedApp>?, picker: PickerState, acti
                     )
                 }
                 else -> {
-                    item(key = "header") { SectionHeader(stringResource(R.string.stopper_your_apps, apps.size)) }
+                    item(key = "header") {
+                        SectionHeader(
+                            text = stringResource(R.string.stopper_your_apps, apps.size),
+                            trailing = if (oneTap && apps.any { it.installed && !it.stopped }) {
+                                { TextButton(onClick = actions.onStopAll) { Text(stringResource(R.string.stopper_stop_all)) } }
+                            } else null
+                        )
+                    }
                     items(apps, key = { it.packageName }) { app -> ManagedRow(app, actions) }
                 }
             }

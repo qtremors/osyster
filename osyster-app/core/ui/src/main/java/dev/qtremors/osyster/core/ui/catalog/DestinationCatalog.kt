@@ -2,7 +2,6 @@ package dev.qtremors.osyster.core.ui.catalog
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.AcUnit
 import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Android
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.rounded.FlashlightOn
 import androidx.compose.material.icons.rounded.FormatSize
 import androidx.compose.material.icons.rounded.HourglassBottom
 import androidx.compose.material.icons.rounded.Link
-import androidx.compose.material.icons.rounded.NightsStay
 import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material.icons.rounded.RocketLaunch
@@ -94,11 +92,9 @@ val Tool.label: DestinationLabel
         Tool.POWER_SAVING -> DestinationLabel(R.string.tool_power_saving, R.string.tool_power_saving_summary, Icons.Rounded.EnergySavingsLeaf)
         Tool.DISPLAY_SCALE -> DestinationLabel(R.string.tool_display_scale, R.string.tool_display_scale_summary, Icons.Rounded.FormatSize)
         Tool.STATUS_BAR_ICONS -> DestinationLabel(R.string.tool_status_bar_icons, R.string.tool_status_bar_icons_summary, Icons.Rounded.VisibilityOff)
-        Tool.NIGHT_LIGHT -> DestinationLabel(R.string.tool_night_light, R.string.tool_night_light_summary, Icons.Rounded.NightsStay)
         Tool.SYSTEM_TWEAKS -> DestinationLabel(R.string.tool_system_tweaks, R.string.tool_system_tweaks_summary, Icons.Rounded.Tune)
         Tool.SHUT_UP -> DestinationLabel(R.string.tool_shut_up, R.string.tool_shut_up_summary, Icons.Rounded.DoNotDisturbOn)
         Tool.STANDBY_APPS -> DestinationLabel(R.string.tool_standby_apps, R.string.tool_standby_apps_summary, Icons.Rounded.Bedtime)
-        Tool.APP_VOLUME -> DestinationLabel(R.string.tool_app_volume, R.string.tool_app_volume_summary, Icons.AutoMirrored.Rounded.VolumeUp)
         Tool.FREEZE -> DestinationLabel(R.string.tool_freeze, R.string.tool_freeze_summary, Icons.Rounded.AcUnit)
     }
 
