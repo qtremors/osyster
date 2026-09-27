@@ -1,105 +1,155 @@
-// Tailwind Configuration for Osyster Slate Tech Design System
-tailwind.config = {
-    theme: {
-        extend: {
-            fontFamily: {
-                sans: ['Inter', 'Roboto', 'sans-serif'],
-                display: ['Space Grotesk', 'Outfit', 'sans-serif'],
-                mono: ['JetBrains Mono', 'monospace'],
-            },
-            colors: {
-                slate: {
-                    950: '#080C0E',
-                    900: '#0C1115', // BackgroundDark
-                    850: '#141C22', // SurfaceDark
-                    800: '#1C2730', // SurfaceContainerHighDark
-                    700: '#283642',
-                    600: '#3D4E5E',
-                },
-                brand: {
-                    cyan: '#00E6FF',
-                    cyanDark: '#00363D',
-                    cyanContainer: '#004E58',
-                    cyanLight: '#B2F5FF',
-                    amber: '#FFB300',
-                    amberDark: '#452B00',
-                    amberContainer: '#623F00',
-                    coral: '#FF5252',
-                    coralDark: '#5F0006',
-                    text: '#E1E2E5',
-                    muted: '#8B9198',
-                }
-            },
-            animation: {
-                'float': 'float 6s ease-in-out infinite',
-                'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            },
-            keyframes: {
-                float: {
-                    '0%, 100%': { transform: 'translateY(0)' },
-                    '50%': { transform: 'translateY(-10px)' },
-                }
-            },
-            transitionTimingFunction: {
-                'spring': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-            }
-        }
-    }
-};
+// Osyster website behavior. Loaded with `defer`, so the page is parsed before this runs.
 
-// Navbar surface elevation on scroll
+const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+// Navbar tonal elevation once the page leaves the top. A sentinel observer replaces a scroll
+// listener, so nothing runs while scrolling.
 const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 20) {
-        navbar.classList.remove('bg-slate-900');
-        navbar.classList.add('bg-slate-850/90', 'backdrop-blur-md', 'shadow-2xl', 'border-b', 'border-slate-800');
-    } else {
-        navbar.classList.add('bg-slate-900');
-        navbar.classList.remove('bg-slate-850/90', 'backdrop-blur-md', 'shadow-2xl', 'border-b', 'border-slate-800');
-    }
-});
+if (navbar) {
+    const navSentinel = document.createElement('div');
+    navSentinel.setAttribute('aria-hidden', 'true');
+    navSentinel.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:20px;pointer-events:none';
+    document.body.prepend(navSentinel);
+    new IntersectionObserver(([entry]) => {
+        navbar.classList.toggle('is-scrolled', !entry.isIntersecting);
+    }).observe(navSentinel);
+}
 
-// FAQ Accordion Toggle
-function toggleFaq(element) {
-    const selected = element.querySelector('.faq-content');
-    const shouldOpen = !selected.classList.contains('open');
-    document.querySelectorAll('.faq-content').forEach(content => {
-        const open = content === selected && shouldOpen;
-        content.classList.toggle('open', open);
-        content.setAttribute('aria-hidden', String(!open));
-        content.inert = !open;
-        const card = content.parentElement;
-        card.querySelector('button').setAttribute('aria-expanded', String(open));
-        card.querySelector('.faq-icon').classList.toggle('rotate', open);
+// Scroll reveal: each block fades up once, the first time it enters the screen
+const revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// Hero screenshot showcase. Tapping the phone shows the next screen. The first visit stays still;
+// once the visitor scrolls away and comes back, the screens change on their own while the hero is
+// on screen. Hovering pauses that, as does keyboard focus, a background tab, or reduced motion.
+function setupShowcase() {
+    const phone = document.getElementById('showcase-phone');
+    const image = document.getElementById('showcase-image');
+    const screens = [...document.querySelectorAll('#showcase-screens li')].map(item => ({
+        src: item.dataset.src,
+        alt: item.textContent.trim()
+    }));
+    if (!phone || !image || screens.length < 2) return;
+
+    const interval = 3500;
+    const decoded = new Map([[screens[0].src, Promise.resolve()]]);
+    const preload = index => {
+        const { src } = screens[index];
+        if (!decoded.has(src)) {
+            const img = new Image();
+            img.src = src;
+            decoded.set(src, img.decode().catch(() => {}));
+        }
+        return decoded.get(src);
+    };
+
+    let current = 0;
+    let request = 0;
+
+    async function showNext() {
+        const next = (current + 1) % screens.length;
+        current = next;
+        const token = ++request;
+        phone.classList.add('is-switching');
+        await Promise.all([preload(next), new Promise(resolve => setTimeout(resolve, reduceMotionQuery.matches ? 0 : 150))]);
+        if (token !== request) return; // a newer tap took over
+        image.src = screens[next].src;
+        image.alt = screens[next].alt;
+        phone.classList.remove('is-switching');
+        preload((next + 1) % screens.length);
+    }
+
+    let timer = 0;
+    let inView = false;
+    let returned = false; // true once the hero has been left and entered again
+    let hovered = false;
+    let focused = false;
+
+    const schedule = () => {
+        clearTimeout(timer);
+        timer = 0;
+        if (returned && inView && !hovered && !focused && !document.hidden && !reduceMotionQuery.matches) {
+            timer = setTimeout(() => showNext().then(schedule), interval);
+        }
+    };
+
+    phone.addEventListener('click', () => {
+        showNext();
+        schedule(); // a tap restarts the countdown
+    });
+
+    new IntersectionObserver(([entry]) => {
+        if (inView && !entry.isIntersecting) returned = true;
+        inView = entry.isIntersecting;
+        if (inView && returned) preload((current + 1) % screens.length);
+        schedule();
+    }, { threshold: 0.5 }).observe(phone);
+
+    phone.addEventListener('pointerenter', event => {
+        if (event.pointerType !== 'mouse') return;
+        hovered = true;
+        schedule();
+    });
+    phone.addEventListener('pointerleave', () => {
+        hovered = false;
+        schedule();
+    });
+    // Keyboard focus pauses; the focus a tap leaves behind does not
+    phone.addEventListener('focus', () => {
+        focused = phone.matches(':focus-visible');
+        schedule();
+    });
+    phone.addEventListener('blur', () => {
+        focused = false;
+        schedule();
+    });
+    document.addEventListener('visibilitychange', schedule);
+    reduceMotionQuery.addEventListener('change', schedule);
+
+    // Fetch the second screen once the page is idle, so the first tap is instant
+    const warmUp = () => preload(1);
+    if ('requestIdleCallback' in window) requestIdleCallback(warmUp);
+    else setTimeout(warmUp, 1500);
+}
+setupShowcase();
+
+// Mobile menu
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const mobileMenu = document.getElementById('mobile-menu');
+if (mobileMenuBtn && mobileMenu) {
+    const menuIcon = document.getElementById('mobile-menu-icon');
+
+    const setMenuOpen = open => {
+        mobileMenu.classList.toggle('is-open', open);
+        mobileMenuBtn.setAttribute('aria-expanded', String(open));
+        mobileMenuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+        menuIcon?.setAttribute('href', open ? '#i-x' : '#i-menu');
+        document.body.style.overflow = open ? 'hidden' : '';
+    };
+
+    mobileMenuBtn.addEventListener('click', () => setMenuOpen(!mobileMenu.classList.contains('is-open')));
+    document.querySelectorAll('.mobile-link').forEach(link => {
+        link.addEventListener('click', () => setMenuOpen(false));
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && mobileMenu.classList.contains('is-open')) setMenuOpen(false);
     });
 }
 
-// Scroll Reveal Observer
-document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons();
-
-    const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('opacity-100', 'translate-y-0');
-                entry.target.classList.remove('opacity-0', 'translate-y-8');
-                obs.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-});
-
-// Counter Animation
+// Live GitHub stats and release downloads
 const numberFormatter = new Intl.NumberFormat();
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 function animateCounter(element, target) {
     if (!element || !Number.isFinite(target)) return;
 
     const endValue = Math.max(0, Math.trunc(target));
-    if (reduceMotion.matches || endValue === 0) {
+    if (reduceMotionQuery.matches || endValue === 0) {
         element.innerText = numberFormatter.format(endValue);
         return;
     }
@@ -107,25 +157,25 @@ function animateCounter(element, target) {
     const duration = 800;
     const startTime = performance.now();
 
-    function update(currentTime) {
+    function updateCounter(currentTime) {
         const progress = Math.min((currentTime - startTime) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        element.innerText = numberFormatter.format(Math.round(endValue * eased));
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        element.innerText = numberFormatter.format(Math.round(endValue * easedProgress));
 
         if (progress < 1) {
-            requestAnimationFrame(update);
+            requestAnimationFrame(updateCounter);
         }
     }
 
-    requestAnimationFrame(update);
+    requestAnimationFrame(updateCounter);
 }
 
 function sumReleaseDownloads(releases) {
-    return releases.reduce((total, rel) => {
-        const assetSum = Array.isArray(rel.assets)
-            ? rel.assets.reduce((sum, a) => sum + (a.download_count || 0), 0)
+    return releases.reduce((releaseTotal, release) => {
+        const assetTotal = Array.isArray(release.assets)
+            ? release.assets.reduce((total, asset) => total + (asset.download_count || 0), 0)
             : 0;
-        return total + assetSum;
+        return releaseTotal + assetTotal;
     }, 0);
 }
 
@@ -135,20 +185,20 @@ async function fetchTotalReleaseDownloads() {
 
     while (nextUrl) {
         const response = await fetch(nextUrl);
-        if (!response.ok) throw new Error(`GitHub releases error: ${response.status}`);
+        if (!response.ok) throw new Error(`GitHub releases request failed: ${response.status}`);
 
         const releases = await response.json();
         totalDownloads += sumReleaseDownloads(releases);
 
-        const linkHeader = response.headers.get('link');
-        const nextMatch = linkHeader?.split(',').find(l => l.includes('rel="next"'));
-        nextUrl = nextMatch?.match(/<([^>]+)>/)?.[1] || '';
+        const nextLink = response.headers.get('link')
+            ?.split(',')
+            .find(link => link.includes('rel="next"'));
+        nextUrl = nextLink?.match(/<([^>]+)>/)?.[1] || '';
     }
 
     return totalDownloads;
 }
 
-// Fetch GitHub Stats
 async function fetchGitHubStats() {
     const [repoResult, releaseResult, totalDownloadsResult] = await Promise.allSettled([
         fetch('https://api.github.com/repos/qtremors/osyster'),
@@ -165,8 +215,8 @@ async function fetchGitHubStats() {
                 animateCounter(document.getElementById('gh-forks'), data.forks_count);
             }
         }
-    } catch (e) {
-        console.error('Error fetching repo stats:', e);
+    } catch (error) {
+        console.error('Error fetching GitHub repository stats:', error);
     }
 
     try {
@@ -178,49 +228,17 @@ async function fetchGitHubStats() {
                     el.innerText = `Download ${release.tag_name}`;
                 });
             }
-            const latestDownloads = sumReleaseDownloads([release]);
-            animateCounter(document.getElementById('gh-latest-downloads'), latestDownloads);
+            animateCounter(document.getElementById('gh-latest-downloads'), sumReleaseDownloads([release]));
         }
-    } catch (e) {
-        console.error('Error fetching latest release:', e);
+    } catch (error) {
+        console.error('Error fetching the latest GitHub release:', error);
     }
 
     if (totalDownloadsResult.status === 'fulfilled') {
         animateCounter(document.getElementById('gh-total-downloads'), totalDownloadsResult.value);
+    } else {
+        console.error('Error fetching total GitHub downloads:', totalDownloadsResult.reason);
     }
 }
 
 fetchGitHubStats();
-
-// Mobile Menu Toggle
-const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-const mobileMenu = document.getElementById('mobile-menu');
-let isMobileMenuOpen = false;
-
-if (mobileMenuBtn && mobileMenu) {
-    const mobileMenuIcon = document.getElementById('mobile-menu-icon');
-
-    function toggleMobileMenu() {
-        isMobileMenuOpen = !isMobileMenuOpen;
-        if (isMobileMenuOpen) {
-            mobileMenu.classList.remove('translate-x-full');
-            mobileMenu.classList.add('translate-x-0');
-            if (mobileMenuIcon) mobileMenuIcon.setAttribute('data-lucide', 'x');
-            document.body.style.overflow = 'hidden';
-        } else {
-            mobileMenu.classList.add('translate-x-full');
-            mobileMenu.classList.remove('translate-x-0');
-            if (mobileMenuIcon) mobileMenuIcon.setAttribute('data-lucide', 'menu');
-            document.body.style.overflow = '';
-        }
-        lucide.createIcons();
-    }
-
-    mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-
-    document.querySelectorAll('.mobile-link').forEach(link => {
-        link.addEventListener('click', () => {
-            if (isMobileMenuOpen) toggleMobileMenu();
-        });
-    });
-}

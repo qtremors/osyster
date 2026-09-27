@@ -1,8 +1,18 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.2.7
-> **Last Updated:** 2026-09-26
+> **Version:** 0.2.8
+> **Last Updated:** 2026-09-27
+
+---
+
+## [0.2.8] - 2026-09-27
+
+- **Website**: Rebuilt as plain HTML, CSS, and JavaScript with no outside requests except GitHub stats, covering device pages, tools, power tools, design, credits, and an FAQ.
+- **README**: Rewritten for the new app, with every feature, the power tools, and the privacy promise.
+- **Privacy Policy**: Lists every permission and special access, what each is used for, and what Osyster stores.
+- **Developer Guide**: Modules, startup, the power tools layer, the design system, rules, tests, and release steps.
+- **Tasks**: A backlog for the next versions, including what the old app had that the new design brings back.
 
 ---
 
