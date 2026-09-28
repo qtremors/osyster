@@ -56,6 +56,25 @@ data class HomeLayout(
     )
 
     fun show(page: DevicePage): HomeLayout = copy(hiddenPages = hiddenPages - page)
+
+    /**
+     * Puts [ordered] (the pages of one group, in their new order) back into the full order, each
+     * taking the slot a page of that group held before. Other groups do not move.
+     */
+    fun reorderGroup(ordered: List<DevicePage>): HomeLayout {
+        val group = ordered.firstOrNull()?.group ?: return this
+        val slots = pageOrder.withIndex().filter { it.value.group == group }.map { it.index }
+        if (slots.size != ordered.size || ordered.toSet() != slots.map(pageOrder::get).toSet()) return this
+        val order = pageOrder.toMutableList()
+        slots.zip(ordered).forEach { (slot, page) -> order[slot] = page }
+        return copy(pageOrder = order)
+    }
+
+    /** Replaces the pinned order, ignoring anything that is not already pinned. */
+    fun reorderPinned(ordered: List<PinKey>): HomeLayout {
+        if (ordered.toSet() != pinned.toSet()) return this
+        return copy(pinned = ordered)
+    }
 }
 
 /** Read and change the Home arrangement. Persisted; survives updates that add new pages. */

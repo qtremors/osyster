@@ -1,5 +1,9 @@
 package dev.qtremors.osyster.preferences
 
+import dev.qtremors.osyster.core.device.domain.ReadingPreferences
+import dev.qtremors.osyster.core.device.domain.RefreshSpeed
+import dev.qtremors.osyster.core.device.domain.TemperatureUnit
+import dev.qtremors.osyster.core.privilege.domain.PowerToolsStore
 import android.content.Context
 import android.net.Uri
 import androidx.compose.ui.graphics.Color
@@ -28,11 +32,15 @@ import kotlinx.serialization.json.Json
 @Serializable
 internal data class SettingsFile(
     val format: String = FORMAT,
-    val version: Int = 1,
+    /** 2 added readings and the power tool lists; version 1 files still import, with defaults. */
+    val version: Int = 2,
     val theme: ThemeEntry,
     val home: HomeEntry,
     val appStopper: List<String>,
-    val flashlightPulse: Boolean
+    val flashlightPulse: Boolean,
+    val readings: ReadingsEntry = ReadingsEntry(),
+    val quietApps: List<String> = emptyList(),
+    val freezeList: List<String> = emptyList()
 ) {
     companion object {
         const val FORMAT = "osyster-settings"
@@ -47,8 +55,12 @@ internal data class ThemeEntry(
     val preset: String,
     val customAccent: Int,
     val haptics: Boolean,
-    val reduceMotion: Boolean
+    val reduceMotion: Boolean,
+    val blockScreenshots: Boolean = false
 )
+
+@Serializable
+internal data class ReadingsEntry(val temperatureUnit: String = "CELSIUS", val refresh: String = "NORMAL")
 
 @Serializable
 internal data class HomeEntry(val order: List<String>, val hidden: List<String>, val pinned: List<String>)
@@ -64,7 +76,9 @@ class AppSettingsBackup @Inject constructor(
     private val theme: ThemeSettings,
     private val home: HomeLayoutRepository,
     private val stopper: AppStopperRepository,
-    private val pulse: FlashlightPulse
+    private val pulse: FlashlightPulse,
+    private val reading: ReadingPreferences,
+    private val powerStore: PowerToolsStore
 ) : SettingsBackup {
     private val json = Json { prettyPrint = true; ignoreUnknownKeys = true; encodeDefaults = true }
 
@@ -99,7 +113,8 @@ class AppSettingsBackup @Inject constructor(
                 preset = options.preset.name,
                 customAccent = options.customAccent.toArgb(),
                 haptics = options.hapticsEnabled,
-                reduceMotion = options.reduceMotion
+                reduceMotion = options.reduceMotion,
+                blockScreenshots = options.blockScreenshots
             ),
             home = HomeEntry(
                 order = layout.pageOrder.map(DevicePage::id),
@@ -107,7 +122,10 @@ class AppSettingsBackup @Inject constructor(
                 pinned = layout.pinned.map(PinKey::raw)
             ),
             appStopper = stopper.apps.first().map { it.packageName },
-            flashlightPulse = pulse.enabled.value
+            flashlightPulse = pulse.enabled.value,
+            readings = reading.prefs.value.let { ReadingsEntry(it.temperatureUnit.name, it.refresh.name) },
+            quietApps = powerStore.quietApps.value.sorted(),
+            freezeList = powerStore.freezeList.value.sorted()
         )
     }
 
@@ -122,7 +140,8 @@ class AppSettingsBackup @Inject constructor(
                 preset = enumOr(t.preset, defaults.preset),
                 customAccent = Color(t.customAccent),
                 hapticsEnabled = t.haptics,
-                reduceMotion = t.reduceMotion
+                reduceMotion = t.reduceMotion,
+                blockScreenshots = t.blockScreenshots
             )
         }
         home.update {
@@ -134,6 +153,11 @@ class AppSettingsBackup @Inject constructor(
         }
         stopper.add(file.appStopper)
         pulse.setEnabled(file.flashlightPulse)
+        reading.setTemperatureUnit(enumOr(file.readings.temperatureUnit, TemperatureUnit.CELSIUS))
+        reading.setRefresh(enumOr(file.readings.refresh, RefreshSpeed.NORMAL))
+        // Lists merge with what is already there, like the app stopper list.
+        powerStore.setQuietApps(powerStore.quietApps.value + file.quietApps)
+        powerStore.setFreezeList(powerStore.freezeList.value + file.freezeList)
     }
 
     private inline fun <reified E : Enum<E>> enumOr(name: String, default: E): E =

@@ -29,6 +29,9 @@ fun NavGraphBuilder.registerDataUsageRoute(onNavigate: (DataUsageDestination) ->
             live = live,
             actions = DataUsageActions(
                 onPeriod = viewModel::setPeriod,
+                onPrevious = viewModel::previous,
+                onNext = viewModel::next,
+                onQuery = viewModel::setQuery,
                 onFilter = viewModel::setFilter,
                 onToggleShowAll = viewModel::toggleShowAll,
                 onGrantAccess = { onNavigate(DataUsageDestination.UsageAccessSettings) },

@@ -1,5 +1,14 @@
 package dev.qtremors.osyster.shell
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraphBuilder
+import dev.qtremors.osyster.core.navigation.EmptyDetailRoute
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -54,6 +63,7 @@ import dev.qtremors.osyster.feature.linkactions.registerLinkActionsRoute
 import dev.qtremors.osyster.feature.powertools.PowerToolsDestination
 import dev.qtremors.osyster.feature.powertools.registerPowerToolsRoute
 import dev.qtremors.osyster.feature.quicktiles.registerQuickTilesRoute
+import dev.qtremors.osyster.feature.quicktiles.registerWidgetsRoute
 import dev.qtremors.osyster.feature.stayawake.StayAwakeDestination
 import dev.qtremors.osyster.feature.stayawake.registerStayAwakeRoute
 import dev.qtremors.osyster.feature.appstopper.AppStopperDestination
@@ -86,7 +96,9 @@ data class SystemActions(
     val openAppInfo: (packageName: String) -> Unit,
     val openDeveloperOptions: () -> Unit,
     val openDefaultApps: () -> Unit,
-    val openNotificationAccess: () -> Unit
+    val openNotificationAccess: () -> Unit,
+    val launchApp: (packageName: String) -> Unit,
+    val openStoreListing: (packageName: String) -> Unit
 )
 
 @Composable
@@ -113,105 +125,39 @@ fun OsysterAppShell(
         TabItem(Icons.Rounded.Settings, stringResource(R.string.tab_settings))
     )
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        NavHost(
-            navController = navController,
-            startDestination = HomeRoute,
-            modifier = Modifier.fillMaxSize(),
-            enterTransition = { shellEnter(reduceMotion) },
-            exitTransition = { shellExit(reduceMotion) },
-            popEnterTransition = { shellPopEnter(reduceMotion) },
-            popExitTransition = { shellPopExit(reduceMotion) },
-            // Navigation 2.10 plays these, not the pop transitions, while the back gesture is in
-            // progress. Left at their defaults, the page shrinks into a sharp-cornered card and then
-            // switches animation on release. Using the same motion keeps the gesture continuous.
-            predictivePopEnterTransition = { shellPopEnter(reduceMotion) },
-            predictivePopExitTransition = { shellPopExit(reduceMotion) }
-        ) {
-            registerHomeRoute { target ->
-                when (target) {
-                    is HomeDestination.DevicePage -> navController.navigate(DevicePageRoute(target.pageId))
-                    is HomeDestination.Tool -> navController.navigate(toolRoute(target.toolId))
-                    is HomeDestination.ShareReport -> system.shareText(target.text)
-                    HomeDestination.Search -> navController.navigate(SearchRoute)
-                }
+    val wide = LocalConfiguration.current.screenWidthDp >= WIDE_SCREEN_DP
+    val listController = rememberNavController()
+    val listEntry by listController.currentBackStackEntryAsState()
+    val selectTab: (AppRoute) -> Unit = { route -> (if (wide) listController else navController).navigateToTab(route) }
+    val graph: NavGraphBuilder.() -> Unit = { osysterGraph(navController, appVersion, system, selectTab) }
+
+    if (wide) {
+        // Tablets and unfolded foldables: tabs stay on the left, pages open on the right.
+        Row(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.width(LIST_PANE_WIDTH).fillMaxHeight()) {
+                ShellNavHost(listController, HomeRoute, reduceMotion, graph)
+                FloatingTabBar(
+                    tabs = tabs,
+                    selectedIndex = listEntry?.destination.selectedTabIndex(),
+                    onSelect = { index -> listController.navigateToTab(TopLevelTab.entries[index].route) },
+                    backTitle = null,
+                    onBack = null,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
             }
-            registerDevicePageRoute { target ->
-                when (target) {
-                    DeviceDestination.SystemBatteryUsage -> system.openBatteryUsage()
-                    DeviceDestination.ScreenTester -> navController.navigate(ScreenTesterRoute)
-                    DeviceDestination.AppPermissionSettings -> system.openAppSettings()
+            VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                ShellNavHost(navController, EmptyDetailRoute, reduceMotion) {
+                    graph()
+                    composable<EmptyDetailRoute> { EmptyDetailPane() }
                 }
-            }
-            registerToolsRoute { target ->
-                when (target) {
-                    is ToolsDestination.OpenTool -> navController.navigate(toolRoute(target.toolId))
-                }
-            }
-            registerSettingsRoute(appVersion = appVersion) { target ->
-                when (target) {
-                    is SettingsDestination.OpenUrl -> system.openUrl(target.url)
-                    SettingsDestination.About -> navController.navigate(AboutRoute)
-                    SettingsDestination.Privacy -> navController.navigate(PrivacyRoute)
-                    SettingsDestination.Licenses -> navController.navigate(LicensesRoute)
-                }
-            }
-            registerSearchRoute { target ->
-                when (target) {
-                    is SearchDestination.DevicePage -> navController.navigate(DevicePageRoute(target.pageId))
-                    is SearchDestination.Tool -> navController.navigate(toolRoute(target.toolId))
-                    SearchDestination.Settings -> navController.navigateToTab(SettingsRoute)
-                    SearchDestination.About -> navController.navigate(AboutRoute)
-                    SearchDestination.Privacy -> navController.navigate(PrivacyRoute)
-                    SearchDestination.Licenses -> navController.navigate(LicensesRoute)
-                }
-            }
-            registerDataUsageRoute { target ->
-                when (target) {
-                    DataUsageDestination.UsageAccessSettings -> system.openUsageAccess()
-                    is DataUsageDestination.AppInfo -> system.openAppInfo(target.packageName)
-                }
-            }
-            registerScreenUsageRoute { target ->
-                when (target) {
-                    ScreenUsageDestination.UsageAccessSettings -> system.openUsageAccess()
-                    is ScreenUsageDestination.AppInfo -> system.openAppInfo(target.packageName)
-                }
-            }
-            registerAppStopperRoute { target ->
-                when (target) {
-                    is AppStopperDestination.AppInfo -> system.openAppInfo(target.packageName)
-                }
-            }
-            registerStayAwakeRoute { target ->
-                when (target) {
-                    StayAwakeDestination.DeveloperOptions -> system.openDeveloperOptions()
-                }
-            }
-            registerFlashlightRoute { target ->
-                when (target) {
-                    FlashlightDestination.NotificationAccess -> system.openNotificationAccess()
-                }
-            }
-            registerActivityLauncherRoute()
-            registerLinkActionsRoute { target ->
-                when (target) {
-                    LinkActionsDestination.DefaultApps -> system.openDefaultApps()
-                    is LinkActionsDestination.Share -> system.shareText(target.text)
-                }
-            }
-            registerQuickTilesRoute()
-            registerPowerToolsRoute { target ->
-                when (target) {
-                    PowerToolsDestination.Setup -> navController.navigate(PowerToolRoute(Tool.POWER_SETUP.id))
-                    is PowerToolsDestination.OpenUrl -> system.openUrl(target.url)
-                }
-            }
-            composable<ToolRoute> { entry ->
-                val tool = Tool.fromId(entry.toRoute<ToolRoute>().toolId)
-                PlaceholderPage(title = tool?.label?.title?.let { stringResource(it) }.orEmpty())
             }
         }
+        return
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        ShellNavHost(navController, HomeRoute, reduceMotion, graph)
 
         // Full-screen tests need every pixel; Back still works through the system gesture.
         if (destination?.hasRoute<ScreenTesterRoute>() != true) {
@@ -226,6 +172,140 @@ fun OsysterAppShell(
         }
     }
 }
+
+/** One NavHost with the shell's spring transitions, including the predictive back ones. */
+@Composable
+private fun ShellNavHost(controller: NavHostController, start: AppRoute, reduceMotion: Boolean, builder: NavGraphBuilder.() -> Unit) {
+    NavHost(
+        navController = controller,
+        startDestination = start,
+        modifier = Modifier.fillMaxSize(),
+        enterTransition = { shellEnter(reduceMotion) },
+        exitTransition = { shellExit(reduceMotion) },
+        popEnterTransition = { shellPopEnter(reduceMotion) },
+        popExitTransition = { shellPopExit(reduceMotion) },
+        // Navigation 2.10 plays these, not the pop transitions, while the back gesture is in
+        // progress. Left at their defaults, the page shrinks into a sharp-cornered card and then
+        // switches animation on release. Using the same motion keeps the gesture continuous.
+        predictivePopEnterTransition = { shellPopEnter(reduceMotion) },
+        predictivePopExitTransition = { shellPopExit(reduceMotion) },
+        builder = builder
+    )
+}
+
+/**
+ * Every route in the app. [navController] always receives page navigation, so on wide screens a
+ * row tapped in the left pane opens its page on the right; [selectTab] switches tabs in whichever
+ * pane shows them.
+ */
+private fun NavGraphBuilder.osysterGraph(
+    navController: NavHostController,
+    appVersion: String,
+    system: SystemActions,
+    selectTab: (AppRoute) -> Unit
+) {
+    registerHomeRoute { target ->
+        when (target) {
+            is HomeDestination.DevicePage -> navController.navigate(DevicePageRoute(target.pageId))
+            is HomeDestination.Tool -> navController.navigate(toolRoute(target.toolId))
+            is HomeDestination.ShareReport -> system.shareText(target.text)
+            HomeDestination.Search -> navController.navigate(SearchRoute)
+        }
+    }
+    registerDevicePageRoute { target ->
+        when (target) {
+            DeviceDestination.SystemBatteryUsage -> system.openBatteryUsage()
+            DeviceDestination.ScreenTester -> navController.navigate(ScreenTesterRoute)
+            DeviceDestination.AppPermissionSettings -> system.openAppSettings()
+        }
+    }
+    registerToolsRoute { target ->
+        when (target) {
+            is ToolsDestination.OpenTool -> navController.navigate(toolRoute(target.toolId))
+        }
+    }
+    registerSettingsRoute(appVersion = appVersion) { target ->
+        when (target) {
+            is SettingsDestination.OpenUrl -> system.openUrl(target.url)
+            SettingsDestination.About -> navController.navigate(AboutRoute)
+            SettingsDestination.Privacy -> navController.navigate(PrivacyRoute)
+            SettingsDestination.Licenses -> navController.navigate(LicensesRoute)
+        }
+    }
+    registerSearchRoute { target ->
+        when (target) {
+            is SearchDestination.DevicePage -> navController.navigate(DevicePageRoute(target.pageId))
+            is SearchDestination.Tool -> navController.navigate(toolRoute(target.toolId))
+            SearchDestination.Settings -> selectTab(SettingsRoute)
+            SearchDestination.About -> navController.navigate(AboutRoute)
+            SearchDestination.Privacy -> navController.navigate(PrivacyRoute)
+            SearchDestination.Licenses -> navController.navigate(LicensesRoute)
+        }
+    }
+    registerDataUsageRoute { target ->
+        when (target) {
+            DataUsageDestination.UsageAccessSettings -> system.openUsageAccess()
+            is DataUsageDestination.AppInfo -> system.openAppInfo(target.packageName)
+        }
+    }
+    registerScreenUsageRoute { target ->
+        when (target) {
+            ScreenUsageDestination.UsageAccessSettings -> system.openUsageAccess()
+            is ScreenUsageDestination.AppInfo -> system.openAppInfo(target.packageName)
+        }
+    }
+    registerAppStopperRoute { target ->
+        when (target) {
+            is AppStopperDestination.AppInfo -> system.openAppInfo(target.packageName)
+            is AppStopperDestination.Launch -> system.launchApp(target.packageName)
+            is AppStopperDestination.Store -> system.openStoreListing(target.packageName)
+        }
+    }
+    registerStayAwakeRoute { target ->
+        when (target) {
+            StayAwakeDestination.DeveloperOptions -> system.openDeveloperOptions()
+        }
+    }
+    registerFlashlightRoute { target ->
+        when (target) {
+            FlashlightDestination.NotificationAccess -> system.openNotificationAccess()
+        }
+    }
+    registerActivityLauncherRoute()
+    registerLinkActionsRoute { target ->
+        when (target) {
+            LinkActionsDestination.DefaultApps -> system.openDefaultApps()
+            is LinkActionsDestination.Share -> system.shareText(target.text)
+        }
+    }
+    registerQuickTilesRoute()
+    registerWidgetsRoute()
+    registerPowerToolsRoute { target ->
+        when (target) {
+            PowerToolsDestination.Setup -> navController.navigate(PowerToolRoute(Tool.POWER_SETUP.id))
+            is PowerToolsDestination.OpenUrl -> system.openUrl(target.url)
+        }
+    }
+    composable<ToolRoute> { entry ->
+        val tool = Tool.fromId(entry.toRoute<ToolRoute>().toolId)
+        PlaceholderPage(title = tool?.label?.title?.let { stringResource(it) }.orEmpty())
+    }
+}
+
+/** The right pane before anything is opened. */
+@Composable
+private fun EmptyDetailPane() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            stringResource(R.string.empty_detail),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+private const val WIDE_SCREEN_DP = 840
+private val LIST_PANE_WIDTH = 400.dp
 
 private fun NavDestination?.selectedTabIndex(): Int = when {
     this == null -> 0

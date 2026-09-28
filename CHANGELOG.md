@@ -1,8 +1,28 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.2.8
-> **Last Updated:** 2026-09-27
+> **Version:** 0.2.9
+> **Last Updated:** 2026-09-28
+
+---
+
+## [0.2.9] - 2026-09-28
+
+- **Live Home Rows**: Each device page row on Home shows a live fact, such as battery level and charging, RAM in use, Android version and patch, resolution and refresh rate, camera and sensor counts, and the active connection.
+- **Trend Lines**: The CPU and RAM tiles on Home draw a short line of recent readings.
+- **Edit Home**: Drag pinned items and pages into order, and switch pages on or off, from one sheet.
+- **Temperature Unit**: Show temperatures in Celsius, Fahrenheit, or Kelvin.
+- **Live Refresh**: Choose how often live numbers update: fast, normal, or a slower battery saver pace.
+- **Block Screenshots**: Hide Osyster from screenshots, screen recordings, and the recent apps preview.
+- **Data Usage History**: Step back to earlier days, weeks, and months, and search the app list.
+- **App Stopper Actions**: Open an app, go to its App info, view or reinstall it from the store, and see how many apps can run, are stopped, or are uninstalled.
+- **Widgets Page**: Every Osyster widget in one list, with an Add button that asks your launcher to place it.
+- **Glance Stack Widget**: One widget to swipe between battery, memory, storage, data today, and screen time.
+- **Color Picker Tile**: Capture the screen once, after Android asks, and copy the hex code of any color under a magnifier.
+- **Two Panes**: On tablets and unfolded foldables, tabs stay on the left and pages open on the right.
+- **Backup**: Exports now include the temperature unit, refresh speed, screenshot blocking, and the Shut-Up! and Freeze lists. Older export files still import.
+- **Stay Awake**: While charging mode can be allowed in one tap when Shizuku or root is set up.
+- **Website**: A new design built around the tools Android leaves out, with live GitHub numbers, the latest version, and a direct APK link.
 
 ---
 

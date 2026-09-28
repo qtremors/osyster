@@ -36,4 +36,8 @@
     <string name="widget_unknown">--</string>
     <string name="network_mobile_label">Mobile</string>
     <string name="network_wifi_label">Wi-Fi</string>
+    <string name="data_previous">Previous period</string>
+    <string name="data_next">Next period</string>
+    <string name="data_range">%1$s to %2$s</string>
+    <string name="data_search">Search apps</string>
 </resources>

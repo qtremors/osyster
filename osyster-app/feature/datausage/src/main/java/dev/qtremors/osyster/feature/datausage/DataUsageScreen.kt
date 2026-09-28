@@ -1,5 +1,13 @@
 package dev.qtremors.osyster.feature.datausage
 
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
+import dev.qtremors.osyster.core.ui.components.InlineSearchField
+import dev.qtremors.osyster.core.usage.domain.maxOffset
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,6 +49,9 @@ import dev.qtremors.osyster.core.navigation.Tool
 @Immutable
 internal data class DataUsageActions(
     val onPeriod: (DataPeriod) -> Unit,
+    val onPrevious: () -> Unit,
+    val onNext: () -> Unit,
+    val onQuery: (String) -> Unit,
     val onFilter: (NetworkFilter) -> Unit,
     val onToggleShowAll: () -> Unit,
     val onGrantAccess: () -> Unit,
@@ -82,6 +93,7 @@ private fun Choices(state: DataUsageState, actions: DataUsageActions) {
             label = { stringResource(it.labelRes()) },
             onSelect = actions.onPeriod
         )
+        PeriodStepper(state, actions)
         ConnectedChoices(
             options = NetworkFilter.entries,
             selected = state.filter,
@@ -144,10 +156,37 @@ private fun LiveRow(live: LiveRate?) {
     }
 }
 
+/** Previous and next period, with the dates in between, as the old Network page had. */
+@Composable
+private fun PeriodStepper(state: DataUsageState, actions: DataUsageActions) {
+    val report = state.report
+    val label = when {
+        report == null -> ""
+        state.offset == 0 -> stringResource(state.period.labelRes())
+        report.firstDay == report.lastDay -> UsageFormat.day(report.firstDay)
+        else -> stringResource(R.string.data_range, UsageFormat.day(report.firstDay), UsageFormat.day(report.lastDay))
+    }
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        IconButton(onClick = actions.onPrevious, enabled = state.offset < maxOffset(state.period)) {
+            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, contentDescription = stringResource(R.string.data_previous))
+        }
+        Text(label, style = MaterialTheme.typography.titleSmall, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
+        IconButton(onClick = actions.onNext, enabled = state.offset > 0) {
+            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = stringResource(R.string.data_next))
+        }
+    }
+}
+
 private fun androidx.compose.foundation.lazy.LazyListScope.appRows(report: DataUsageReport, state: DataUsageState, actions: DataUsageActions) {
-    val apps = report.appsFor(state.filter)
-    val shown = if (state.showAllApps) apps else apps.take(COLLAPSED_APPS)
+    val all = report.appsFor(state.filter)
+    val apps = if (state.query.isBlank()) all else all.filter { it.label.contains(state.query, ignoreCase = true) || it.packageName.contains(state.query, ignoreCase = true) }
+    val shown = if (state.showAllApps || state.query.isNotBlank()) apps else apps.take(COLLAPSED_APPS)
     item(key = "apps_header") { SectionHeader(stringResource(R.string.data_apps)) }
+    if (all.size > COLLAPSED_APPS) {
+        item(key = "apps_search") {
+            InlineSearchField(query = state.query, onQueryChange = actions.onQuery, placeholder = stringResource(R.string.data_search), modifier = Modifier.padding(bottom = 8.dp))
+        }
+    }
     if (apps.isEmpty()) {
         item(key = "apps_empty") {
             ConnectedGroup { ConnectedRow(title = stringResource(R.string.data_no_apps)) }
@@ -155,7 +194,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.appRows(report: DataU
         return
     }
     items(shown, key = { "app_" + it.packageName }) { app -> AppRow(app, state.filter, actions.onOpenApp) }
-    if (apps.size > COLLAPSED_APPS) {
+    if (apps.size > COLLAPSED_APPS && state.query.isBlank()) {
         item(key = "apps_toggle") {
             ConnectedGroup(modifier = Modifier.padding(top = 2.dp)) {
                 ConnectedRow(

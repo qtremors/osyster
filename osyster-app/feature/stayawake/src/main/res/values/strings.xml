@@ -27,4 +27,6 @@
     <string name="tile_on">On</string>
     <string name="tile_off">Off</string>
     <string name="tile_needs_setup">Tap to set up</string>
+    <string name="stay_awake_grant_now">Allow now</string>
+    <string name="stay_awake_grant_now_summary">Shizuku or root can allow it for you in one tap</string>
 </resources>

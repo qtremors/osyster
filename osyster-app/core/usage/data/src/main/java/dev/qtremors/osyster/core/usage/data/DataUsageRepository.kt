@@ -41,19 +41,24 @@ internal class DataUsageRepository @Inject constructor(
 
     override fun accessState(): UsageAccessState = context.usageAccessState()
 
-    override suspend fun report(period: DataPeriod, includeApps: Boolean): DataUsageReport = withContext(dispatchers.io) {
+    override suspend fun report(period: DataPeriod, includeApps: Boolean, offset: Int): DataUsageReport = withContext(dispatchers.io) {
         val now = System.currentTimeMillis()
-        val days = DayWindows.daysOf(period, now).map { start ->
+        val days = DayWindows.daysOf(period, now, offset).map { start ->
             ensureActive()
             DayTraffic(start, deviceTotals(start, minOf(DayWindows.nextDay(start), now)))
         }
         val start = days.firstOrNull()?.dayStart ?: DayWindows.startOfDay(now)
+        val lastDay = days.lastOrNull()?.dayStart ?: start
+        val end = minOf(DayWindows.nextDay(lastDay), now)
         val totals = days.fold(TrafficTotals()) { sum, day -> sum + day.totals }
         DataUsageReport(
             period = period,
+            offset = offset,
+            firstDay = start,
+            lastDay = lastDay,
             totals = totals,
             days = days,
-            apps = if (includeApps) appTotals(start, now) else emptyList()
+            apps = if (includeApps) appTotals(start, end) else emptyList()
         )
     }
 

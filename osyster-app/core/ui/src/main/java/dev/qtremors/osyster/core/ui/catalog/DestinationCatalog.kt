@@ -85,7 +85,6 @@ val Tool.label: DestinationLabel
         Tool.FLASHLIGHT -> DestinationLabel(R.string.tool_flashlight, R.string.tool_flashlight_summary, Icons.Rounded.FlashlightOn)
         Tool.ACTIVITY_LAUNCHER -> DestinationLabel(R.string.tool_activity_launcher, R.string.tool_activity_launcher_summary, Icons.Rounded.RocketLaunch)
         Tool.LINK_ACTIONS -> DestinationLabel(R.string.tool_link_actions, R.string.tool_link_actions_summary, Icons.Rounded.Link)
-        Tool.WIDGET_STACK -> DestinationLabel(R.string.tool_widget_stack, R.string.tool_widget_stack_summary, Icons.Rounded.ViewCarousel)
         Tool.WIDGETS -> DestinationLabel(R.string.tool_widgets, R.string.tool_widgets_summary, Icons.Rounded.Widgets)
         Tool.QUICK_TILES -> DestinationLabel(R.string.tool_quick_tiles, R.string.tool_quick_tiles_summary, Icons.Rounded.SpaceDashboard)
         Tool.POWER_SETUP -> DestinationLabel(R.string.tool_power_setup, R.string.tool_power_setup_summary, Icons.Rounded.AdminPanelSettings)

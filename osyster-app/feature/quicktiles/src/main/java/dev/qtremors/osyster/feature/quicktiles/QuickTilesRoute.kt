@@ -47,6 +47,7 @@ private val tiles = listOf(
     TileEntry("dev.qtremors.osyster.feature.flashlight.FlashlightTile", R.string.qt_flashlight, R.string.qt_flashlight_summary, R.drawable.ic_qt_flashlight),
     TileEntry("dev.qtremors.osyster.feature.quicktiles.RamTile", R.string.tile_ram, R.string.qt_ram_summary, R.drawable.ic_qt_ram),
     TileEntry("dev.qtremors.osyster.feature.quicktiles.DataTodayTile", R.string.tile_data_today, R.string.qt_data_summary, R.drawable.ic_qt_data),
+    TileEntry("dev.qtremors.osyster.feature.quicktiles.ColorPickerTile", R.string.qt_color, R.string.qt_color_summary, R.drawable.ic_qt_color),
     TileEntry("dev.qtremors.osyster.feature.powertools.PrivateDnsTile", R.string.qt_private_dns, R.string.qt_private_dns_summary, UiR.drawable.ic_qt_dns),
     TileEntry("dev.qtremors.osyster.feature.powertools.UsbDebuggingTile", R.string.qt_usb_debugging, R.string.qt_usb_debugging_summary, UiR.drawable.ic_qt_usb),
     TileEntry("dev.qtremors.osyster.feature.powertools.DeveloperOptionsTile", R.string.qt_developer_options, R.string.qt_developer_options_summary, UiR.drawable.ic_qt_developer),

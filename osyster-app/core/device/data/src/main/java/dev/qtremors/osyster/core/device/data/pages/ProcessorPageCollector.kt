@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.core.device.data.pages
 
+import dev.qtremors.osyster.core.device.domain.TemperatureUnit
+import dev.qtremors.osyster.core.device.domain.formatTemperature
 import android.content.Context
 import android.os.Build
 import android.os.PowerManager
@@ -15,7 +17,11 @@ import dev.qtremors.osyster.core.device.domain.InfoSection
  * The CPU and GPU page. Topology and GPU strings are read once; clocks, load, and thermals are
  * passed in fresh on every tick by the repository.
  */
-internal class ProcessorPageCollector(private val context: Context, private val text: DeviceText) {
+internal class ProcessorPageCollector(
+    private val context: Context,
+    private val text: DeviceText,
+    private val unit: () -> TemperatureUnit
+) {
 
     fun collect(clusters: List<CpuCluster>, gpu: GpuInfo, load: Availability<Int>): List<InfoSection> =
         listOf(cpu(clusters, load)) + clusters.mapIndexed { index, cluster -> cluster(index, cluster) } +
@@ -87,7 +93,7 @@ internal class ProcessorPageCollector(private val context: Context, private val 
         } else {
             row("headroom", R.string.row_thermal_headroom, Availability.Unsupported("Needs Android 11"))
         }
-        row("cpu_temp", R.string.row_cpu_temperature, CpuReader.cpuTemperature()?.let { available(UnitFormat.celsius(it), "thermal sysfs") }
+        row("cpu_temp", R.string.row_cpu_temperature, CpuReader.cpuTemperature()?.let { available(formatTemperature(it, unit()), "thermal sysfs") }
             ?: Availability.Restricted("No readable CPU thermal zone"), copyable = false)
     }
 

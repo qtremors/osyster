@@ -49,6 +49,11 @@ data class DayTraffic(val dayStart: Long, val totals: TrafficTotals)
 
 data class DataUsageReport(
     val period: DataPeriod,
+    /** 0 is the current period, 1 the one before it, and so on. */
+    val offset: Int = 0,
+    /** First and last local day covered, as epoch millis at midnight. */
+    val firstDay: Long = 0,
+    val lastDay: Long = 0,
     val totals: TrafficTotals,
     val days: List<DayTraffic>,
     val apps: List<AppTraffic>
@@ -66,8 +71,16 @@ data class LiveRate(val downBytesPerSecond: Long, val upBytesPerSecond: Long)
  */
 interface DataUsageSource {
     fun accessState(): UsageAccessState
-    suspend fun report(period: DataPeriod, includeApps: Boolean = true): DataUsageReport
+    /** [offset] steps back whole periods: yesterday, the seven days before, last month. */
+    suspend fun report(period: DataPeriod, includeApps: Boolean = true, offset: Int = 0): DataUsageReport
     fun liveRate(): Flow<LiveRate>
 }
 
 enum class UsageAccessState { GRANTED, MISSING }
+
+/** Android keeps roughly a year of network history; going further back only shows zeros. */
+fun maxOffset(period: DataPeriod): Int = when (period) {
+    DataPeriod.TODAY -> 89
+    DataPeriod.WEEK -> 12
+    DataPeriod.MONTH -> 11
+}

@@ -34,7 +34,6 @@ val Tool.help: Int
         Tool.FLASHLIGHT -> R.string.help_tool_flashlight
         Tool.ACTIVITY_LAUNCHER -> R.string.help_tool_activity_launcher
         Tool.LINK_ACTIONS -> R.string.help_tool_link_actions
-        Tool.WIDGET_STACK -> R.string.help_tool_widget_stack
         Tool.WIDGETS -> R.string.help_tool_widgets
         Tool.QUICK_TILES -> R.string.help_tool_quick_tiles
         Tool.POWER_SETUP -> R.string.help_tool_power_setup

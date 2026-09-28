@@ -44,6 +44,7 @@ internal class ThemeSettingsStore @Inject constructor(
         val customAccent = intPreferencesKey("custom_accent")
         val haptics = booleanPreferencesKey("haptics")
         val reduceMotion = booleanPreferencesKey("reduce_motion")
+        val blockScreenshots = booleanPreferencesKey("block_screenshots")
     }
 
     override val options: Flow<ThemeOptions> = context.uiPreferences.data
@@ -60,6 +61,7 @@ internal class ThemeSettingsStore @Inject constructor(
             prefs[Keys.customAccent] = next.customAccent.toArgb()
             prefs[Keys.haptics] = next.hapticsEnabled
             prefs[Keys.reduceMotion] = next.reduceMotion
+            prefs[Keys.blockScreenshots] = next.blockScreenshots
         }
     }
 
@@ -72,7 +74,8 @@ internal class ThemeSettingsStore @Inject constructor(
             preset = enumOrDefault(this[Keys.preset], defaults.preset),
             customAccent = this[Keys.customAccent]?.let { Color(it) } ?: defaults.customAccent,
             hapticsEnabled = this[Keys.haptics] ?: defaults.hapticsEnabled,
-            reduceMotion = this[Keys.reduceMotion] ?: defaults.reduceMotion
+            reduceMotion = this[Keys.reduceMotion] ?: defaults.reduceMotion,
+            blockScreenshots = this[Keys.blockScreenshots] ?: defaults.blockScreenshots
         )
     }
 }

@@ -16,6 +16,7 @@ import dev.qtremors.osyster.core.navigation.DataUsageRoute
 import dev.qtremors.osyster.core.navigation.ScreenUsageRoute
 import dev.qtremors.osyster.core.navigation.Tool
 import dev.qtremors.osyster.core.navigation.ToolRoute
+import dev.qtremors.osyster.core.navigation.WidgetsRoute
 import dev.qtremors.osyster.feature.powertools.PowerTools
 
 /** Tools with their own feature module get their own route; power tools share one; the rest show a placeholder. */
@@ -28,6 +29,7 @@ internal fun Tool.route(): AppRoute = when (this) {
     Tool.ACTIVITY_LAUNCHER -> ActivityLauncherRoute
     Tool.LINK_ACTIONS -> LinkActionsRoute
     Tool.QUICK_TILES -> QuickTilesRoute
+    Tool.WIDGETS -> WidgetsRoute
     in PowerTools -> PowerToolRoute(id)
     else -> ToolRoute(id)
 }
@@ -46,6 +48,7 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
         destination.hasRoute<ActivityLauncherRoute>() -> Tool.ACTIVITY_LAUNCHER
         destination.hasRoute<LinkActionsRoute>() -> Tool.LINK_ACTIONS
         destination.hasRoute<QuickTilesRoute>() -> Tool.QUICK_TILES
+        destination.hasRoute<WidgetsRoute>() -> Tool.WIDGETS
         destination.hasRoute<PowerToolRoute>() -> Tool.fromId(entry.toRoute<PowerToolRoute>().toolId)
         destination.hasRoute<ToolRoute>() -> Tool.fromId(entry.toRoute<ToolRoute>().toolId)
         else -> null
@@ -55,4 +58,4 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
 internal fun NavDestination.isToolPage(): Boolean =
     hasRoute<DataUsageRoute>() || hasRoute<ScreenUsageRoute>() || hasRoute<AppStopperRoute>() ||
         hasRoute<StayAwakeRoute>() || hasRoute<FlashlightRoute>() || hasRoute<ActivityLauncherRoute>() ||
-        hasRoute<LinkActionsRoute>() || hasRoute<QuickTilesRoute>() || hasRoute<PowerToolRoute>() || hasRoute<ToolRoute>()
+        hasRoute<LinkActionsRoute>() || hasRoute<QuickTilesRoute>() || hasRoute<WidgetsRoute>() || hasRoute<PowerToolRoute>() || hasRoute<ToolRoute>()

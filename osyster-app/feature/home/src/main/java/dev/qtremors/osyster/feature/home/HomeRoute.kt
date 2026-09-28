@@ -37,6 +37,11 @@ fun NavGraphBuilder.registerHomeRoute(onNavigate: (HomeDestination) -> Unit) {
                 onHide = viewModel::hide,
                 onShow = viewModel::show,
                 onSearch = { onNavigate(HomeDestination.Search) },
+                edit = HomeEditActions(
+                    onReorderPinned = viewModel::reorderPinned,
+                    onReorderGroup = viewModel::reorderGroup,
+                    onVisible = viewModel::setVisible
+                ),
                 onShareReport = {
                     if (!sharing) {
                         sharing = true

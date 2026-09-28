@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Visibility
@@ -47,15 +48,20 @@ internal data class HomeActions(
     val onHide: (DevicePage) -> Unit,
     val onShow: (DevicePage) -> Unit,
     val onSearch: () -> Unit,
+    val edit: HomeEditActions,
     val onShareReport: () -> Unit
 )
 
 @Composable
 internal fun HomeScreen(state: HomeState, sharing: Boolean, actions: HomeActions) {
     var showHidden by rememberSaveable { mutableStateOf(false) }
+    var editing by rememberSaveable { mutableStateOf(false) }
     OsysterScaffold(
         title = stringResource(R.string.home_title),
         actions = {
+            IconButton(onClick = { editing = true }, enabled = state.layout != null) {
+                Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.home_edit_title))
+            }
             IconButton(onClick = actions.onSearch) {
                 Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.home_search))
             }
@@ -73,7 +79,7 @@ internal fun HomeScreen(state: HomeState, sharing: Boolean, actions: HomeActions
                 HeroCard(
                     title = state.hero.name,
                     subtitle = stringResource(R.string.home_hero_subtitle, state.hero.androidRelease, state.hero.apiLevel),
-                    metrics = heroMetrics(state.summary),
+                    metrics = heroMetrics(state.summary, state.trends),
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
@@ -83,7 +89,7 @@ internal fun HomeScreen(state: HomeState, sharing: Boolean, actions: HomeActions
                 return@LazyColumn
             }
             if (layout.pinned.isNotEmpty()) {
-                item(key = "pinned") { PinnedSection(layout, actions) }
+                item(key = "pinned") { PinnedSection(layout, state.glances, actions) }
             }
             val groups = layout.visiblePages.groupBy(DevicePage::group).toList()
             items(groups, key = { (group, _) -> group.name }) { (group, pages) ->
@@ -96,6 +102,7 @@ internal fun HomeScreen(state: HomeState, sharing: Boolean, actions: HomeActions
                                 pinned = layout.isPinned(PinKey.page(page.id)),
                                 canMoveUp = index > 0,
                                 canMoveDown = index < pages.lastIndex,
+                                glance = state.glances[page],
                                 actions = actions
                             )
                         }
@@ -111,10 +118,14 @@ internal fun HomeScreen(state: HomeState, sharing: Boolean, actions: HomeActions
     if (showHidden && hidden.isNotEmpty()) {
         HiddenPagesSheet(hidden = hidden, onShow = actions.onShow, onDismiss = { showHidden = false })
     }
+    val layout = state.layout
+    if (editing && layout != null) {
+        HomeEditSheet(layout = layout, actions = actions.edit, onDismiss = { editing = false })
+    }
 }
 
 @Composable
-private fun PinnedSection(layout: HomeLayout, actions: HomeActions) {
+private fun PinnedSection(layout: HomeLayout, glances: Map<DevicePage, String>, actions: HomeActions) {
     Column {
         SectionHeader(stringResource(R.string.home_pinned))
         ConnectedGroup {
@@ -123,6 +134,7 @@ private fun PinnedSection(layout: HomeLayout, actions: HomeActions) {
                     PinKey.Kind.PAGE -> DevicePage.fromId(key.id)?.let { page ->
                         PinnedRow(
                             label = page.label,
+                            glance = glances[page],
                             help = page.help,
                             badgeKey = page.id,
                             onOpen = { actions.onOpenPage(page) },

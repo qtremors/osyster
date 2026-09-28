@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://qtremors.github.io/osyster/">
-    <img src="docs/assets/Osyster.svg" alt="Osyster logo" width="120"/>
+    <img src="docs/assets/Osyster.png" alt="Osyster logo" width="120"/>
   </a>
 </p>
 
@@ -44,7 +44,7 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 
 ### Home and device pages
 
-- **Home you arrange:** a live card with CPU, RAM, and battery, pinned pages and tools, and grouped device pages. Long-press any row to pin, move, hide, or read what it shows.
+- **Home you arrange:** a live card with CPU, RAM, and battery trend lines, pinned pages and tools, and grouped device pages that each show a live fact. Edit Home to drag them into order or switch pages off; long-press a row to pin it or read what it shows.
 - **Twelve device pages:** System, Device, Processor and GPU, Memory and storage, Battery, Display, Cameras, Sensors, Network, Bluetooth, Media and DRM, and Certificates.
 - **Honest values:** anything Android hides says "Not available" or which permission would show it, never a fake zero. Copy any value with a long-press.
 - **Screen tester:** full-screen colors, gray ramps, and a multi-touch test from the Display page.
@@ -54,15 +54,15 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 
 ### Tools
 
-- **Data usage:** mobile and Wi-Fi data today, this week, or this month, per app, with a daily chart and live speed.
+- **Data usage:** mobile and Wi-Fi data today, this week, or this month, per app, with a daily chart, live speed, earlier periods, and app search.
 - **Screen usage:** seven days of screen time, hourly charts, and per-app time and opens.
-- **App stopper:** a list of apps you often stop. Stop opens App info, or stops directly with Shizuku or root, plus Stop all.
+- **App stopper:** a list of apps you often stop, with counts. Stop opens App info, or stops directly with Shizuku or root, plus Stop all; long-press to open an app or find it in the store.
 - **Stay awake:** keep the screen on for 15 minutes to "until I stop it" with a countdown notification, or while charging through Android's own setting.
 - **Flashlight:** brightness levels on Android 13 and newer, and a pulse that blinks the torch for new notifications while the screen is off.
 - **Activity launcher:** open and pin any app's exported screens.
 - **Link actions:** choose which app opens each link, copy or share links.
-- **Widgets:** 3x3 disc and 5x1 capsule music players with art and controls, and data usage widgets.
-- **Quick Settings tiles:** Stay awake, Awake while charging, Flashlight, RAM, Data today, Private DNS, USB debugging, Developer options, Window blur, Tap to wake, Freeze, and Restart SystemUI.
+- **Widgets:** a glance stack to swipe between battery, memory, storage, data, and screen time, 3x3 disc and 5x1 capsule music players, and data usage widgets, all added from one page.
+- **Quick Settings tiles:** Stay awake, Awake while charging, Flashlight, RAM, Data today, Color picker, Private DNS, USB debugging, Developer options, Window blur, Tap to wake, Freeze, and Restart SystemUI.
 - **Launcher shortcuts:** long-press the icon for Data usage, Stay awake, Flashlight, or Screen time.
 
 ### Power tools (optional)
@@ -81,6 +81,8 @@ Allow them once with an ADB command, or through [Shizuku](https://shizuku.rikka.
 
 - Wallpaper colors by default, Osyster cyan and five more presets, System, Light, Dark, and Pure black.
 - Connected rows, a floating toolbar that turns into a back button, springy motion with predictive back, haptics, and Reduce motion.
+- Temperature in °C, °F, or K, a live refresh speed setting, and Block screenshots.
+- Two panes on tablets and unfolded foldables.
 - A short welcome on first launch, a "What's new" sheet after updates, and settings export and import.
 
 ## Community and support
@@ -99,7 +101,7 @@ Osyster is built by [Tremors](https://github.com/qtremors). Thanks to the mainta
 - [Hilt](https://dagger.dev/hilt/), [MaterialKolor](https://github.com/jordond/MaterialKolor), and the [Shizuku API](https://github.com/RikkaApps/Shizuku-API)
 - [Roboto Flex](https://fonts.google.com/specimen/Roboto+Flex) for the app's text
 - [Essentials](https://github.com/sameerasw/essentials) by sameerasw (MIT), which inspired the interface design
-- [Lucide](https://lucide.dev/), [Simple Icons](https://simpleicons.org/), and [Outfit](https://github.com/Outfitio/Outfit-Fonts) for the website
+- [Lucide](https://lucide.dev/) and [Simple Icons](https://simpleicons.org/) for the website icons
 
 The app's **Settings, About, Open source licenses** screen lists every license in full. Each project remains the property of its authors and is used under its own license.
 

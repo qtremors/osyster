@@ -34,8 +34,6 @@ internal object UnitFormat {
         return if (mhz >= 1000) String.format(locale, "%.2f GHz", mhz / 1000) else String.format(locale, "%.0f MHz", mhz)
     }
 
-    fun celsius(value: Float, locale: Locale = Locale.getDefault()): String = String.format(locale, "%.1f °C", value)
-
     fun millivolts(mv: Int, locale: Locale = Locale.getDefault()): String = String.format(locale, "%.3f V", mv / 1000.0)
 
     fun milliamps(ma: Int): String = "$ma mA"

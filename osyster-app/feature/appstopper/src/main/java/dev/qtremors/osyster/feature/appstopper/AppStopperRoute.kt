@@ -11,6 +11,9 @@ import dev.qtremors.osyster.core.navigation.AppStopperRoute
 sealed interface AppStopperDestination {
     /** Android's App info page, where Force stop lives for apps without privileged access. */
     data class AppInfo(val packageName: String) : AppStopperDestination
+    data class Launch(val packageName: String) : AppStopperDestination
+    /** The app's store listing; for uninstalled apps this is how to get them back. */
+    data class Store(val packageName: String) : AppStopperDestination
 }
 
 fun NavGraphBuilder.registerAppStopperRoute(onNavigate: (AppStopperDestination) -> Unit) {
@@ -31,6 +34,9 @@ fun NavGraphBuilder.registerAppStopperRoute(onNavigate: (AppStopperDestination) 
             actions = AppStopperActions(
                 onStop = { pkg -> viewModel.stop(pkg) { onNavigate(AppStopperDestination.AppInfo(pkg)) } },
                 onStopAll = viewModel::stopAll,
+                onLaunch = { onNavigate(AppStopperDestination.Launch(it)) },
+                onAppInfo = { onNavigate(AppStopperDestination.AppInfo(it)) },
+                onStore = { onNavigate(AppStopperDestination.Store(it)) },
                 onRemove = viewModel::remove,
                 onOpenPicker = { viewModel.loadPicker() },
                 onPickerSystem = { viewModel.loadPicker(includeSystem = it) },

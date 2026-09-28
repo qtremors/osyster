@@ -31,11 +31,13 @@ fun NavGraphBuilder.registerStayAwakeRoute(onNavigate: (StayAwakeDestination) ->
             viewModel.refresh()
             onPauseOrDispose { }
         }
+        val canGrant by viewModel.canGrant.collectAsStateWithLifecycle()
         StayAwakeScreen(
             timer = timer,
             selectedMinutes = selected,
             whileCharging = whileCharging,
             adbCommand = viewModel.adbCommand,
+            canGrant = canGrant,
             actions = StayAwakeActions(
                 onSelect = viewModel::select,
                 onStart = {
@@ -47,7 +49,8 @@ fun NavGraphBuilder.registerStayAwakeRoute(onNavigate: (StayAwakeDestination) ->
                 },
                 onStop = viewModel::stop,
                 onWhileCharging = viewModel::setWhileCharging,
-                onOpenDeveloperOptions = { onNavigate(StayAwakeDestination.DeveloperOptions) }
+                onOpenDeveloperOptions = { onNavigate(StayAwakeDestination.DeveloperOptions) },
+                onGrant = viewModel::grant
             )
         )
     }

@@ -31,7 +31,9 @@ data class ThemeOptions(
     val preset: ThemePreset = ThemePreset.CYAN,
     val customAccent: Color = OsysterCyan,
     val hapticsEnabled: Boolean = true,
-    val reduceMotion: Boolean = false
+    val reduceMotion: Boolean = false,
+    /** Hides Osyster from screenshots and the recent apps preview. */
+    val blockScreenshots: Boolean = false
 )
 
 /** True when animations should be skipped or replaced by crossfades. */

@@ -69,6 +69,13 @@ data object LinkActionsRoute : AppRoute
 data object QuickTilesRoute : AppRoute
 
 /** A tool page that has no feature module yet, addressed by its stable tool id. */
+@Serializable
+data object WidgetsRoute : AppRoute
+
+/** The right pane on wide screens before a page is opened. */
+@Serializable
+data object EmptyDetailRoute : AppRoute
+
 /** Every power tool shares one route; the power tools feature picks the page from [toolId]. */
 @Serializable
 data class PowerToolRoute(val toolId: String) : AppRoute

@@ -13,7 +13,6 @@ enum class Tool(val id: String, val group: ToolGroup, val access: ToolAccess = T
     FLASHLIGHT("flashlight", ToolGroup.UTILITIES),
     ACTIVITY_LAUNCHER("activity_launcher", ToolGroup.UTILITIES),
     LINK_ACTIONS("link_actions", ToolGroup.UTILITIES),
-    WIDGET_STACK("widget_stack", ToolGroup.UTILITIES),
     WIDGETS("widgets", ToolGroup.UTILITIES),
     QUICK_TILES("quick_tiles", ToolGroup.UTILITIES),
 

@@ -9,6 +9,8 @@ import dev.qtremors.osyster.core.device.data.read.MemoryReader
 import dev.qtremors.osyster.core.device.domain.Availability
 import dev.qtremors.osyster.core.device.domain.DeviceSummary
 import dev.qtremors.osyster.core.device.domain.DeviceSummarySource
+import dev.qtremors.osyster.core.device.domain.ReadingPreferences
+import dev.qtremors.osyster.core.device.domain.scale
 import dev.qtremors.osyster.core.runtime.di.AppDispatchers
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,18 +19,19 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
-/** Live numbers for the Home hero card, sampled every two seconds while Home is visible. */
+/** Live numbers for the Home hero card, sampled every two seconds (scaled by the refresh setting) while Home is visible. */
 @Singleton
 internal class DeviceSummaryRepository @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val dispatchers: AppDispatchers,
-    private val cpuLoad: CpuLoadSampler
+    private val cpuLoad: CpuLoadSampler,
+    private val reading: ReadingPreferences
 ) : DeviceSummarySource {
 
     override fun summary(): Flow<DeviceSummary> = flow {
         while (true) {
             emit(read())
-            delay(TICK_MS)
+            delay(reading.prefs.value.refresh.scale(TICK_MS))
         }
     }.flowOn(dispatchers.io)
 

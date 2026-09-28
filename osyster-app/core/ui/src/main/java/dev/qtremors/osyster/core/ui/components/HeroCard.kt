@@ -33,7 +33,9 @@ data class HeroMetric(
     val value: String,
     val detail: String? = null,
     val progress: Float? = null,
-    val icon: ImageVector? = null
+    val icon: ImageVector? = null,
+    /** Recent readings from 0 to 1, oldest first; drawn as a sparkline when there are two or more. */
+    val trend: List<Float> = emptyList()
 )
 
 /**
@@ -121,7 +123,9 @@ private fun MetricTile(metric: HeroMetric, modifier: Modifier = Modifier) {
             if (metric.detail != null) {
                 Text(metric.detail, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant, maxLines = 1)
             }
-            if (metric.progress != null) {
+            if (metric.trend.size >= 2) {
+                Sparkline(metric.trend, colors.primary, Modifier.fillMaxWidth().height(24.dp).padding(top = 4.dp))
+            } else if (metric.progress != null) {
                 LinearWavyProgressIndicator(
                     progress = { metric.progress.coerceIn(0f, 1f) },
                     modifier = Modifier
@@ -130,5 +134,31 @@ private fun MetricTile(metric: HeroMetric, modifier: Modifier = Modifier) {
                 )
             }
         }
+    }
+}
+
+/** A small line of recent readings, scaled to the card's own min and max so changes are visible. */
+@Composable
+private fun Sparkline(points: List<Float>, color: androidx.compose.ui.graphics.Color, modifier: Modifier = Modifier) {
+    androidx.compose.foundation.Canvas(modifier = modifier) {
+        val low = points.min()
+        val high = points.max()
+        val span = (high - low).takeIf { it > 0.02f } ?: 0.02f
+        val step = size.width / (points.size - 1)
+        val path = androidx.compose.ui.graphics.Path()
+        points.forEachIndexed { index, value ->
+            val x = index * step
+            val y = size.height - ((value - low) / span) * size.height
+            if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+        }
+        drawPath(
+            path = path,
+            color = color,
+            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                width = 2.dp.toPx(),
+                cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                join = androidx.compose.ui.graphics.StrokeJoin.Round
+            )
+        )
     }
 }

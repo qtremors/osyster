@@ -26,7 +26,6 @@
     <string name="help_tool_flashlight">Turn the torch on and set its brightness on phones that allow it. Flashlight pulse can blink the torch for new notifications while the screen is off; it needs notification access and never reads notification text.</string>
     <string name="help_tool_activity_launcher">Lists every app\'s exported screens so you can open hidden settings pages directly. Only screens apps allow others to open are shown.</string>
     <string name="help_tool_link_actions">See which apps open which links, and share or open any link with a chosen app. Changing defaults happens in the system\'s Default apps page.</string>
-    <string name="help_tool_widget_stack">Stack several widgets in one spot and swipe between them. Coming in a later version.</string>
     <string name="help_tool_widgets">Osyster\'s home screen widgets: data usage, and music players that show the current song with controls. Music widgets need notification access to see what is playing.</string>
     <string name="help_tool_quick_tiles">Quick Settings tiles Osyster adds: Stay awake, Flashlight, RAM, and Data today. Add them by editing your Quick Settings panel.</string>
     <string name="help_tool_power_setup">Choose how power tools get access: a one-time ADB command from a computer, Shizuku, or root. With Shizuku or root, Osyster can also grant the settings permission to itself so settings tools keep working when neither is running.</string>

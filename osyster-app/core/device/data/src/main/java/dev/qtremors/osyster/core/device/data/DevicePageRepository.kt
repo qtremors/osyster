@@ -26,6 +26,8 @@ import dev.qtremors.osyster.core.device.data.read.MemoryReader
 import dev.qtremors.osyster.core.device.domain.DevicePage
 import dev.qtremors.osyster.core.device.domain.DevicePageSource
 import dev.qtremors.osyster.core.device.domain.InfoSection
+import dev.qtremors.osyster.core.device.domain.ReadingPreferences
+import dev.qtremors.osyster.core.device.domain.scale
 import dev.qtremors.osyster.core.runtime.di.AppDispatchers
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -40,14 +42,16 @@ import kotlinx.coroutines.sync.withLock
 internal class DevicePageRepository @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val dispatchers: AppDispatchers,
-    private val cpuLoad: CpuLoadSampler
+    private val cpuLoad: CpuLoadSampler,
+    private val reading: ReadingPreferences
 ) : DevicePageSource {
+    private val unit = { reading.prefs.value.temperatureUnit }
     private val text = DeviceText(context)
     private val system = SystemPageCollector(context, text)
     private val device = DeviceInfoCollector(context, text)
-    private val processor = ProcessorPageCollector(context, text)
+    private val processor = ProcessorPageCollector(context, text, unit)
     private val memory = MemoryPageCollector(context, text)
-    private val battery = BatteryPageCollector(text)
+    private val battery = BatteryPageCollector(text, unit)
     private val display = DisplayPageCollector(context, text)
     private val cameras = CameraPageCollector(context, text)
     private val sensors = SensorPageCollector(context, text)
@@ -85,7 +89,7 @@ internal class DevicePageRepository @Inject constructor(
         var lastAt = SystemClock.elapsedRealtime()
         emit(network.collect(speed = null))
         while (true) {
-            delay(NETWORK_TICK_MS)
+            delay(reading.prefs.value.refresh.scale(NETWORK_TICK_MS))
             val rx = TrafficStats.getTotalRxBytes()
             val tx = TrafficStats.getTotalTxBytes()
             val now = SystemClock.elapsedRealtime()
@@ -108,12 +112,12 @@ internal class DevicePageRepository @Inject constructor(
     private fun once(dispatcher: kotlinx.coroutines.CoroutineDispatcher = dispatchers.io, block: suspend () -> List<InfoSection>): Flow<List<InfoSection>> =
         flow { emit(block()) }.flowOn(dispatcher)
 
-    /** Emits now, then again every [periodMs] while someone collects (the page is open). */
+    /** Emits now, then again every [periodMs] (scaled by the refresh setting) while the page is open. */
     private fun ticking(periodMs: Long, block: suspend () -> List<InfoSection>): Flow<List<InfoSection>> =
         flow {
             while (true) {
                 emit(block())
-                delay(periodMs)
+                delay(reading.prefs.value.refresh.scale(periodMs))
             }
         }.flowOn(dispatchers.io)
 

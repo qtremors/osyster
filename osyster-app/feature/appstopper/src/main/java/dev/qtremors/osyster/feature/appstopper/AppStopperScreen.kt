@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.feature.appstopper
 
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.rounded.Shop
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -44,6 +46,9 @@ import dev.qtremors.osyster.core.usage.domain.ManagedApp
 internal data class AppStopperActions(
     val onStop: (String) -> Unit,
     val onStopAll: () -> Unit,
+    val onLaunch: (String) -> Unit,
+    val onAppInfo: (String) -> Unit,
+    val onStore: (String) -> Unit,
     val onRemove: (String) -> Unit,
     val onOpenPicker: () -> Unit,
     val onPickerSystem: (Boolean) -> Unit,
@@ -68,7 +73,12 @@ internal fun AppStopperScreen(apps: List<ManagedApp>?, picker: PickerState, oneT
                 else -> {
                     item(key = "header") {
                         SectionHeader(
-                            text = stringResource(R.string.stopper_your_apps, apps.size),
+                            text = stringResource(
+                                R.string.stopper_counts,
+                                apps.count { it.installed && !it.stopped },
+                                apps.count { it.installed && it.stopped },
+                                apps.count { !it.installed }
+                            ),
                             trailing = if (oneTap && apps.any { it.installed && !it.stopped }) {
                                 { TextButton(onClick = actions.onStopAll) { Text(stringResource(R.string.stopper_stop_all)) } }
                             } else null
@@ -111,7 +121,7 @@ private fun Intro(onAdd: () -> Unit) {
     }
 }
 
-/** One managed app. Long-press to remove it from the list. */
+/** One managed app. Long-press for open, App info, store listing, and remove. */
 @Composable
 private fun ManagedRow(app: ManagedApp, actions: AppStopperActions) {
     var menuOpen by remember { mutableStateOf(false) }
@@ -142,6 +152,32 @@ private fun ManagedRow(app: ManagedApp, actions: AppStopperActions) {
             )
         }
         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+            if (app.installed) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.stopper_open)) },
+                    leadingIcon = { Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null) },
+                    onClick = {
+                        menuOpen = false
+                        actions.onLaunch(app.packageName)
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.stopper_app_info)) },
+                    leadingIcon = { Icon(Icons.Rounded.Info, contentDescription = null) },
+                    onClick = {
+                        menuOpen = false
+                        actions.onAppInfo(app.packageName)
+                    }
+                )
+            }
+            DropdownMenuItem(
+                text = { Text(stringResource(if (app.installed) R.string.stopper_store else R.string.stopper_reinstall)) },
+                leadingIcon = { Icon(Icons.Rounded.Shop, contentDescription = null) },
+                onClick = {
+                    menuOpen = false
+                    actions.onStore(app.packageName)
+                }
+            )
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.stopper_remove_from_list)) },
                 leadingIcon = { Icon(Icons.Rounded.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },

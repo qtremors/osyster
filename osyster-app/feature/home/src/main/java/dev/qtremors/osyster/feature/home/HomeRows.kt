@@ -36,6 +36,7 @@ internal fun PageRow(
     pinned: Boolean,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
+    glance: String?,
     actions: HomeActions
 ) {
     var menuOpen by remember { mutableStateOf(false) }
@@ -44,7 +45,7 @@ internal fun PageRow(
     Box {
         NavigationRow(
             title = stringResource(label.title),
-            supporting = stringResource(label.summary),
+            supporting = glance ?: stringResource(label.summary),
             icon = label.icon,
             badgeKey = page.id,
             onClick = { actions.onOpenPage(page) },
@@ -88,6 +89,7 @@ internal fun PageRow(
 internal fun PinnedRow(
     label: DestinationLabel,
     @StringRes help: Int,
+    glance: String? = null,
     badgeKey: String,
     onOpen: () -> Unit,
     onUnpin: () -> Unit
@@ -97,7 +99,7 @@ internal fun PinnedRow(
     Box {
         NavigationRow(
             title = stringResource(label.title),
-            supporting = stringResource(label.summary),
+            supporting = glance ?: stringResource(label.summary),
             icon = label.icon,
             badgeKey = badgeKey,
             onClick = onOpen,

@@ -1,6 +1,6 @@
 # Privacy Policy for Osyster
 
-**Last Updated:** 2026-09-27
+**Last Updated:** 2026-09-28
 
 Osyster reads information about your phone and changes settings you ask it to change. All of that happens on your phone. This policy explains what it reads, what it stores, and every permission it can use.
 
@@ -26,6 +26,7 @@ The app contains **no advertisements** and **no third-party analytics, tracking,
 - Package names you add to App stopper, Shut-Up!, and Freeze lists.
 - The debugging switches as they were before a Shut-Up! launch, until you restore them.
 - Whether you finished the welcome and which version's "What's new" you saw.
+- Your temperature unit, refresh speed, and whether screenshots are blocked.
 
 Android may include these preferences in its own device backup. Settings export writes them to a file only where you choose; nothing is uploaded.
 
@@ -50,6 +51,7 @@ Osyster asks for each permission only when a tool needs it, and every tool works
 
 - **Usage access:** Data usage, Screen usage, and the Data today tile read Android's own counters.
 - **Notification access:** music widgets read the playing song from media sessions; Flashlight pulse sees that a notification arrived and which app sent it. Notification text is never read or stored.
+- **Screen capture (Color picker tile):** Android asks every time. Osyster captures one frame, keeps it only in its private cache while you pick a color, and deletes it when you close the picker. A short foreground notification shows while the capture runs.
 
 ### Power tools (optional, granted by you outside the app)
 

@@ -1,5 +1,11 @@
 package dev.qtremors.osyster.feature.settings
 
+import dev.qtremors.osyster.core.device.domain.ReadingPrefs
+import dev.qtremors.osyster.core.device.domain.RefreshSpeed
+import dev.qtremors.osyster.core.device.domain.TemperatureUnit
+import androidx.compose.material.icons.rounded.Thermostat
+import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.VisibilityOff
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -65,6 +71,9 @@ internal data class SettingsActions(
     val onPreset: (ThemePreset) -> Unit,
     val onHaptics: (Boolean) -> Unit,
     val onReduceMotion: (Boolean) -> Unit,
+    val onBlockScreenshots: (Boolean) -> Unit,
+    val onTemperatureUnit: (TemperatureUnit) -> Unit,
+    val onRefresh: (RefreshSpeed) -> Unit,
     val onExport: () -> Unit,
     val onImport: () -> Unit,
     val onShowWelcome: () -> Unit,
@@ -74,6 +83,7 @@ internal data class SettingsActions(
 
 @Composable
 internal fun SettingsScreen(
+    reading: ReadingPrefs,
     theme: ThemeOptions?,
     message: SettingsMessage?,
     actions: SettingsActions
@@ -93,6 +103,10 @@ internal fun SettingsScreen(
             }
             item(key = "feel") {
                 if (theme != null) FeelSection(theme, actions)
+            }
+            item(key = "readings") { ReadingsSection(reading, actions) }
+            item(key = "privacy") {
+                if (theme != null) PrivacySection(theme, actions)
             }
             item(key = "backup") { BackupSection(actions) }
             item(key = "about") { AboutSection(actions.onNavigate) }
@@ -160,6 +174,60 @@ private fun FeelSection(theme: ThemeOptions, actions: SettingsActions) {
             )
         }
     }
+}
+
+@Composable
+private fun ReadingsSection(reading: ReadingPrefs, actions: SettingsActions) {
+    Column {
+        SectionHeader(stringResource(R.string.settings_readings))
+        ConnectedGroup {
+            ChoiceRow(
+                title = stringResource(R.string.settings_temperature),
+                icon = Icons.Rounded.Thermostat,
+                options = TemperatureUnit.entries,
+                selected = reading.temperatureUnit,
+                label = { unit -> stringResource(unit.labelRes()) },
+                onSelect = actions.onTemperatureUnit
+            )
+            ChoiceRow(
+                title = stringResource(R.string.settings_refresh),
+                supporting = stringResource(R.string.settings_refresh_summary),
+                icon = Icons.Rounded.Speed,
+                options = RefreshSpeed.entries,
+                selected = reading.refresh,
+                label = { speed -> stringResource(speed.labelRes()) },
+                onSelect = actions.onRefresh
+            )
+        }
+    }
+}
+
+@Composable
+private fun PrivacySection(theme: ThemeOptions, actions: SettingsActions) {
+    Column {
+        SectionHeader(stringResource(R.string.settings_privacy))
+        ConnectedGroup {
+            ToggleRow(
+                title = stringResource(R.string.settings_block_screenshots),
+                supporting = stringResource(R.string.settings_block_screenshots_summary),
+                icon = Icons.Rounded.VisibilityOff,
+                checked = theme.blockScreenshots,
+                onCheckedChange = actions.onBlockScreenshots
+            )
+        }
+    }
+}
+
+private fun TemperatureUnit.labelRes(): Int = when (this) {
+    TemperatureUnit.CELSIUS -> R.string.settings_unit_celsius
+    TemperatureUnit.FAHRENHEIT -> R.string.settings_unit_fahrenheit
+    TemperatureUnit.KELVIN -> R.string.settings_unit_kelvin
+}
+
+private fun RefreshSpeed.labelRes(): Int = when (this) {
+    RefreshSpeed.FAST -> R.string.settings_refresh_fast
+    RefreshSpeed.NORMAL -> R.string.settings_refresh_normal
+    RefreshSpeed.BATTERY_SAVER -> R.string.settings_refresh_saver
 }
 
 /** Seed swatches; each shows the primary color its scheme would produce, not the raw seed. */

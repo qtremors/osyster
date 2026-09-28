@@ -3,610 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Osyster | Android Device Info and Tools</title>
-
-    <!-- SEO & Open Graph Meta Tags -->
-    <meta name="description" content="Everything about your Android phone, and the tools to tune it, in one private app with no internet access.">
-    <meta property="og:title" content="Osyster | Private Android Device Info and Tools">
-    <meta property="og:description" content="Device details, usage, utilities, widgets, tiles, and optional power tools. No internet permission, ads, or accounts.">
+    <title>Osyster | The tools Android left out</title>
+    <meta name="description" content="Osyster adds the tools Android doesn't give you: keep the screen awake, freeze apps, see data per app, tune hidden settings, and more. Free, open source, and offline.">
+    <meta property="og:title" content="Osyster | The tools Android left out">
+    <meta property="og:description" content="Android gives you settings. Osyster gives you the rest.">
     <meta property="og:image" content="https://qtremors.github.io/osyster/assets/Osyster.png">
     <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="theme-color" content="#0E1415">
-
-    <link rel="icon" type="image/svg+xml" href="assets/Osyster.svg">
-    <link rel="preload" href="assets/fonts/Outfit-Variable.woff2" as="font" type="font/woff2" crossorigin>
+    <meta name="theme-color" content="#0e1415">
+    <link rel="icon" type="image/png" href="assets/Osyster.png">
     <link rel="stylesheet" href="styles.css">
-    <!-- Reveal animations hide content only when scripts can show it again -->
     <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
-    <!-- Icons: Lucide (ISC) and Simple Icons (CC0), inlined so the page loads no icon library -->
-    <svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute">
-        <symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" /></symbol>
-        <symbol id="i-bar-chart" viewBox="0 0 24 24"><path d="M3 3v18h18" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" /></symbol>
-        <symbol id="i-battery" viewBox="0 0 24 24"><rect width="16" height="10" x="2" y="7" rx="2" ry="2" /><line x1="22" x2="22" y1="11" y2="13" /></symbol>
-        <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /><path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" /></symbol>
-        <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
-        <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
-        <symbol id="i-code" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></symbol>
-        <symbol id="i-code-xml" viewBox="0 0 24 24"><path d="m18 16 4-4-4-4" /><path d="m6 8-4 4 4 4" /><path d="m14.5 4-5 16" /></symbol>
-        <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M10 2v2" /><path d="M14 2v2" /><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /><path d="M6 2v2" /></symbol>
-        <symbol id="i-cpu" viewBox="0 0 24 24"><rect width="16" height="16" x="4" y="4" rx="2" /><rect width="6" height="6" x="9" y="9" rx="1" /><path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" /><path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" /></symbol>
-        <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></symbol>
-        <symbol id="i-flashlight" viewBox="0 0 24 24"><path d="M18 6c0 2-2 2-2 4v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10c0-2-2-2-2-4V2h12z" /><line x1="6" x2="18" y1="6" y2="6" /><line x1="12" x2="12" y1="12" y2="12" /></symbol>
-        <symbol id="i-git-fork" viewBox="0 0 24 24"><circle cx="12" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><circle cx="18" cy="6" r="3" /><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9" /><path d="M12 12v3" /></symbol>
-        <symbol id="i-github" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></symbol>
-        <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" /></symbol>
-        <symbol id="i-heart" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></symbol>
-        <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></symbol>
-        <symbol id="i-layout-dashboard" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></symbol>
-        <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></symbol>
-        <symbol id="i-menu" viewBox="0 0 24 24"><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></symbol>
-        <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></symbol>
-        <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></symbol>
-        <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.640 1.640 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" /></symbol>
-        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></symbol>
-        <symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></symbol>
-        <symbol id="i-smartphone" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /></symbol>
-        <symbol id="i-snowflake" viewBox="0 0 24 24"><line x1="2" x2="22" y1="12" y2="12" /><line x1="12" x2="12" y1="2" y2="22" /><path d="m20 16-4-4 4-4" /><path d="m4 8 4 4-4 4" /><path d="m16 4-4 4-4-4" /><path d="m8 20 4-4 4 4" /></symbol>
-        <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" /><path d="M20 3v4" /><path d="M22 5h-4" /><path d="M4 17v2" /><path d="M5 18H3" /></symbol>
-        <symbol id="i-star" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></symbol>
-        <symbol id="i-terminal" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5" /><line x1="12" x2="20" y1="19" y2="19" /></symbol>
-        <symbol id="i-toggle" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="6" ry="6" /><circle cx="16" cy="12" r="2" /></symbol>
-        <symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M12 20h.01" /><path d="M8.5 16.429a5 5 0 0 1 7 0" /><path d="M5 12.859a10 10 0 0 1 5.17-2.69" /><path d="M19 12.859a10 10 0 0 0-2.007-1.523" /><path d="M2 8.82a15 15 0 0 1 4.177-2.643" /><path d="M22 8.82a15 15 0 0 0-11.288-3.764" /><path d="m2 2 20 20" /></symbol>
-        <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></symbol>
-        <symbol id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol>
-        <symbol id="i-discord" viewBox="0 0 24 24">
-            <path fill="currentColor" stroke="none" d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
-        </symbol>
+    <svg aria-hidden="true" width="0" height="0" style="position:absolute">
+        <symbol id="i-github" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></symbol>
+        <symbol id="i-star" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></symbol>
+        <symbol id="i-fork" viewBox="0 0 24 24"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9"/><path d="M12 12v3"/></symbol>
+        <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+        <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+        <symbol id="i-discord" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></symbol>
     </svg>
+    <header class="bar">
+        <a class="brand" href="#"><img src="assets/Osyster.png" alt="" width="36" height="36">Osyster</a>
+        <nav class="bar-links" aria-label="Sections"><a href="#do">Tools</a><a href="#developer">Developer</a><a href="#credits">Credits</a></nav>
+        <a class="link" href="https://github.com/qtremors/osyster" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+    </header>
 
-    <!-- Navigation (M3 Top App Bar style) -->
-    <nav class="nav" id="navbar">
-        <div class="container nav-inner">
-            <a href="#" class="brand">
-                <img src="assets/Osyster.svg" alt="" width="40" height="40">
-                <span>Osyster</span>
-            </a>
-            <div class="nav-links">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#power" class="nav-link">Power tools</a>
-                <a href="#design" class="nav-link">Design</a>
-                <a href="#tech" class="nav-link">Tech</a>
-                <a href="#credits" class="nav-link">Credits</a>
-                <a href="#faq" class="nav-link">FAQ</a>
-            </div>
-            <div class="nav-actions">
-                <a href="https://github.com/qtremors/osyster" target="_blank" rel="noopener" class="nav-link">
-                    <svg class="icon" aria-hidden="true"><use href="#i-github"/></svg>
-                    Source
-                </a>
-                <a href="https://discord.gg/QgUjuNj9U8" target="_blank" rel="noopener noreferrer" class="nav-link">
-                    <svg class="icon" aria-hidden="true"><use href="#i-discord"/></svg>
-                    Discord
-                </a>
-                <a href="https://github.com/qtremors/osyster/releases" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
-                    <span class="download-btn-text">Download APK</span>
-                </a>
-                <button type="button" class="menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
-                    <svg class="icon icon-lg" aria-hidden="true"><use id="mobile-menu-icon" href="#i-menu"/></svg>
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu" id="mobile-menu">
-        <div class="mobile-menu-links">
-            <a href="#features" class="nav-link mobile-link">Features</a>
-            <a href="#power" class="nav-link mobile-link">Power tools</a>
-            <a href="#design" class="nav-link mobile-link">Design</a>
-            <a href="#tech" class="nav-link mobile-link">Tech</a>
-            <a href="#credits" class="nav-link mobile-link">Credits</a>
-            <a href="#faq" class="nav-link mobile-link">FAQ</a>
-            <div class="menu-divider"></div>
-            <a href="https://github.com/qtremors/osyster" target="_blank" rel="noopener" class="nav-link small mobile-link">
-                <svg class="icon" aria-hidden="true"><use href="#i-github"/></svg>
-                Source
-            </a>
-            <a href="https://discord.gg/QgUjuNj9U8" target="_blank" rel="noopener noreferrer" class="nav-link small mobile-link">
-                <svg class="icon" aria-hidden="true"><use href="#i-discord"/></svg>
-                Discord
-            </a>
-            <a href="https://github.com/qtremors/osyster/releases" target="_blank" rel="noopener" class="btn btn-primary btn-sm mobile-link">
-                <span class="download-btn-text">Download APK</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- Hero Section -->
-    <main class="hero">
-        <div class="container hero-inner solo">
-
-            <div class="hero-copy reveal">
-                <h1 class="hero-title">
-                    Know your phone.<br>
-                    <span class="accent">Tune it privately.</span>
-                </h1>
-
-                <p class="hero-lead">
-                    Device details, data and screen usage, everyday utilities, widgets, tiles, and optional power tools, in one app that never touches the internet.
-                </p>
-
-                <!-- Live GitHub Stats -->
-                <div class="stat-row" aria-label="Osyster GitHub statistics">
-                    <a href="https://github.com/qtremors/osyster" target="_blank" rel="noopener" aria-label="Osyster repository stars and forks" title="GitHub repository" class="stat-pill">
-                        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-github"/></svg>
-                        <span class="stat">
-                            <svg class="icon icon-xs" aria-hidden="true"><use href="#i-star"/></svg>
-                            <span id="gh-stars" aria-label="GitHub stars">--</span>
-                        </span>
-                        <span class="stat">
-                            <svg class="icon icon-xs" aria-hidden="true"><use href="#i-git-fork"/></svg>
-                            <span id="gh-forks" aria-label="GitHub forks">--</span>
-                        </span>
-                    </a>
-                    <a href="https://github.com/qtremors/osyster/releases" target="_blank" rel="noopener" aria-label="Osyster total and latest release downloads" title="Release downloads" class="stat-pill">
-                        <svg class="icon icon-sm" aria-hidden="true"><use href="#i-download"/></svg>
-                        <span class="stat">
-                            <span class="stat-label">Total</span>
-                            <span id="gh-total-downloads" aria-label="Total release downloads">--</span>
-                        </span>
-                        <span class="stat">
-                            <span class="stat-label">Latest</span>
-                            <span id="gh-latest-downloads" aria-label="Latest release downloads">--</span>
-                        </span>
-                    </a>
+    <main>
+        <section class="hero">
+            <div class="hero-copy">
+                <h1>Android gives you settings.<br><span>Osyster gives you the&nbsp;rest.</span></h1>
+                <p>The tools your phone should have come with, in one app that works offline.</p>
+                <div class="actions">
+                    <a class="btn apk-link" href="https://github.com/qtremors/osyster/releases/latest" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg><span class="release">Download APK</span></a>
+                    <a class="btn btn-quiet" href="https://github.com/qtremors/osyster" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-github"/></svg>View on GitHub</a>
                 </div>
-
-                <div class="hero-actions">
-                    <a href="https://github.com/qtremors/osyster/releases" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
-                        <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
-                        <span class="download-btn-text">Download APK</span>
-                    </a>
-                    <a href="#features" class="btn btn-tonal btn-lg">
-                        <svg class="icon" aria-hidden="true"><use href="#i-sparkles"/></svg>
-                        Features
-                    </a>
-                </div>
-
-                <div class="hero-checks">
-                    <span><svg class="icon icon-sm" aria-hidden="true"><use href="#i-check"/></svg> No Internet Permission</span>
-                    <span><svg class="icon icon-sm" aria-hidden="true"><use href="#i-check"/></svg> No Ads</span>
-                    <span><svg class="icon icon-sm" aria-hidden="true"><use href="#i-check"/></svg> Open Source (GPLv3)</span>
-                </div>
+                <ul class="stats" aria-label="GitHub statistics">
+                    <li title="Stars"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg><span id="gh-stars">–</span><small>stars</small></li>
+                    <li title="Forks"><svg class="i" aria-hidden="true"><use href="#i-fork"/></svg><span id="gh-forks">–</span><small>forks</small></li>
+                    <li title="Downloads of every release"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg><span id="gh-total">–</span><small>downloads</small></li>
+                    <li title="Downloads of the latest release"><span id="gh-latest">–</span><small>on the latest release</small></li>
+                </ul>
+                <p class="quiet">Free · Open source · Android 8.0+ · No root needed</p>
             </div>
 
-            <!-- The phone showcase returns here once real device screenshots exist (TASKS TEST-0002). -->
-        </div>
+            <!-- Android's own settings, dimmed, with Osyster's additions opening between them. -->
+            <ol class="gaps" aria-label="What Osyster adds to Android's settings">
+                <li class="stock">Display</li>
+                <li class="add" style="--i:1">Keep the screen awake on a timer</li>
+                <li class="add" style="--i:2">Display size and animation speed in finer steps</li>
+                <li class="stock">Battery</li>
+                <li class="add" style="--i:3">Choose what battery saver turns off</li>
+                <li class="stock">Apps</li>
+                <li class="add" style="--i:4">Freeze apps you never use</li>
+                <li class="add" style="--i:5">Data used by each app, live</li>
+                <li class="stock">Notifications</li>
+                <li class="add" style="--i:6">Blink the flashlight when one arrives</li>
+                <li class="stock">Developer options</li>
+                <li class="add" style="--i:7">Hide debugging from apps that refuse to run</li>
+                <li class="stock">Quick Settings</li>
+                <li class="add" style="--i:8">Private DNS, USB debugging, and Freeze tiles</li>
+            </ol>
+        </section>
+
+        <section id="do" class="block reveal">
+            <h2>What you can do</h2>
+            <dl class="verbs">
+                <div><dt>Keep awake</dt><dd>Screen stays on for as long as you choose, or whenever it's charging.</dd></div>
+                <div><dt>Freeze</dt><dd>Turn off apps you rarely use without uninstalling them.</dd></div>
+                <div><dt>Stop</dt><dd>Keep a list of apps you often close and stop them in one tap.</dd></div>
+                <div><dt>Measure</dt><dd>Data and screen time per app, from your phone's own records.</dd></div>
+                <div><dt>Inspect</dt><dd>Every part of your phone, from the processor to the cameras, in plain words.</dd></div>
+                <div><dt>Tune</dt><dd>Status bar icons, Private DNS, battery saver, and other settings Android hides.</dd></div>
+            </dl>
+        </section>
+
+        <section class="block reveal">
+            <h2>Go as far as you like</h2>
+            <ol class="levels">
+                <li><b>Install it</b><span>Most tools work right away, no setup needed.</span></li>
+                <li><b>Run one command</b><span>Allow settings access once from a computer to unlock the setting tools.</span></li>
+                <li><b>Use Shizuku or root</b><span>For freezing apps, standby limits, and one-tap stopping.</span></li>
+            </ol>
+        </section>
+
+        <section class="block promise reveal">
+            <p class="big">No internet permission. No ads. No accounts.</p>
+            <p class="quiet">Nothing Osyster sees ever leaves your phone. <a href="https://github.com/qtremors/osyster/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy policy</a></p>
+        </section>
+
+        <section id="developer" class="block reveal">
+            <h2>Developer</h2>
+            <div class="dev">
+                <img src="assets/Tremors.svg" alt="Tremors" width="88" height="88" loading="lazy">
+                <div>
+                    <p class="dev-name">Tremors</p>
+                    <p class="quiet">Builds private, offline Android apps with simple architecture and careful interfaces. Osyster is a solo project.</p>
+                    <div class="links">
+                        <a href="https://github.com/qtremors" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+                        <a href="https://qtremors.github.io" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg>Website</a>
+                        <a href="https://discord.gg/QgUjuNj9U8" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-discord"/></svg>Discord</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="credits" class="block reveal">
+            <h2>Credits</h2>
+            <div class="credits">
+                <div>
+                    <h3>In the app</h3>
+                    <p class="quiet">Built with <a href="https://kotlinlang.org/" target="_blank" rel="noopener">Kotlin</a>, <a href="https://developer.android.com/compose" target="_blank" rel="noopener">Jetpack Compose</a>, <a href="https://m3.material.io/" target="_blank" rel="noopener">Material 3</a>, AndroidX, <a href="https://dagger.dev/hilt/" target="_blank" rel="noopener">Hilt</a>, <a href="https://github.com/jordond/MaterialKolor" target="_blank" rel="noopener">MaterialKolor</a>, and the <a href="https://github.com/RikkaApps/Shizuku-API" target="_blank" rel="noopener">Shizuku API</a>, with text in <a href="https://fonts.google.com/specimen/Roboto+Flex" target="_blank" rel="noopener">Roboto Flex</a>. The interface is inspired by <a href="https://github.com/sameerasw/essentials" target="_blank" rel="noopener">Essentials</a> by sameerasw (MIT).</p>
+                </div>
+                <div>
+                    <h3>On this site</h3>
+                    <p class="quiet">Plain HTML, CSS, and JavaScript, with icons from <a href="https://lucide.dev/" target="_blank" rel="noopener">Lucide</a> (ISC) and <a href="https://simpleicons.org/" target="_blank" rel="noopener">Simple Icons</a> (CC0). Every license is listed in the app under Settings, About, Open source licenses.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="end reveal">
+            <img src="assets/Osyster.png" alt="Osyster icon" width="104" height="104" loading="lazy">
+            <a class="btn apk-link" href="https://github.com/qtremors/osyster/releases/latest" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg><span class="release">Download APK</span></a>
+            <p class="quiet"><span class="version-note"></span>Requires Android 8.0 or newer.</p>
+        </section>
     </main>
 
-    <!-- Trust Banner -->
-    <div class="trust reveal">
-        <div class="container trust-grid">
-            <div class="trust-item">
-                <div class="round-icon" style="--accent:#34D399">
-                    <svg class="icon icon-lg" aria-hidden="true"><use href="#i-wifi-off"/></svg>
-                </div>
-                <div>
-                    <h4>Private</h4>
-                    <p>No internet permission, ads, trackers, or accounts.</p>
-                </div>
-            </div>
-            <div class="trust-item">
-                <div class="round-icon" style="--accent:#7F52FF">
-                    <svg class="icon icon-lg" aria-hidden="true"><use href="#i-code"/></svg>
-                </div>
-                <div>
-                    <h4>Native Android</h4>
-                    <p>Kotlin, Jetpack Compose, and Material 3 Expressive.</p>
-                </div>
-            </div>
-            <div class="trust-item">
-                <div class="round-icon" style="--accent:#4285F4">
-                    <svg class="icon icon-lg" aria-hidden="true"><use href="#i-smartphone"/></svg>
-                </div>
-                <div>
-                    <h4>Android 8+</h4>
-                    <p>Runs on Android 8.0 or newer. No root needed.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Features -->
-    <section id="features" class="section section-surface">
-        <div class="container">
-            <div class="section-head reveal">
-                <h2 class="section-title">Your whole phone,<br>one calm app.</h2>
-                <p class="section-lead">Read what your phone is made of, see how you use it, and change what Android hides, without giving anything away.</p>
-            </div>
-
-            <!-- Privacy first: the one promise everything else is built around -->
-            <div class="privacy-band reveal">
-                <div class="privacy-copy">
-                    <span class="privacy-icon"><svg class="icon icon-xl" aria-hidden="true"><use href="#i-shield-check"/></svg></span>
-                    <h3 class="privacy-title">No Internet Permission</h3>
-                    <p>Osyster cannot send anything anywhere. It never reads serial numbers, IMEI, phone numbers, or MAC addresses.</p>
-                </div>
-                <ul class="privacy-stats">
-                    <li><strong>0</strong><span>Internet permission</span></li>
-                    <li><strong>0</strong><span>Ads or trackers</span></li>
-                    <li><strong>0</strong><span>Accounts needed</span></li>
-                </ul>
-            </div>
-
-            <!-- Everything else: an even grid; icon shapes change on hover -->
-            <div class="features">
-                <article class="feature reveal" style="--accent:#22D3EE">
-                    <span class="feature-icon shape-leaf"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-cpu"/></svg></span>
-                    <h3>Twelve Device Pages</h3>
-                    <p>System, device, processor and GPU, memory and storage, battery, display, cameras, sensors, network, Bluetooth, media and DRM, and certificates.</p>
-                    <div class="chips"><span class="chip">Copy Any Value</span><span class="chip">Share Report</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#4285F4;--delay:80ms">
-                    <span class="feature-icon shape-squircle"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-layout-dashboard"/></svg></span>
-                    <h3>A Home You Arrange</h3>
-                    <p>A live card with CPU, RAM, and battery, pinned favorites, and grouped device pages you can reorder or hide.</p>
-                    <div class="chips"><span class="chip">Pin</span><span class="chip">Reorder</span><span class="chip">Hide</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#60A5FA;--delay:160ms">
-                    <span class="feature-icon shape-arch"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-bar-chart"/></svg></span>
-                    <h3>Data and Screen Usage</h3>
-                    <p>Mobile and Wi-Fi data per app with live speed, and seven days of screen time with hourly charts, from Android's own counters.</p>
-                    <div class="chips"><span class="chip">Per App</span><span class="chip">Live Speed</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#FBBF24">
-                    <span class="feature-icon shape-circle"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-coffee"/></svg></span>
-                    <h3>Stay Awake</h3>
-                    <p>Keep the screen on for a set time with a countdown notification, or while charging through Android's own setting.</p>
-                    <div class="chips"><span class="chip">Timer</span><span class="chip">While Charging</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#F472B6;--delay:80ms">
-                    <span class="feature-icon shape-leaf"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-flashlight"/></svg></span>
-                    <h3>Flashlight</h3>
-                    <p>Brightness levels on phones that support them, and a pulse that blinks the torch for new notifications while the screen is off.</p>
-                    <div class="chips"><span class="chip">Brightness</span><span class="chip">Notification Pulse</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#34D399;--delay:160ms">
-                    <span class="feature-icon shape-squircle"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-link"/></svg></span>
-                    <h3>Launcher and Links</h3>
-                    <p>Open any app's exported screens and pin them, choose which app opens each link, and stop apps you often close.</p>
-                    <div class="chips"><span class="chip">Activity Launcher</span><span class="chip">App Stopper</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#A78BFA">
-                    <span class="feature-icon shape-arch"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-music"/></svg></span>
-                    <h3>Widgets</h3>
-                    <p>Disc and capsule music players with art and controls, and data usage widgets for today, this month, or both.</p>
-                    <div class="chips"><span class="chip">Music</span><span class="chip">Data</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#2DD4BF;--delay:80ms">
-                    <span class="feature-icon shape-circle"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-toggle"/></svg></span>
-                    <h3>Quick Settings Tiles</h3>
-                    <p>Twelve tiles, from Stay awake, Flashlight, RAM, and Data today to Private DNS, USB debugging, and Freeze.</p>
-                    <div class="chips"><span class="chip">One-Tap Add</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#818CF8;--delay:160ms">
-                    <span class="feature-icon shape-leaf"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-search"/></svg></span>
-                    <h3>Search and Backup</h3>
-                    <p>Find any page, tool, setting, or device value from Home, and move your settings to another phone with one file.</p>
-                    <div class="chips"><span class="chip">Search Values</span><span class="chip">Export</span></div>
-                </article>
-            </div>
-        </div>
-    </section>
-
-    <!-- Power tools -->
-    <section id="power" class="section">
-        <div class="container">
-            <div class="section-head reveal">
-                <h2 class="section-title">Power tools,<br>when you want them.</h2>
-                <p class="section-lead">Optional, visible, and reversible. Allow them once with ADB, or through Shizuku or root, and Osyster can grant itself settings access so they keep working afterwards.</p>
-            </div>
-            <div class="features">
-                <article class="feature reveal" style="--accent:#FBBF24">
-                    <span class="feature-icon shape-circle"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-battery"/></svg></span>
-                    <h3>Power Saving</h3>
-                    <p>Battery saver, its automatic level, and each limit it applies, with a reset to phone defaults.</p>
-                    <div class="chips"><span class="chip">ADB, Shizuku, or Root</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#60A5FA;--delay:80ms">
-                    <span class="feature-icon shape-squircle"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-zap"/></svg></span>
-                    <h3>Scale and System Tweaks</h3>
-                    <p>Animation speed, font and display size, status bar icons, blur, tap to wake, debugging, and Private DNS.</p>
-                    <div class="chips"><span class="chip">Reversible</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#F472B6;--delay:160ms">
-                    <span class="feature-icon shape-arch"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-shield-check"/></svg></span>
-                    <h3>Shut-Up!</h3>
-                    <p>Open banking apps that refuse developer options. Debugging turns off first and comes back with one tap.</p>
-                    <div class="chips"><span class="chip">Home Shortcuts</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#22D3EE">
-                    <span class="feature-icon shape-leaf"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-snowflake"/></svg></span>
-                    <h3>Freeze</h3>
-                    <p>Disable apps you rarely use without uninstalling them, and unfreeze them one by one or all at once.</p>
-                    <div class="chips"><span class="chip">Shizuku or Root</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#34D399;--delay:80ms">
-                    <span class="feature-icon shape-circle"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-activity"/></svg></span>
-                    <h3>Standby Apps</h3>
-                    <p>See each app's standby bucket and move it lower to limit what it does in the background.</p>
-                    <div class="chips"><span class="chip">Shizuku or Root</span></div>
-                </article>
-                <article class="feature reveal" style="--accent:#A78BFA;--delay:160ms">
-                    <span class="feature-icon shape-squircle"><svg class="icon icon-lg" aria-hidden="true"><use href="#i-terminal"/></svg></span>
-                    <h3>No Hidden Tricks</h3>
-                    <p>No accessibility service, no hidden system interfaces. Every command is a normal shell command with quoted arguments.</p>
-                    <div class="chips"><span class="chip">Auditable</span></div>
-                </article>
-            </div>
-        </div>
-    </section>
-
-    <!-- Design Section -->
-    <section id="design" class="section section-surface">
-        <div class="container design">
-            <div class="design-copy reveal">
-                <span class="tag">Material You</span>
-                <h2 class="design-title">Designed for<br>Android.</h2>
-                <p class="section-lead" style="margin-inline:0">
-                    Osyster follows Material 3 Expressive: connected rows, a floating toolbar, springy motion, and colors taken from your wallpaper.
-                </p>
-                <ul class="design-list">
-                    <li>
-                        <span class="round-icon" style="--accent:#FF52A3"><svg class="icon" aria-hidden="true"><use href="#i-palette"/></svg></span>
-                        Wallpaper Colors and Six Presets
-                    </li>
-                    <li>
-                        <span class="round-icon" style="--accent:#7F52FF"><svg class="icon" aria-hidden="true"><use href="#i-moon"/></svg></span>
-                        System, Light, Dark, and Pure Black
-                    </li>
-                    <li>
-                        <span class="round-icon" style="--accent:#81C784"><svg class="icon" aria-hidden="true"><use href="#i-zap"/></svg></span>
-                        Haptics, Reduce Motion, and Predictive Back
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Material 3 tonal palette -->
-            <div class="palette reveal" style="--delay:200ms" aria-label="Osyster color palette">
-                <div class="swatch" style="--swatch:#82D3E0;--on-swatch:#00363D">
-                    <div><strong>Primary</strong><code>#82D3E0</code></div>
-                    <span class="swatch-dot"><svg class="icon icon-sm" aria-hidden="true"><use href="#i-palette"/></svg></span>
-                </div>
-                <div class="swatch" style="--swatch:#004F58;--on-swatch:#9EEFFD">
-                    <div><strong>Primary Container</strong><code>#004F58</code></div>
-                    <span class="swatch-dot"></span>
-                </div>
-                <div class="swatch" style="--swatch:#334B4F;--on-swatch:#CDE7EC">
-                    <div><strong>Secondary Container</strong><code>#334B4F</code></div>
-                    <span class="swatch-dot"></span>
-                </div>
-                <div class="swatch" style="--swatch:#1A2122;--on-swatch:#DEE3E5">
-                    <div><strong>Surface Container</strong><code>#1A2122</code></div>
-                    <span class="swatch-dot"></span>
-                </div>
-                <div class="swatch" style="--swatch:#2F3637;--on-swatch:#DEE3E5">
-                    <div><strong>Surface Highest</strong><code>#2F3637</code></div>
-                    <span class="swatch-dot"></span>
-                </div>
-                <div class="swatch" style="--swatch:#3F484A;--on-swatch:#DEE3E5">
-                    <div><strong>Outline Variant</strong><code>#3F484A</code></div>
-                    <span class="swatch-dot"></span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Tech Stack (For Devs) -->
-    <section id="tech" class="section tech">
-        <div class="container">
-            <h2 class="section-title reveal">Built With Modern Android Tools</h2>
-
-            <div class="pill-row reveal" style="--delay:100ms">
-                <span class="tech-pill" style="--accent:#7F52FF"><svg class="icon" aria-hidden="true"><use href="#i-code-xml"/></svg>Kotlin 2.4.21</span>
-                <span class="tech-pill" style="--accent:#4285F4"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg>Jetpack Compose</span>
-                <span class="tech-pill" style="--accent:#81C784"><svg class="icon" aria-hidden="true"><use href="#i-box"/></svg>Hilt + DataStore</span>
-                <span class="tech-pill" style="--accent:#FFB74D"><svg class="icon" aria-hidden="true"><use href="#i-cpu"/></svg>Coroutines &amp; StateFlow</span>
-            </div>
-
-            <p class="tech-note reveal" style="--delay:200ms">
-                Twenty-nine Gradle modules: pure Kotlin domain contracts, Android data layers, and feature modules that never depend on each other, guarded by architecture tests.
-            </p>
-        </div>
-    </section>
-
-    <!-- Team Section -->
-    <section id="developers" class="section section-surface">
-        <div class="container">
-            <div class="section-head tight reveal">
-                <h2 class="section-title" style="font-family:var(--font-body)">Built by Tremors</h2>
-            </div>
-
-            <div class="dev-card reveal" style="--delay:100ms">
-                <div class="avatar">
-                    <img src="assets/Tremors.jpg" alt="Tremors" width="128" height="128" loading="lazy">
-                </div>
-                <h3 class="dev-name">Tremors</h3>
-                <p class="dev-role">Software Engineer</p>
-                <p class="dev-bio">
-                    Focused on simple architecture, thoughtful interfaces, and turning ideas into polished, reliable software.
-                </p>
-                <div class="social-row">
-                    <a href="https://github.com/qtremors" target="_blank" rel="noopener" aria-label="Tremors on GitHub" class="social-btn">
-                        <svg class="icon icon-lg" aria-hidden="true"><use href="#i-github"/></svg>
-                    </a>
-                    <a href="https://qtremors.github.io" target="_blank" rel="noopener" aria-label="Tremors website" class="social-btn">
-                        <svg class="icon icon-lg" aria-hidden="true"><use href="#i-globe"/></svg>
-                    </a>
-                    <a href="https://discord.gg/QgUjuNj9U8" target="_blank" rel="noopener noreferrer" aria-label="Discord community" class="social-btn">
-                        <svg class="icon icon-lg" aria-hidden="true"><use href="#i-discord"/></svg>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Credits Section -->
-    <section id="credits" class="section">
-        <div class="container">
-            <div class="section-head tight reveal">
-                <h2 class="section-title">Credits</h2>
-                <p class="section-lead">Osyster stands on the work of open source maintainers and Android platform teams.</p>
-            </div>
-            <div class="two-col reveal" style="--delay:100ms">
-                <div class="card credit-card">
-                    <h3 class="card-title">Android app</h3>
-                    <p class="card-text">
-                        Built with <a href="https://kotlinlang.org/" target="_blank" rel="noopener" class="text-link">Kotlin</a>,
-                        <a href="https://developer.android.com/compose" target="_blank" rel="noopener" class="text-link">Jetpack Compose</a>,
-                        <a href="https://m3.material.io/" target="_blank" rel="noopener" class="text-link">Material 3</a>, AndroidX,
-                        <a href="https://dagger.dev/hilt/" target="_blank" rel="noopener" class="text-link">Hilt</a>,
-                        <a href="https://github.com/jordond/MaterialKolor" target="_blank" rel="noopener" class="text-link">MaterialKolor</a>, and the
-                        <a href="https://github.com/RikkaApps/Shizuku-API" target="_blank" rel="noopener" class="text-link">Shizuku API</a>, with text in
-                        <a href="https://fonts.google.com/specimen/Roboto+Flex" target="_blank" rel="noopener" class="text-link">Roboto Flex</a>.
-                    </p>
-                    <p class="card-text">
-                        The interface design is inspired by
-                        <a href="https://github.com/sameerasw/essentials" target="_blank" rel="noopener" class="text-link">Essentials</a> by sameerasw (MIT License).
-                    </p>
-                </div>
-                <div class="card credit-card">
-                    <h3 class="card-title">Website and design</h3>
-                    <p class="card-text">
-                        The website is plain HTML, CSS, and JavaScript, with icons from
-                        <a href="https://lucide.dev/" target="_blank" rel="noopener" class="text-link">Lucide</a> and
-                        <a href="https://simpleicons.org/" target="_blank" rel="noopener" class="text-link">Simple Icons</a> and headings in
-                        <a href="https://github.com/Outfitio/Outfit-Fonts" target="_blank" rel="noopener" class="text-link">Outfit</a>, all served from this site.
-                    </p>
-                    <p class="card-text">Each project remains the property of its authors and is used under its own license. Full details are inside Osyster under Settings, About, Open source licenses.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section id="faq" class="section section-surface">
-        <div class="container">
-            <div class="section-head reveal">
-                <h2 class="section-title">Frequently Asked Questions</h2>
-                <p class="section-lead">Everything you need to know about Osyster.</p>
-            </div>
-
-            <div class="two-col faq-grid reveal" style="--delay:100ms">
-                <div class="faq-col">
-                    <details class="faq" name="faq">
-                        <summary>How do I know Osyster is offline?<svg class="icon" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
-                        <p>Osyster does not declare <code>android.permission.INTERNET</code>, so Android itself blocks it from the network. It has no ads, analytics, or crash reporting. The source is public, so anyone can check.</p>
-                    </details>
-                    <details class="faq" name="faq">
-                        <summary>Do I need root?<svg class="icon" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
-                        <p>No. Everything except the power tools works on a normal phone. Settings power tools work after one ADB command, or through Shizuku or root. Freeze, Standby apps, and display size need Shizuku or root while you use them.</p>
-                    </details>
-                    <details class="faq" name="faq">
-                        <summary>Why do some values say "Not available"?<svg class="icon" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
-                        <p>Android and phone makers hide some details from apps. Osyster says so instead of showing a fake zero, and tells you when a permission would reveal more.</p>
-                    </details>
-                </div>
-
-                <div class="faq-col">
-                    <details class="faq" name="faq">
-                        <summary>Which permissions does Osyster ask for?<svg class="icon" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
-                        <p>Only what a tool needs, when you open it: usage access for data and screen usage, notification access for music widgets and flashlight pulse, and location or phone access for Wi-Fi and SIM details. The privacy policy lists every one.</p>
-                    </details>
-                    <details class="faq" name="faq">
-                        <summary>Does it use an accessibility service?<svg class="icon" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
-                        <p>Never. Features that would need one, such as watching which app is open, are left out on purpose.</p>
-                    </details>
-                    <details class="faq" name="faq">
-                        <summary>Is Osyster open source?<svg class="icon" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
-                        <p>Yes, under the GNU General Public License v3. You may use, study, change, and share it, and versions you share must stay open source too. Report bugs through <a href="https://github.com/qtremors/osyster/issues" target="_blank" rel="noopener" class="text-link">GitHub Issues</a> or join the <a href="https://discord.gg/QgUjuNj9U8" target="_blank" rel="noopener noreferrer" class="text-link">Discord community</a>.</p>
-                    </details>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Final CTA Section -->
-    <section id="download" class="cta">
-        <div class="container reveal">
-            <div class="cta-logo">
-                <img src="assets/Osyster.svg" alt="" width="60" height="60" loading="lazy">
-            </div>
-            <h2 class="section-title">Download Osyster</h2>
-            <p class="section-lead">
-                Device info and tools for Android. Free, open source, and completely offline.
-            </p>
-            <div class="cta-actions">
-                <a href="https://github.com/qtremors/osyster/releases" target="_blank" rel="noopener" class="btn btn-primary">
-                    <svg class="icon icon-lg" aria-hidden="true"><use href="#i-download"/></svg>
-                    <span class="download-btn-text">Download APK</span>
-                </a>
-                <a href="https://github.com/qtremors/osyster" target="_blank" rel="noopener" class="btn btn-neutral">
-                    <svg class="icon icon-lg" aria-hidden="true"><use href="#i-github"/></svg>
-                    View Source
-                </a>
-            </div>
-            <p class="cta-note">Requires Android 8.0 or newer.</p>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div>
-                    <div class="brand">
-                        <img src="assets/Osyster.svg" alt="" width="32" height="32" loading="lazy">
-                        <span>Osyster</span>
-                    </div>
-                    <p class="footer-about">
-                        Everything about your Android phone, and the tools to tune it, with no internet access.
-                    </p>
-                    <div class="footer-social">
-                        <a href="https://github.com/qtremors" target="_blank" rel="noopener" aria-label="Tremors on GitHub">
-                            <svg class="icon" aria-hidden="true"><use href="#i-github"/></svg>
-                        </a>
-                        <a href="https://qtremors.github.io" target="_blank" rel="noopener" aria-label="Tremors website">
-                            <svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg>
-                        </a>
-                        <a href="https://discord.gg/QgUjuNj9U8" target="_blank" rel="noopener noreferrer" aria-label="Discord community">
-                            <svg class="icon" aria-hidden="true"><use href="#i-discord"/></svg>
-                        </a>
-                    </div>
-                </div>
-
-                <div>
-                    <h4>Resources</h4>
-                    <ul class="footer-links">
-                        <li><a href="https://github.com/qtremors/osyster/blob/main/README.md" target="_blank" rel="noopener">Documentation</a></li>
-                        <li><a href="https://github.com/qtremors/osyster/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a></li>
-                        <li><a href="https://github.com/qtremors/osyster/blob/main/RELEASES.md" target="_blank" rel="noopener">Release Notes</a></li>
-                        <li><a href="https://github.com/qtremors/osyster/blob/main/DEVELOPMENT.md" target="_blank" rel="noopener">Architecture Guide</a></li>
-                        <li><a href="https://github.com/qtremors/osyster/issues" target="_blank" rel="noopener">Bug Tracker</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4>Legal</h4>
-                    <ul class="footer-links">
-                        <li><a href="https://github.com/qtremors/osyster/blob/main/LICENSE.md" target="_blank" rel="noopener">GNU GPL v3</a></li>
-                        <li><a href="https://github.com/qtremors/osyster/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy Policy</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p>© 2026 Tremors. Licensed under the GNU GPL v3.</p>
-                <div>
-                    <span>Crafted</span>
-                    <svg class="icon icon-sm" aria-hidden="true"><use href="#i-heart"/></svg>
-                    <span>for Android</span>
-                </div>
-            </div>
-        </div>
+    <footer class="foot">
+        <nav aria-label="Project links">
+            <a href="https://github.com/qtremors/osyster" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://github.com/qtremors/osyster/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+            <a href="https://github.com/qtremors/osyster/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a>
+            <a href="https://github.com/qtremors/osyster/blob/main/LICENSE.md" target="_blank" rel="noopener">GPLv3</a>
+            <a href="https://discord.gg/QgUjuNj9U8" target="_blank" rel="noopener noreferrer">Discord</a>
+        </nav>
+        <p>© 2026 Tremors. Licensed under the GNU GPL v3.</p>
     </footer>
 
     <script src="scripts.js" defer></script>

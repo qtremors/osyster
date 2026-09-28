@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.core.device.data.pages
 
+import dev.qtremors.osyster.core.device.domain.TemperatureUnit
+import dev.qtremors.osyster.core.device.domain.formatTemperature
 import android.os.BatteryManager
 import android.os.Build
 import dev.qtremors.osyster.core.device.data.R
@@ -12,7 +14,7 @@ import dev.qtremors.osyster.core.device.domain.InfoSection
  * The Battery page. Only what BatteryManager reports: no estimated capacity, health score, or
  * per-app drain, because Android gives apps no honest source for them.
  */
-internal class BatteryPageCollector(private val text: DeviceText) {
+internal class BatteryPageCollector(private val text: DeviceText, private val unit: () -> TemperatureUnit) {
 
     fun collect(battery: BatterySnapshot): List<InfoSection> = listOf(status(battery), health(battery), power(battery))
 
@@ -31,7 +33,7 @@ internal class BatteryPageCollector(private val text: DeviceText) {
 
     private fun health(b: BatterySnapshot) = section(text, "health", R.string.section_battery_health, "BatteryManager") {
         row("health", R.string.row_health, text[healthLabel(b.health)], copyable = false)
-        row("temperature", R.string.row_temperature, b.temperatureC?.let(UnitFormat::celsius), copyable = false)
+        row("temperature", R.string.row_temperature, b.temperatureC?.let { formatTemperature(it, unit()) }, copyable = false)
         row("voltage", R.string.row_voltage, b.voltageMv?.let(UnitFormat::millivolts), copyable = false)
         row("technology", R.string.row_technology, b.technology)
         row("cycles", R.string.row_cycle_count, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

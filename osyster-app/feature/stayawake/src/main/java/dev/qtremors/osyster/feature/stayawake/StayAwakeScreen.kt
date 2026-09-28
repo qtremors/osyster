@@ -50,7 +50,8 @@ internal data class StayAwakeActions(
     val onStart: () -> Unit,
     val onStop: () -> Unit,
     val onWhileCharging: (Boolean) -> Unit,
-    val onOpenDeveloperOptions: () -> Unit
+    val onOpenDeveloperOptions: () -> Unit,
+    val onGrant: () -> Unit
 )
 
 @Composable
@@ -59,13 +60,14 @@ internal fun StayAwakeScreen(
     selectedMinutes: Int?,
     whileCharging: WhileChargingState,
     adbCommand: String,
+    canGrant: Boolean,
     actions: StayAwakeActions
 ) {
     OsysterScaffold(title = stringResource(Tool.STAY_AWAKE.label.title)) { padding ->
         LazyColumn(contentPadding = padding) {
             item(key = "status") { Status(timer) }
             item(key = "timer") { TimerSection(timer, selectedMinutes, actions) }
-            item(key = "charging") { WhileChargingSection(whileCharging, adbCommand, actions) }
+            item(key = "charging") { WhileChargingSection(whileCharging, adbCommand, canGrant, actions) }
         }
     }
 }
@@ -122,7 +124,7 @@ private fun TimerSection(timer: StayAwakeTimer, selectedMinutes: Int?, actions: 
 }
 
 @Composable
-private fun WhileChargingSection(state: WhileChargingState, adbCommand: String, actions: StayAwakeActions) {
+private fun WhileChargingSection(state: WhileChargingState, adbCommand: String, canGrant: Boolean, actions: StayAwakeActions) {
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
     Column {
@@ -137,6 +139,14 @@ private fun WhileChargingSection(state: WhileChargingState, adbCommand: String, 
                     onCheckedChange = actions.onWhileCharging
                 )
             } else {
+                if (canGrant) {
+                    ConnectedRow(
+                        title = stringResource(R.string.stay_awake_grant_now),
+                        supporting = stringResource(R.string.stay_awake_grant_now_summary),
+                        leading = { IconBadge(Icons.Rounded.Power, key = "grant_now") },
+                        onClick = actions.onGrant
+                    )
+                }
                 ConnectedRow(
                     title = stringResource(R.string.stay_awake_grant_title),
                     supporting = stringResource(R.string.stay_awake_grant_message),

@@ -1,5 +1,9 @@
 package dev.qtremors.osyster.feature.home
 
+import dev.qtremors.osyster.core.device.domain.DeviceGlanceSource
+import dev.qtremors.osyster.core.device.domain.pushTrend
+import dev.qtremors.osyster.core.device.domain.getOrNull
+import kotlinx.coroutines.flow.scan
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,9 +30,15 @@ data class HeroIdentity(
     val apiLevel: Int
 )
 
+/** Recent CPU and RAM readings from 0 to 1, for the hero card sparklines. */
+data class Trends(val cpu: List<Float> = emptyList(), val ram: List<Float> = emptyList())
+
 data class HomeState(
     val hero: HeroIdentity,
     val summary: DeviceSummary?,
+    val trends: Trends = Trends(),
+    /** Live one-line facts for device page rows; pages missing here keep their fixed summary. */
+    val glances: Map<DevicePage, String> = emptyMap(),
     /** Null until the saved arrangement loads, so Home never flashes the default order. */
     val layout: HomeLayout?
 )
@@ -36,6 +46,7 @@ data class HomeState(
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     summarySource: DeviceSummarySource,
+    glanceSource: DeviceGlanceSource,
     private val layoutRepository: HomeLayoutRepository,
     private val reportSource: DeviceReportSource
 ) : ViewModel() {
@@ -48,23 +59,42 @@ class HomeViewModel @Inject constructor(
         apiLevel = Build.VERSION.SDK_INT
     )
 
+    // Trends are kept in the flow itself, so they reset when Home stops sampling.
+    private val summaries = summarySource.summary()
+        .scan(null as DeviceSummary? to Trends()) { (_, trends), summary ->
+            summary to Trends(cpu = trends.cpu.pushTrend(cpuFraction(summary)), ram = trends.ram.pushTrend(ramFraction(summary)))
+        }
+
     val state: StateFlow<HomeState> = combine(
-        summarySource.summary().onStart<DeviceSummary?> { emit(null) },
+        summaries,
+        glanceSource.glances().onStart { emit(emptyMap()) },
         layoutRepository.layout.onStart<HomeLayout?> { emit(null) }
-    ) { summary, layout -> HomeState(identity, summary, layout) }
+    ) { (summary, trends), glances, layout -> HomeState(identity, summary, trends, glances, layout) }
         // Sampling stops shortly after Home leaves the screen.
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(3_000), HomeState(identity, null, null))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(3_000), HomeState(identity, summary = null, layout = null))
 
     fun togglePin(key: PinKey) = update { it.togglePin(key) }
     fun move(page: DevicePage, up: Boolean) = update { it.move(page, up) }
     fun hide(page: DevicePage) = update { it.hide(page) }
     fun show(page: DevicePage) = update { it.show(page) }
+    fun setVisible(page: DevicePage, visible: Boolean) = update { if (visible) it.show(page) else it.hide(page) }
+    fun reorderGroup(pages: List<DevicePage>) = update { it.reorderGroup(pages) }
+    fun reorderPinned(keys: List<PinKey>) = update { it.reorderPinned(keys) }
 
     private fun update(transform: (HomeLayout) -> HomeLayout) {
         viewModelScope.launch { layoutRepository.update(transform) }
     }
 
     companion object {
+        /** Load when Android allows it; otherwise nothing, since a clock speed is not a load. */
+        fun cpuFraction(summary: DeviceSummary): Float? = summary.cpuLoadPercent.getOrNull()?.div(100f)
+
+        fun ramFraction(summary: DeviceSummary): Float? {
+            val used = summary.ramUsedBytes.getOrNull() ?: return null
+            val total = summary.ramTotalBytes.getOrNull()?.takeIf { it > 0 } ?: return null
+            return used.toFloat() / total
+        }
+
         /**
          * "Google" + "Pixel 7" reads "Pixel 7"; "samsung" + "SM-S918B" reads "Samsung SM-S918B".
          * Models that already start with the brand are not doubled.

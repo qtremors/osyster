@@ -1,5 +1,9 @@
 package dev.qtremors.osyster.feature.settings
 
+import dev.qtremors.osyster.core.device.domain.ReadingPreferences
+import dev.qtremors.osyster.core.device.domain.ReadingPrefs
+import dev.qtremors.osyster.core.device.domain.RefreshSpeed
+import dev.qtremors.osyster.core.device.domain.TemperatureUnit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,8 +30,11 @@ enum class SettingsMessage { EXPORTED, EXPORT_FAILED, IMPORTED, IMPORT_FAILED, N
 class SettingsViewModel @Inject constructor(
     private val themeSettings: ThemeSettings,
     private val backup: SettingsBackup,
-    private val appStart: AppStartRepository
+    private val appStart: AppStartRepository,
+    private val readingPreferences: ReadingPreferences
 ) : ViewModel() {
+    val reading: StateFlow<ReadingPrefs> = readingPreferences.prefs
+
     /** Null until the stored options load, so controls never flash the defaults. */
     val theme: StateFlow<ThemeOptions?> = themeSettings.options
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -41,6 +48,9 @@ class SettingsViewModel @Inject constructor(
     fun setPreset(preset: ThemePreset) = update { it.copy(preset = preset, accentSource = AccentSource.PRESET) }
     fun setHaptics(enabled: Boolean) = update { it.copy(hapticsEnabled = enabled) }
     fun setReduceMotion(enabled: Boolean) = update { it.copy(reduceMotion = enabled) }
+    fun setBlockScreenshots(enabled: Boolean) = update { it.copy(blockScreenshots = enabled) }
+    fun setTemperatureUnit(unit: TemperatureUnit) = readingPreferences.setTemperatureUnit(unit)
+    fun setRefresh(speed: RefreshSpeed) = readingPreferences.setRefresh(speed)
 
     fun exportTo(uri: String) = viewModelScope.launch {
         _message.value = if (backup.exportTo(uri).isSuccess) SettingsMessage.EXPORTED else SettingsMessage.EXPORT_FAILED

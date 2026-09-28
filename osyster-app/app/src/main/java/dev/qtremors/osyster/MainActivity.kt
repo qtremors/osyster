@@ -3,10 +3,12 @@ package dev.qtremors.osyster
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
+import android.view.WindowManager
 import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -57,6 +59,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val options by loadedOptions.collectAsStateWithLifecycle()
+            val secure = options?.blockScreenshots == true
+            LaunchedEffect(secure) {
+                if (secure) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
             val openTool by pendingTool.collectAsStateWithLifecycle()
             OsysterTheme(options = options ?: ThemeOptions()) {
                 StartGate(
@@ -100,7 +107,14 @@ class MainActivity : ComponentActivity() {
         },
         openDeveloperOptions = { launch(Intent(android.provider.Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)) },
         openDefaultApps = { launch(Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)) },
-        openNotificationAccess = { launch(Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
+        openNotificationAccess = { launch(Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) },
+        launchApp = { pkg -> packageManager.getLaunchIntentForPackage(pkg)?.let(::launch) },
+        // A store app if one is installed, otherwise the browser. Osyster itself never goes online.
+        openStoreListing = { pkg ->
+            val market = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=$pkg"))
+            if (market.resolveActivity(packageManager) != null) launch(market)
+            else launch(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://play.google.com/store/apps/details?id=$pkg")))
+        }
     )
 
     override fun onNewIntent(intent: Intent) {

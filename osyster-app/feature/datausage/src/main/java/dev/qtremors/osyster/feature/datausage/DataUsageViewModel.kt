@@ -10,6 +10,7 @@ import dev.qtremors.osyster.core.usage.domain.DataUsageSource
 import dev.qtremors.osyster.core.usage.domain.LiveRate
 import dev.qtremors.osyster.core.usage.domain.NetworkFilter
 import dev.qtremors.osyster.core.usage.domain.UsageAccessState
+import dev.qtremors.osyster.core.usage.domain.maxOffset
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,10 @@ import kotlinx.coroutines.launch
 data class DataUsageState(
     val access: UsageAccessState? = null,
     val period: DataPeriod = DataPeriod.TODAY,
+    /** 0 is the current period; each step back is one whole period earlier. */
+    val offset: Int = 0,
     val filter: NetworkFilter = NetworkFilter.ALL,
+    val query: String = "",
     /** Null while the first report for this period loads. */
     val report: DataUsageReport? = null,
     val loading: Boolean = false,
@@ -47,13 +51,26 @@ class DataUsageViewModel @Inject constructor(
     fun refresh() {
         val access = source.accessState()
         _state.update { it.copy(access = access) }
-        if (access == UsageAccessState.GRANTED) load(_state.value.period)
+        if (access == UsageAccessState.GRANTED) load(_state.value.period, _state.value.offset)
     }
 
     fun setPeriod(period: DataPeriod) {
         if (period == _state.value.period) return
-        _state.update { it.copy(period = period, report = null, showAllApps = false) }
-        load(period)
+        _state.update { it.copy(period = period, offset = 0, report = null, showAllApps = false) }
+        load(period, 0)
+    }
+
+    fun previous() = step(+1)
+    fun next() = step(-1)
+
+    fun setQuery(query: String) = _state.update { it.copy(query = query) }
+
+    private fun step(by: Int) {
+        val current = _state.value
+        val target = (current.offset + by).coerceIn(0, maxOffset(current.period))
+        if (target == current.offset) return
+        _state.update { it.copy(offset = target, showAllApps = false) }
+        load(current.period, target)
     }
 
     fun setFilter(filter: NetworkFilter) = _state.update { it.copy(filter = filter, showAllApps = false) }
@@ -61,13 +78,13 @@ class DataUsageViewModel @Inject constructor(
     fun toggleShowAll() = _state.update { it.copy(showAllApps = !it.showAllApps) }
 
     /** Latest request wins: changing the period cancels a slower query still running. */
-    private fun load(period: DataPeriod) {
+    private fun load(period: DataPeriod, offset: Int) {
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
             _state.update { it.copy(loading = true) }
-            val report = runCatchingCancellable { source.report(period) }.getOrNull()
+            val report = runCatchingCancellable { source.report(period, offset = offset) }.getOrNull()
             _state.update { current ->
-                if (current.period != period) current
+                if (current.period != period || current.offset != offset) current
                 else current.copy(report = report ?: current.report, loading = false)
             }
         }

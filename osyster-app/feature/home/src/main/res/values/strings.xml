@@ -29,4 +29,6 @@
     <string name="home_hidden_title">Hidden pages</string>
     <string name="home_tap_to_show">Tap to show on Home</string>
     <string name="home_search">Search</string>
+    <string name="home_edit_title">Edit Home</string>
+    <string name="home_edit_hint">Drag the handles to change the order. Switch off pages you do not need; they stay one tap away under Hidden pages.</string>
 </resources>

@@ -51,8 +51,6 @@
     <string name="tool_activity_launcher_summary">Open or pin any app screen</string>
     <string name="tool_link_actions">Link actions</string>
     <string name="tool_link_actions_summary">Choose which app opens each link</string>
-    <string name="tool_widget_stack">Widget stack</string>
-    <string name="tool_widget_stack_summary">Stack widgets and swipe between them</string>
     <string name="tool_widgets">Widgets</string>
     <string name="tool_widgets_summary">Data usage and music widgets</string>
     <string name="tool_quick_tiles">Quick Settings tiles</string>

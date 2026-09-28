@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="glance_card">#E6EEF0</color>
+    <color name="glance_on_card">#161D1E</color>
+    <color name="glance_on_card_dim">#3F484A</color>
+    <color name="glance_accent">#00687A</color>
+</resources>

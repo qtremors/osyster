@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- One-line live facts on Home's device page rows. -->
+    <string name="glance_android">Android %1$s</string>
+    <string name="glance_patch">patch %1$s</string>
+    <string name="glance_ram">%1$s RAM in use</string>
+    <string name="glance_charging">Charging</string>
+    <string name="glance_on_battery">On battery</string>
+    <string name="glance_offline">Offline</string>
+    <string name="glance_wifi">Connected to Wi-Fi</string>
+    <string name="glance_mobile">On mobile data</string>
+    <string name="glance_ethernet">On Ethernet</string>
+    <string name="glance_connected">Connected</string>
+    <string name="glance_bluetooth_on">Bluetooth on</string>
+    <string name="glance_bluetooth_off">Bluetooth off</string>
+    <string name="glance_bluetooth_none">No Bluetooth</string>
+    <plurals name="glance_cameras">
+        <item quantity="one">%1$d camera</item>
+        <item quantity="other">%1$d cameras</item>
+    </plurals>
+    <plurals name="glance_sensors">
+        <item quantity="one">%1$d sensor</item>
+        <item quantity="other">%1$d sensors</item>
+    </plurals>
+    <plurals name="glance_cores">
+        <item quantity="one">%1$d core</item>
+        <item quantity="other">%1$d cores</item>
+    </plurals>
+</resources>

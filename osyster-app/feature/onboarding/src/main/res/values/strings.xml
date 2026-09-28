@@ -28,10 +28,10 @@
     <string name="whats_new_title">What\'s new in %1$s</string>
     <string name="whats_new_ok">Got it</string>
     <string-array name="whats_new_items">
-        <item>Power tools: Power saving, scale and animations, status bar icons, and system tweaks.</item>
-        <item>Shizuku and root: Set up once in Power setup; Osyster can then grant itself settings access.</item>
-        <item>Shut-Up!: Open picky banking apps with debugging hidden, then restore it in one tap.</item>
-        <item>Freeze and standby: Disable unused apps and limit background apps.</item>
-        <item>New tiles: Private DNS, USB debugging, Developer options, blur, tap to wake, and Freeze.</item>
+        <item>Live Home: Every device page row shows a live fact, and CPU and RAM draw trend lines.</item>
+        <item>Edit Home: Drag pages and pins into order and switch pages off.</item>
+        <item>Widgets: A new glance stack widget, and every widget on one page.</item>
+        <item>Color picker: A tile that copies the hex code of any color on screen.</item>
+        <item>More control: Temperature unit, refresh speed, block screenshots, and data usage history.</item>
     </string-array>
 </resources>

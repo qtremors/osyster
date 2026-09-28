@@ -29,4 +29,10 @@ object UsageFormat {
             else -> "${minutes / 60}h ${minutes % 60}m"
         }
     }
+
+    /** A short local date such as "3 Sep" or "Sep 3", following the device's locale. */
+    fun day(epochMillis: Long, locale: Locale = Locale.getDefault()): String {
+        val pattern = android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMM")
+        return java.text.SimpleDateFormat(pattern, locale).format(java.util.Date(epochMillis))
+    }
 }

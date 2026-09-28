@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Glance stack: a StackView of cards the launcher lets people swipe through. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="4dp">
+
+    <StackView
+        android:id="@+id/glance_stack"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:loopViews="true" />
+
+    <TextView
+        android:id="@+id/glance_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/glance_card_background"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="@string/glance_card_loading"
+        android:textColor="@color/glance_on_card"
+        android:textSize="14sp" />
+</FrameLayout>

@@ -13,4 +13,5 @@
     <string name="shortcut_stay_awake">Stay awake</string>
     <string name="shortcut_flashlight">Flashlight</string>
     <string name="shortcut_screen_usage">Screen time</string>
+    <string name="empty_detail">Open a page or tool to see it here</string>
 </resources>

@@ -22,7 +22,7 @@ import java.util.Locale
  * does not, labeled so nobody mistakes a clock speed for a load percentage.
  */
 @Composable
-internal fun heroMetrics(summary: DeviceSummary?): List<HeroMetric> {
+internal fun heroMetrics(summary: DeviceSummary?, trends: Trends = Trends()): List<HeroMetric> {
     val waiting = stringResource(R.string.home_metric_waiting)
     if (summary == null) {
         return listOf(
@@ -32,7 +32,7 @@ internal fun heroMetrics(summary: DeviceSummary?): List<HeroMetric> {
             HeroMetric(stringResource(R.string.home_metric_battery), waiting, icon = Icons.Rounded.BatteryStd)
         )
     }
-    return listOf(cpu(summary), ram(summary), storage(summary), battery(summary))
+    return listOf(cpu(summary).copy(trend = trends.cpu), ram(summary).copy(trend = trends.ram), storage(summary), battery(summary))
 }
 
 @Composable

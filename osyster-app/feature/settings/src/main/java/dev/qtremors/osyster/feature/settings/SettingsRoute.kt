@@ -36,7 +36,9 @@ fun NavGraphBuilder.registerSettingsRoute(
         val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             uri?.let { viewModel.importFrom(it.toString()) }
         }
+        val reading by viewModel.reading.collectAsStateWithLifecycle()
         SettingsScreen(
+            reading = reading,
             theme = theme,
             message = message,
             actions = SettingsActions(
@@ -46,6 +48,9 @@ fun NavGraphBuilder.registerSettingsRoute(
                 onPreset = viewModel::setPreset,
                 onHaptics = viewModel::setHaptics,
                 onReduceMotion = viewModel::setReduceMotion,
+                onBlockScreenshots = viewModel::setBlockScreenshots,
+                onTemperatureUnit = viewModel::setTemperatureUnit,
+                onRefresh = viewModel::setRefresh,
                 onExport = { exporter.launch("osyster-settings-$appVersion.json") },
                 onImport = { importer.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) },
                 onShowWelcome = viewModel::showWelcomeAgain,
