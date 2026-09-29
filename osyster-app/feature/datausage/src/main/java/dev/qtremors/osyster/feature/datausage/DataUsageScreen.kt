@@ -1,13 +1,30 @@
 package dev.qtremors.osyster.feature.datausage
 
+import dev.qtremors.osyster.core.ui.components.ConnectedItem
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.style.TextAlign
-import dev.qtremors.osyster.core.ui.components.InlineSearchField
 import dev.qtremors.osyster.core.usage.domain.maxOffset
+import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import dev.qtremors.osyster.core.usage.domain.NetworkButtons
+import dev.qtremors.osyster.core.usage.domain.PeriodButtons
+import dev.qtremors.osyster.core.usage.domain.earliestDay
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import dev.qtremors.osyster.core.ui.components.FilterTop
+import androidx.compose.material3.Icon
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,18 +66,27 @@ import dev.qtremors.osyster.core.navigation.Tool
 @Immutable
 internal data class DataUsageActions(
     val onPeriod: (DataPeriod) -> Unit,
+    val onJump: (LocalDate) -> Unit,
     val onPrevious: () -> Unit,
     val onNext: () -> Unit,
     val onQuery: (String) -> Unit,
     val onFilter: (NetworkFilter) -> Unit,
     val onToggleShowAll: () -> Unit,
     val onGrantAccess: () -> Unit,
-    val onOpenApp: (String) -> Unit
+    val onOpenApp: (String) -> Unit,
+    val onOpenUsage: (String) -> Unit
 )
 
 @Composable
 internal fun DataUsageScreen(state: DataUsageState, live: LiveRate?, actions: DataUsageActions) {
-    OsysterScaffold(title = stringResource(Tool.DATA_USAGE.label.title)) { padding ->
+    // While the top-bar search is open, the page shows only the app list.
+    var searching by rememberSaveable { mutableStateOf(false) }
+    OsysterScaffold(
+        title = stringResource(Tool.DATA_USAGE.label.title),
+        filter = if (state.access == UsageAccessState.GRANTED) {
+            FilterTop(state.query, actions.onQuery, stringResource(R.string.data_search), onOpenChange = { searching = it })
+        } else null
+    ) { padding ->
         LazyColumn(contentPadding = padding) {
             when (state.access) {
                 null -> item(key = "loading") { LoadingState() }
@@ -68,14 +94,23 @@ internal fun DataUsageScreen(state: DataUsageState, live: LiveRate?, actions: Da
                     UsageAccessGate(stringResource(R.string.data_usage_access_message), actions.onGrantAccess)
                 }
                 UsageAccessState.GRANTED -> {
-                    item(key = "choices") { Choices(state, actions) }
-                    item(key = "live") { LiveRow(live) }
+                    if (!searching) {
+                        item(key = "choices") { Choices(state, actions) }
+                        item(key = "live") { LiveRow(live) }
+                    }
                     val report = state.report
                     if (report == null) {
                         item(key = "report_loading") { LoadingState() }
                     } else {
-                        item(key = "summary") { Summary(report, state.filter) }
-                        if (report.days.size > 1) item(key = "chart") { DailyChart(report, state.filter) }
+                        if (!searching) item(key = "summary") {
+                            Column {
+                                SectionHeader(stringResource(R.string.data_total))
+                                TotalsCard(report.totals, state.filter)
+                            }
+                        }
+                        if (!searching) item(key = "chart") {
+                            Column(modifier = Modifier.padding(top = 8.dp)) { BucketChart(report.buckets, report.hourly, state.filter) }
+                        }
                         appRows(report, state, actions)
                     }
                 }
@@ -87,15 +122,23 @@ internal fun DataUsageScreen(state: DataUsageState, live: LiveRate?, actions: Da
 @Composable
 private fun Choices(state: DataUsageState, actions: DataUsageActions) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+        var picking by rememberSaveable { mutableStateOf(false) }
         ConnectedChoices(
-            options = DataPeriod.entries,
+            options = PeriodButtons,
             selected = state.period,
             label = { stringResource(it.labelRes()) },
-            onSelect = actions.onPeriod
+            onSelect = actions.onPeriod,
+            onReselect = { picking = true }
         )
-        PeriodStepper(state, actions)
+        PeriodLabel(state, actions, onPick = { picking = true })
+        if (picking) {
+            PeriodDatePicker(state.period, onPick = { date ->
+                picking = false
+                actions.onJump(date)
+            }, onDismiss = { picking = false })
+        }
         ConnectedChoices(
-            options = NetworkFilter.entries,
+            options = NetworkButtons,
             selected = state.filter,
             label = { stringResource(it.labelRes()) },
             onSelect = actions.onFilter
@@ -103,44 +146,6 @@ private fun Choices(state: DataUsageState, actions: DataUsageActions) {
     }
 }
 
-@Composable
-private fun Summary(report: DataUsageReport, filter: NetworkFilter) {
-    val colors = MaterialTheme.colorScheme
-    val totals = report.totals
-    Column {
-        SectionHeader(stringResource(R.string.data_total))
-        Surface(color = colors.primaryContainer, shape = MaterialTheme.shapes.extraLarge, modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(UsageFormat.bytes(totals.total(filter)), style = MetricTextStyle.copy(fontSize = MaterialTheme.typography.displaySmall.fontSize), color = colors.onPrimaryContainer)
-                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    Labeled(stringResource(R.string.data_downloaded), UsageFormat.bytes(totals.received(filter)))
-                    Labeled(stringResource(R.string.data_uploaded), UsageFormat.bytes(totals.sent(filter)))
-                }
-                if (filter == NetworkFilter.ALL) {
-                    val all = totals.total(NetworkFilter.ALL).coerceAtLeast(1)
-                    LinearWavyProgressIndicator(
-                        progress = { totals.mobile.toFloat() / all },
-                        color = colors.primary,
-                        trackColor = colors.tertiary,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                        Labeled(stringResource(R.string.data_filter_mobile), UsageFormat.bytes(totals.mobile))
-                        Labeled(stringResource(R.string.data_filter_wifi), UsageFormat.bytes(totals.wifi))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun Labeled(label: String, value: String) {
-    Column {
-        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f))
-        Text(value, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
-    }
-}
 
 @Composable
 private fun LiveRow(live: LiveRate?) {
@@ -156,24 +161,59 @@ private fun LiveRow(live: LiveRate?) {
     }
 }
 
-/** Previous and next period, with the dates in between, as the old Network page had. */
+/**
+ * Previous and next step one period at a time; the dates in between are a button that opens a
+ * date picker to jump anywhere. Tapping the selected period again opens the picker too.
+ */
 @Composable
-private fun PeriodStepper(state: DataUsageState, actions: DataUsageActions) {
+private fun PeriodLabel(state: DataUsageState, actions: DataUsageActions, onPick: () -> Unit) {
     val report = state.report
     val label = when {
-        report == null -> ""
-        state.offset == 0 -> stringResource(state.period.labelRes())
+        report == null || state.offset == 0 -> stringResource(state.period.labelRes())
         report.firstDay == report.lastDay -> UsageFormat.day(report.firstDay)
         else -> stringResource(R.string.data_range, UsageFormat.day(report.firstDay), UsageFormat.day(report.lastDay))
     }
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
         IconButton(onClick = actions.onPrevious, enabled = state.offset < maxOffset(state.period)) {
             Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, contentDescription = stringResource(R.string.data_previous))
         }
-        Text(label, style = MaterialTheme.typography.titleSmall, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
+        TextButton(onClick = onPick) {
+            Icon(Icons.Rounded.CalendarMonth, contentDescription = null)
+            Text(label, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(start = 8.dp))
+        }
         IconButton(onClick = actions.onNext, enabled = state.offset > 0) {
             Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = stringResource(R.string.data_next))
         }
+    }
+}
+
+/** Android's date picker, limited to the days Android still keeps history for. */
+@Composable
+private fun PeriodDatePicker(period: DataPeriod, onPick: (LocalDate) -> Unit, onDismiss: () -> Unit) {
+    val zone = ZoneOffset.UTC
+    val today = LocalDate.now()
+    val earliest = earliestDay(period, today)
+    val pickerState = rememberDatePickerState(
+        initialSelectedDateMillis = today.atStartOfDay(zone).toInstant().toEpochMilli(),
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                val day = Instant.ofEpochMilli(utcTimeMillis).atZone(zone).toLocalDate()
+                return !day.isAfter(today) && !day.isBefore(earliest)
+            }
+
+            override fun isSelectableYear(year: Int): Boolean = year in earliest.year..today.year
+        }
+    )
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                pickerState.selectedDateMillis?.let { onPick(Instant.ofEpochMilli(it).atZone(zone).toLocalDate()) } ?: onDismiss()
+            }) { Text(stringResource(R.string.data_pick_go)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.data_pick_cancel)) } }
+    ) {
+        DatePicker(state = pickerState)
     }
 }
 
@@ -182,21 +222,18 @@ private fun androidx.compose.foundation.lazy.LazyListScope.appRows(report: DataU
     val apps = if (state.query.isBlank()) all else all.filter { it.label.contains(state.query, ignoreCase = true) || it.packageName.contains(state.query, ignoreCase = true) }
     val shown = if (state.showAllApps || state.query.isNotBlank()) apps else apps.take(COLLAPSED_APPS)
     item(key = "apps_header") { SectionHeader(stringResource(R.string.data_apps)) }
-    if (all.size > COLLAPSED_APPS) {
-        item(key = "apps_search") {
-            InlineSearchField(query = state.query, onQueryChange = actions.onQuery, placeholder = stringResource(R.string.data_search), modifier = Modifier.padding(bottom = 8.dp))
-        }
-    }
     if (apps.isEmpty()) {
         item(key = "apps_empty") {
             ConnectedGroup { ConnectedRow(title = stringResource(R.string.data_no_apps)) }
         }
         return
     }
-    items(shown, key = { "app_" + it.packageName }) { app -> AppRow(app, state.filter, actions.onOpenApp) }
+    itemsIndexed(shown, key = { _, it -> "app_" + it.packageName }) { index, app ->
+        ConnectedItem(index, shown.size) { AppRow(app, state.filter, actions.onOpenUsage) }
+    }
     if (apps.size > COLLAPSED_APPS && state.query.isBlank()) {
         item(key = "apps_toggle") {
-            ConnectedGroup(modifier = Modifier.padding(top = 2.dp)) {
+            ConnectedGroup(modifier = Modifier.padding(top = 8.dp)) {
                 ConnectedRow(
                     title = if (state.showAllApps) stringResource(R.string.data_show_fewer) else stringResource(R.string.data_show_all, apps.size),
                     onClick = actions.onToggleShowAll
@@ -208,23 +245,20 @@ private fun androidx.compose.foundation.lazy.LazyListScope.appRows(report: DataU
 
 @Composable
 private fun AppRow(app: AppTraffic, filter: NetworkFilter, onOpen: (String) -> Unit) {
-    // Each app is its own rounded row with a hairline gap, matching connected groups.
-    ConnectedGroup(modifier = Modifier.padding(bottom = 2.dp)) {
-        ConnectedRow(
-            title = app.label,
-            supporting = if (filter == NetworkFilter.ALL) {
-                stringResource(R.string.data_app_split, UsageFormat.bytes(app.totals.mobile), UsageFormat.bytes(app.totals.wifi))
-            } else null,
-            leading = { AppIcon(app.packageName) },
-            trailing = {
-                Text(UsageFormat.bytes(app.totals.total(filter)), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
-            },
-            onClick = if (app.packageName.contains(':')) null else ({ onOpen(app.packageName) })
-        )
-    }
+    ConnectedRow(
+        title = app.label,
+        supporting = if (filter == NetworkFilter.ALL) {
+            stringResource(R.string.data_app_split, UsageFormat.bytes(app.totals.mobile), UsageFormat.bytes(app.totals.wifi))
+        } else null,
+        leading = { AppIcon(app.packageName) },
+        trailing = {
+            Text(UsageFormat.bytes(app.totals.total(filter)), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
+        },
+        onClick = if (app.packageName.contains(':')) null else ({ onOpen(app.packageName) })
+    )
 }
 
-private fun DataPeriod.labelRes() = when (this) {
+internal fun DataPeriod.labelRes() = when (this) {
     DataPeriod.TODAY -> R.string.data_period_today
     DataPeriod.WEEK -> R.string.data_period_week
     DataPeriod.MONTH -> R.string.data_period_month

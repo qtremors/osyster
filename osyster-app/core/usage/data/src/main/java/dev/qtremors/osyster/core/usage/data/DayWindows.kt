@@ -33,6 +33,16 @@ internal object DayWindows {
             .toList()
     }
 
+    /** The 24 hour starts of the day beginning at [dayStart]; 23 or 25 on clock-change days. */
+    fun hoursOf(dayStart: Long, zone: ZoneId = ZoneId.systemDefault()): List<Long> {
+        val start = Instant.ofEpochMilli(dayStart).atZone(zone)
+        val next = start.toLocalDate().plusDays(1).atStartOfDay(zone)
+        return generateSequence(start) { it.plusHours(1) }
+            .takeWhile { it.isBefore(next) }
+            .map { it.toInstant().toEpochMilli() }
+            .toList()
+    }
+
     /** The last [count] day starts, oldest first, ending with today. */
     fun lastDays(count: Int, now: Long, zone: ZoneId = ZoneId.systemDefault()): List<Long> {
         val today = Instant.ofEpochMilli(now).atZone(zone).toLocalDate()

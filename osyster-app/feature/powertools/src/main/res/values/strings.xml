@@ -45,7 +45,7 @@
     <string name="power_setup_root">Root</string>
     <string name="power_setup_root_title">Use root</string>
     <string name="power_setup_root_summary">Your root manager asks once. Osyster runs each command on its own and keeps no root shell open.</string>
-    <string name="power_setup_grant">Settings access</string>
+    <string name="power_setup_grant">One-time ADB grant</string>
     <string name="power_setup_grant_now">Allow settings access now</string>
     <string name="power_setup_grant_now_summary">Uses Shizuku or root once. Afterwards settings tools work even when neither is running.</string>
     <string name="power_setup_adb">Or use a computer</string>
@@ -215,20 +215,7 @@
     <string name="standby_never_summary">Installed but never opened</string>
 
     <!-- Freeze -->
-    <string name="freeze_title">Freeze</string>
-    <string name="freeze_intro">A frozen app is disabled: it cannot run, show notifications, or appear in your launcher, but its data stays. Unfreeze it any time to use it again.</string>
-    <string name="freeze_apps">Apps</string>
-    <string name="freeze_add">Add apps</string>
-    <string name="freeze_pick">Apps to manage</string>
-    <string name="freeze_empty_title">No apps yet</string>
-    <string name="freeze_empty_message">Add apps you rarely use. Frozen apps use no battery at all.</string>
-    <string name="freeze_running">Not frozen</string>
     <string name="freeze_frozen">Frozen</string>
-    <string name="freeze_freeze_all">Freeze all</string>
-    <string name="freeze_unfreeze_all">Unfreeze all</string>
-    <string name="freeze_remove">Remove</string>
-    <string name="freeze_remove_message">Remove this app from the list? It stays installed.</string>
-    <string name="freeze_remove_frozen_message">This app is frozen. Removing it from the list unfreezes it first, so it does not stay hidden.</string>
 
     <!-- Tiles -->
     <string name="tile_private_dns">Private DNS</string>

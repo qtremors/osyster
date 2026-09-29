@@ -25,6 +25,9 @@ import dev.qtremors.osyster.core.navigation.Tool
 import dev.qtremors.osyster.core.navigation.ToolAccess
 import dev.qtremors.osyster.core.navigation.ToolGroup
 import dev.qtremors.osyster.core.navigation.ToolsRoute
+import dev.qtremors.osyster.core.privilege.domain.PrivilegeStatus
+import dev.qtremors.osyster.core.privilege.domain.ShellRoute
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import dev.qtremors.osyster.core.ui.R as UiR
 import dev.qtremors.osyster.core.ui.catalog.help
 import dev.qtremors.osyster.core.ui.catalog.label
@@ -45,8 +48,14 @@ fun NavGraphBuilder.registerToolsRoute(onNavigate: (ToolsDestination) -> Unit) {
     composable<ToolsRoute> {
         val viewModel: ToolsViewModel = hiltViewModel()
         val pinned by viewModel.pinnedTools.collectAsStateWithLifecycle()
+        val access by viewModel.access.collectAsStateWithLifecycle()
+        LifecycleResumeEffect(Unit) {
+            viewModel.refreshAccess()
+            onPauseOrDispose { }
+        }
         ToolsScreen(
             pinned = pinned,
+            access = access,
             onOpen = { tool -> onNavigate(ToolsDestination.OpenTool(tool.id)) },
             onTogglePin = viewModel::togglePin
         )
@@ -56,7 +65,7 @@ fun NavGraphBuilder.registerToolsRoute(onNavigate: (ToolsDestination) -> Unit) {
 private val toolGroups: List<Pair<ToolGroup, List<Tool>>> = Tool.entries.groupBy(Tool::group).toList()
 
 @Composable
-internal fun ToolsScreen(pinned: Set<String>, onOpen: (Tool) -> Unit, onTogglePin: (Tool) -> Unit) {
+internal fun ToolsScreen(pinned: Set<String>, access: PrivilegeStatus, onOpen: (Tool) -> Unit, onTogglePin: (Tool) -> Unit) {
     OsysterScaffold(title = stringResource(R.string.tools_title)) { padding ->
         LazyColumn(contentPadding = padding) {
             items(toolGroups, key = { (group, _) -> group.name }) { (group, tools) ->
@@ -64,7 +73,7 @@ internal fun ToolsScreen(pinned: Set<String>, onOpen: (Tool) -> Unit, onTogglePi
                     SectionHeader(stringResource(group.title))
                     ConnectedGroup {
                         tools.forEach { tool ->
-                            ToolRow(tool = tool, pinned = tool.id in pinned, onOpen = onOpen, onTogglePin = onTogglePin)
+                            ToolRow(tool = tool, pinned = tool.id in pinned, access = access, onOpen = onOpen, onTogglePin = onTogglePin)
                         }
                     }
                 }
@@ -75,16 +84,25 @@ internal fun ToolsScreen(pinned: Set<String>, onOpen: (Tool) -> Unit, onTogglePi
 
 /** Long-press a tool to pin it to Home or read what it does. */
 @Composable
-private fun ToolRow(tool: Tool, pinned: Boolean, onOpen: (Tool) -> Unit, onTogglePin: (Tool) -> Unit) {
+private fun ToolRow(tool: Tool, pinned: Boolean, access: PrivilegeStatus, onOpen: (Tool) -> Unit, onTogglePin: (Tool) -> Unit) {
     var menuOpen by remember { mutableStateOf(false) }
     var helpOpen by remember { mutableStateOf(false) }
     val label = tool.label
     val summary = stringResource(label.summary)
-    val access = accessLine(tool.access)
+    val needs = accessLine(tool.access)
+    // Only say what a tool needs while it is missing; once unlocked the line would be noise.
+    val missing = when (tool.access) {
+        ToolAccess.NONE -> false
+        ToolAccess.SECURE_SETTINGS -> !access.canWriteSettings
+        ToolAccess.SHIZUKU -> !access.shell
+    }
+    // Once something is unlocked, Power setup shows what instead of how.
+    val unlocked = if (tool == Tool.POWER_SETUP) unlockedLine(access) else null
+    val extra = if (missing) needs else null
     Box {
         NavigationRow(
             title = stringResource(label.title),
-            supporting = if (access == null) summary else summary + "\n" + access,
+            supporting = if (unlocked != null) unlocked else if (extra == null) summary else summary + "\n" + extra,
             icon = label.icon,
             badgeKey = tool.id,
             onClick = { onOpen(tool) },
@@ -109,7 +127,16 @@ private fun ToolRow(tool: Tool, pinned: Boolean, onOpen: (Tool) -> Unit, onToggl
             )
         }
     }
-    if (helpOpen) HelpSheet(label = label, help = tool.help, badgeKey = tool.id, onDismiss = { helpOpen = false }, needs = access)
+    if (helpOpen) HelpSheet(label = label, help = tool.help, badgeKey = tool.id, onDismiss = { helpOpen = false }, needs = needs)
+}
+
+/** What Power setup has unlocked so far, or null when nothing is. */
+@Composable
+private fun unlockedLine(access: PrivilegeStatus): String? = when {
+    access.shellRoute == ShellRoute.SHIZUKU -> stringResource(R.string.tools_access_shizuku)
+    access.shellRoute == ShellRoute.ROOT -> stringResource(R.string.tools_access_root)
+    access.secureSettings -> stringResource(R.string.tools_access_settings)
+    else -> null
 }
 
 /** Power tools say what unlocks them, so nobody taps into a page they cannot use. */

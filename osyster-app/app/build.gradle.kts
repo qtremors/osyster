@@ -33,8 +33,8 @@ android {
         minSdk = 26
         targetSdk = 37
         // versionCode is versionName without dots.
-        versionCode = 29
-        versionName = "0.2.9"
+        versionCode = 30
+        versionName = "0.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -154,7 +154,6 @@ dependencies {
     implementation(project(":feature:quicktiles"))
     implementation(project(":feature:musicwidgets"))
     implementation(project(":feature:onboarding"))
-    implementation(project(":feature:search"))
     implementation(project(":feature:powertools"))
     implementation(project(":feature:tools"))
     implementation(project(":feature:settings"))

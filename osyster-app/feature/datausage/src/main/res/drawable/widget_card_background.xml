@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="#1A1C1E" />
-    <corners android:radius="@dimen/widget_corner_radius" />
-</shape>
+<!-- The card itself ripples on touch, clipped to its rounded corners. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/widget_ripple">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/widget_card" />
+            <corners android:radius="@dimen/widget_corner_radius" />
+        </shape>
+    </item>
+</ripple>

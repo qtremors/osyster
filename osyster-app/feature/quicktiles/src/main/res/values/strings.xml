@@ -38,8 +38,8 @@
     <string name="widgets_how_pin">Tap Add and your launcher shows a preview to place it.</string>
     <string name="widgets_how_manual">Long-press your home screen, open Widgets, and find Osyster.</string>
     <string name="widgets_available">Osyster widgets</string>
-    <string name="widgets_glance">Glance stack</string>
-    <string name="widgets_glance_summary">Swipe between battery, memory, storage, data today, and screen time</string>
+    <string name="widgets_glance">Glance</string>
+    <string name="widgets_glance_summary">Battery, memory, storage, data today, and screen time in one list</string>
     <string name="widgets_music_disc">Music disc</string>
     <string name="widgets_music_disc_summary">3 by 3 player with album art and controls</string>
     <string name="widgets_music_capsule">Music capsule</string>
@@ -57,8 +57,8 @@
     <string name="glance_card_memory">Memory</string>
     <string name="glance_card_storage">Storage</string>
     <string name="glance_card_of">of %1$s</string>
-    <string name="glance_card_data">Data today</string>
-    <string name="glance_card_data_split">Mobile %1$s · Wi-Fi %2$s</string>
+    <string name="glance_card_data">Data</string>
+    <string name="glance_card_data_split">Today · Mobile %1$s · Wi-Fi %2$s</string>
     <string name="glance_card_screen">Screen time</string>
     <string name="glance_card_today">Today</string>
     <string name="color_tile">Color picker</string>

@@ -44,7 +44,7 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 
 ### Home and device pages
 
-- **Home you arrange:** a live card with CPU, RAM, and battery trend lines, pinned pages and tools, and grouped device pages that each show a live fact. Edit Home to drag them into order or switch pages off; long-press a row to pin it or read what it shows.
+- **Home you arrange:** a search bar, a dashboard with CPU and RAM trend lines, storage, battery with temperature, screen time, and data today, pinned pages and tools, and grouped device pages that each show a live fact. Edit Home to reorder or hide any of it; long-press a row to pin it or read what it shows.
 - **Twelve device pages:** System, Device, Processor and GPU, Memory and storage, Battery, Display, Cameras, Sensors, Network, Bluetooth, Media and DRM, and Certificates.
 - **Honest values:** anything Android hides says "Not available" or which permission would show it, never a fake zero. Copy any value with a long-press.
 - **Screen tester:** full-screen colors, gray ramps, and a multi-touch test from the Display page.
@@ -54,14 +54,14 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 
 ### Tools
 
-- **Data usage:** mobile and Wi-Fi data today, this week, or this month, per app, with a daily chart, live speed, earlier periods, and app search.
+- **Data usage:** mobile and Wi-Fi data today, this week, or this month, with a download and upload ring, hourly or daily bars, live speed, earlier periods, and app search. Tap an app for its own data and screen time.
 - **Screen usage:** seven days of screen time, hourly charts, and per-app time and opens.
-- **App stopper:** a list of apps you often stop, with counts. Stop opens App info, or stops directly with Shizuku or root, plus Stop all; long-press to open an app or find it in the store.
+- **App stopper:** a grid of apps you often stop. Tap to stop (directly with Shizuku or root, otherwise through App info), long-press to open, freeze, find in the store, or remove.
 - **Stay awake:** keep the screen on for 15 minutes to "until I stop it" with a countdown notification, or while charging through Android's own setting.
 - **Flashlight:** brightness levels on Android 13 and newer, and a pulse that blinks the torch for new notifications while the screen is off.
 - **Activity launcher:** open and pin any app's exported screens.
 - **Link actions:** choose which app opens each link, copy or share links.
-- **Widgets:** a glance stack to swipe between battery, memory, storage, data, and screen time, 3x3 disc and 5x1 capsule music players, and data usage widgets, all added from one page.
+- **Widgets:** a glance list of battery, memory, storage, data, and screen time, 3x3 disc and 5x1 capsule music players, and data usage widgets, all added from one page.
 - **Quick Settings tiles:** Stay awake, Awake while charging, Flashlight, RAM, Data today, Color picker, Private DNS, USB debugging, Developer options, Window blur, Tap to wake, Freeze, and Restart SystemUI.
 - **Launcher shortcuts:** long-press the icon for Data usage, Stay awake, Flashlight, or Screen time.
 
@@ -75,11 +75,10 @@ Allow them once with an ADB command, or through [Shizuku](https://shizuku.rikka.
 - **System tweaks:** debugging switches, window blur, tap to wake, pop-up notifications, touch indicators, and Private DNS with your own provider.
 - **Shut-Up!:** open banking apps that refuse developer options; debugging turns off first and Restore puts it back.
 - **Standby apps:** see and change each app's standby bucket (Shizuku or root).
-- **Freeze:** disable rarely used apps without uninstalling them (Shizuku or root).
 
 ### Look and feel
 
-- Wallpaper colors by default, Osyster cyan and five more presets, System, Light, Dark, and Pure black.
+- Wallpaper colors by default, Osyster cyan and five more presets, and System, Light, Dark, or Black themes.
 - Connected rows, a floating toolbar that turns into a back button, springy motion with predictive back, haptics, and Reduce motion.
 - Temperature in °C, °F, or K, a live refresh speed setting, and Block screenshots.
 - Two panes on tablets and unfolded foldables.
@@ -101,6 +100,7 @@ Osyster is built by [Tremors](https://github.com/qtremors). Thanks to the mainta
 - [Hilt](https://dagger.dev/hilt/), [MaterialKolor](https://github.com/jordond/MaterialKolor), and the [Shizuku API](https://github.com/RikkaApps/Shizuku-API)
 - [Roboto Flex](https://fonts.google.com/specimen/Roboto+Flex) for the app's text
 - [Essentials](https://github.com/sameerasw/essentials) by sameerasw (MIT), which inspired the interface design
+- [Metro](https://github.com/MuntashirAkon/Metro) and [Retro Music Player](https://github.com/h4h13/RetroMusicPlayer) (GPL-3.0), whose circle widget layout shaped the disc music widget
 - [Lucide](https://lucide.dev/) and [Simple Icons](https://simpleicons.org/) for the website icons
 
 The app's **Settings, About, Open source licenses** screen lists every license in full. Each project remains the property of its authors and is used under its own license.

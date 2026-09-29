@@ -111,9 +111,9 @@ class MainActivity : ComponentActivity() {
         launchApp = { pkg -> packageManager.getLaunchIntentForPackage(pkg)?.let(::launch) },
         // A store app if one is installed, otherwise the browser. Osyster itself never goes online.
         openStoreListing = { pkg ->
-            val market = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=$pkg"))
+            val market = Intent(Intent.ACTION_VIEW, "market://details?id=$pkg".toUri())
             if (market.resolveActivity(packageManager) != null) launch(market)
-            else launch(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://play.google.com/store/apps/details?id=$pkg")))
+            else launch(Intent(Intent.ACTION_VIEW, "https://play.google.com/store/apps/details?id=$pkg".toUri()))
         }
     )
 

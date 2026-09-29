@@ -2,9 +2,9 @@
 
 > **Project:** Osyster
 >
-> **Version:** 0.2.9
+> **Version:** 0.3.0
 >
-> **Last Updated:** 2026-09-28
+> **Last Updated:** 2026-09-29
 
 Planned work, grouped by version. Items carried from the old app are marked **Parity**: the redesign keeps every interaction people relied on, except features dropped on purpose (listed at the end).
 
@@ -72,6 +72,8 @@ Planned work, grouped by version. Items carried from the old app are marked **Pa
   - **Change:** Open app, App info, store listing or reinstall, and status counts.
 
 ## 3. v0.3.0: Device testing
+
+First round of device feedback, done in 0.3.0: welcome contrast and length, theme contrast and pure black, settings alignment, dashboard tiles and graphs, search placement, data usage charts, the per-app usage page, the App stopper grid, and freezing moved into App stopper. The items below stay open until the next round.
 
 - [ ] **TEST-0001 - Full device pass**
   - **Location:** whole app

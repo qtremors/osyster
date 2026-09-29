@@ -11,6 +11,7 @@ import dev.qtremors.osyster.core.navigation.ScreenUsageRoute
 sealed interface ScreenUsageDestination {
     data object UsageAccessSettings : ScreenUsageDestination
     data class AppInfo(val packageName: String) : ScreenUsageDestination
+    data class AppUsage(val packageName: String) : ScreenUsageDestination
 }
 
 fun NavGraphBuilder.registerScreenUsageRoute(onNavigate: (ScreenUsageDestination) -> Unit) {
@@ -26,7 +27,7 @@ fun NavGraphBuilder.registerScreenUsageRoute(onNavigate: (ScreenUsageDestination
             onSelectDay = viewModel::select,
             onToggleShowAll = viewModel::toggleShowAll,
             onGrantAccess = { onNavigate(ScreenUsageDestination.UsageAccessSettings) },
-            onOpenApp = { onNavigate(ScreenUsageDestination.AppInfo(it)) }
+            onOpenApp = { onNavigate(ScreenUsageDestination.AppUsage(it)) }
         )
     }
 }

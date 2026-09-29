@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.powertools
 
+import dev.qtremors.osyster.core.ui.components.FilterTop
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +30,6 @@ import dev.qtremors.osyster.core.privilege.domain.SystemSettings
 import dev.qtremors.osyster.core.privilege.domain.parseStandbyBuckets
 import dev.qtremors.osyster.core.ui.components.ConnectedChoices
 import dev.qtremors.osyster.core.ui.components.ConnectedGroup
-import dev.qtremors.osyster.core.ui.components.InlineSearchField
 import dev.qtremors.osyster.core.ui.components.LoadingState
 import dev.qtremors.osyster.core.ui.components.OsysterBottomSheet
 import dev.qtremors.osyster.core.ui.components.OsysterScaffold
@@ -91,7 +91,11 @@ internal fun StandbyAppsRoute(onNavigate: (PowerToolsDestination) -> Unit) {
     }
     val snackbar = remember { SnackbarHostState() }
     MessageEffect(viewModel.messages, snackbar)
-    OsysterScaffold(title = stringResource(R.string.standby_title), snackbarHost = { SnackbarHost(snackbar) }) { padding ->
+    OsysterScaffold(
+        title = stringResource(R.string.standby_title),
+        snackbarHost = { SnackbarHost(snackbar) },
+        filter = if (access.shell && entries != null) FilterTop(query, { query = it }, stringResource(R.string.power_search_apps)) else null
+    ) { padding ->
         LazyColumn(contentPadding = padding) {
             item(key = "gate") { AccessCard(access, needsShell = true) { onNavigate(PowerToolsDestination.Setup) } }
             item(key = "intro") {
@@ -107,9 +111,6 @@ internal fun StandbyAppsRoute(onNavigate: (PowerToolsDestination) -> Unit) {
                 !access.shell -> Unit
                 list == null -> item(key = "loading") { LoadingState() }
                 else -> {
-                    item(key = "search") {
-                        InlineSearchField(query = query, onQueryChange = { query = it }, placeholder = stringResource(R.string.power_search_apps))
-                    }
                     val filtered = list.filter { query.isBlank() || it.app.label.contains(query, ignoreCase = true) }
                     filtered.groupBy(StandbyEntry::bucket).toSortedMap().forEach { (bucket, group) ->
                         item(key = bucket.name) {
@@ -127,7 +128,7 @@ internal fun StandbyAppsRoute(onNavigate: (PowerToolsDestination) -> Unit) {
     }
     editing?.let { entry ->
         OsysterBottomSheet(onDismissRequest = { editing = null }, title = entry.app.label) {
-            androidx.compose.foundation.layout.Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)) {
+            androidx.compose.foundation.layout.Column(modifier = Modifier.padding(vertical = 8.dp)) {
                 Text(stringResource(R.string.standby_pick), style = MaterialTheme.typography.bodyMedium)
                 ConnectedChoices(
                     options = StandbyBucket.Settable,

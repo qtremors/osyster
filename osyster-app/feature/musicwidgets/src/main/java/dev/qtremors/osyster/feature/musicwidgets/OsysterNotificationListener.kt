@@ -37,6 +37,8 @@ class OsysterNotificationListener : NotificationListenerService() {
 
     private companion object {
         const val ARTWORK_DECODE_TARGET_PX = 1024
+        val ARTWORK_URI_KEYS = listOf(MediaMetadata.METADATA_KEY_ALBUM_ART_URI, MediaMetadata.METADATA_KEY_ART_URI, MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI)
+        val ARTWORK_BITMAP_KEYS = listOf(MediaMetadata.METADATA_KEY_ALBUM_ART, MediaMetadata.METADATA_KEY_ART, MediaMetadata.METADATA_KEY_DISPLAY_ICON)
     }
 
     private var sessionManager: MediaSessionManager? = null
@@ -146,7 +148,12 @@ class OsysterNotificationListener : NotificationListenerService() {
                     selectController(controller)
                 }
                 if (selectedController?.sessionToken == token) {
-                    extractArtworkFromNotification(sbn)?.let { MusicWidgetManager.saveArtwork(this, it) }
+                    // The notification icon is a small copy of the album art. Players repost the
+                    // notification on every play, pause, or seek, so saving it here would replace the
+                    // full-size session art each time. Use it only when the session offers no art.
+                    if (!controller.metadata.hasArtwork()) {
+                        extractArtworkFromNotification(sbn)?.let { MusicWidgetManager.saveArtwork(this, it) }
+                    }
                     updateFromController(controller, fallbackTitle = title, fallbackArtist = artist)
                 }
                 return
@@ -351,13 +358,13 @@ class OsysterNotificationListener : NotificationListenerService() {
         val requestId = artworkRequestId.incrementAndGet()
         val token = controller.sessionToken
         artworkScope.launch {
-            val artUriString = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ART_URI)
-                ?: metadata.getString(MediaMetadata.METADATA_KEY_ART_URI)
-            val artworkBitmap = artUriString
-                ?.takeIf { it.isNotBlank() }
-                ?.let(::decodeArtworkUri)
-                ?: metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART)
-                ?: metadata.getBitmap(MediaMetadata.METADATA_KEY_ART)
+            // Players often offer several versions (a URI, full art, a small display icon). Use the
+            // sharpest one rather than whichever comes first.
+            val fromUris = ARTWORK_URI_KEYS
+                .mapNotNull { key -> metadata.getString(key)?.takeIf { it.isNotBlank() }?.let(::decodeArtworkUri) }
+            val fromBitmaps = ARTWORK_BITMAP_KEYS
+                .mapNotNull { key -> metadata.getBitmap(key) }
+            val artworkBitmap = (fromUris + fromBitmaps).maxByOrNull { minOf(it.width, it.height) }
 
             val resolvedArtwork = artworkBitmap
             if (
@@ -369,6 +376,11 @@ class OsysterNotificationListener : NotificationListenerService() {
                 MusicWidgetUpdater.updateAllMusicWidgets(this@OsysterNotificationListener)
             }
         }
+    }
+
+    private fun MediaMetadata?.hasArtwork(): Boolean {
+        if (this == null) return false
+        return ARTWORK_URI_KEYS.any { !getString(it).isNullOrBlank() } || ARTWORK_BITMAP_KEYS.any { getBitmap(it) != null }
     }
 
     private fun decodeArtworkUri(uriString: String): Bitmap? {

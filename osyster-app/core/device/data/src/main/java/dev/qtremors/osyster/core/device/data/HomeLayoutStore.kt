@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.core.device.data
 
+import dev.qtremors.osyster.core.device.domain.HeroTile
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -31,6 +32,8 @@ internal class HomeLayoutStore @Inject constructor(
         val order = stringPreferencesKey("page_order")
         val hidden = stringPreferencesKey("hidden_pages")
         val pinned = stringPreferencesKey("pinned")
+        val tiles = stringPreferencesKey("tile_order")
+        val hiddenTiles = stringPreferencesKey("hidden_tiles")
     }
 
     override val layout: Flow<HomeLayout> = context.homeLayout.data.map(::decode).distinctUntilChanged()
@@ -41,13 +44,17 @@ internal class HomeLayoutStore @Inject constructor(
             prefs[Keys.order] = next.pageOrder.joinToString(SEPARATOR) { it.id }
             prefs[Keys.hidden] = next.hiddenPages.joinToString(SEPARATOR) { it.id }
             prefs[Keys.pinned] = next.pinned.joinToString(SEPARATOR) { it.raw }
+            prefs[Keys.tiles] = next.tileOrder.joinToString(SEPARATOR) { it.id }
+            prefs[Keys.hiddenTiles] = next.hiddenTiles.joinToString(SEPARATOR) { it.id }
         }
     }
 
     private fun decode(prefs: Preferences): HomeLayout = HomeLayout(
         pageOrder = DevicePage.restoreOrder(split(prefs[Keys.order])),
         hiddenPages = split(prefs[Keys.hidden]).mapNotNull(DevicePage::fromId).toSet(),
-        pinned = split(prefs[Keys.pinned]).mapNotNull(PinKey::parse).distinct()
+        pinned = split(prefs[Keys.pinned]).mapNotNull(PinKey::parse).distinct(),
+        tileOrder = HeroTile.restoreOrder(split(prefs[Keys.tiles])),
+        hiddenTiles = split(prefs[Keys.hiddenTiles]).mapNotNull(HeroTile::fromId).toSet()
     )
 
     private fun split(raw: String?): List<String> = raw?.split(SEPARATOR)?.filter(String::isNotBlank).orEmpty()

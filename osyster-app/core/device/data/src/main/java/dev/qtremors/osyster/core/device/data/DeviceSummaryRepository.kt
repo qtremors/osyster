@@ -56,7 +56,8 @@ internal class DeviceSummaryRepository @Inject constructor(
             storageUsedBytes = storage?.let { available(it.usedBytes, "StatFs") } ?: Availability.Unavailable("Storage not readable", true),
             storageTotalBytes = storage?.let { available(it.totalBytes, "StatFs") } ?: Availability.Unavailable("Storage not readable", true),
             batteryPercent = battery.percent?.let { available(it, "BatteryManager") } ?: Availability.Unavailable("Not reported", true),
-            isCharging = battery.isCharging
+            isCharging = battery.isCharging,
+            batteryTemperatureC = battery.temperatureC
         )
     }
 

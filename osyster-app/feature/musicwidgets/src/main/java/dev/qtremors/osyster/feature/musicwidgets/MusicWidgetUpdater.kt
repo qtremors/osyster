@@ -173,6 +173,10 @@ object MusicWidgetUpdater {
             val artwork = MusicWidgetManager.getArtwork(context)
             val palette = MusicWidgetManager.extractPalette(artwork, isDarkMode)
             val density = context.resources.displayMetrics.density
+            // On a narrow capsule (4-column grids, or resized smaller) shuffle and repeat give way to
+            // previous, play, and next so nothing is cut off.
+            val widthDp = appWidgetManager.getAppWidgetOptions(appWidgetId).getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+            val roomy = widthDp == 0 || widthDp >= FULL_CAPSULE_DP
 
             // Adaptive Pill Background
             val bgRes = if (isDarkMode) R.drawable.widget_music_pill_background_dark else R.drawable.widget_music_pill_background
@@ -242,7 +246,7 @@ object MusicWidgetUpdater {
             // Shuffle
             views.setViewVisibility(
                 R.id.widget_btn_shuffle,
-                if (hasAccess && trackInfo.supportsShuffle) View.VISIBLE else View.GONE
+                if (hasAccess && trackInfo.supportsShuffle && roomy) View.VISIBLE else View.GONE
             )
             if (hasAccess && trackInfo.supportsShuffle) {
                 val shuffleTint = if (trackInfo.isShuffle) accentTint else inactiveTint
@@ -328,7 +332,7 @@ object MusicWidgetUpdater {
             // Repeat
             views.setViewVisibility(
                 R.id.widget_btn_repeat_5x1,
-                if (hasAccess && trackInfo.supportsRepeat) View.VISIBLE else View.GONE
+                if (hasAccess && trackInfo.supportsRepeat && roomy) View.VISIBLE else View.GONE
             )
             if (hasAccess && trackInfo.supportsRepeat) {
                 val isRepeating = trackInfo.isRepeat
@@ -371,9 +375,14 @@ private fun resolveDiscSizePx(
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
 ): Int {
-    val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-    val widthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180).coerceAtLeast(120)
-    val heightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 180).coerceAtLeast(120)
-    val density = context.resources.displayMetrics.density
-    return (minOf(widthDp, heightDp) * density).toInt().coerceIn(128, 768)
+    // Drawn at the screen's width, not the widget's reported minimum (its landscape height, the
+    // smallest it ever gets), so the disc is downscaled to fit and stays sharp at any size.
+    val metrics = context.resources.displayMetrics
+    return minOf(metrics.widthPixels, metrics.heightPixels).coerceIn(256, MAX_DISC_PX)
 }
+
+/** Large enough for any phone's widget, small enough to pass to the launcher comfortably. */
+private const val MAX_DISC_PX = 900
+
+/** Width the capsule needs for art, title, and all five buttons. */
+private const val FULL_CAPSULE_DP = 290

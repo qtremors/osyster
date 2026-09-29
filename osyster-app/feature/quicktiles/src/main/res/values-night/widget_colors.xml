@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Widget colors for dark themes. -->
 <resources>
     <color name="glance_card">#1A2122</color>
     <color name="glance_on_card">#DEE3E5</color>
     <color name="glance_on_card_dim">#BFC8CA</color>
     <color name="glance_accent">#82D3E0</color>
+    <color name="glance_track">#3F484A</color>
 </resources>

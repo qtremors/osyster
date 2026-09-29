@@ -1,5 +1,12 @@
 package dev.qtremors.osyster.feature.home
 
+import dev.qtremors.osyster.core.device.domain.HeroTile
+import androidx.compose.material.icons.rounded.DeveloperBoard
+import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material.icons.rounded.Storage
+import androidx.compose.material.icons.rounded.BatteryStd
+import androidx.compose.material.icons.rounded.HourglassBottom
+import androidx.compose.material.icons.rounded.DataUsage
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,7 +39,9 @@ import dev.qtremors.osyster.core.ui.components.SectionHeader
 internal data class HomeEditActions(
     val onReorderPinned: (List<PinKey>) -> Unit,
     val onReorderGroup: (List<DevicePage>) -> Unit,
-    val onVisible: (DevicePage, Boolean) -> Unit
+    val onVisible: (DevicePage, Boolean) -> Unit,
+    val onReorderTiles: (List<HeroTile>) -> Unit,
+    val onTileVisible: (HeroTile, Boolean) -> Unit
 )
 
 /**
@@ -46,7 +55,7 @@ internal fun HomeEditSheet(layout: HomeLayout, actions: HomeEditActions, onDismi
             modifier = Modifier
                 .heightIn(max = 620.dp)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(vertical = 8.dp)
         ) {
             Text(
                 stringResource(R.string.home_edit_hint),
@@ -54,6 +63,24 @@ internal fun HomeEditSheet(layout: HomeLayout, actions: HomeEditActions, onDismi
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
+            SectionHeader(stringResource(R.string.home_edit_dashboard))
+            ReorderableColumn(
+                items = layout.tileOrder,
+                key = { it.id },
+                onMove = { from, to -> actions.onReorderTiles(layout.tileOrder.moved(from, to)) }
+            ) { tile, handle ->
+                val visible = tile !in layout.hiddenTiles
+                ConnectedRow(
+                    title = stringResource(tile.titleRes()),
+                    leading = { IconBadge(tile.icon(), key = "tile_" + tile.id) },
+                    trailing = {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            ExpressiveSwitch(checked = visible, onCheckedChange = { actions.onTileVisible(tile, it) })
+                            handle()
+                        }
+                    }
+                )
+            }
             if (layout.pinned.isNotEmpty()) {
                 SectionHeader(stringResource(R.string.home_pinned))
                 ReorderableColumn(
@@ -101,3 +128,21 @@ private fun PinKey.label(): DestinationLabel? = when (kind) {
 
 private fun <T> List<T>.moved(from: Int, to: Int): List<T> =
     toMutableList().apply { add(to, removeAt(from)) }
+
+private fun HeroTile.titleRes(): Int = when (this) {
+    HeroTile.CPU -> R.string.home_metric_cpu
+    HeroTile.RAM -> R.string.home_metric_ram
+    HeroTile.STORAGE -> R.string.home_metric_storage
+    HeroTile.BATTERY -> R.string.home_metric_battery
+    HeroTile.SCREEN_TIME -> R.string.home_metric_screen
+    HeroTile.DATA_TODAY -> R.string.home_metric_data
+}
+
+private fun HeroTile.icon() = when (this) {
+    HeroTile.CPU -> androidx.compose.material.icons.Icons.Rounded.DeveloperBoard
+    HeroTile.RAM -> androidx.compose.material.icons.Icons.Rounded.Memory
+    HeroTile.STORAGE -> androidx.compose.material.icons.Icons.Rounded.Storage
+    HeroTile.BATTERY -> androidx.compose.material.icons.Icons.Rounded.BatteryStd
+    HeroTile.SCREEN_TIME -> androidx.compose.material.icons.Icons.Rounded.HourglassBottom
+    HeroTile.DATA_TODAY -> androidx.compose.material.icons.Icons.Rounded.DataUsage
+}

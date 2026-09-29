@@ -7,8 +7,7 @@
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
-    <string name="settings_oled">Pure black</string>
-    <string name="settings_oled_summary">Black backgrounds in dark theme, for OLED screens</string>
+    <string name="theme_black">Black</string>
     <string name="settings_colors">Colors</string>
     <string name="settings_colors_wallpaper">Wallpaper</string>
     <string name="settings_colors_preset">Preset</string>
@@ -104,6 +103,8 @@
     <string name="credit_osyster_detail">Tremors. GNU General Public License v3.</string>
     <string name="credit_essentials">Essentials by Sameera Sandakelum</string>
     <string name="credit_essentials_detail">Design reference and interface patterns. MIT License.</string>
+    <string name="credit_metro">Metro and Retro Music Player</string>
+    <string name="credit_metro_detail">Circle album art music widget layout. GPL-3.0 License.</string>
     <string name="credit_androidx">AndroidX, Jetpack Compose, and Material 3</string>
     <string name="credit_androidx_detail">Google. Apache License 2.0.</string>
     <string name="credit_kotlin">Kotlin and kotlinx libraries</string>

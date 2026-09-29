@@ -6,7 +6,9 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
 import android.provider.Settings
+import android.view.View
 import android.widget.RemoteViews
 import dagger.hilt.android.AndroidEntryPoint
 import dev.qtremors.osyster.core.navigation.DeepLinks
@@ -21,12 +23,14 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
  * Shared behavior of the three data usage widgets: update on the system schedule and on the
  * refresh button, open Osyster's Data usage on tap, or Usage access settings until it is granted.
- * Widgets show device totals only, never per-app data.
+ * Widgets show device totals only, never per-app data. A tap on refresh turns the refresh icon
+ * until the new totals are in, so the tap always gets a visible answer.
  */
 abstract class DataUsageWidget : AppWidgetProvider() {
     @Inject lateinit var source: DataUsageSource
@@ -46,16 +50,33 @@ abstract class DataUsageWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
         if (intent.action == refreshAction) {
             val manager = AppWidgetManager.getInstance(context)
-            updateAsync(context, manager, manager.getAppWidgetIds(ComponentName(context, javaClass)))
+            val ids = manager.getAppWidgetIds(ComponentName(context, javaClass))
+            showSpinning(context, manager, ids)
+            updateAsync(context, manager, ids, minSpinMs = MIN_SPIN_MS)
         }
     }
 
-    private fun updateAsync(context: Context, manager: AppWidgetManager, ids: IntArray) {
+    /** Swaps each refresh icon for its spinning copy. The full update that follows puts the icon back. */
+    private fun showSpinning(context: Context, manager: AppWidgetManager, ids: IntArray) {
+        if (ids.isEmpty()) return
+        val views = RemoteViews(context.packageName, layout)
+        refreshButtons.zip(refreshSpinners).forEach { (button, spinner) ->
+            views.setViewVisibility(button, View.GONE)
+            views.setViewVisibility(spinner, View.VISIBLE)
+        }
+        ids.forEach { manager.partiallyUpdateAppWidget(it, views) }
+    }
+
+    private fun updateAsync(context: Context, manager: AppWidgetManager, ids: IntArray, minSpinMs: Long = 0) {
         if (ids.isEmpty()) return
         val pending = goAsync()
+        val started = SystemClock.elapsedRealtime()
         scope.launch {
             try {
-                ids.forEach { id -> manager.updateAppWidget(id, build(context, id)) }
+                val built = ids.associateWith { id -> build(context, id) }
+                // Fast loads would flash the spinner; keep it up for one full turn.
+                delay((minSpinMs - (SystemClock.elapsedRealtime() - started)).coerceAtLeast(0))
+                built.forEach { (id, views) -> manager.updateAppWidget(id, views) }
             } finally {
                 pending.finish()
             }
@@ -77,10 +98,19 @@ abstract class DataUsageWidget : AppWidgetProvider() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         refreshButtons.forEach { views.setOnClickPendingIntent(it, refresh) }
+        // Launchers re-apply an update onto the views they already show, so the spinner that
+        // showSpinning turned on stays on unless this update turns it off again.
+        refreshButtons.zip(refreshSpinners).forEach { (button, spinner) ->
+            views.setViewVisibility(button, View.VISIBLE)
+            views.setViewVisibility(spinner, View.GONE)
+        }
         return views
     }
 
     protected open val refreshButtons: List<Int> = listOf(R.id.widget_btn_refresh)
+
+    /** The spinning icon that stands in for each of [refreshButtons], in the same order. */
+    protected open val refreshSpinners: List<Int> = listOf(R.id.widget_refresh_spin)
 
     protected abstract fun showSetup(context: Context, views: RemoteViews)
     protected abstract fun showUnknown(context: Context, views: RemoteViews)
@@ -101,6 +131,7 @@ abstract class DataUsageWidget : AppWidgetProvider() {
 
     private companion object {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        const val MIN_SPIN_MS = 700L
     }
 }
 
@@ -150,6 +181,7 @@ class CombinedDataUsageWidget : DataUsageWidget() {
     override val layout: Int = R.layout.widget_data_usage_combined
     override val refreshAction = "dev.qtremors.osyster.action.REFRESH_COMBINED_DATA_WIDGET"
     override val refreshButtons = listOf(R.id.widget_btn_refresh, R.id.widget_btn_refresh_month)
+    override val refreshSpinners = listOf(R.id.widget_refresh_spin, R.id.widget_refresh_spin_month)
 
     override suspend fun render(context: Context, views: RemoteViews) {
         val today = source.report(DataPeriod.TODAY, includeApps = false).totals

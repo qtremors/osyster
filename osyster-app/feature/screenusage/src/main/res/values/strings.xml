@@ -19,4 +19,5 @@
         <item quantity="one">%1$d app · %2$d opens</item>
         <item quantity="other">%1$d apps · %2$d opens</item>
     </plurals>
+    <string name="screen_search">Search apps</string>
 </resources>

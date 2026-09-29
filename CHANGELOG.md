@@ -1,8 +1,33 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.2.9
-> **Last Updated:** 2026-09-28
+> **Version:** 0.3.0
+> **Last Updated:** 2026-09-29
+
+---
+
+## [0.3.0] - 2026-09-29
+
+- **Pure Black Theme**: Pure black is now a theme of its own next to System, Light, and Dark, and pages are truly black. Unselected choice buttons stand out from their rows in every theme.
+- **Settings Layout**: Rows, choices, and color swatches line up, and connected choice buttons share the full width.
+- **Welcome**: Two pages instead of three, and the title and text are readable in dark and pure black themes.
+- **Dashboard**: Battery shows its temperature, storage uses a plain level bar, and the CPU and RAM lines keep a fixed scale so they no longer jump.
+- **Dashboard Tiles**: Screen time and data today join the dashboard; tap them to open the tool, or to allow usage access.
+- **Edit Home**: Reorder, show, or hide dashboard tiles, as well as pinned items and pages.
+- **Search**: One search in the top bar everywhere. On Home it finds any page, tool, setting, or device fact; on device pages, Data usage, Screen usage, Activity launcher, and Standby apps it searches that page. The keyboard opens once, not again when you come back from a result.
+- **Data Usage Charts**: A download and upload ring with the total inside, and stacked bars by hour for one day or by day for longer periods, in distinct colors for download and upload. Tap a bar to see its amount.
+- **Data Usage Periods**: 7 days, Today, and This month, then Mobile, All, and Wi-Fi. Step back and forward, or tap the date to jump to any day.
+- **App Pages**: Tap an app in Data usage to see its data, or in Screen usage to see its screen time today, daily average, opens, and the last 7 days. Tap the app's icon to open its App info.
+- **Status Colors**: Storage, RAM, and battery turn amber and then red as they fill or run low.
+- **App Stopper Grid**: Apps show as a grid of icons with 3 to 6 per row. Tap to stop, long-press for open, App info, store, and remove. Stopped and frozen apps are grayed out.
+- **Uninstalled Apps Stay Listed**: Apps you uninstall stay in App stopper under their real name, counted as uninstalled, with Reinstall and Remove, and are picked up again on reinstall.
+- **Widgets**: Glance and data usage widgets follow your light or dark theme and, on Android 12 and newer, your wallpaper colors and the launcher's corner shape. Glance is now a scrolling list instead of a swiped stack, with a green, amber, or red level bar on each row, and the data and screen time rows open their tools. Data widgets have large numbers that grow with the widget, resize in both directions, ripple on touch, and turn the refresh icon while they reload. The music disc shows sharp album art, picks the best artwork the player offers, and keeps its buttons on the edge of the disc.
+- **Freezing Moved**: Freezing apps now lives in App stopper (with Shizuku or root) instead of a separate tool. The Freeze tile still toggles every frozen app.
+- **Navigation Bar**: Rebuilt as a floating toolbar whose tab pill turns into a Back button with the page title, sized to the title, with no crash when going back.
+- **Choice Buttons**: Sets of five or more options wrap into even rows instead of being cut off.
+- **Lists**: App lists and tile lists are joined groups like the rest of the app.
+- **Tools Tab**: Power tools say what they need only while it is missing, and Power setup shows what is unlocked.
+- **Polish**: Clearer onboarding access rows, a full-width CPU graph from the first second, readable hour labels, one vibration per toggle, a dark theme navigation bar that reads correctly, Home keeping its place and its numbers when you come back from a page, full-width live sensor readings, a picked chart bar that stands out, sheets that keep their buttons above the keyboard, and license texts that read as paragraphs.
 
 ---
 
@@ -17,7 +42,7 @@
 - **Data Usage History**: Step back to earlier days, weeks, and months, and search the app list.
 - **App Stopper Actions**: Open an app, go to its App info, view or reinstall it from the store, and see how many apps can run, are stopped, or are uninstalled.
 - **Widgets Page**: Every Osyster widget in one list, with an Add button that asks your launcher to place it.
-- **Glance Stack Widget**: One widget to swipe between battery, memory, storage, data today, and screen time.
+- **Glance Widget**: One widget for battery, memory, storage, data today, and screen time.
 - **Color Picker Tile**: Capture the screen once, after Android asks, and copy the hex code of any color under a magnifier.
 - **Two Panes**: On tablets and unfolded foldables, tabs stay on the left and pages open on the right.
 - **Backup**: Exports now include the temperature unit, refresh speed, screenshot blocking, and the Shut-Up! and Freeze lists. Older export files still import.

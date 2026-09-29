@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.core.ui.components
 
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.qtremors.osyster.core.ui.theme.GroupCorner
 import dev.qtremors.osyster.core.ui.theme.RowGap
+import dev.qtremors.osyster.core.ui.theme.connectedRowShape
 import dev.qtremors.osyster.core.ui.theme.spacing
 
 /**
@@ -46,6 +48,27 @@ fun ConnectedGroup(
             .fillMaxWidth()
             .clip(RoundedCornerShape(GroupCorner)),
         verticalArrangement = Arrangement.spacedBy(RowGap),
+        content = content
+    )
+}
+
+/**
+ * One row of a connected group built item by item in a lazy list, where a [ConnectedGroup]
+ * cannot wrap the rows. [index] and [count] pick the shape: the first item is rounded on top,
+ * the last on the bottom, and the ones between meet with tight corners and a hairline gap.
+ */
+@Composable
+fun ConnectedItem(
+    index: Int,
+    count: Int,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = if (index < count - 1) RowGap else 0.dp)
+            .clip(connectedRowShape(index, count)),
         content = content
     )
 }
@@ -95,7 +118,9 @@ fun ConnectedRow(
     onLongClick: (() -> Unit)? = null,
     role: Role? = if (onClick != null) Role.Button else null,
     containerColor: Color = MaterialTheme.colorScheme.surfaceBright,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    /** False when [onClick] plays its own haptic, so a tap never buzzes twice. */
+    tapHaptic: Boolean = true
 ) {
     val spacing = MaterialTheme.spacing
     val haptics = rememberAppHaptics()
@@ -104,7 +129,7 @@ fun ConnectedRow(
             enabled = enabled,
             role = role,
             onClick = {
-                haptics.tap()
+                if (tapHaptic) haptics.tap()
                 onClick?.invoke()
             },
             onLongClick = onLongClick?.let { handler ->
@@ -123,6 +148,7 @@ fun ConnectedRow(
         Row(
             modifier = Modifier
                 .then(clickable)
+                .alpha(if (enabled) 1f else DISABLED_ALPHA)
                 .heightIn(min = 64.dp)
                 .padding(horizontal = spacing.rowHorizontal, vertical = spacing.rowVertical),
             verticalAlignment = Alignment.CenterVertically
@@ -135,8 +161,7 @@ fun ConnectedRow(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (enabled) MaterialTheme.colorScheme.onSurface
-                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -157,6 +182,9 @@ fun ConnectedRow(
         }
     }
 }
+
+/** Disabled rows fade as one piece, so the icon, title, and explanation never disagree. */
+private const val DISABLED_ALPHA = 0.5f
 
 /** A row that opens another page: pastel icon on the left, chevron on the right. */
 @Composable
@@ -219,6 +247,7 @@ fun ToggleRow(
             onCheckedChange(!checked)
         },
         role = Role.Switch,
-        enabled = enabled
+        enabled = enabled,
+        tapHaptic = false
     )
 }

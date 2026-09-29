@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.core.usage.data
 
+import dev.qtremors.osyster.core.usage.domain.AppScreenDay
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
@@ -41,6 +42,12 @@ internal class ScreenUsageRepository @Inject constructor(
             .sortedByDescending(AppScreenTime::foregroundMillis)
         ScreenDay(dayStart, totals.total, totals.hourly, apps)
     }
+
+    override suspend fun appHistory(packageName: String, days: Int): List<AppScreenDay> =
+        DayWindows.lastDays(days, System.currentTimeMillis()).map { start ->
+            val app = day(start).apps.firstOrNull { it.packageName == packageName }
+            AppScreenDay(start, app?.foregroundMillis ?: 0L, app?.opens ?: 0)
+        }
 
     override suspend fun history(days: Int): List<ScreenDayTotal> = withContext(dispatchers.io) {
         val now = System.currentTimeMillis()

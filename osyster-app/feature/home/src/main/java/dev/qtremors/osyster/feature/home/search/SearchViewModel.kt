@@ -1,4 +1,4 @@
-package dev.qtremors.osyster.feature.search
+package dev.qtremors.osyster.feature.home.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

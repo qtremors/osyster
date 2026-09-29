@@ -1,5 +1,13 @@
 package dev.qtremors.osyster.feature.screenusage
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import dev.qtremors.osyster.core.ui.components.FilterTop
+import androidx.compose.runtime.remember
+import dev.qtremors.osyster.core.ui.components.ConnectedItem
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,7 +55,15 @@ internal fun ScreenUsageScreen(
     onGrantAccess: () -> Unit,
     onOpenApp: (String) -> Unit
 ) {
-    OsysterScaffold(title = stringResource(Tool.SCREEN_USAGE.label.title)) { padding ->
+    // Searching filters the app list in place, as in Data usage; the charts step aside meanwhile.
+    var query by rememberSaveable { mutableStateOf("") }
+    var searching by rememberSaveable { mutableStateOf(false) }
+    OsysterScaffold(
+        title = stringResource(Tool.SCREEN_USAGE.label.title),
+        filter = if (state.access == UsageAccessState.GRANTED) {
+            FilterTop(query, { query = it }, stringResource(R.string.screen_search), onOpenChange = { searching = it })
+        } else null
+    ) { padding ->
         LazyColumn(contentPadding = padding) {
             when (state.access) {
                 null -> item(key = "loading") { LoadingState() }
@@ -59,14 +75,16 @@ internal fun ScreenUsageScreen(
                         item(key = "history_loading") { LoadingState() }
                         return@LazyColumn
                     }
-                    item(key = "hero") { DayHero(state) }
-                    item(key = "history") { HistoryChart(state, onSelectDay) }
+                    if (!searching) {
+                        item(key = "hero") { DayHero(state) }
+                        item(key = "history") { HistoryChart(state, onSelectDay) }
+                    }
                     val day = state.day
                     if (day == null) {
                         item(key = "day_loading") { LoadingState() }
                     } else {
-                        item(key = "hourly") { HourlyChart(day) }
-                        appRows(day, state.showAllApps, onToggleShowAll, onOpenApp)
+                        if (!searching) item(key = "hourly") { HourlyChart(day) }
+                        appRows(day, state.showAllApps || query.isNotBlank(), query, onToggleShowAll, onOpenApp)
                     }
                 }
             }
@@ -123,14 +141,20 @@ private fun HistoryChart(state: ScreenUsageState, onSelect: (Int) -> Unit) {
 
 @Composable
 private fun HourlyChart(day: ScreenDay) {
-    val bars = day.hourlyMillis.mapIndexed { hour, millis -> ChartBar(listOf(millis.toFloat()), hour.toString()) }
+    // Hours read the way the phone's clock does: "6 AM" or "06".
+    val locale = Locale.getDefault()
+    val hourFormat = remember(locale) { java.text.SimpleDateFormat(android.text.format.DateFormat.getBestDateTimePattern(locale, "j"), locale) }
+    val bars = day.hourlyMillis.mapIndexed { hour, millis ->
+        val at = java.util.Calendar.getInstance().apply { set(java.util.Calendar.HOUR_OF_DAY, hour); set(java.util.Calendar.MINUTE, 0) }
+        ChartBar(listOf(millis.toFloat()), hourFormat.format(at.time))
+    }
     val busiest = day.hourlyMillis.withIndex().maxByOrNull { it.value }
     Column {
         SectionHeader(stringResource(R.string.screen_by_hour))
         ConnectedGroup {
             BarChart(
                 bars = bars,
-                segmentColors = listOf(MaterialTheme.colorScheme.tertiary),
+                segmentColors = listOf(MaterialTheme.colorScheme.primary),
                 description = if (busiest != null && busiest.value > 0) {
                     stringResource(R.string.screen_hourly_description, busiest.index, UsageFormat.duration(busiest.value))
                 } else stringResource(R.string.screen_hourly_empty),
@@ -141,15 +165,16 @@ private fun HourlyChart(day: ScreenDay) {
     }
 }
 
-private fun LazyListScope.appRows(day: ScreenDay, showAll: Boolean, onToggle: () -> Unit, onOpen: (String) -> Unit) {
-    val shown = if (showAll) day.apps else day.apps.take(COLLAPSED_APPS)
+private fun LazyListScope.appRows(day: ScreenDay, showAll: Boolean, query: String, onToggle: () -> Unit, onOpen: (String) -> Unit) {
+    val matching = if (query.isBlank()) day.apps else day.apps.filter { it.label.contains(query.trim(), ignoreCase = true) || it.packageName.contains(query.trim(), ignoreCase = true) }
+    val shown = if (showAll) matching else matching.take(COLLAPSED_APPS)
     item(key = "apps_header") { SectionHeader(stringResource(R.string.screen_apps)) }
-    if (day.apps.isEmpty()) {
+    if (matching.isEmpty()) {
         item(key = "apps_empty") { ConnectedGroup { ConnectedRow(title = stringResource(R.string.screen_no_apps)) } }
         return
     }
-    items(shown, key = { "app_" + it.packageName }) { app ->
-        ConnectedGroup(modifier = Modifier.padding(bottom = 2.dp)) {
+    itemsIndexed(shown, key = { _, it -> "app_" + it.packageName }) { index, app ->
+        ConnectedItem(index, shown.size) {
             ConnectedRow(
                 title = app.label,
                 supporting = pluralStringResource(R.plurals.screen_opens, app.opens, app.opens),
@@ -159,9 +184,9 @@ private fun LazyListScope.appRows(day: ScreenDay, showAll: Boolean, onToggle: ()
             )
         }
     }
-    if (day.apps.size > COLLAPSED_APPS) {
+    if (query.isBlank() && day.apps.size > COLLAPSED_APPS) {
         item(key = "apps_toggle") {
-            ConnectedGroup {
+            ConnectedGroup(modifier = Modifier.padding(top = 8.dp)) {
                 ConnectedRow(
                     title = if (showAll) stringResource(R.string.screen_show_fewer) else stringResource(R.string.screen_show_all, day.apps.size),
                     onClick = onToggle

@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<!-- The disc view wraps the square artwork (adjustViewBounds), so the two buttons pinned to its
+     corners sit on the edge of the disc at any widget size, not at the corners of the widget. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.Osyster.AppWidget">
 
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center">
+
     <ImageView
         android:id="@+id/widget_music_art_disc"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_margin="4dp"
         android:layout_centerInParent="true"
-        android:adjustViewBounds="false"
+        android:adjustViewBounds="true"
         android:scaleType="fitCenter"
         android:src="@drawable/widget_music_circle_background"
         android:contentDescription="@string/widget_music_default_title" />
@@ -45,3 +51,5 @@
         android:contentDescription="@string/widget_music_play_desc" />
 
 </RelativeLayout>
+
+</FrameLayout>

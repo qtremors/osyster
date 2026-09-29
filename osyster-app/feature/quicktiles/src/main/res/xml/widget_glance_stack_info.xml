@@ -5,10 +5,10 @@
     android:targetCellWidth="2"
     android:targetCellHeight="2"
     android:minResizeWidth="110dp"
-    android:minResizeHeight="110dp"
+    android:minResizeHeight="60dp"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_glance_stack"
-    android:previewLayout="@layout/widget_glance_card"
+    android:previewLayout="@layout/widget_glance_stack"
     android:description="@string/widgets_glance_summary"
     android:widgetCategory="home_screen" />

@@ -1,5 +1,8 @@
 package dev.qtremors.osyster.feature.activitylauncher
 
+import dev.qtremors.osyster.core.ui.components.FilterTop
+import dev.qtremors.osyster.core.ui.components.ConnectedItem
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,9 +36,7 @@ import dev.qtremors.osyster.core.system.domain.ActivityEntry
 import dev.qtremors.osyster.core.system.domain.AppEntry
 import dev.qtremors.osyster.core.ui.catalog.label
 import dev.qtremors.osyster.core.ui.components.AppIcon
-import dev.qtremors.osyster.core.ui.components.ConnectedGroup
 import dev.qtremors.osyster.core.ui.components.ConnectedRow
-import dev.qtremors.osyster.core.ui.components.InlineSearchField
 import dev.qtremors.osyster.core.ui.components.LoadingState
 import dev.qtremors.osyster.core.ui.components.OsysterScaffold
 import dev.qtremors.osyster.core.ui.components.SectionHeader
@@ -71,12 +72,13 @@ internal fun ActivityLauncherScreen(
 
     OsysterScaffold(
         title = state.selected?.label ?: stringResource(Tool.ACTIVITY_LAUNCHER.label.title),
-        snackbarHost = { SnackbarHost(snackbar) }
+        snackbarHost = { SnackbarHost(snackbar) },
+        // Searching apps happens in the top bar, like every other list in Osyster.
+        filter = if (state.selected == null) FilterTop(query, { query = it }, stringResource(R.string.launcher_search)) else null
     ) { padding ->
         LazyColumn(contentPadding = padding) {
             val selected = state.selected
             if (selected == null) {
-                item(key = "search") { InlineSearchField(query, { query = it }, stringResource(R.string.launcher_search)) }
                 val apps = state.apps
                 if (apps == null) {
                     item(key = "loading") { LoadingState() }
@@ -84,8 +86,8 @@ internal fun ActivityLauncherScreen(
                     val words = query.trim().lowercase()
                     val shown = apps.filter { words.isEmpty() || words in it.label.lowercase() || words in it.packageName.lowercase() }
                     item(key = "apps_header") { SectionHeader(stringResource(R.string.launcher_apps, shown.size)) }
-                    items(shown, key = { it.packageName }) { app ->
-                        ConnectedGroup(modifier = Modifier.padding(bottom = 2.dp)) {
+                    itemsIndexed(shown, key = { _, it -> it.packageName }) { index, app ->
+                        ConnectedItem(index, shown.size) {
                             ConnectedRow(
                                 title = app.label,
                                 supporting = pluralStringResource(R.plurals.launcher_activity_count, app.activityCount, app.activityCount),
@@ -111,7 +113,9 @@ internal fun ActivityLauncherScreen(
                             )
                         }
                     }
-                    items(activities, key = { it.className }) { activity -> ActivityRow(activity, onLaunch, onPin) }
+                    itemsIndexed(activities, key = { _, it -> it.className }) { index, activity ->
+                        ConnectedItem(index, activities.size) { ActivityRow(activity, onLaunch, onPin) }
+                    }
                 }
             }
         }
@@ -122,23 +126,21 @@ internal fun ActivityLauncherScreen(
 @Composable
 private fun ActivityRow(activity: ActivityEntry, onLaunch: (ActivityEntry) -> Unit, onPin: (ActivityEntry) -> Unit) {
     var menuOpen by remember { mutableStateOf(false) }
-    Box(modifier = Modifier.padding(bottom = 2.dp)) {
-        ConnectedGroup {
-            ConnectedRow(
-                title = activity.label,
-                supporting = activity.shortName,
-                trailing = {
-                    Icon(
-                        imageVector = if (activity.exported) Icons.AutoMirrored.Rounded.OpenInNew else Icons.Rounded.Lock,
-                        contentDescription = if (activity.exported) null else stringResource(R.string.launcher_locked),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                enabled = activity.exported,
-                onClick = { onLaunch(activity) },
-                onLongClick = if (activity.exported) ({ menuOpen = true }) else null
-            )
-        }
+    Box {
+        ConnectedRow(
+            title = activity.label,
+            supporting = activity.shortName,
+            trailing = {
+                Icon(
+                    imageVector = if (activity.exported) Icons.AutoMirrored.Rounded.OpenInNew else Icons.Rounded.Lock,
+                    contentDescription = if (activity.exported) null else stringResource(R.string.launcher_locked),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            enabled = activity.exported,
+            onClick = { onLaunch(activity) },
+            onLongClick = if (activity.exported) ({ menuOpen = true }) else null
+        )
         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.launcher_pin)) },

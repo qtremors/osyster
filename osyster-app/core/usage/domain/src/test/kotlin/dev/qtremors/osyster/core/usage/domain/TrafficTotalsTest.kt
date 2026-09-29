@@ -18,8 +18,10 @@ class TrafficTotalsTest {
     @Test
     fun appsAreFilteredAndSortedPerConnection() {
         val report = DataUsageReport(
-            DataPeriod.TODAY, totals, emptyList(),
-            listOf(
+            period = DataPeriod.TODAY,
+            totals = totals,
+            days = emptyList(),
+            apps = listOf(
                 AppTraffic("a", "A", TrafficTotals(mobileRx = 5)),
                 AppTraffic("b", "B", TrafficTotals(wifiRx = 50)),
                 AppTraffic("c", "C", TrafficTotals(mobileRx = 9, wifiRx = 1))

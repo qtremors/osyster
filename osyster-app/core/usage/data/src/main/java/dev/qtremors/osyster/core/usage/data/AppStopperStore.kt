@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.core.usage.data
 
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -28,6 +30,9 @@ private val Context.appStopper: DataStore<Preferences> by preferencesDataStore("
 /**
  * The user's app stopper list, stored as package names. State comes from PackageManager each time:
  * the stopped flag, whether the app is still installed, and its current name.
+ *
+ * Each app's name is also saved, so an app that gets uninstalled stays on the list under its
+ * real name (a ghost entry) instead of a bare package name, and picks up again on reinstall.
  */
 @Singleton
 internal class AppStopperStore @Inject constructor(
@@ -35,14 +40,16 @@ internal class AppStopperStore @Inject constructor(
     private val dispatchers: AppDispatchers
 ) : AppStopperRepository {
     private val key = stringSetPreferencesKey("packages")
+    private val columnsKey = intPreferencesKey("columns")
     private val labels = AppLabels(context)
     private val refreshTick = MutableStateFlow(0)
 
-    override val apps: Flow<List<ManagedApp>> = combine(
-        context.appStopper.data.map { it[key].orEmpty() },
-        refreshTick
-    ) { packages, _ -> packages.map(::describe).sortedWith(compareBy({ !it.installed }, { it.label.lowercase() })) }
-        .flowOn(dispatchers.io)
+    override val apps: Flow<List<ManagedApp>> = combine(context.appStopper.data, refreshTick) { prefs, _ ->
+        prefs[key].orEmpty()
+            .map { describe(it, prefs[labelKey(it)]) }
+            // Running first, then stopped, then frozen, then uninstalled, each by name.
+            .sortedWith(compareBy({ it.order() }, { it.label.lowercase() }))
+    }.flowOn(dispatchers.io)
 
     override suspend fun installedApps(includeSystem: Boolean): List<InstalledApp> = withContext(dispatchers.io) {
         val pm = context.packageManager
@@ -60,27 +67,60 @@ internal class AppStopperStore @Inject constructor(
     }
 
     override suspend fun add(packageNames: Collection<String>) {
-        context.appStopper.edit { prefs -> prefs[key] = prefs[key].orEmpty() + packageNames }
+        val names = withContext(dispatchers.io) { packageNames.associateWith { labels.label(it) } }
+        context.appStopper.edit { prefs ->
+            prefs[key] = prefs[key].orEmpty() + packageNames
+            names.forEach { (pkg, name) -> prefs[labelKey(pkg)] = name }
+        }
     }
 
     override suspend fun remove(packageName: String) {
-        context.appStopper.edit { prefs -> prefs[key] = prefs[key].orEmpty() - packageName }
+        context.appStopper.edit { prefs ->
+            prefs[key] = prefs[key].orEmpty() - packageName
+            prefs.remove(labelKey(packageName))
+        }
     }
 
     override suspend fun refresh() {
+        // Keep saved names current while apps are installed, so a later ghost shows the latest name.
+        withContext(dispatchers.io) {
+            context.appStopper.edit { prefs ->
+                prefs[key].orEmpty().forEach { pkg ->
+                    if (labels.isInstalled(pkg)) prefs[labelKey(pkg)] = labels.label(pkg)
+                }
+            }
+        }
         refreshTick.value++
     }
 
-    private fun describe(packageName: String): ManagedApp {
+    private fun labelKey(packageName: String) = stringPreferencesKey("label:$packageName")
+
+    private fun ManagedApp.order(): Int = when {
+        !installed -> 3
+        frozen -> 2
+        stopped -> 1
+        else -> 0
+    }
+
+    private fun describe(packageName: String, savedLabel: String?): ManagedApp {
         val info = runCatching { labels.applicationInfo(packageName) }.getOrNull()
         return ManagedApp(
             packageName = packageName,
-            label = if (info != null) labels.label(packageName) else packageName,
+            label = if (info != null) labels.label(packageName) else savedLabel ?: packageName,
             installed = info != null,
             stopped = info != null && info.flags and ApplicationInfo.FLAG_STOPPED != 0,
-            system = info?.isSystem() == true
+            system = info?.isSystem() == true,
+            frozen = info != null && !info.enabled
         )
+    }
+
+    override val columns: Flow<Int> = context.appStopper.data.map { (it[columnsKey] ?: DEFAULT_COLUMNS).coerceIn(3, 6) }
+
+    override suspend fun setColumns(count: Int) {
+        context.appStopper.edit { it[columnsKey] = count.coerceIn(3, 6) }
     }
 
     private fun ApplicationInfo.isSystem(): Boolean = flags and ApplicationInfo.FLAG_SYSTEM != 0
 }
+
+private const val DEFAULT_COLUMNS = 4

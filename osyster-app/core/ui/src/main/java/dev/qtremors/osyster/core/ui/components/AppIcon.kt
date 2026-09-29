@@ -31,11 +31,7 @@ import kotlinx.coroutines.withContext
  */
 @Composable
 fun AppIcon(packageName: String, modifier: Modifier = Modifier, size: Dp = 40.dp) {
-    val context = LocalContext.current
-    val icon by produceState<ImageBitmap?>(initialValue = AppIconCache.peek(packageName), packageName) {
-        if (value == null) value = withContext(Dispatchers.IO) { AppIconCache.load(context, packageName) }
-    }
-    val current = icon
+    val current = rememberAppIconBitmap(packageName)
     if (current != null) {
         Image(bitmap = current, contentDescription = null, modifier = modifier.size(size))
     } else {
@@ -46,6 +42,16 @@ fun AppIcon(packageName: String, modifier: Modifier = Modifier, size: Dp = 40.dp
             Icon(Icons.Rounded.Android, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
+}
+
+/** The app's icon as a bitmap, for callers that draw it themselves (for example grayed out). */
+@Composable
+fun rememberAppIconBitmap(packageName: String): ImageBitmap? {
+    val context = LocalContext.current
+    val icon by produceState<ImageBitmap?>(initialValue = AppIconCache.peek(packageName), packageName) {
+        if (value == null) value = withContext(Dispatchers.IO) { AppIconCache.load(context, packageName) }
+    }
+    return icon
 }
 
 private object AppIconCache {

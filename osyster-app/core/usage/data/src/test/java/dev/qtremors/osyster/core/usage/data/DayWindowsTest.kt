@@ -1,37 +1,69 @@
 package dev.qtremors.osyster.core.usage.data
 
 import dev.qtremors.osyster.core.usage.domain.DataPeriod
-import java.time.LocalDateTime
+import dev.qtremors.osyster.core.usage.domain.maxOffset
+import java.time.LocalDate
 import java.time.ZoneId
-import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DayWindowsTest {
-    private val zone: ZoneId = ZoneOffset.ofHoursMinutes(5, 30)
-    private fun at(y: Int, m: Int, d: Int, h: Int = 0) =
-        LocalDateTime.of(y, m, d, h, 0).atZone(zone).toInstant().toEpochMilli()
+    private val zone = ZoneId.of("Asia/Kolkata")
+    private val now = ZonedDateTime.of(2026, 9, 15, 18, 30, 0, 0, zone).toInstant().toEpochMilli()
+
+    private fun day(millis: Long): LocalDate = java.time.Instant.ofEpochMilli(millis).atZone(zone).toLocalDate()
 
     @Test
-    fun startOfDayIsLocalMidnight() {
-        assertEquals(at(2026, 9, 22), DayWindows.startOfDay(at(2026, 9, 22, 21), zone))
+    fun todayIsOneDay() {
+        val days = DayWindows.daysOf(DataPeriod.TODAY, now, zone = zone)
+        assertEquals(listOf(LocalDate.of(2026, 9, 15)), days.map(::day))
     }
 
     @Test
-    fun periodsCoverTheRightDays() {
-        val now = at(2026, 9, 22, 21)
-        assertEquals(listOf(at(2026, 9, 22)), DayWindows.daysOf(DataPeriod.TODAY, now, zone))
-        val week = DayWindows.daysOf(DataPeriod.WEEK, now, zone)
-        assertEquals(7, week.size)
-        assertEquals(at(2026, 9, 16), week.first())
-        val month = DayWindows.daysOf(DataPeriod.MONTH, now, zone)
-        assertEquals(22, month.size)
-        assertEquals(at(2026, 9, 1), month.first())
+    fun yesterdayIsOneStepBack() {
+        val days = DayWindows.daysOf(DataPeriod.TODAY, now, offset = 1, zone = zone)
+        assertEquals(listOf(LocalDate.of(2026, 9, 14)), days.map(::day))
     }
 
     @Test
-    fun lastDaysEndWithToday() {
-        val days = DayWindows.lastDays(3, at(2026, 10, 1, 9), zone)
-        assertEquals(listOf(at(2026, 9, 29), at(2026, 9, 30), at(2026, 10, 1)), days)
+    fun weeksStepBackSevenDaysAtATime() {
+        val current = DayWindows.daysOf(DataPeriod.WEEK, now, zone = zone).map(::day)
+        val previous = DayWindows.daysOf(DataPeriod.WEEK, now, offset = 1, zone = zone).map(::day)
+        assertEquals(7, current.size)
+        assertEquals(LocalDate.of(2026, 9, 15), current.last())
+        assertEquals(LocalDate.of(2026, 9, 8), previous.last())
+        assertEquals(current.first().minusDays(1), previous.last())
+    }
+
+    @Test
+    fun pastMonthsAreWholeCalendarMonths() {
+        val august = DayWindows.daysOf(DataPeriod.MONTH, now, offset = 1, zone = zone).map(::day)
+        assertEquals(LocalDate.of(2026, 8, 1), august.first())
+        assertEquals(LocalDate.of(2026, 8, 31), august.last())
+        val current = DayWindows.daysOf(DataPeriod.MONTH, now, zone = zone).map(::day)
+        assertEquals(LocalDate.of(2026, 9, 15), current.last())
+    }
+
+    @Test
+    fun aNormalDayHasTwentyFourHours() {
+        val start = DayWindows.startOfDay(now, zone)
+        val hours = DayWindows.hoursOf(start, zone)
+        assertEquals(24, hours.size)
+        assertEquals(start, hours.first())
+        assertEquals(3_600_000L, hours[1] - hours[0])
+    }
+
+    @Test
+    fun clockChangeDaysHaveTheirRealHourCount() {
+        val berlin = ZoneId.of("Europe/Berlin")
+        val springForward = LocalDate.of(2026, 3, 29).atStartOfDay(berlin).toInstant().toEpochMilli()
+        assertEquals(23, DayWindows.hoursOf(springForward, berlin).size)
+    }
+
+    @Test
+    fun offsetsAreBounded() {
+        assertTrue(maxOffset(DataPeriod.TODAY) > maxOffset(DataPeriod.MONTH))
     }
 }

@@ -150,16 +150,17 @@ private fun Brightness(state: TorchState, onLevel: (Int) -> Unit) {
                         onValueChange = { slider.value = it },
                         onValueChangeFinished = { onLevel(slider.value.roundToInt()) }
                     )
+                    // Quick presets sit with the slider they move, in one card.
+                    ConnectedChoices(
+                        options = presets,
+                        selected = presets.minByOrNull { kotlin.math.abs(it - currentPercent) } ?: 100,
+                        label = { "$it%" },
+                        onSelect = { percent -> onLevel(((percent / 100f) * state.maxLevel).roundToInt().coerceAtLeast(1)) },
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
             }
         }
-        ConnectedChoices(
-            options = presets,
-            selected = presets.minByOrNull { kotlin.math.abs(it - currentPercent) } ?: 100,
-            label = { "$it%" },
-            onSelect = { percent -> onLevel(((percent / 100f) * state.maxLevel).roundToInt().coerceAtLeast(1)) },
-            modifier = Modifier.padding(top = 8.dp)
-        )
     }
 }
 

@@ -23,7 +23,6 @@ fun NavGraphBuilder.registerPowerToolsRoute(onNavigate: (PowerToolsDestination) 
             Tool.SYSTEM_TWEAKS -> SystemTweaksRoute(onNavigate)
             Tool.SHUT_UP -> ShutUpRoute(onNavigate)
             Tool.STANDBY_APPS -> StandbyAppsRoute(onNavigate)
-            Tool.FREEZE -> FreezeRoute(onNavigate)
             else -> PowerSetupRoute(onNavigate)
         }
     }
@@ -37,6 +36,5 @@ val PowerTools: Set<Tool> = setOf(
     Tool.STATUS_BAR_ICONS,
     Tool.SYSTEM_TWEAKS,
     Tool.SHUT_UP,
-    Tool.STANDBY_APPS,
-    Tool.FREEZE
+    Tool.STANDBY_APPS
 )

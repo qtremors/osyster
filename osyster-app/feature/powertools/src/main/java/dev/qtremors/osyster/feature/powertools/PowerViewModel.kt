@@ -57,7 +57,7 @@ abstract class PowerViewModel(
     protected fun <T> settingsState(keys: Set<SettingKey>, initial: T, read: suspend () -> T): StateFlow<T> =
         combine(settings.changes(keys), shell.status) { _, _ -> }
             .mapLatest { read() }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), initial)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, initial)
 
     protected fun <T> Flow<T>.stateInScope(initial: T): StateFlow<T> =
         stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), initial)

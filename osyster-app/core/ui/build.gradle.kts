@@ -52,6 +52,7 @@ dependencies {
     api(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.graphics.shapes)
+    implementation(libs.androidx.activity.compose)
     implementation(libs.material.kolor)
     implementation(libs.kotlinx.collections.immutable)
 

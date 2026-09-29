@@ -1,105 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Today or This month: the period and refresh on top, then mobile and Wi-Fi. Values auto-size at any widget size. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_card_background">
 
-    <!-- Main content container -->
     <LinearLayout
         android:id="@+id/widget_content_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center_vertical"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        android:paddingStart="14dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="10dp">
 
-        <!-- Row 1: Month/Day label on start, Cellular data usage & icon on end -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/widget_interval_label"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="@string/widget_day_title"
-                android:textColor="#9E9E9E"
-                android:textSize="12sp"
-                android:includeFontPadding="false" />
+                android:textColor="@color/widget_on_card_dim"
+                android:textSize="13sp" />
 
             <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="-10dp">
 
-            <TextView
-                android:id="@+id/widget_mobile_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:text="0.00 B"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:includeFontPadding="false"
-                android:layout_marginEnd="6dp" />
+                <ImageView
+                    android:id="@+id/widget_btn_refresh"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/widget_refresh_ripple"
+                    android:contentDescription="@string/widget_refresh_description"
+                    android:padding="9dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_refresh"
+                    android:tint="@color/widget_on_card_dim" />
 
-            <ImageView
-                android:id="@+id/widget_mobile_icon"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_mobile_data"
-                android:contentDescription="@string/network_mobile_label" />
+                <ProgressBar
+                    android:id="@+id/widget_refresh_spin"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:indeterminate="true"
+                    android:indeterminateBehavior="repeat"
+                    android:indeterminateDrawable="@drawable/widget_refresh_spin"
+                    android:indeterminateDuration="700"
+                    android:indeterminateTint="@color/widget_accent"
+                    android:padding="9dp"
+                    android:visibility="gone" />
+            </FrameLayout>
         </LinearLayout>
 
-        <!-- Row 2: Refresh action on start, Wi-Fi data usage & icon on end -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/widget_btn_refresh"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:id="@+id/widget_mobile_icon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:contentDescription="@string/network_mobile_label"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_refresh"
-                android:contentDescription="@string/widget_refresh_description" />
-
-            <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
+                android:src="@drawable/ic_mobile_data"
+                android:tint="@color/widget_on_card" />
 
             <TextView
-                android:id="@+id/widget_wifi_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:text="0.00 B"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
+                android:id="@+id/widget_mobile_text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:autoSizeMaxTextSize="30sp"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="start|center_vertical"
                 android:includeFontPadding="false"
-                android:layout_marginEnd="6dp" />
+                android:maxLines="1"
+                android:text="0 B"
+                android:textColor="@color/widget_on_card" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/widget_wifi_icon"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:contentDescription="@string/network_wifi_label"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_wifi"
-                android:contentDescription="@string/network_wifi_label" />
+                android:tint="@color/widget_on_card" />
+
+            <TextView
+                android:id="@+id/widget_wifi_text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:autoSizeMaxTextSize="30sp"
+                android:autoSizeMinTextSize="11sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="start|center_vertical"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="0 B"
+                android:textColor="@color/widget_on_card" />
         </LinearLayout>
-
     </LinearLayout>
-
 </FrameLayout>

@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.feature.quicktiles
 
+import dev.qtremors.osyster.core.ui.components.ConnectedItem
+import androidx.compose.foundation.lazy.itemsIndexed
 import android.app.StatusBarManager
 import android.content.ComponentName
 import dev.qtremors.osyster.core.ui.R as UiR
@@ -79,9 +81,9 @@ private fun QuickTilesScreen() {
                 }
             }
             item(key = "header") { SectionHeader(stringResource(R.string.qt_available)) }
-            items(tiles, key = { it.className }) { tile ->
+            itemsIndexed(tiles, key = { _, it -> it.className }) { index, tile ->
                 val title = stringResource(tile.title)
-                ConnectedGroup(modifier = Modifier.padding(bottom = 2.dp)) {
+                ConnectedItem(index, tiles.size) {
                     ConnectedRow(
                         title = title,
                         supporting = stringResource(tile.summary),

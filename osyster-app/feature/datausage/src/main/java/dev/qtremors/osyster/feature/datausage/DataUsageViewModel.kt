@@ -1,5 +1,8 @@
 package dev.qtremors.osyster.feature.datausage
 
+import dev.qtremors.osyster.core.usage.domain.maxOffset
+import dev.qtremors.osyster.core.usage.domain.offsetFor
+import java.time.LocalDate
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,7 +13,6 @@ import dev.qtremors.osyster.core.usage.domain.DataUsageSource
 import dev.qtremors.osyster.core.usage.domain.LiveRate
 import dev.qtremors.osyster.core.usage.domain.NetworkFilter
 import dev.qtremors.osyster.core.usage.domain.UsageAccessState
-import dev.qtremors.osyster.core.usage.domain.maxOffset
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,14 +58,13 @@ class DataUsageViewModel @Inject constructor(
 
     fun setPeriod(period: DataPeriod) {
         if (period == _state.value.period) return
-        _state.update { it.copy(period = period, offset = 0, report = null, showAllApps = false) }
+        // Keep the old report on screen until the new one arrives, so nothing flashes.
+        _state.update { it.copy(period = period, offset = 0, showAllApps = false) }
         load(period, 0)
     }
 
     fun previous() = step(+1)
     fun next() = step(-1)
-
-    fun setQuery(query: String) = _state.update { it.copy(query = query) }
 
     private fun step(by: Int) {
         val current = _state.value
@@ -72,6 +73,18 @@ class DataUsageViewModel @Inject constructor(
         _state.update { it.copy(offset = target, showAllApps = false) }
         load(current.period, target)
     }
+
+    /** Jumps straight to the window that contains [picked]. */
+    fun jumpTo(picked: LocalDate) {
+        val current = _state.value
+        val target = offsetFor(current.period, LocalDate.now(), picked)
+        if (target == current.offset) return
+        _state.update { it.copy(offset = target, showAllApps = false) }
+        load(current.period, target)
+    }
+
+    fun setQuery(query: String) = _state.update { it.copy(query = query) }
+
 
     fun setFilter(filter: NetworkFilter) = _state.update { it.copy(filter = filter, showAllApps = false) }
 

@@ -94,7 +94,6 @@ val Tool.label: DestinationLabel
         Tool.SYSTEM_TWEAKS -> DestinationLabel(R.string.tool_system_tweaks, R.string.tool_system_tweaks_summary, Icons.Rounded.Tune)
         Tool.SHUT_UP -> DestinationLabel(R.string.tool_shut_up, R.string.tool_shut_up_summary, Icons.Rounded.DoNotDisturbOn)
         Tool.STANDBY_APPS -> DestinationLabel(R.string.tool_standby_apps, R.string.tool_standby_apps_summary, Icons.Rounded.Bedtime)
-        Tool.FREEZE -> DestinationLabel(R.string.tool_freeze, R.string.tool_freeze_summary, Icons.Rounded.AcUnit)
     }
 
 @get:StringRes

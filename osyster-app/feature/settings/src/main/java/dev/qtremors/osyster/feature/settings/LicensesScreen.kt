@@ -33,6 +33,7 @@ private data class Credit(@param:StringRes val name: Int, @param:StringRes val d
 private val credits = listOf(
     Credit(R.string.credit_osyster, R.string.credit_osyster_detail, "licenses/gpl-3.0.txt"),
     Credit(R.string.credit_essentials, R.string.credit_essentials_detail, "licenses/mit-essentials.txt"),
+    Credit(R.string.credit_metro, R.string.credit_metro_detail, "licenses/gpl-3.0.txt"),
     Credit(R.string.credit_androidx, R.string.credit_androidx_detail, "licenses/apache-2.0.txt"),
     Credit(R.string.credit_kotlin, R.string.credit_kotlin_detail, "licenses/apache-2.0.txt"),
     Credit(R.string.credit_hilt, R.string.credit_hilt_detail, "licenses/apache-2.0.txt"),
@@ -70,7 +71,7 @@ private fun LicenseText(asset: String) {
     val context = LocalContext.current
     val text by produceState(initialValue = "", asset) {
         value = withContext(Dispatchers.IO) {
-            runCatching { context.assets.open(asset).bufferedReader().use { it.readText() } }.getOrDefault("")
+            runCatching { context.assets.open(asset).bufferedReader().use { reflow(it.readText()) } }.getOrDefault("")
         }
     }
     Surface(color = MaterialTheme.colorScheme.surfaceBright, shape = MaterialTheme.shapes.large, modifier = Modifier.padding(top = 2.dp)) {
@@ -84,3 +85,23 @@ private fun LicenseText(asset: String) {
         }
     }
 }
+
+/**
+ * License files are hard-wrapped at about 80 columns, which breaks sentences mid-line on a phone.
+ * Lines inside a paragraph are joined; blank lines, list items, and indented lines keep their own line.
+ */
+internal fun reflow(text: String): String {
+    val listItem = Regex("""^(\d+\.|[a-z]\)|\([a-z0-9]+\)|[-*•])\s""")
+    val paragraphs = text.replace("\r\n", "\n").split(Regex("""\n\s*\n"""))
+    return paragraphs.joinToString("\n\n") { paragraph ->
+        val out = StringBuilder()
+        paragraph.lines().forEach { raw ->
+            if (raw.isBlank()) return@forEach
+            val ownLine = raw.startsWith(" ") || raw.startsWith("\t") || listItem.containsMatchIn(raw.trimStart())
+            if (out.isNotEmpty()) out.append(if (ownLine) '\n' else ' ')
+            out.append(raw.trim())
+        }
+        out.toString()
+    }.trim()
+}
+

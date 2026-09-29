@@ -1,4 +1,4 @@
-package dev.qtremors.osyster.feature.search
+package dev.qtremors.osyster.feature.home.search
 
 import java.text.Normalizer
 import java.util.Locale

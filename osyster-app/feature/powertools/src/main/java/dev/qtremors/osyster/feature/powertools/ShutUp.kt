@@ -131,7 +131,8 @@ internal fun ShutUpRoute(onNavigate: (PowerToolsDestination) -> Unit) {
                 item(key = "restore") { RestoreCard(viewModel::restore) }
             }
             item(key = "apps") {
-                SectionHeader(stringResource(R.string.shut_up_apps))
+                // The header names a list; with nothing added yet the empty state speaks for itself.
+                if (rows.isNotEmpty()) SectionHeader(stringResource(R.string.shut_up_apps))
                 if (rows.isEmpty()) {
                     EmptyState(
                         icon = Icons.Rounded.DoNotDisturbOn,

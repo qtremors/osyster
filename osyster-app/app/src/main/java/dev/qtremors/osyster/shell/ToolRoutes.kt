@@ -15,11 +15,10 @@ import dev.qtremors.osyster.core.navigation.StayAwakeRoute
 import dev.qtremors.osyster.core.navigation.DataUsageRoute
 import dev.qtremors.osyster.core.navigation.ScreenUsageRoute
 import dev.qtremors.osyster.core.navigation.Tool
-import dev.qtremors.osyster.core.navigation.ToolRoute
 import dev.qtremors.osyster.core.navigation.WidgetsRoute
-import dev.qtremors.osyster.feature.powertools.PowerTools
+import dev.qtremors.osyster.core.navigation.ToolsRoute
 
-/** Tools with their own feature module get their own route; power tools share one; the rest show a placeholder. */
+/** Tools with their own feature module get their own route; power tools share one. */
 internal fun Tool.route(): AppRoute = when (this) {
     Tool.DATA_USAGE -> DataUsageRoute
     Tool.SCREEN_USAGE -> ScreenUsageRoute
@@ -30,11 +29,11 @@ internal fun Tool.route(): AppRoute = when (this) {
     Tool.LINK_ACTIONS -> LinkActionsRoute
     Tool.QUICK_TILES -> QuickTilesRoute
     Tool.WIDGETS -> WidgetsRoute
-    in PowerTools -> PowerToolRoute(id)
-    else -> ToolRoute(id)
+    else -> PowerToolRoute(id)
 }
 
-internal fun toolRoute(toolId: String): AppRoute = Tool.fromId(toolId)?.route() ?: ToolRoute(toolId)
+/** An unknown id (from an old pin or shortcut) falls back to the Tools tab instead of a blank page. */
+internal fun toolRoute(toolId: String): AppRoute = Tool.fromId(toolId)?.route() ?: ToolsRoute
 
 /** The tool shown by [entry], if any, so the toolbar can title the page and select the Tools tab. */
 internal fun toolOf(entry: NavBackStackEntry): Tool? {
@@ -50,7 +49,6 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
         destination.hasRoute<QuickTilesRoute>() -> Tool.QUICK_TILES
         destination.hasRoute<WidgetsRoute>() -> Tool.WIDGETS
         destination.hasRoute<PowerToolRoute>() -> Tool.fromId(entry.toRoute<PowerToolRoute>().toolId)
-        destination.hasRoute<ToolRoute>() -> Tool.fromId(entry.toRoute<ToolRoute>().toolId)
         else -> null
     }
 }
@@ -58,4 +56,4 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
 internal fun NavDestination.isToolPage(): Boolean =
     hasRoute<DataUsageRoute>() || hasRoute<ScreenUsageRoute>() || hasRoute<AppStopperRoute>() ||
         hasRoute<StayAwakeRoute>() || hasRoute<FlashlightRoute>() || hasRoute<ActivityLauncherRoute>() ||
-        hasRoute<LinkActionsRoute>() || hasRoute<QuickTilesRoute>() || hasRoute<WidgetsRoute>() || hasRoute<PowerToolRoute>() || hasRoute<ToolRoute>()
+        hasRoute<LinkActionsRoute>() || hasRoute<QuickTilesRoute>() || hasRoute<WidgetsRoute>() || hasRoute<PowerToolRoute>()

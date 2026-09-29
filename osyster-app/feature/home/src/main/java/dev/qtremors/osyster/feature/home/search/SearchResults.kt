@@ -1,5 +1,6 @@
-package dev.qtremors.osyster.feature.search
+package dev.qtremors.osyster.feature.home.search
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,21 +12,18 @@ import androidx.compose.material.icons.rounded.Gavel
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
+import dev.qtremors.osyster.feature.home.R
 import androidx.compose.ui.unit.dp
 import dev.qtremors.osyster.core.device.domain.DevicePage
 import dev.qtremors.osyster.core.navigation.Tool
@@ -34,62 +32,42 @@ import dev.qtremors.osyster.core.ui.components.ConnectedGroup
 import dev.qtremors.osyster.core.ui.components.ConnectedRow
 import dev.qtremors.osyster.core.ui.components.EmptyState
 import dev.qtremors.osyster.core.ui.components.IconBadge
-import dev.qtremors.osyster.core.ui.components.InlineSearchField
-import dev.qtremors.osyster.core.ui.components.OsysterScaffold
 
+/**
+ * Search results shown in place of Home's content while the top-bar search is open. Before
+ * anything is typed it suggests common places; after, it lists matches grouped by kind.
+ */
 @Composable
-internal fun SearchScreen(
-    query: String,
-    facts: List<FactHit>,
-    onQueryChange: (String) -> Unit,
-    onOpen: (SearchTarget) -> Unit
-) {
+internal fun SearchResults(query: String, facts: List<FactHit>, padding: PaddingValues, onOpen: (SearchTarget) -> Unit) {
     val entries = rememberEntries(facts)
     val results = remember(query, entries) { searchEntries(query, entries) }
     val icons = remember(entries) { entryIcons() }
-    val focus = remember { FocusRequester() }
-    LaunchedEffect(Unit) { focus.requestFocus() }
-    OsysterScaffold(title = stringResource(R.string.search_title)) { padding ->
-        LazyColumn(contentPadding = padding, modifier = Modifier.fillMaxSize()) {
-            item(key = "field") {
-                InlineSearchField(
-                    query = query,
-                    onQueryChange = onQueryChange,
-                    placeholder = stringResource(R.string.search_placeholder),
-                    modifier = Modifier.focusRequester(focus)
+    LazyColumn(contentPadding = padding, modifier = Modifier.fillMaxSize()) {
+        when {
+            query.isBlank() -> item(key = "suggested") {
+                val suggested = SUGGESTED.mapNotNull { key -> entries.firstOrNull { it.key == key } }
+                ResultGroups(suggested, icons, onOpen, header = stringResource(R.string.search_suggested))
+            }
+            results.isEmpty() -> item(key = "none") {
+                EmptyState(
+                    icon = Icons.Rounded.SearchOff,
+                    title = stringResource(R.string.search_none_title),
+                    message = stringResource(R.string.search_none_message, query)
                 )
             }
-            when {
-                query.isBlank() -> item(key = "hint") {
-                    EmptyState(
-                        icon = Icons.Rounded.Search,
-                        title = stringResource(R.string.search_hint_title),
-                        message = stringResource(R.string.search_hint_message)
-                    )
-                }
-                results.isEmpty() -> item(key = "none") {
-                    EmptyState(
-                        icon = Icons.Rounded.SearchOff,
-                        title = stringResource(R.string.search_none_title),
-                        message = stringResource(R.string.search_none_message, query)
-                    )
-                }
-                else -> item(key = "results") {
-                    ResultGroups(results, icons, onOpen)
-                }
-            }
+            else -> item(key = "results") { ResultGroups(results, icons, onOpen) }
         }
     }
 }
 
 @Composable
-private fun ResultGroups(results: List<SearchEntry>, icons: Map<String, ImageVector>, onOpen: (SearchTarget) -> Unit) {
-    val byKind = results.groupBy(SearchEntry::kind)
+private fun ResultGroups(results: List<SearchEntry>, icons: Map<String, ImageVector>, onOpen: (SearchTarget) -> Unit, header: String? = null) {
+    val byKind = if (header != null) mapOf(SearchKind.PAGE to results) else results.groupBy(SearchEntry::kind)
     Column(modifier = Modifier.padding(top = 8.dp)) {
         SearchKind.entries.forEach { kind ->
             val group = byKind[kind] ?: return@forEach
             Text(
-                text = stringResource(kind.title),
+                text = header ?: stringResource(kind.title),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
@@ -168,5 +146,11 @@ private val OPEN_TOOLS = setOf(
     Tool.DATA_USAGE, Tool.SCREEN_USAGE, Tool.APP_STOPPER, Tool.STAY_AWAKE, Tool.FLASHLIGHT,
     Tool.ACTIVITY_LAUNCHER, Tool.LINK_ACTIONS, Tool.QUICK_TILES, Tool.WIDGETS,
     Tool.POWER_SETUP, Tool.POWER_SAVING, Tool.DISPLAY_SCALE, Tool.STATUS_BAR_ICONS, Tool.SYSTEM_TWEAKS,
-    Tool.SHUT_UP, Tool.STANDBY_APPS, Tool.FREEZE
+    Tool.SHUT_UP, Tool.STANDBY_APPS
+)
+
+/** Shown before anything is typed: the places people open most. */
+private val SUGGESTED = listOf(
+    "page:battery", "page:processor", "page:memory", "tool:data_usage",
+    "tool:screen_usage", "tool:stay_awake", "tool:flashlight", "setting:theme"
 )

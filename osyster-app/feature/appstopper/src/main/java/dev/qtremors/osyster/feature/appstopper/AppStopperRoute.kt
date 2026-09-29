@@ -22,15 +22,14 @@ fun NavGraphBuilder.registerAppStopperRoute(onNavigate: (AppStopperDestination) 
         val apps by viewModel.apps.collectAsStateWithLifecycle()
         val picker by viewModel.picker.collectAsStateWithLifecycle()
         val oneTap by viewModel.oneTap.collectAsStateWithLifecycle()
+        val columns by viewModel.columns.collectAsStateWithLifecycle()
         // Without Shizuku or root, force stop happens in App info; re-read the flags on return.
         LifecycleResumeEffect(Unit) {
             viewModel.refresh()
             onPauseOrDispose { }
         }
         AppStopperScreen(
-            apps = apps,
-            picker = picker,
-            oneTap = oneTap,
+            ui = AppStopperUi(apps = apps, picker = picker, privileged = oneTap, columns = columns),
             actions = AppStopperActions(
                 onStop = { pkg -> viewModel.stop(pkg) { onNavigate(AppStopperDestination.AppInfo(pkg)) } },
                 onStopAll = viewModel::stopAll,
@@ -38,6 +37,8 @@ fun NavGraphBuilder.registerAppStopperRoute(onNavigate: (AppStopperDestination) 
                 onAppInfo = { onNavigate(AppStopperDestination.AppInfo(it)) },
                 onStore = { onNavigate(AppStopperDestination.Store(it)) },
                 onRemove = viewModel::remove,
+                onFreeze = viewModel::setFrozen,
+                onColumns = viewModel::setColumns,
                 onOpenPicker = { viewModel.loadPicker() },
                 onPickerSystem = { viewModel.loadPicker(includeSystem = it) },
                 onAdd = viewModel::add

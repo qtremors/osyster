@@ -1,11 +1,11 @@
 package dev.qtremors.osyster.preferences
 
+import androidx.core.net.toUri
 import dev.qtremors.osyster.core.device.domain.ReadingPreferences
 import dev.qtremors.osyster.core.device.domain.RefreshSpeed
 import dev.qtremors.osyster.core.device.domain.TemperatureUnit
 import dev.qtremors.osyster.core.privilege.domain.PowerToolsStore
 import android.content.Context
-import android.net.Uri
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -85,7 +85,7 @@ class AppSettingsBackup @Inject constructor(
     override suspend fun exportTo(uri: String): Result<Unit> = withContext(dispatchers.io) {
         runCatchingCancellable {
             val file = snapshot()
-            context.contentResolver.openOutputStream(Uri.parse(uri), "wt")?.use { out ->
+            context.contentResolver.openOutputStream(uri.toUri(), "wt")?.use { out ->
                 out.write(json.encodeToString(SettingsFile.serializer(), file).toByteArray())
             } ?: error("No output stream")
             Unit
@@ -94,7 +94,7 @@ class AppSettingsBackup @Inject constructor(
 
     override suspend fun importFrom(uri: String): Result<Unit> = withContext(dispatchers.io) {
         runCatchingCancellable {
-            val text = context.contentResolver.openInputStream(Uri.parse(uri))?.use { it.readBytes().decodeToString() }
+            val text = context.contentResolver.openInputStream(uri.toUri())?.use { it.readBytes().decodeToString() }
                 ?: error("No input stream")
             val file = runCatching { json.decodeFromString(SettingsFile.serializer(), text) }.getOrNull()
             if (file == null || file.format != SettingsFile.FORMAT) throw NotAnOsysterBackupException()

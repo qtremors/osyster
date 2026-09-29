@@ -1,13 +1,93 @@
 # Osyster - Releases
 
 > **Project:** Osyster
-> **Version:** 0.2.0
-> **Last Updated:** 2026-09-19
+> **Version:** 0.3.0
+> **Last Updated:** 2026-11-09
 
 | Version | Release Date | Key Focus |
 | :--- | :--- | :--- |
+| [v0.3.0](#v030) | 2026-11-09 | Ground-up rebuild: new Home dashboard, focused device pages, data and screen usage with charts, power tools with ADB, Shizuku, or root, utilities, widgets, tiles, and GPLv3 |
 | [v0.2.0](#v020) | 2026-09-19 | Home-screen data and music widgets, expanded hardware diagnostics, Screen Time, modernized navigation and settings, and developer Stay Awake control |
 | [v0.1.0](#v010) | 2026-09-06 | First public release: offline system monitoring, Bento Grid dashboard, native kernel telemetry, App Stopper, network traffic tracking, and Material 3 Expressive UI |
+
+---
+
+# v0.3.0
+
+**Release Date:** November 9, 2026
+
+**Previous public release:** v0.2.0
+
+**Development range included:** v0.2.1 through v0.3.0
+
+**Known issues and roadmap:** Track active issues and ongoing engineering tasks in [TASKS.md](TASKS.md).
+
+Osyster v0.3.0 is a ground-up rebuild. Every screen has a new, calmer design: three tabs (Home, Tools, and Settings) and a floating bar that turns into a Back button. Device information is spread across focused pages. Usage, utilities, and a new set of power tools now share one Tools tab. Osyster is now open source under the GNU General Public License v3 and still has no internet access.
+
+## Highlights
+
+- **New Home**: A live dashboard with CPU, RAM, storage, battery, screen time, and data today. Each tile has its own graphic and turns amber or red as a reading gets high. Below it, every device page is grouped into sections.
+- **Edit Home**: Reorder, show, or hide dashboard tiles, pinned tools, and device pages from one sheet.
+- **Device Pages**: System, Device, CPU and GPU, Memory and storage, Battery, Display with a screen tester, Cameras, Sensors with live readings, Network, Bluetooth, Media and DRM, and Certificates.
+- **Data and Screen Usage**: A download and upload ring, charts by hour or day, live speed, mobile and Wi-Fi filters, and a date picker. Each app gets its own page with charts.
+- **Power Tools**: Power saving, Scale and animations, Status bar icons, System tweaks, Shut-Up!, and Standby apps. Unlock them with a one-time ADB command, Shizuku, or root.
+- **Utilities**: Stay awake, Flashlight with brightness and notification pulse, App stopper with freezing, Activity launcher, Link actions, home-screen widgets, and Quick Settings tiles.
+- **Search Everything**: Find any device page, tool, setting, or device fact from the top bar of Home. Every page with a list searches itself from the same place.
+- **Themes**: System, Light, Dark, and pure Black, with wallpaper colors or six presets.
+
+## Home and Device Pages
+
+- The dashboard tiles open their pages: CPU, RAM, storage, and battery go to their device pages, while screen time and data go to their tools.
+- The data tile follows your active connection and splits download from upload.
+- Every value Android does not report says why (restricted, not supported, or not reported) instead of showing zero. Long-press any value to copy it.
+- Wi-Fi name and mobile details are asked for only from their own sections, with a sentence on why.
+- Share a plain-text device report that leaves out network addresses and the Wi-Fi name.
+- On tablets and unfolded foldables, tabs stay on the left and pages open on the right.
+
+## Tools
+
+### Usage
+
+- **Data usage**: 7 days, Today, or This month, with Mobile, All, or Wi-Fi. Step between periods or jump to any day. Search the app list from the top bar.
+- **Screen usage**: Today, the last 7 days, an hourly chart, and every app's time and opens.
+- **App pages**: Tapping an app in Data usage shows its data. Tapping one in Screen usage shows its screen time. Tap the app's icon for App info.
+- **App stopper**: A grid of the apps you stop often. Uninstalled apps stay listed under their name until you remove them. With Shizuku or root, Stop takes one tap, Stop all appears, and apps can be frozen.
+
+### Utilities
+
+- **Stay awake**: Keep the screen on for a set time or until you stop it, with a countdown notification, or while charging through Android's own setting.
+- **Flashlight**: Brightness levels on Android 13 and newer, plus a short blink for new notifications while the screen is off. Notification text is never read.
+- **Activity launcher**: Open any screen an app allows, and pin it to the home screen.
+- **Link actions**: Choose which app opens each link, with copy and share.
+- **Widgets**: Glance list with level bars, Music disc with sharp album art and capsule, and three resizable data usage widgets with a spinning refresh. They follow your theme and, on Android 12 and newer, your wallpaper colors.
+- **Quick Settings tiles**: Stay awake, Awake while charging, Flashlight, RAM, Data today, Color picker, Private DNS, USB debugging, Developer options, Window blur, Tap to wake, Freeze, and Restart SystemUI (root).
+
+### Power Tools
+
+- **Power saving**: Battery saver, the level that turns it on, and which limits it applies.
+- **Scale and animations**: Animation speed, font sizes beyond the Settings slider, and display size (Shizuku or root).
+- **Status bar icons**: Hide icons and show the battery percentage.
+- **System tweaks**: Developer options, debugging, window blur, wake gestures, pop-up notifications, touch indicators, and Private DNS.
+- **Shut-Up!**: Open banking apps that refuse to run while developer options are on, and restore your settings afterwards.
+- **Standby apps**: See and change each app's standby bucket (Shizuku or root).
+
+## Power Tools Setup
+
+Most power tools need Android's secure settings permission. Grant it once with ADB:
+
+```bash
+adb shell pm grant dev.qtremors.osyster android.permission.WRITE_SECURE_SETTINGS
+```
+
+With Shizuku or root, Osyster can grant this to itself from Power setup. Standby apps, display size, and freezing need Shizuku or root while you use them. Debug builds use the package `dev.qtremors.osyster.debug` instead.
+
+## Upgrade and Compatibility Notes
+
+- Android 8.0 or newer is now required. v0.2.0 supported Android 7.0.
+- Root is never required. Shizuku and root are optional and only unlock extra power tools.
+- The process list, per-app volume, Night light per app, and Screen Time daily goals are gone. They need hidden system interfaces or access Android no longer gives apps, and Osyster does not use either.
+- Settings and the App stopper list from v0.2.0 do not carry over, because the app was rebuilt with new storage. Use Export and Import in Settings to move settings between phones from this version on.
+- Osyster still declares no internet permission. Everything it reads stays on the phone.
 
 ---
 

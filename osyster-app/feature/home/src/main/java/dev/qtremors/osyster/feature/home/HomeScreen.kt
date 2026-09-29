@@ -1,5 +1,10 @@
 package dev.qtremors.osyster.feature.home
 
+import dev.qtremors.osyster.core.ui.components.FilterTop
+import dev.qtremors.osyster.feature.home.search.FactHit
+import dev.qtremors.osyster.feature.home.search.SearchResults
+import dev.qtremors.osyster.feature.home.search.SearchTarget
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -40,6 +45,14 @@ import dev.qtremors.osyster.core.ui.catalog.help
 import dev.qtremors.osyster.core.ui.components.SectionHeader
 
 @Immutable
+/** What the top-bar search needs: the query, matching device facts, and where a result leads. */
+internal data class HomeSearch(
+    val query: String,
+    val facts: List<FactHit>,
+    val onQuery: (String) -> Unit,
+    val onOpen: (SearchTarget) -> Unit
+)
+
 internal data class HomeActions(
     val onOpenPage: (DevicePage) -> Unit,
     val onOpenTool: (Tool) -> Unit,
@@ -47,23 +60,27 @@ internal data class HomeActions(
     val onMove: (DevicePage, Boolean) -> Unit,
     val onHide: (DevicePage) -> Unit,
     val onShow: (DevicePage) -> Unit,
-    val onSearch: () -> Unit,
+    val onGrantUsage: () -> Unit,
     val edit: HomeEditActions,
     val onShareReport: () -> Unit
 )
 
 @Composable
-internal fun HomeScreen(state: HomeState, sharing: Boolean, actions: HomeActions) {
+internal fun HomeScreen(state: HomeState, sharing: Boolean, search: HomeSearch, actions: HomeActions) {
     var showHidden by rememberSaveable { mutableStateOf(false) }
     var editing by rememberSaveable { mutableStateOf(false) }
+    var searching by rememberSaveable { mutableStateOf(false) }
     OsysterScaffold(
         title = stringResource(R.string.home_title),
+        filter = FilterTop(
+            query = search.query,
+            onQueryChange = search.onQuery,
+            placeholder = stringResource(R.string.home_search_hint),
+            onOpenChange = { searching = it }
+        ),
         actions = {
             IconButton(onClick = { editing = true }, enabled = state.layout != null) {
                 Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.home_edit_title))
-            }
-            IconButton(onClick = actions.onSearch) {
-                Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.home_search))
             }
             IconButton(onClick = actions.onShareReport, enabled = !sharing) {
                 if (sharing) {
@@ -74,12 +91,16 @@ internal fun HomeScreen(state: HomeState, sharing: Boolean, actions: HomeActions
             }
         }
     ) { padding ->
+        if (searching) {
+            SearchResults(search.query, search.facts, padding, search.onOpen)
+            return@OsysterScaffold
+        }
         LazyColumn(contentPadding = padding) {
             item(key = "hero") {
                 HeroCard(
                     title = state.hero.name,
                     subtitle = stringResource(R.string.home_hero_subtitle, state.hero.androidRelease, state.hero.apiLevel),
-                    metrics = heroMetrics(state.summary, state.trends),
+                    metrics = heroMetrics(state, actions),
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }

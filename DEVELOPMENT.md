@@ -2,7 +2,7 @@
 
 > How Osyster is built: modules, data flow, the power tools layer, the design system, and how to test and ship it.
 
-**Version:** 0.2.8 | **Last Updated:** 2026-09-27
+**Version:** 0.3.0 | **Last Updated:** 2026-09-29
 
 ---
 
@@ -112,7 +112,9 @@ Domain and API modules are pure Kotlin JVM modules. Data modules are Android lib
 4. `OsysterAppShell` hosts a `NavHost` with spring transitions. Navigation 2.10 plays the `predictivePop*` transitions during the back gesture, so those are set to the same springs to keep the gesture continuous.
 5. The `FloatingTabBar` shows Home, Tools, and Settings on top-level pages and morphs into a back button with the page title on detail pages. Tabs keep their own back stacks (`saveState` / `restoreState`).
 
-Routes: `HomeRoute`, `ToolsRoute`, `SettingsRoute`, `DevicePageRoute(pageId)`, `ScreenTesterRoute`, `SearchRoute`, `AboutRoute`, `PrivacyRoute`, `LicensesRoute`, one route per utility tool, `PowerToolRoute(toolId)` shared by all power tools, and `ToolRoute(toolId)` for tools without a page yet.
+Routes: `HomeRoute`, `ToolsRoute`, `SettingsRoute`, `DevicePageRoute(pageId)`, `ScreenTesterRoute`, `SearchRoute`, `AboutRoute`, `PrivacyRoute`, `LicensesRoute`, one route per utility tool, `WidgetsRoute`, `AppUsageRoute(packageName)` shared by both usage tools, `PowerToolRoute(toolId)` shared by all power tools, and `ToolRoute(toolId)` for tools without a page yet.
+
+On screens 840 dp and wider the shell shows two panes: the tab list on the left in its own NavHost, and pages on the right. One graph builder serves both, and page navigation always goes to the right-hand controller, so features need no changes.
 
 ## Device Data
 
@@ -124,10 +126,10 @@ Routes: `HomeRoute`, `ToolsRoute`, `SettingsRoute`, `DevicePageRoute(pageId)`, `
 
 ## Usage Data
 
-- `DataUsageSource` reads `NetworkStatsManager` buckets per day and per app, and live rate from `TrafficStats` deltas.
+- `DataUsageSource` reads `NetworkStatsManager` buckets per day and per app, hourly buckets for single-day reports, any earlier period through an offset, each app's own history through `queryDetailsForUid`, and live rate from `TrafficStats` deltas.
 - `ScreenUsageSource` reads `UsageStatsManager` events and folds them into days and hours.
 - Both report `UsageAccessState.MISSING` instead of zeros; the screens show `UsageAccessGate` and reload when the app resumes.
-- `AppStopperRepository` keeps the managed list in DataStore and reads Android's stopped flag.
+- `AppStopperRepository` keeps the managed list and grid size in DataStore and reads Android's stopped and enabled flags, so frozen apps never look uninstalled. Freezing runs through the privileged shell from the App stopper ViewModel.
 
 ## System Controls
 
@@ -165,7 +167,8 @@ Routes: `HomeRoute`, `ToolsRoute`, `SettingsRoute`, `DevicePageRoute(pageId)`, `
 
 ## UI System
 
-- **Theme:** System, Light, Dark, and Pure black; wallpaper colors (Android 12+) or a seed preset through MaterialKolor's tonal spot scheme; Roboto Flex everywhere.
+- **Theme:** System, Light, Dark, and Black; wallpaper colors (Android 12+) or a seed preset through MaterialKolor's tonal spot scheme; Roboto Flex everywhere. Black is dark theme passed through `toOled()`, which makes pages (surfaceContainer) pure black and steps rows and raised parts up in small neutral grays. Icon badges switch between pastel circles in light themes and deep tonal circles in dark ones.
+- **Charts:** `UsageRing` (split ring with the total inside), `PillBarChart` (stacked, tappable pill bars), `BarChart`, and the hero card's fixed-scale sparkline.
 - **Components (`:core:ui`):** `OsysterScaffold` (large collapsing title), `ConnectedGroup` and `ConnectedRow` (rows that touch, rounded only outside), `NavigationRow`, `ToggleRow` with `ExpressiveSwitch`, `ChoiceRow` and `ConnectedChoices` (no radio dialogs), `HeroCard`, `InfoSectionBlock`, `OsysterBottomSheet`, `HelpSheet`, `InlineSearchField`, `EmptyState`, `LoadingState`, `BarChart`, `AppIcon`, `FloatingTabBar`.
 - **Catalog:** `DestinationLabel` gives every page and tool one name, summary, and icon; `DestinationHelp` gives the long-press "About this page" text.
 - **Motion:** springs (damping 0.75, medium-low stiffness), predictive back, and Reduce motion.

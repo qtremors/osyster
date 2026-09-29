@@ -1,5 +1,9 @@
 package dev.qtremors.osyster.core.usage.data
 
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import dev.qtremors.osyster.core.usage.domain.UsageBucket
+import dev.qtremors.osyster.core.usage.domain.AppDataHistory
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import android.content.Context
@@ -51,6 +55,12 @@ internal class DataUsageRepository @Inject constructor(
         val lastDay = days.lastOrNull()?.dayStart ?: start
         val end = minOf(DayWindows.nextDay(lastDay), now)
         val totals = days.fold(TrafficTotals()) { sum, day -> sum + day.totals }
+        val hourly = days.size == 1
+        val buckets = if (hourly) {
+            DayWindows.hoursOf(start).map { hour -> UsageBucket(hour, deviceTotals(hour, minOf(hour + HOUR_MS, now))) }
+        } else {
+            days.map { UsageBucket(it.dayStart, it.totals) }
+        }
         DataUsageReport(
             period = period,
             offset = offset,
@@ -58,9 +68,67 @@ internal class DataUsageRepository @Inject constructor(
             lastDay = lastDay,
             totals = totals,
             days = days,
-            apps = if (includeApps) appTotals(start, end) else emptyList()
+            apps = if (includeApps) appTotals(start, end) else emptyList(),
+            buckets = buckets,
+            hourly = hourly
         )
     }
+
+    override suspend fun appHistory(packageName: String, period: DataPeriod, offset: Int): AppDataHistory = withContext(dispatchers.io) {
+        val now = System.currentTimeMillis()
+        val days = DayWindows.daysOf(period, now, offset)
+        val hourly = days.size == 1
+        val starts = if (hourly) DayWindows.hoursOf(days.first()) else days
+        val step = if (hourly) HOUR_MS else null
+        val end = minOf(if (hourly) starts.last() + HOUR_MS else DayWindows.nextDay(days.last()), now)
+        val uid = labels.uidOf(packageName)
+        val totals = if (uid == null || stats == null) emptyList() else {
+            val mobile = uidBuckets(TYPE_MOBILE, uid, starts.first(), end)
+            val wifi = uidBuckets(TYPE_WIFI, uid, starts.first(), end)
+            starts.mapIndexed { index, start ->
+                val windowEnd = step?.let { start + it } ?: starts.getOrNull(index + 1) ?: end
+                fun sum(list: List<Triple<Long, Long, Long>>) = list.filter { it.first in start until windowEnd }
+                    .fold(0L to 0L) { acc, b -> (acc.first + b.second) to (acc.second + b.third) }
+                val m = sum(mobile)
+                val w = sum(wifi)
+                UsageBucket(start, TrafficTotals(m.first, m.second, w.first, w.second))
+            }
+        }
+        AppDataHistory(
+            packageName = packageName,
+            label = labels.label(packageName),
+            totals = totals.fold(TrafficTotals()) { acc, b -> acc + b.totals },
+            buckets = totals.ifEmpty { starts.map { UsageBucket(it, TrafficTotals()) } },
+            hourly = hourly
+        )
+    }
+
+    /** Start time, received, and sent bytes of each history bucket Android kept for [uid]. */
+    private suspend fun uidBuckets(type: Int, uid: Int, start: Long, end: Long): List<Triple<Long, Long, Long>> {
+        val details = runCatchingCancellable { stats?.queryDetailsForUid(type, null, start, end, uid) }.getOrNull() ?: return emptyList()
+        val result = ArrayList<Triple<Long, Long, Long>>()
+        try {
+            val bucket = NetworkStats.Bucket()
+            while (details.hasNextBucket()) {
+                details.getNextBucket(bucket)
+                result += Triple(bucket.startTimeStamp, bucket.rxBytes, bucket.txBytes)
+            }
+        } finally {
+            details.close()
+        }
+        return result
+    }
+
+    override fun activeNetwork(): NetworkFilter = runCatching {
+        val manager = context.getSystemService(ConnectivityManager::class.java)
+        val caps = manager?.getNetworkCapabilities(manager.activeNetwork)
+        when {
+            caps == null -> NetworkFilter.ALL
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> NetworkFilter.WIFI
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> NetworkFilter.MOBILE
+            else -> NetworkFilter.ALL
+        }
+    }.getOrDefault(NetworkFilter.ALL)
 
     override fun liveRate(): Flow<LiveRate> = flow {
         var lastRx = TrafficStats.getTotalRxBytes()
@@ -128,6 +196,7 @@ internal class DataUsageRepository @Inject constructor(
 
     private companion object {
         const val LIVE_TICK_MS = 1_000L
+        const val HOUR_MS = 3_600_000L
         // NetworkStatsManager still takes the legacy ConnectivityManager network types, now
         // deprecated there; the values are fixed by the platform.
         const val TYPE_MOBILE = 0

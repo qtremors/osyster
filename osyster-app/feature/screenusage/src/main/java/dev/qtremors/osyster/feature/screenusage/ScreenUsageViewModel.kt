@@ -50,7 +50,8 @@ class ScreenUsageViewModel @Inject constructor(
 
     fun select(index: Int) {
         if (index == _state.value.selectedIndex) return
-        _state.update { it.copy(selectedIndex = index, day = null, showAllApps = false) }
+        // The previous day stays until the chosen one loads, so the page does not flash.
+        _state.update { it.copy(selectedIndex = index, showAllApps = false) }
         loadDay(index)
     }
 

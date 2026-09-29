@@ -40,4 +40,17 @@
     <string name="data_next">Next period</string>
     <string name="data_range">%1$s to %2$s</string>
     <string name="data_search">Search apps</string>
+    <string name="data_ring_description">Downloaded %1$s, uploaded %2$s</string>
+    <string name="data_by_hour">By hour</string>
+    <string name="app_usage_title">App usage</string>
+    <string name="app_usage_data">Data</string>
+    <string name="app_usage_screen">Last 7 days</string>
+    <string name="app_usage_screen_week">%1$s this week · %2$d opens</string>
+    <string name="app_usage_screen_day">%1$s: %2$s · %3$d opens</string>
+    <string name="data_pick_go">Show</string>
+    <string name="data_pick_cancel">Cancel</string>
+    <string name="app_usage_screen_title">Screen time</string>
+    <string name="app_usage_today">Today</string>
+    <string name="app_usage_average">Daily average</string>
+    <string name="app_usage_opens">Opens</string>
 </resources>

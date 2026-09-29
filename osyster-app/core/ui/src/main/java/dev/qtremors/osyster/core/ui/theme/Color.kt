@@ -29,17 +29,21 @@ enum class ThemePreset(val seed: Color) {
 fun seedColorScheme(seed: Color, isDark: Boolean): ColorScheme =
     SchemeTonalSpot(Hct.fromInt(seed.toArgb()), isDark, 0.0).toColorScheme(isDark)
 
-/** Pure black surfaces for OLED, keeping the scheme's accents and the tonal ladder of containers. */
+/**
+ * Pure black for OLED screens. Pages are drawn on surfaceContainer, so that is black too; rows
+ * (surfaceBright) and raised parts step up in small neutral grays so they still read as separate.
+ */
 fun ColorScheme.toOled(): ColorScheme = copy(
     background = Color.Black,
     surface = Color.Black,
     surfaceDim = Color.Black,
     surfaceContainerLowest = Color.Black,
-    surfaceContainerLow = Color(0xFF0B0B0B),
-    surfaceContainer = Color(0xFF101010),
+    surfaceContainerLow = Color.Black,
+    surfaceContainer = Color.Black,
+    surfaceBright = Color(0xFF141414),
     surfaceContainerHigh = Color(0xFF1A1A1A),
-    surfaceContainerHighest = Color(0xFF222222),
-    surfaceBright = Color(0xFF1C1C1C)
+    surfaceContainerHighest = Color(0xFF262626),
+    surfaceVariant = Color(0xFF1E1E1E)
 )
 
 private fun DynamicScheme.toColorScheme(isDark: Boolean): ColorScheme {

@@ -47,7 +47,7 @@
             android:taskAffinity=""
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
-        <!-- Glance stack widget and the service that feeds its cards. -->
+        <!-- Glance widget and the service that feeds its rows. -->
         <receiver
             android:name=".GlanceStackWidget"
             android:exported="false"

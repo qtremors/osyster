@@ -42,8 +42,7 @@ fun NavGraphBuilder.registerSettingsRoute(
             theme = theme,
             message = message,
             actions = SettingsActions(
-                onMode = viewModel::setMode,
-                onOled = viewModel::setOled,
+                onThemeChoice = viewModel::setThemeChoice,
                 onAccentSource = viewModel::setAccentSource,
                 onPreset = viewModel::setPreset,
                 onHaptics = viewModel::setHaptics,

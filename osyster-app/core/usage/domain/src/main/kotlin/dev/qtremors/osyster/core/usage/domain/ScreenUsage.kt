@@ -19,6 +19,9 @@ data class ScreenDay(
 /** Total screen time of one day, for the history chart. */
 data class ScreenDayTotal(val dayStart: Long, val totalMillis: Long)
 
+/** One app on one day, for that app's own history. */
+data class AppScreenDay(val dayStart: Long, val foregroundMillis: Long, val opens: Int)
+
 /**
  * Screen time from Android's usage events. Needs Usage access; without it the access state says
  * so rather than reporting zero minutes.
@@ -27,4 +30,7 @@ interface ScreenUsageSource {
     fun accessState(): UsageAccessState
     suspend fun day(dayStart: Long): ScreenDay
     suspend fun history(days: Int): List<ScreenDayTotal>
+
+    /** The last [days] days of one app, oldest first, ending today. */
+    suspend fun appHistory(packageName: String, days: Int): List<AppScreenDay>
 }

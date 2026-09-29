@@ -69,8 +69,6 @@
     <string name="tool_shut_up_summary">Hide developer options from picky apps</string>
     <string name="tool_standby_apps">Standby apps</string>
     <string name="tool_standby_apps_summary">Limit what apps do in the background</string>
-    <string name="tool_freeze">App freezing</string>
-    <string name="tool_freeze_summary">Disable rarely used apps until you need them</string>
 
     <string name="access_secure_settings">ADB once, Shizuku, or root</string>
     <string name="access_shizuku">Shizuku or root</string>

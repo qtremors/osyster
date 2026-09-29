@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.feature.quicktiles
 
+import dev.qtremors.osyster.core.ui.components.ConnectedItem
+import androidx.compose.foundation.lazy.itemsIndexed
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -70,8 +72,8 @@ private fun WidgetsScreen() {
                 }
             }
             item(key = "header") { SectionHeader(stringResource(R.string.widgets_available)) }
-            items(widgets, key = { it.className }) { widget ->
-                ConnectedGroup(modifier = Modifier.padding(bottom = 2.dp)) {
+            itemsIndexed(widgets, key = { _, it -> it.className }) { index, widget ->
+                ConnectedItem(index, widgets.size) {
                     ConnectedRow(
                         title = stringResource(widget.title),
                         supporting = stringResource(widget.summary),

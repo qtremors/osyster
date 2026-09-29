@@ -43,5 +43,4 @@ val Tool.help: Int
         Tool.SYSTEM_TWEAKS -> R.string.help_tool_system_tweaks
         Tool.SHUT_UP -> R.string.help_tool_shut_up
         Tool.STANDBY_APPS -> R.string.help_tool_standby_apps
-        Tool.FREEZE -> R.string.help_tool_freeze
     }

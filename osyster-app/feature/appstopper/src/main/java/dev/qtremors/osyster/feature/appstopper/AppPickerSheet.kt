@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.feature.appstopper
 
+import dev.qtremors.osyster.core.ui.components.ConnectedItem
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -54,10 +56,10 @@ internal fun AppPickerSheet(
             val words = query.trim().lowercase()
             val visible = apps.filter { it.packageName !in alreadyAdded }
                 .filter { words.isEmpty() || words in it.label.lowercase() || words in it.packageName.lowercase() }
-            LazyColumn(modifier = Modifier.heightIn(max = 420.dp).padding(top = 8.dp)) {
-                items(visible, key = { it.packageName }) { app ->
+            LazyColumn(modifier = Modifier.weight(1f, fill = false).heightIn(max = 420.dp).padding(top = 8.dp)) {
+                itemsIndexed(visible, key = { _, it -> it.packageName }) { index, app ->
                     val selected = app.packageName in chosen
-                    ConnectedGroup(modifier = Modifier.padding(bottom = 2.dp)) {
+                    ConnectedItem(index, visible.size) {
                         ConnectedRow(
                             title = app.label,
                             supporting = app.packageName,

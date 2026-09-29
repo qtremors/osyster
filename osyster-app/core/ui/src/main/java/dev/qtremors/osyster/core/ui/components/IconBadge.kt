@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.core.ui.components
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -33,13 +35,25 @@ object BadgePalette {
         0xFFFFECB3, 0xFFFFE0B2, 0xFFFFCCBC, 0xFFD7CCC8, 0xFFCFD8DC
     ).map { Color(it) }
 
-    fun forKey(key: String): BadgeColors {
-        val pastel = pastels[abs(key.hashCode()) % pastels.size]
-        return BadgeColors(container = pastel, content = rich(pastel))
-    }
+    /**
+     * Light themes get the pastel circle with a deep icon; dark and pure black themes get a deep
+     * tonal circle with the pastel as the icon, so badges do not glare on dark backgrounds.
+     */
+    fun forKey(key: String, dark: Boolean = false): BadgeColors =
+        forColor(pastels[abs(key.hashCode()) % pastels.size], dark)
 
     /** Same idea for callers that want a specific pastel, such as status colors. */
-    fun forColor(pastel: Color): BadgeColors = BadgeColors(pastel, rich(pastel))
+    fun forColor(pastel: Color, dark: Boolean = false): BadgeColors =
+        if (dark) BadgeColors(container = deep(pastel), content = pastel) else BadgeColors(pastel, rich(pastel))
+
+    /** The pastel's hue, dark and muted enough to sit quietly on a dark row. */
+    private fun deep(color: Color): Color {
+        val hsv = FloatArray(3)
+        android.graphics.Color.colorToHSV(color.toArgb(), hsv)
+        hsv[1] = (hsv[1] * 2.2f).coerceIn(0.35f, 0.6f)
+        hsv[2] = 0.3f
+        return Color(android.graphics.Color.HSVToColor(hsv))
+    }
 
     private fun rich(color: Color): Color {
         val hsv = FloatArray(3)
@@ -60,7 +74,8 @@ fun IconBadge(
     iconSize: Dp = 22.dp,
     colors: BadgeColors? = null
 ) {
-    val resolved = colors ?: remember(key) { BadgePalette.forKey(key) }
+    val dark = MaterialTheme.colorScheme.surface.luminance() < DARK_SURFACE
+    val resolved = colors ?: remember(key, dark) { BadgePalette.forKey(key, dark) }
     Box(
         modifier = modifier
             .size(size)
@@ -75,3 +90,5 @@ fun IconBadge(
         )
     }
 }
+
+private const val DARK_SURFACE = 0.5f

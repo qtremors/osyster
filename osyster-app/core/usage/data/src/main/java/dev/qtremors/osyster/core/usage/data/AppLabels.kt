@@ -40,6 +40,9 @@ internal class AppLabels(private val context: Context) {
         runCatching { pm.getApplicationLabel(applicationInfo(packageName)).toString() }.getOrDefault(packageName)
     }
 
+    /** The uid Android gave [packageName], or null when it is not installed. */
+    fun uidOf(packageName: String): Int? = runCatching { applicationInfo(packageName).uid }.getOrNull()
+
     fun forUid(uid: Int): AppName = byUid.getOrPut(uid) {
         when (uid) {
             NetworkStats.Bucket.UID_REMOVED -> AppName("uid:removed", context.getString(R.string.uid_removed))
@@ -57,11 +60,12 @@ internal class AppLabels(private val context: Context) {
 
     fun isInstalled(packageName: String): Boolean = runCatching { applicationInfo(packageName) }.isSuccess
 
+    /** Frozen (disabled) apps are included, so they never look uninstalled. */
     fun applicationInfo(packageName: String): ApplicationInfo =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pm.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(0))
+            pm.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(PackageManager.MATCH_DISABLED_COMPONENTS.toLong()))
         } else {
-            pm.getApplicationInfo(packageName, 0)
+            pm.getApplicationInfo(packageName, PackageManager.MATCH_DISABLED_COMPONENTS)
         }
 
     private companion object {

@@ -38,4 +38,26 @@ class HomeLayoutReorderTest {
         assertEquals(listOf(b, a), layout.reorderPinned(listOf(b, a)).pinned)
         assertSame(layout, layout.reorderPinned(listOf(a)))
     }
+
+    @Test
+    fun tileOrderRestoresAndAppendsNewTiles() {
+        val restored = HeroTile.restoreOrder(listOf("battery", "cpu", "gone"))
+        assertEquals(listOf(HeroTile.BATTERY, HeroTile.CPU), restored.take(2))
+        assertEquals(HeroTile.entries.toSet(), restored.toSet())
+    }
+
+    @Test
+    fun hiddenTilesLeaveTheVisibleList() {
+        val layout = HomeLayout().setTileVisible(HeroTile.STORAGE, false)
+        assertEquals(HeroTile.entries - HeroTile.STORAGE, layout.visibleTiles)
+        assertEquals(HeroTile.entries, layout.setTileVisible(HeroTile.STORAGE, true).visibleTiles)
+    }
+
+    @Test
+    fun reorderTilesNeedsEveryTile() {
+        val layout = HomeLayout()
+        val reversed = HeroTile.entries.reversed()
+        assertEquals(reversed, layout.reorderTiles(reversed).tileOrder)
+        assertSame(layout, layout.reorderTiles(listOf(HeroTile.CPU)))
+    }
 }

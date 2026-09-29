@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Animation
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Contrast
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Download
@@ -65,8 +64,7 @@ import dev.qtremors.osyster.core.ui.theme.seedColorScheme
 
 @Immutable
 internal data class SettingsActions(
-    val onMode: (ThemeMode) -> Unit,
-    val onOled: (Boolean) -> Unit,
+    val onThemeChoice: (ThemeChoice) -> Unit,
     val onAccentSource: (AccentSource) -> Unit,
     val onPreset: (ThemePreset) -> Unit,
     val onHaptics: (Boolean) -> Unit,
@@ -123,18 +121,10 @@ private fun AppearanceSection(theme: ThemeOptions, actions: SettingsActions) {
             ChoiceRow(
                 title = stringResource(R.string.settings_theme),
                 icon = Icons.Rounded.DarkMode,
-                options = ThemeMode.entries,
-                selected = theme.mode,
-                label = { mode -> stringResource(mode.labelRes()) },
-                onSelect = actions.onMode
-            )
-            ToggleRow(
-                title = stringResource(R.string.settings_oled),
-                supporting = stringResource(R.string.settings_oled_summary),
-                icon = Icons.Rounded.Contrast,
-                checked = theme.oled,
-                onCheckedChange = actions.onOled,
-                enabled = theme.mode != ThemeMode.LIGHT
+                options = ThemeChoice.entries,
+                selected = ThemeChoice.of(theme),
+                label = { choice -> stringResource(choice.labelRes()) },
+                onSelect = actions.onThemeChoice
             )
             if (wallpaperAvailable) {
                 ChoiceRow(
@@ -237,7 +227,7 @@ private fun PresetPicker(selected: ThemePreset, onSelect: (ThemePreset) -> Unit)
     val dark = MaterialTheme.colorScheme.surface.let { (it.red + it.green + it.blue) / 3f < 0.5f }
     Surface(color = MaterialTheme.colorScheme.surfaceBright, modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -299,11 +289,6 @@ private fun SettingsMessage.textRes(): Int = when (this) {
     SettingsMessage.WELCOME_RESET -> R.string.settings_welcome_reset
 }
 
-private fun ThemeMode.labelRes(): Int = when (this) {
-    ThemeMode.SYSTEM -> R.string.theme_system
-    ThemeMode.LIGHT -> R.string.theme_light
-    ThemeMode.DARK -> R.string.theme_dark
-}
 
 private fun ThemePreset.labelRes(): Int = when (this) {
     ThemePreset.CYAN -> R.string.preset_cyan
@@ -312,4 +297,27 @@ private fun ThemePreset.labelRes(): Int = when (this) {
     ThemePreset.VIOLET -> R.string.preset_violet
     ThemePreset.MINT -> R.string.preset_mint
     ThemePreset.SLATE -> R.string.preset_slate
+}
+
+/** The four looks people pick between; pure black is a mode of its own, as dark theme with OLED blacks. */
+enum class ThemeChoice(val mode: ThemeMode, val oled: Boolean) {
+    SYSTEM(ThemeMode.SYSTEM, false),
+    LIGHT(ThemeMode.LIGHT, false),
+    DARK(ThemeMode.DARK, false),
+    BLACK(ThemeMode.DARK, true);
+
+    companion object {
+        fun of(options: ThemeOptions): ThemeChoice = when (options.mode) {
+            ThemeMode.SYSTEM -> SYSTEM
+            ThemeMode.LIGHT -> LIGHT
+            ThemeMode.DARK -> if (options.oled) BLACK else DARK
+        }
+    }
+}
+
+private fun ThemeChoice.labelRes(): Int = when (this) {
+    ThemeChoice.SYSTEM -> R.string.theme_system
+    ThemeChoice.LIGHT -> R.string.theme_light
+    ThemeChoice.DARK -> R.string.theme_dark
+    ThemeChoice.BLACK -> R.string.theme_black
 }

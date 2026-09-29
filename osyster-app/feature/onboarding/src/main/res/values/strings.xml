@@ -6,7 +6,6 @@
     <string name="welcome_next">Next</string>
     <string name="welcome_done">Start</string>
 
-    <string name="welcome_privacy_title">Private by design</string>
     <string name="welcome_offline">No internet access</string>
     <string name="welcome_offline_detail">Osyster cannot send anything anywhere; it never asks for the internet permission.</string>
     <string name="welcome_local">Stays on your phone</string>
@@ -28,10 +27,11 @@
     <string name="whats_new_title">What\'s new in %1$s</string>
     <string name="whats_new_ok">Got it</string>
     <string-array name="whats_new_items">
-        <item>Live Home: Every device page row shows a live fact, and CPU and RAM draw trend lines.</item>
-        <item>Edit Home: Drag pages and pins into order and switch pages off.</item>
-        <item>Widgets: A new glance stack widget, and every widget on one page.</item>
-        <item>Color picker: A tile that copies the hex code of any color on screen.</item>
-        <item>More control: Temperature unit, refresh speed, block screenshots, and data usage history.</item>
+        <item>Dashboard: Screen time, data today, and battery temperature, with tiles you can reorder or hide.</item>
+        <item>Data usage: The ring and bar charts are back, and every app has its own usage page.</item>
+        <item>App stopper: A grid of icons again, now with freezing built in.</item>
+        <item>Themes: A true pure black theme and better contrast everywhere.</item>
+        <item>Search: A search bar at the top of Home with suggestions.</item>
     </string-array>
+    <string name="welcome_allow">Allow</string>
 </resources>

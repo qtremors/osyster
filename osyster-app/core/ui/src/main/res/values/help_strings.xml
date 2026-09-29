@@ -19,9 +19,9 @@
     <string name="help_page_media">Audio and video codecs your phone can decode and encode, with hardware or software support and the largest sizes each handles.</string>
     <string name="help_page_certificates">Trusted certificate authorities installed by the system and by you. A user-installed certificate can see secure traffic, so it is worth checking this list now and then.</string>
 
-    <string name="help_tool_data_usage">Mobile and Wi-Fi data per day, week, or month, with the apps that used the most. Numbers come from the system\'s own data counters, so they match Settings. Needs usage access.</string>
-    <string name="help_tool_screen_usage">How long you used each app today and on past days, read from the system\'s usage history. Nothing is tracked by Osyster itself. Needs usage access.</string>
-    <string name="help_tool_app_stopper">Keep a list of apps you often stop. Without Shizuku or root, Stop opens the app\'s App info page, where Force stop is one tap away. With either set up in Power setup, Stop works directly and Stop all appears.</string>
+    <string name="help_tool_data_usage">Mobile and Wi-Fi data per day, week, or month, from the system\'s own counters. A ring splits download and upload, bars show each hour or day, and you can step back to earlier periods. Tap an app for its own usage. Needs usage access.</string>
+    <string name="help_tool_screen_usage">How long you used each app today and on past days, read from the system\'s usage history. Tap an app to see its own week. Nothing is tracked by Osyster itself. Needs usage access.</string>
+    <string name="help_tool_app_stopper">A grid of apps you often stop. Tap one to stop it: directly with Shizuku or root, otherwise through its App info page. Long-press to open it, freeze or unfreeze it (Shizuku or root), find it in the store, or remove it from the grid. Stopped and frozen apps are grayed out.</string>
     <string name="help_tool_stay_awake">Keeps the screen on. Timer mode runs for a set time and shows a countdown notification with Stop. While charging mode uses the system\'s own developer option, which needs a one-time permission granted from a computer, Shizuku, or root.</string>
     <string name="help_tool_flashlight">Turn the torch on and set its brightness on phones that allow it. Flashlight pulse can blink the torch for new notifications while the screen is off; it needs notification access and never reads notification text.</string>
     <string name="help_tool_activity_launcher">Lists every app\'s exported screens so you can open hidden settings pages directly. Only screens apps allow others to open are shown.</string>
@@ -35,5 +35,4 @@
     <string name="help_tool_system_tweaks">Switches that have no place in Settings or are buried in Developer options: debugging, window blur, tap to wake, pop-up notifications, touch indicators, and Private DNS with your own provider.</string>
     <string name="help_tool_shut_up">Some banking and payment apps refuse to run while developer options or USB debugging are on. Open them from here, or from a home screen shortcut, and debugging turns off first. Restore puts back exactly what you had.</string>
     <string name="help_tool_standby_apps">See each app\'s standby bucket and move it. Lower buckets run less in the background and save battery. Android may move apps again as you use them. Needs Shizuku or root.</string>
-    <string name="help_tool_freeze">Disable apps you rarely use without uninstalling them. Frozen apps cannot run or notify and their data stays. Unfreeze one tap at a time, all at once, or from the Freeze tile. Needs Shizuku or root.</string>
 </resources>

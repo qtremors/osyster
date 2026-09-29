@@ -20,7 +20,9 @@ data class DeviceSummary(
     val storageUsedBytes: Availability<Long>,
     val storageTotalBytes: Availability<Long>,
     val batteryPercent: Availability<Int>,
-    val isCharging: Boolean
+    val isCharging: Boolean,
+    /** Battery temperature in Celsius, when the battery reports it. */
+    val batteryTemperatureC: Float? = null
 )
 
 /**

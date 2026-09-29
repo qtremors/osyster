@@ -36,9 +36,6 @@ data object PrivacyRoute : AppRoute
 @Serializable
 data object LicensesRoute : AppRoute
 
-/** Search across pages, tools, settings, and device facts. */
-@Serializable
-data object SearchRoute : AppRoute
 
 /** Full-screen color and touch tests, opened from the Display page. */
 @Serializable
@@ -68,9 +65,12 @@ data object LinkActionsRoute : AppRoute
 @Serializable
 data object QuickTilesRoute : AppRoute
 
-/** A tool page that has no feature module yet, addressed by its stable tool id. */
 @Serializable
 data object WidgetsRoute : AppRoute
+
+/** One app's own page: its data when opened from Data usage, its screen time from Screen usage. */
+@Serializable
+data class AppUsageRoute(val packageName: String, val screenTime: Boolean = false) : AppRoute
 
 /** The right pane on wide screens before a page is opened. */
 @Serializable
@@ -79,9 +79,6 @@ data object EmptyDetailRoute : AppRoute
 /** Every power tool shares one route; the power tools feature picks the page from [toolId]. */
 @Serializable
 data class PowerToolRoute(val toolId: String) : AppRoute
-
-@Serializable
-data class ToolRoute(val toolId: String) : AppRoute
 
 /** The tabs in toolbar order. */
 enum class TopLevelTab(val route: AppRoute) {

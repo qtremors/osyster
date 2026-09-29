@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+: follow the wallpaper (Material You) in dark themes. -->
+<resources>
+    <color name="glance_card">@android:color/system_neutral1_900</color>
+    <color name="glance_on_card">@android:color/system_neutral1_50</color>
+    <color name="glance_on_card_dim">@android:color/system_neutral2_200</color>
+    <color name="glance_accent">@android:color/system_accent1_200</color>
+    <color name="glance_track">@android:color/system_neutral2_700</color>
+</resources>

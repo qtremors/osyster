@@ -133,9 +133,9 @@ internal fun AppPickerSheet(
             .filter { query.isBlank() || it.label.contains(query, ignoreCase = true) || it.packageName.contains(query, ignoreCase = true) }
     }
     OsysterBottomSheet(onDismissRequest = onDismiss, title = title) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Column {
             InlineSearchField(query = query, onQueryChange = { query = it }, placeholder = stringResource(R.string.power_search_apps))
-            LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 460.dp).padding(top = 12.dp)) {
+            LazyColumn(modifier = Modifier.weight(1f, fill = false).fillMaxWidth().heightIn(max = 460.dp).padding(top = 12.dp)) {
                 item {
                     ConnectedGroup {
                         visible.forEach { app ->

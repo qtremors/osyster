@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.shell
 
+import androidx.compose.ui.platform.LocalContext
+import dev.qtremors.osyster.core.navigation.AppUsageRoute
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.width
@@ -39,13 +41,11 @@ import dev.qtremors.osyster.core.navigation.AppRoute
 import dev.qtremors.osyster.core.navigation.LicensesRoute
 import dev.qtremors.osyster.core.navigation.PowerToolRoute
 import dev.qtremors.osyster.core.navigation.PrivacyRoute
-import dev.qtremors.osyster.core.navigation.SearchRoute
 import dev.qtremors.osyster.core.navigation.DevicePageRoute
 import dev.qtremors.osyster.core.navigation.HomeRoute
 import dev.qtremors.osyster.core.navigation.ScreenTesterRoute
 import dev.qtremors.osyster.core.navigation.SettingsRoute
 import dev.qtremors.osyster.core.navigation.Tool
-import dev.qtremors.osyster.core.navigation.ToolRoute
 import dev.qtremors.osyster.core.navigation.ToolsRoute
 import dev.qtremors.osyster.core.navigation.TopLevelTab
 import dev.qtremors.osyster.core.ui.catalog.label
@@ -56,8 +56,6 @@ import androidx.compose.runtime.LaunchedEffect
 import dev.qtremors.osyster.feature.activitylauncher.registerActivityLauncherRoute
 import dev.qtremors.osyster.feature.flashlight.FlashlightDestination
 import dev.qtremors.osyster.feature.flashlight.registerFlashlightRoute
-import dev.qtremors.osyster.feature.search.SearchDestination
-import dev.qtremors.osyster.feature.search.registerSearchRoute
 import dev.qtremors.osyster.feature.linkactions.LinkActionsDestination
 import dev.qtremors.osyster.feature.linkactions.registerLinkActionsRoute
 import dev.qtremors.osyster.feature.powertools.PowerToolsDestination
@@ -81,10 +79,6 @@ import dev.qtremors.osyster.feature.settings.registerSettingsRoute
 import dev.qtremors.osyster.feature.tools.ToolsDestination
 import dev.qtremors.osyster.feature.tools.registerToolsRoute
 
-/**
- * The only place that knows every feature. It maps each feature's neutral destinations to routes
- * and owns the floating toolbar that sits above all screens.
- */
 /** Things only the Activity can do: start other apps and system screens. */
 @androidx.compose.runtime.Immutable
 data class SystemActions(
@@ -101,6 +95,10 @@ data class SystemActions(
     val openStoreListing: (packageName: String) -> Unit
 )
 
+/**
+ * The only place that knows every feature. It maps each feature's neutral destinations to routes
+ * and owns the floating toolbar that sits above all screens.
+ */
 @Composable
 fun OsysterAppShell(
     appVersion: String,
@@ -209,7 +207,11 @@ private fun NavGraphBuilder.osysterGraph(
             is HomeDestination.DevicePage -> navController.navigate(DevicePageRoute(target.pageId))
             is HomeDestination.Tool -> navController.navigate(toolRoute(target.toolId))
             is HomeDestination.ShareReport -> system.shareText(target.text)
-            HomeDestination.Search -> navController.navigate(SearchRoute)
+            HomeDestination.Settings -> selectTab(SettingsRoute)
+            HomeDestination.About -> navController.navigate(AboutRoute)
+            HomeDestination.Privacy -> navController.navigate(PrivacyRoute)
+            HomeDestination.Licenses -> navController.navigate(LicensesRoute)
+            HomeDestination.UsageAccess -> system.openUsageAccess()
         }
     }
     registerDevicePageRoute { target ->
@@ -232,26 +234,18 @@ private fun NavGraphBuilder.osysterGraph(
             SettingsDestination.Licenses -> navController.navigate(LicensesRoute)
         }
     }
-    registerSearchRoute { target ->
-        when (target) {
-            is SearchDestination.DevicePage -> navController.navigate(DevicePageRoute(target.pageId))
-            is SearchDestination.Tool -> navController.navigate(toolRoute(target.toolId))
-            SearchDestination.Settings -> selectTab(SettingsRoute)
-            SearchDestination.About -> navController.navigate(AboutRoute)
-            SearchDestination.Privacy -> navController.navigate(PrivacyRoute)
-            SearchDestination.Licenses -> navController.navigate(LicensesRoute)
-        }
-    }
     registerDataUsageRoute { target ->
         when (target) {
             DataUsageDestination.UsageAccessSettings -> system.openUsageAccess()
             is DataUsageDestination.AppInfo -> system.openAppInfo(target.packageName)
+            is DataUsageDestination.AppUsage -> navController.navigate(AppUsageRoute(target.packageName))
         }
     }
     registerScreenUsageRoute { target ->
         when (target) {
             ScreenUsageDestination.UsageAccessSettings -> system.openUsageAccess()
             is ScreenUsageDestination.AppInfo -> system.openAppInfo(target.packageName)
+            is ScreenUsageDestination.AppUsage -> navController.navigate(AppUsageRoute(target.packageName, screenTime = true))
         }
     }
     registerAppStopperRoute { target ->
@@ -286,10 +280,6 @@ private fun NavGraphBuilder.osysterGraph(
             is PowerToolsDestination.OpenUrl -> system.openUrl(target.url)
         }
     }
-    composable<ToolRoute> { entry ->
-        val tool = Tool.fromId(entry.toRoute<ToolRoute>().toolId)
-        PlaceholderPage(title = tool?.label?.title?.let { stringResource(it) }.orEmpty())
-    }
 }
 
 /** The right pane before anything is opened. */
@@ -318,13 +308,21 @@ private fun NavDestination?.selectedTabIndex(): Int = when {
 private fun NavBackStackEntry?.detailTitle(): String? {
     val entry = this ?: return null
     val destination = entry.destination
+    // Pages titled by something other than a string resource.
+    if (destination.hasRoute<AppUsageRoute>()) {
+        val packageName = entry.toRoute<AppUsageRoute>().packageName
+        val context = LocalContext.current
+        return remember(packageName) {
+            runCatching { context.packageManager.getApplicationLabel(context.packageManager.getApplicationInfo(packageName, 0)).toString() }
+                .getOrDefault(packageName)
+        }
+    }
     val titleRes = when {
         destination.hasRoute<DevicePageRoute>() -> DevicePage.fromId(entry.toRoute<DevicePageRoute>().pageId)?.label?.title
         destination.isToolPage() -> toolOf(entry)?.label?.title
         destination.hasRoute<AboutRoute>() -> R.string.title_about
         destination.hasRoute<PrivacyRoute>() -> R.string.title_privacy
         destination.hasRoute<LicensesRoute>() -> R.string.title_licenses
-        destination.hasRoute<SearchRoute>() -> R.string.title_search
         else -> null
     }
     return titleRes?.let { stringResource(it) }

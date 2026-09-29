@@ -96,7 +96,8 @@ internal fun PowerSetupRoute(onNavigate: (PowerToolsDestination) -> Unit) {
             item(key = "status") { StatusSection(status) }
             item(key = "shizuku") { ShizukuSection(status.shizuku, viewModel::requestShizuku, onNavigate) }
             item(key = "root") { RootSection(status.root, viewModel::setRoot) }
-            item(key = "grant") { GrantSection(status, viewModel::grant) }
+            // Once the permission is granted, the ADB steps have done their job.
+            if (!status.secureSettings) item(key = "grant") { GrantSection(status, viewModel::grant) }
         }
     }
 }

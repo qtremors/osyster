@@ -12,7 +12,9 @@ data class ManagedApp(
     val label: String,
     val installed: Boolean,
     val stopped: Boolean,
-    val system: Boolean
+    val system: Boolean,
+    /** Disabled for this user (frozen through Shizuku or root); it cannot run until unfrozen. */
+    val frozen: Boolean = false
 )
 
 /** An installed app the user can add to the list. */
@@ -26,4 +28,8 @@ interface AppStopperRepository {
     suspend fun remove(packageName: String)
     /** Re-reads the stopped flags; call when the screen comes back into view. */
     suspend fun refresh()
+
+    /** Grid columns on the App stopper page. */
+    val columns: Flow<Int>
+    suspend fun setColumns(count: Int)
 }

@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.feature.linkactions
 
+import dev.qtremors.osyster.core.ui.components.ConnectedItem
+import androidx.compose.foundation.lazy.itemsIndexed
 import android.content.ClipData
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -62,9 +64,9 @@ internal fun LinkChooserSheet(
         when {
             current == null -> LoadingState()
             current.isEmpty() -> ConnectedGroup { ConnectedRow(title = stringResource(R.string.link_no_apps)) }
-            else -> LazyColumn(modifier = Modifier.heightIn(max = 380.dp)) {
-                items(current, key = { it.packageName + "/" + it.className }) { handler ->
-                    ConnectedGroup(modifier = Modifier.padding(bottom = 2.dp)) {
+            else -> LazyColumn(modifier = Modifier.weight(1f, fill = false).heightIn(max = 380.dp)) {
+                itemsIndexed(current, key = { _, it -> it.packageName + "/" + it.className }) { index, handler ->
+                    ConnectedItem(index, current.size) {
                         ConnectedRow(
                             title = handler.label,
                             supporting = handler.packageName,

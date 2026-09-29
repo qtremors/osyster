@@ -2,7 +2,7 @@ package dev.qtremors.osyster.core.navigation
 
 /**
  * Every tool listed on the Tools tab. [id] is persisted (favorites, order) and used in
- * [ToolRoute], so it never changes once released.
+ * routes and deep links, so it never changes once released.
  */
 enum class Tool(val id: String, val group: ToolGroup, val access: ToolAccess = ToolAccess.NONE) {
     DATA_USAGE("data_usage", ToolGroup.USAGE),
@@ -22,8 +22,7 @@ enum class Tool(val id: String, val group: ToolGroup, val access: ToolAccess = T
     STATUS_BAR_ICONS("status_bar_icons", ToolGroup.POWER, ToolAccess.SECURE_SETTINGS),
     SYSTEM_TWEAKS("system_tweaks", ToolGroup.POWER, ToolAccess.SECURE_SETTINGS),
     SHUT_UP("shut_up", ToolGroup.POWER, ToolAccess.SECURE_SETTINGS),
-    STANDBY_APPS("standby_apps", ToolGroup.POWER, ToolAccess.SHIZUKU),
-    FREEZE("freeze", ToolGroup.POWER, ToolAccess.SHIZUKU);
+    STANDBY_APPS("standby_apps", ToolGroup.POWER, ToolAccess.SHIZUKU);
 
     companion object {
         private val byId = entries.associateBy(Tool::id)

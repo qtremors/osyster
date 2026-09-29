@@ -47,6 +47,18 @@ data class AppTraffic(
 /** One calendar day of traffic, for the daily chart. [dayStart] is local midnight in epoch millis. */
 data class DayTraffic(val dayStart: Long, val totals: TrafficTotals)
 
+/** One bar of a usage chart: an hour for single-day reports, otherwise a day. */
+data class UsageBucket(val start: Long, val totals: TrafficTotals)
+
+/** One app's traffic over a period, with the same buckets as the device report. */
+data class AppDataHistory(
+    val packageName: String,
+    val label: String,
+    val totals: TrafficTotals,
+    val buckets: List<UsageBucket>,
+    val hourly: Boolean
+)
+
 data class DataUsageReport(
     val period: DataPeriod,
     /** 0 is the current period, 1 the one before it, and so on. */
@@ -56,7 +68,10 @@ data class DataUsageReport(
     val lastDay: Long = 0,
     val totals: TrafficTotals,
     val days: List<DayTraffic>,
-    val apps: List<AppTraffic>
+    val apps: List<AppTraffic>,
+    /** Hourly for a single day, daily otherwise; what the bar chart draws. */
+    val buckets: List<UsageBucket> = days.map { UsageBucket(it.dayStart, it.totals) },
+    val hourly: Boolean = false
 ) {
     fun appsFor(filter: NetworkFilter): List<AppTraffic> =
         apps.filter { it.totals.total(filter) > 0 }.sortedByDescending { it.totals.total(filter) }
@@ -73,7 +88,13 @@ interface DataUsageSource {
     fun accessState(): UsageAccessState
     /** [offset] steps back whole periods: yesterday, the seven days before, last month. */
     suspend fun report(period: DataPeriod, includeApps: Boolean = true, offset: Int = 0): DataUsageReport
+
+    /** One app's traffic over the same windows as [report]. Empty when the app has no data. */
+    suspend fun appHistory(packageName: String, period: DataPeriod, offset: Int = 0): AppDataHistory
     fun liveRate(): Flow<LiveRate>
+
+    /** MOBILE or WIFI for the network in use now, ALL when offline or on something else. */
+    fun activeNetwork(): NetworkFilter
 }
 
 enum class UsageAccessState { GRANTED, MISSING }
@@ -83,4 +104,31 @@ fun maxOffset(period: DataPeriod): Int = when (period) {
     DataPeriod.TODAY -> 89
     DataPeriod.WEEK -> 12
     DataPeriod.MONTH -> 11
+}
+
+/** The order the period and network buttons appear in: the everyday choice in the middle. */
+val PeriodButtons: List<DataPeriod> = listOf(DataPeriod.WEEK, DataPeriod.TODAY, DataPeriod.MONTH)
+val NetworkButtons: List<NetworkFilter> = listOf(NetworkFilter.MOBILE, NetworkFilter.ALL, NetworkFilter.WIFI)
+
+/**
+ * The offset whose window contains [picked]: days back for Today, whole weeks back for 7 days
+ * (counted from today), calendar months back for This month. Future dates count as now; very
+ * old dates stop at [maxOffset].
+ */
+fun offsetFor(period: DataPeriod, today: java.time.LocalDate, picked: java.time.LocalDate): Int {
+    if (!picked.isBefore(today)) return 0
+    val days = java.time.temporal.ChronoUnit.DAYS.between(picked, today).toInt()
+    val offset = when (period) {
+        DataPeriod.TODAY -> days
+        DataPeriod.WEEK -> days / 7
+        DataPeriod.MONTH -> java.time.temporal.ChronoUnit.MONTHS.between(picked.withDayOfMonth(1), today.withDayOfMonth(1)).toInt()
+    }
+    return offset.coerceIn(0, maxOffset(period))
+}
+
+/** The oldest day the date picker offers for [period]. */
+fun earliestDay(period: DataPeriod, today: java.time.LocalDate): java.time.LocalDate = when (period) {
+    DataPeriod.TODAY -> today.minusDays(maxOffset(period).toLong())
+    DataPeriod.WEEK -> today.minusDays(7L * maxOffset(period) + 6)
+    DataPeriod.MONTH -> today.withDayOfMonth(1).minusMonths(maxOffset(period).toLong())
 }

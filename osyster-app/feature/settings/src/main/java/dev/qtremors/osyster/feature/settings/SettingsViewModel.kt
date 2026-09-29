@@ -42,8 +42,7 @@ class SettingsViewModel @Inject constructor(
     private val _message = MutableStateFlow<SettingsMessage?>(null)
     val message: StateFlow<SettingsMessage?> = _message.asStateFlow()
 
-    fun setMode(mode: ThemeMode) = update { it.copy(mode = mode) }
-    fun setOled(enabled: Boolean) = update { it.copy(oled = enabled) }
+    fun setThemeChoice(choice: ThemeChoice) = update { it.copy(mode = choice.mode, oled = choice.oled) }
     fun setAccentSource(source: AccentSource) = update { it.copy(accentSource = source) }
     fun setPreset(preset: ThemePreset) = update { it.copy(preset = preset, accentSource = AccentSource.PRESET) }
     fun setHaptics(enabled: Boolean) = update { it.copy(hapticsEnabled = enabled) }

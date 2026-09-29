@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.device
 
+import dev.qtremors.osyster.core.ui.components.FilterTop
 import android.content.ClipData
 import android.os.Build
 import androidx.compose.foundation.layout.Column
@@ -32,7 +33,6 @@ import dev.qtremors.osyster.core.ui.catalog.label
 import dev.qtremors.osyster.core.ui.components.ConnectedGroup
 import dev.qtremors.osyster.core.ui.components.EmptyState
 import dev.qtremors.osyster.core.ui.components.InfoSectionBlock
-import dev.qtremors.osyster.core.ui.components.InlineSearchField
 import dev.qtremors.osyster.core.ui.components.LoadingState
 import dev.qtremors.osyster.core.ui.components.NavigationRow
 import dev.qtremors.osyster.core.ui.components.OsysterScaffold
@@ -52,6 +52,7 @@ internal fun DevicePageScreen(
     val snackbar = remember { SnackbarHostState() }
     var liveSensor by rememberSaveable { mutableStateOf<String?>(null) }
     var query by rememberSaveable { mutableStateOf("") }
+    var searching by rememberSaveable { mutableStateOf(false) }
     val copiedTemplate = stringResource(UiR.string.copied_value)
     val deniedMessage = stringResource(R.string.permission_denied)
     val openSettingsLabel = stringResource(R.string.permission_open_settings)
@@ -73,7 +74,11 @@ internal fun DevicePageScreen(
 
     OsysterScaffold(
         title = page?.label?.title?.let { stringResource(it) }.orEmpty(),
-        snackbarHost = { SnackbarHost(snackbar) }
+        snackbarHost = { SnackbarHost(snackbar) },
+        // The same top-bar search as Home, scoped to this page's rows.
+        filter = if (state is DevicePageState.Ready) {
+            FilterTop(query, { query = it }, stringResource(R.string.search_page_placeholder), onOpenChange = { searching = it })
+        } else null
     ) { padding ->
         LazyColumn(contentPadding = padding) {
             when (state) {
@@ -85,20 +90,14 @@ internal fun DevicePageScreen(
                     EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.device_unknown_title), stringResource(R.string.device_unknown_message))
                 }
                 is DevicePageState.Ready -> {
-                    if (page == DevicePage.DISPLAY) {
+                    if (page == DevicePage.DISPLAY && !searching) {
                         item(key = "tester") {
                             PageLink(R.string.screen_tester_section, R.string.screen_tester_title, R.string.screen_tester_summary, Icons.Rounded.Gradient, "tester") {
                                 onNavigate(DeviceDestination.ScreenTester)
                             }
                         }
                     }
-                    val searchable = page in searchablePages
-                    if (searchable) {
-                        item(key = "search") {
-                            InlineSearchField(query = query, onQueryChange = { query = it }, placeholder = stringResource(R.string.search_page_placeholder))
-                        }
-                    }
-                    val shown = if (searchable) filterSections(state.sections, query) else state.sections
+                    val shown = filterSections(state.sections, query)
                     if (shown.isEmpty()) {
                         item(key = "no_matches") {
                             EmptyState(Icons.Rounded.SearchOff, stringResource(R.string.search_no_matches_title), stringResource(R.string.search_no_matches_message, query.trim()))
@@ -116,7 +115,7 @@ internal fun DevicePageScreen(
                             onGrant = requestPermission
                         )
                     }
-                    if (page == DevicePage.BATTERY) {
+                    if (page == DevicePage.BATTERY && !searching) {
                         item(key = "battery_usage") {
                             PageLink(R.string.battery_usage_section, R.string.battery_usage_title, R.string.battery_usage_summary, Icons.Rounded.BatteryChargingFull, "battery_usage") {
                                 onNavigate(DeviceDestination.SystemBatteryUsage)

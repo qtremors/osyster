@@ -3,6 +3,7 @@ package dev.qtremors.osyster.feature.musicwidgets
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.os.Bundle
 
 class Music5x1WidgetReceiver : AppWidgetProvider() {
 
@@ -16,4 +17,8 @@ class Music5x1WidgetReceiver : AppWidgetProvider() {
         }
     }
 
+    /** Redraws at the new size when the widget is resized or the launcher grid changes. */
+    override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, newOptions: Bundle) {
+        MusicWidgetUpdater.updateMusic5x1Widget(context, appWidgetManager, appWidgetId)
+    }
 }

@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.device
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +44,8 @@ internal fun SensorLiveSheet(readings: Flow<SensorReading>, onDismiss: () -> Uni
         }
         ConnectedGroup {
             current.values.forEach { value ->
-                Surface(color = MaterialTheme.colorScheme.surfaceBright) {
+                // Full width, so the readings read as one list instead of boxes hugging the numbers.
+                Surface(color = MaterialTheme.colorScheme.surfaceBright, modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = value,
                         style = MetricTextStyle.copy(fontSize = MaterialTheme.typography.titleLarge.fontSize),

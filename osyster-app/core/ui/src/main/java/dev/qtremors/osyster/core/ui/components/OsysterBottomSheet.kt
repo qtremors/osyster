@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.core.ui.components
 
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -52,7 +54,8 @@ fun OsysterBottomSheet(
                 )
             }
             content()
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+            // Room for the keyboard too, so buttons at the bottom of a sheet stay above it.
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars.union(WindowInsets.ime)))
             Spacer(Modifier.padding(bottom = 16.dp))
         }
     }

@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.appstopper
 
+import dev.qtremors.osyster.core.privilege.domain.PowerToolsStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,8 +25,30 @@ data class PickerState(val includeSystem: Boolean = false, val apps: List<Instal
 @HiltViewModel
 class AppStopperViewModel @Inject constructor(
     private val repository: AppStopperRepository,
-    private val shell: PrivilegedShell
+    private val shell: PrivilegedShell,
+    private val powerStore: PowerToolsStore
 ) : ViewModel() {
+    val columns: StateFlow<Int> = repository.columns.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 4)
+
+    fun setColumns(count: Int) {
+        viewModelScope.launch { repository.setColumns(count) }
+    }
+
+    /**
+     * Freezes or unfreezes through the shell. Frozen apps are also remembered for the Freeze tile,
+     * which toggles them all at once.
+     */
+    fun setFrozen(packageName: String, frozen: Boolean) {
+        if (!shell.status.value.shell) return
+        viewModelScope.launch {
+            val ok = shell.run(if (frozen) PowerCommands.freeze(packageName) else PowerCommands.unfreeze(packageName)).ok
+            if (ok) {
+                powerStore.setFreezeList(if (frozen) powerStore.freezeList.value + packageName else powerStore.freezeList.value - packageName)
+            }
+            repository.refresh()
+        }
+    }
+
     /** True when Shizuku or root can force stop directly, so Stop works without App info. */
     val oneTap: StateFlow<Boolean> = shell.status.map { it.shell }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), shell.status.value.shell)

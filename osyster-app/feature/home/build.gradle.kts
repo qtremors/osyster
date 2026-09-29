@@ -40,6 +40,7 @@ dependencies {
     implementation(project(":core:runtime"))
     implementation(project(":core:navigation:api"))
     implementation(project(":core:device:domain"))
+    implementation(project(":core:usage:domain"))
     implementation(project(":core:ui"))
 
     implementation(platform(libs.androidx.compose.bom))

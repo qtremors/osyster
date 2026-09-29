@@ -25,12 +25,42 @@ data class PinKey(val kind: Kind, val id: String) {
 }
 
 /** How the user arranged Home: device page order, hidden pages, and pinned shortcuts. */
+/** The tiles in Home's dashboard card. [id] is stored, so it never changes once released. */
+enum class HeroTile(val id: String) {
+    CPU("cpu"),
+    RAM("ram"),
+    STORAGE("storage"),
+    BATTERY("battery"),
+    SCREEN_TIME("screen_time"),
+    DATA_TODAY("data_today");
+
+    companion object {
+        private val byId = entries.associateBy(HeroTile::id)
+        fun fromId(id: String): HeroTile? = byId[id]
+
+        /** Restores a saved order: unknown ids are dropped, tiles added in an update are appended. */
+        fun restoreOrder(savedIds: List<String>): List<HeroTile> {
+            val saved = savedIds.mapNotNull(::fromId).distinct()
+            return saved + entries.filterNot(saved::contains)
+        }
+    }
+}
+
 data class HomeLayout(
     val pageOrder: List<DevicePage> = DevicePage.entries,
     val hiddenPages: Set<DevicePage> = emptySet(),
-    val pinned: List<PinKey> = emptyList()
+    val pinned: List<PinKey> = emptyList(),
+    val tileOrder: List<HeroTile> = HeroTile.entries,
+    val hiddenTiles: Set<HeroTile> = emptySet()
 ) {
     val visiblePages: List<DevicePage> get() = pageOrder.filterNot(hiddenPages::contains)
+    val visibleTiles: List<HeroTile> get() = tileOrder.filterNot(hiddenTiles::contains)
+
+    fun reorderTiles(ordered: List<HeroTile>): HomeLayout =
+        if (ordered.toSet() != tileOrder.toSet()) this else copy(tileOrder = ordered)
+
+    fun setTileVisible(tile: HeroTile, visible: Boolean): HomeLayout =
+        copy(hiddenTiles = if (visible) hiddenTiles - tile else hiddenTiles + tile)
 
     fun isPinned(key: PinKey): Boolean = key in pinned
 

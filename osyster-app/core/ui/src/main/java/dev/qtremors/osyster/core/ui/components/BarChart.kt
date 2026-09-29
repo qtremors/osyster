@@ -82,16 +82,30 @@ fun BarChart(
                     }
                 }
             }
-            Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                bars.forEachIndexed { index, bar ->
-                    Text(
-                        text = if (index % labelEvery == 0) bar.label else "",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (index == selectedIndex) colors.primary else colors.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        modifier = Modifier.weight(1f)
-                    )
+            Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                if (labelEvery <= 1) {
+                    bars.forEachIndexed { index, bar ->
+                        Text(
+                            text = bar.label,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (index == selectedIndex) colors.primary else colors.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                } else {
+                    // Sparse labels ("6 AM") get the width of the whole group they start, so they
+                    // are never clipped to a single thin bar.
+                    bars.indices.chunked(labelEvery).forEach { group ->
+                        Text(
+                            text = bars[group.first()].label,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = colors.onSurfaceVariant,
+                            maxLines = 1,
+                            modifier = Modifier.weight(group.size.toFloat())
+                        )
+                    }
                 }
             }
         }
