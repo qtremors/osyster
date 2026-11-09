@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stay_awake_on">Screen stays on</string>
+    <string name="stay_awake_off">Screen sleeps normally</string>
+    <string name="stay_awake_off_detail">Pick how long to keep it on, then start.</string>
+    <string name="stay_awake_until">Until %1$s</string>
+    <string name="stay_awake_until_stopped">Until you stop it</string>
+    <string name="stay_awake_timer">Timer</string>
+    <string name="stay_awake_start">Start</string>
+    <string name="stay_awake_restart">Restart with this time</string>
+    <string name="stay_awake_stop">Stop</string>
+    <string name="stay_awake_duration_minutes">%1$d min</string>
+    <string name="stay_awake_duration_hours">%1$d h</string>
+    <string name="stay_awake_duration_forever">Until stopped</string>
+
+    <string name="stay_awake_while_charging">While charging</string>
+    <string name="stay_awake_while_charging_toggle">Stay awake while charging</string>
+    <string name="stay_awake_while_charging_summary">Android\'s developer setting. The screen stays on whenever the phone is charging.</string>
+    <string name="stay_awake_grant_title">One-time setup needed</string>
+    <string name="stay_awake_grant_message">Android lets apps change this setting only after you allow it once from a computer with ADB. Run this command, then come back. Shizuku and root unlock it without a computer in Power tools.</string>
+    <string name="stay_awake_copy_command">Copy command</string>
+    <string name="stay_awake_developer_options">Open Developer options</string>
+    <string name="stay_awake_developer_options_summary">Or turn on Stay awake there yourself</string>
+
+    <string name="tile_stay_awake_timer">Stay awake</string>
+    <string name="tile_stay_awake_charging">Awake while charging</string>
+    <string name="tile_on">On</string>
+    <string name="tile_off">Off</string>
+    <string name="tile_needs_setup">Tap to set up</string>
+    <string name="stay_awake_grant_now">Allow now</string>
+    <string name="stay_awake_grant_now_summary">Shizuku or root can allow it for you in one tap</string>
+</resources>

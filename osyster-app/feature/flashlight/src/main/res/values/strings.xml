@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flash_on">On</string>
+    <string name="flash_off">Off</string>
+    <string name="flash_busy">The camera is in use</string>
+    <string name="flash_none_title">No flashlight</string>
+    <string name="flash_none_message">This device has no camera flash to use as a flashlight.</string>
+    <string name="flash_brightness">Brightness</string>
+    <string name="flash_level">%1$d%% brightness</string>
+    <string name="flash_no_levels">One brightness only</string>
+    <string name="flash_no_levels_detail">Brightness levels need Android 13 and a flash that supports them.</string>
+    <string name="tile_flashlight">Flashlight</string>
+    <string name="flash_pulse_section">Notifications</string>
+    <string name="flash_pulse">Pulse for notifications</string>
+    <string name="flash_pulse_detail">Blink twice for new notifications while the screen is off. Skips music, calls, and other ongoing ones.</string>
+    <string name="flash_pulse_access">Allow notification access</string>
+    <string name="flash_pulse_access_detail">Osyster only checks that a notification arrived; it never reads or keeps the text.</string>
+</resources>

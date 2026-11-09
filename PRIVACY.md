@@ -1,51 +1,73 @@
 # Privacy Policy for Osyster
 
-**Last Updated:** 2026-09-19
+**Last Updated:** 2026-09-28
 
-Osyster is built with a privacy-first, local-only architecture. This policy explains how the application handles your system and device information.
+Osyster reads information about your phone and changes settings you ask it to change. All of that happens on your phone. This policy explains what it reads, what it stores, and every permission it can use.
 
 ## 1. No Data Collection
 
-Osyster **does not send** personal information, usage statistics, device identifiers, or telemetry to the developer or an external service. It reads diagnostics locally and saves preferences, managed package names, and cached app labels on your device. No account is required.
+Osyster **does not send** personal information, usage statistics, device identifiers, or diagnostics to the developer or anyone else. There is no account, no analytics, and no crash reporting.
+
+It never reads permanent identifiers: no serial number, IMEI or MEID, phone number, SIM serial, MAC address, or DRM device ID.
 
 ## 2. Offline by Design
 
-The Android application does not declare `android.permission.INTERNET` and does not make internet requests. Network usage screens read records maintained locally by Android.
+The app does not declare `android.permission.INTERNET`, so Android blocks it from the network entirely. The "internet check" on the Network page only asks Android whether the current connection is validated; it does not connect anywhere.
 
-Links to GitHub, Discord, the project website, or Play Store open another application, which may use the internet under its own privacy policy. The project website loads external fonts/scripts and public GitHub statistics; the app's offline behavior does not apply to the website.
+Links to GitHub, Discord, the Shizuku guide, or the project website open your browser or another app, which follows its own privacy policy. The project website loads public GitHub statistics from the GitHub API; the app's offline promise does not cover the website.
 
 ## 3. No Advertisements or Trackers
 
-The application contains **zero advertisements** and **zero third-party analytics or tracking SDKs**.
+The app contains **no advertisements** and **no third-party analytics, tracking, or crash SDKs**.
 
-## 4. Local System Diagnostics and Hardware Telemetry
+## 4. What Osyster Stores on Your Phone
 
-Osyster reads native Linux kernel interfaces and Android system broadcasts strictly on-device to present live diagnostics in the Bento Grid interface:
-- **Processor Telemetry:** Reads accessible CPU counters and frequency files. Android/vendor restrictions limit availability; the current frequency-ratio load fallback is not measured utilization.
-- **Memory & Swap:** Parsed directly from `/proc/meminfo` to report RAM and SWAP allocations.
-- **Task & Process Details:** Discovered via `/proc/[pid]` entries to display active tasks, command names, and RSS memory usage.
-- **Thermals & Battery:** Read via Android system intents (`Intent.ACTION_BATTERY_CHANGED`) and accessible thermal sysfs nodes.
-- **Device Information:** Android Build APIs provide manufacturer, model, hardware, and OS details.
-- **Network Usage:** Usage access permits historical per-app/device network queries; network-state permission supports connection detection. Optional phone permission supports carrier metadata and older mobile-query fallbacks. Below Android 10, mobile queries may read a subscriber ID locally; Osyster does not save or transmit it.
-- **Installed Apps:** Package visibility supports app names, icons, stopped-state checks, and App Stopper selection.
-- **Music Notifications:** Optional Notification Listener access reads active media-session notifications locally to show track details, artwork, and controls in music widgets. Unrelated notification content is ignored and never saved.
-- **Stay Awake:** The dashboard can read Android's plugged-in Stay awake setting. It can change only that setting after you explicitly grant the protected `WRITE_SECURE_SETTINGS` permission through ADB; the app never receives this access automatically.
+- Theme, Home layout (pins, order, hidden pages), and tool choices.
+- Package names you add to App stopper, Shut-Up!, and Freeze lists.
+- The debugging switches as they were before a Shut-Up! launch, until you restore them.
+- Whether you finished the welcome and which version's "What's new" you saw.
+- Your temperature unit, refresh speed, and whether screenshots are blocked.
 
-Diagnostic snapshots and short chart histories remain in process memory rather than a saved telemetry database. Recurring telemetry polling stops when its screen is hidden or the app is not resumed. Some collector failures print stack traces to local Android logs; no logs are uploaded.
+Android may include these preferences in its own device backup. Settings export writes them to a file only where you choose; nothing is uploaded.
 
-SharedPreferences save settings, onboarding completion, selected App Stopper packages, cached labels, grid columns, and the last active media title, artist, package, and playback modes. Album artwork is kept in the app cache and can be removed by Android at any time. Cached labels preserve ghost entries after uninstall. Removing a managed entry removes its saved package and label; clearing app storage removes saved preferences and media cache. Backup and device-transfer rules exclude SharedPreferences, and cache files are not backed up. About copy actions place the selected version or device summary on the Android clipboard at your request.
+## 5. Permissions
 
-## 5. Local Process Control
+Osyster asks for each permission only when a tool needs it, and every tool works without the ones it does not need.
 
-App Stopper and Tasks open Android's App Info screen, where you can choose to force stop an application. Removing a managed entry does not uninstall or stop the app. On Android 13 and earlier, Tasks also offers Android's background-process management API. That action is hidden on Android 14 and newer. Arbitrary PID termination displays guidance instead of executing a shell kill command.
+### Normal permissions (granted at install)
 
-## 6. Source Availability
+- **Network state and Wi-Fi state:** connection type, signal, and link speed on the Network page and the live speed meter.
+- **Foreground service, special use, and wake lock:** Stay awake keeps the screen on with a visible notification and Stop button.
+- **Query all packages:** App stopper, Activity launcher, Link actions, Shut-Up!, Freeze, and Standby apps list your apps by name and icon.
+- **Shizuku API permission:** lets an installed Shizuku recognise Osyster. It does nothing unless you allow Osyster in Shizuku.
 
-Osyster's source code is publicly available for inspection. You are welcome to audit the implementation yourself on [GitHub](https://github.com/qtremors/osyster).
+### Runtime permissions (asked when you choose)
 
-## 7. Changes to This Policy
+- **Notifications (Android 13 and newer):** the Stay awake countdown and the Shut-Up! Restore notification.
+- **Location:** Android requires it to show the Wi-Fi network name. Asked only when you tap to show it on the Network page. Osyster never reads your position.
+- **Phone:** carrier, network type, and roaming on the Network page. Asked only when you tap to show them. Your phone number and IMEI are never read.
 
-This policy may be updated as features change. Osyster's app diagnostics remain local; the date above identifies the latest revision.
+### Special access (granted in system Settings)
 
----
-[Back to Home](https://qtremors.github.io/osyster/)
+- **Usage access:** Data usage, Screen usage, and the Data today tile read Android's own counters.
+- **Notification access:** music widgets read the playing song from media sessions; Flashlight pulse sees that a notification arrived and which app sent it. Notification text is never read or stored.
+- **Screen capture (Color picker tile):** Android asks every time. Osyster captures one frame, keeps it only in its private cache while you pick a color, and deletes it when you close the picker. A short foreground notification shows while the capture runs.
+
+### Power tools (optional, granted by you outside the app)
+
+- **Write secure settings:** granted once with an ADB command, or by Shizuku or root from Power setup. Used to change settings such as battery saver, animation scales, status bar icons, debugging switches, and Private DNS. Remove it by clearing Osyster's storage or reinstalling.
+- **Shizuku or root:** used only while a power tool runs a command (freezing apps, standby buckets, display size, force stop). Each command is a normal Android shell command with quoted arguments. Osyster keeps no root shell open.
+
+Osyster **never** uses an AccessibilityService and never calls hidden system interfaces.
+
+## 6. Children
+
+Osyster collects no data from anyone, including children.
+
+## 7. Changes
+
+Changes to this policy are recorded in this file and in the changelog.
+
+## 8. Contact
+
+Questions or concerns: open an issue on [GitHub](https://github.com/qtremors/osyster/issues) or ask in the [Discord community](https://discord.gg/QgUjuNj9U8).

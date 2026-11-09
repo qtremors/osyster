@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Text colors for the music widgets; follows the launcher's light or dark mode. -->
+    <style name="Theme.Osyster.AppWidget" parent="android:Theme.DeviceDefault.DayNight">
+        <item name="android:textColorPrimary">@color/widget_music_primary_text</item>
+        <item name="android:textColorSecondary">@color/widget_music_secondary_text</item>
+    </style>
+</resources>

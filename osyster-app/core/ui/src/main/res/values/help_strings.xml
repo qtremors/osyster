@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Long-press "About this page" sheets. Plain words: what the page shows, where it comes from, and its limits. -->
+    <string name="help_about_page">About this page</string>
+    <string name="help_about_tool">About this tool</string>
+    <string name="help_needs">Needs</string>
+    <string name="help_needs_nothing">No extra access</string>
+
+    <string name="help_page_system">The Android version, security patch, build, kernel, and runtime details your phone reports. Everything comes from the system itself, so a custom ROM may show its own values. Long-press a value to copy it.</string>
+    <string name="help_page_device">The brand, model, codename, and manufacturer as the system reports them, plus the screen size class and supported architectures. Serial numbers and IMEI are never read.</string>
+    <string name="help_page_processor">The chip name, cores, cluster layout, and current speed of each core, plus the graphics driver. Live speeds refresh while the page is open. Some phones hide per-core files; those rows say so instead of showing zero.</string>
+    <string name="help_page_memory">How much RAM and storage your phone has, how much is in use, and swap or zRAM when present. Numbers use the same units as the system Settings app.</string>
+    <string name="help_page_battery">Charge level, charging speed, temperature, voltage, health, and cycle count when the phone reports it. Charging current is live while the page is open. Capacity estimates are read from the battery driver and can drift on older batteries.</string>
+    <string name="help_page_display">Resolution, density, refresh rates, HDR support, and the panel\'s color space. The screen tester opens from here: full-screen colors, gradients, and touch tests to spot dead pixels or burn-in.</string>
+    <string name="help_page_cameras">Every camera the system exposes, with its sensor size, megapixels, apertures, focal lengths, and video features. Some phones hide extra lenses from apps; those cannot be listed.</string>
+    <string name="help_page_sensors">All sensors with their vendor, range, and power use. Tap a sensor to see live readings. Readings stop when you leave the page.</string>
+    <string name="help_page_network">Wi-Fi, mobile, and connection details. Wi-Fi name and carrier need location or phone access on newer Android; Osyster asks only when you tap to show them. MAC addresses are never read.</string>
+    <string name="help_page_bluetooth">Bluetooth version features, supported codecs and profiles, and paired devices when you allow nearby devices access.</string>
+    <string name="help_page_media">Audio and video codecs your phone can decode and encode, with hardware or software support and the largest sizes each handles.</string>
+    <string name="help_page_certificates">Trusted certificate authorities installed by the system and by you. A user-installed certificate can see secure traffic, so it is worth checking this list now and then.</string>
+
+    <string name="help_tool_data_usage">Mobile and Wi-Fi data per day, week, or month, from the system\'s own counters. A ring splits download and upload, bars show each hour or day, and you can step back to earlier periods. Tap an app for its own usage. Needs usage access.</string>
+    <string name="help_tool_screen_usage">How long you used each app today and on past days, read from the system\'s usage history. Tap an app to see its own week. Nothing is tracked by Osyster itself. Needs usage access.</string>
+    <string name="help_tool_app_stopper">A grid of apps you often stop. Tap one to stop it: directly with Shizuku or root, otherwise through its App info page. Long-press to open it, freeze or unfreeze it (Shizuku or root), find it in the store, or remove it from the grid. Stopped and frozen apps are grayed out.</string>
+    <string name="help_tool_stay_awake">Keeps the screen on. Timer mode runs for a set time and shows a countdown notification with Stop. While charging mode uses the system\'s own developer option, which needs a one-time permission granted from a computer, Shizuku, or root.</string>
+    <string name="help_tool_flashlight">Turn the torch on and set its brightness on phones that allow it. Flashlight pulse can blink the torch for new notifications while the screen is off; it needs notification access and never reads notification text.</string>
+    <string name="help_tool_activity_launcher">Lists every app\'s exported screens so you can open hidden settings pages directly. Only screens apps allow others to open are shown.</string>
+    <string name="help_tool_link_actions">See which apps open which links, and share or open any link with a chosen app. Changing defaults happens in the system\'s Default apps page.</string>
+    <string name="help_tool_widgets">Osyster\'s home screen widgets: data usage, and music players that show the current song with controls. Music widgets need notification access to see what is playing.</string>
+    <string name="help_tool_quick_tiles">Quick Settings tiles Osyster adds: Stay awake, Flashlight, RAM, and Data today. Add them by editing your Quick Settings panel.</string>
+    <string name="help_tool_power_setup">Choose how power tools get access: a one-time ADB command from a computer, Shizuku, or root. With Shizuku or root, Osyster can also grant the settings permission to itself so settings tools keep working when neither is running.</string>
+    <string name="help_tool_power_saving">Battery saver on or off, the level that turns it on by itself, and which limits it applies, such as dark theme, vibration, or background network. Reset puts back what your phone shipped with.</string>
+    <string name="help_tool_display_scale">Animation speed for all three animation scales at once, font sizes beyond the Settings slider, and display size in five steps. Display size needs Shizuku or root.</string>
+    <string name="help_tool_status_bar_icons">Hide status bar icons you never look at, such as alarm, VPN, or NFC, and show the battery percentage. Show all icons undoes everything. Some phones ignore a few of these.</string>
+    <string name="help_tool_system_tweaks">Switches that have no place in Settings or are buried in Developer options: debugging, window blur, tap to wake, pop-up notifications, touch indicators, and Private DNS with your own provider.</string>
+    <string name="help_tool_shut_up">Some banking and payment apps refuse to run while developer options or USB debugging are on. Open them from here, or from a home screen shortcut, and debugging turns off first. Restore puts back exactly what you had.</string>
+    <string name="help_tool_standby_apps">See each app\'s standby bucket and move it. Lower buckets run less in the background and save battery. Android may move apps again as you use them. Needs Shizuku or root.</string>
+</resources>

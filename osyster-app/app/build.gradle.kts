@@ -1,8 +1,26 @@
+import com.android.build.api.artifact.SingleArtifact
 import java.util.Properties
+
+/** Copies the release bundle to `Osyster-<version>.aab`. */
+abstract class NameBundleTask : DefaultTask() {
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val inputBundle: RegularFileProperty
+
+    @get:OutputFile
+    abstract val outputBundle: RegularFileProperty
+
+    @TaskAction
+    fun nameBundle() {
+        inputBundle.get().asFile.copyTo(outputBundle.get().asFile, overwrite = true)
+    }
+}
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -12,31 +30,31 @@ android {
 
     defaultConfig {
         applicationId = "dev.qtremors.osyster"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 37
-        versionCode = 20
-        versionName = "0.2.0"
+        // versionCode is versionName without dots.
+        versionCode = 30
+        versionName = "0.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Release signing from an untracked signing.properties, falling back to local.properties.
+    // Without all four keys the release build is simply unsigned.
     val keystoreProperties = Properties()
     var keystorePropertiesFile = rootProject.file("signing.properties")
     if (!keystorePropertiesFile.exists()) {
         keystorePropertiesFile = rootProject.file("local.properties")
     }
     if (keystorePropertiesFile.exists()) {
-        keystorePropertiesFile.inputStream().use {
-            keystoreProperties.load(it)
-        }
+        keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
     }
-
     val storeFileProp = keystoreProperties["signing.storeFile"]?.toString()
     val storePasswordProp = keystoreProperties["signing.storePassword"]?.toString()
     val keyAliasProp = keystoreProperties["signing.keyAlias"]?.toString()
     val keyPasswordProp = keystoreProperties["signing.keyPassword"]?.toString()
-
-    val hasSigningConfig = storeFileProp != null && storePasswordProp != null && keyAliasProp != null && keyPasswordProp != null
+    val hasSigningConfig = storeFileProp != null && storePasswordProp != null &&
+        keyAliasProp != null && keyPasswordProp != null
 
     if (hasSigningConfig) {
         signingConfigs {
@@ -51,6 +69,7 @@ android {
 
     buildTypes {
         debug {
+            // Installs beside the release build, with its own name on the launcher.
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             manifestPlaceholders["appLabel"] = "Osyster Debug"
@@ -74,115 +93,89 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
     buildFeatures {
         compose = true
         buildConfig = true
     }
-
-    packaging {
-        jniLibs {
-            keepDebugSymbols += setOf(
-                "**/libandroidx.graphics.path.so"
-            )
-        }
-    }
-
     testOptions {
         unitTests.isIncludeAndroidResources = true
+        // ArchitectureBoundaryTest imports every production module's classes into one graph.
+        unitTests.all { it.maxHeapSize = "2g" }
     }
 }
 
+// Artifacts are named after the app and version: Osyster-X.Y.Z.apk, Osyster-X.Y.Z-debug.apk,
+// Osyster-X.Y.Z.aab.
 androidComponents {
     onVariants { variant ->
         variant.outputs.forEach { output ->
             val version = output.versionName.get() ?: "0.0.0"
             output.outputFileName.set("Osyster-$version.apk")
         }
+        val version = variant.outputs.single().versionName.get() ?: "0.0.0"
+        val nameBundle = tasks.register<NameBundleTask>(
+            "name${variant.name.replaceFirstChar { it.uppercaseChar() }}Bundle"
+        )
+        variant.artifacts.use(nameBundle)
+            .wiredWithFiles(NameBundleTask::inputBundle, NameBundleTask::outputBundle)
+            .withName("Osyster-$version.aab")
+            .toTransform(SingleArtifact.BUNDLE)
     }
 }
 
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        optIn.add("androidx.compose.material3.ExperimentalMaterial3Api")
+        optIn.add("androidx.compose.material3.ExperimentalMaterial3ExpressiveApi")
     }
-}
-
-composeCompiler {
-    reportsDestination = layout.buildDirectory.dir("compose_compiler/reports")
-    metricsDestination = layout.buildDirectory.dir("compose_compiler/metrics")
-}
-
-val verifyVersionCatalogFreshness = tasks.register("verifyVersionCatalogFreshness") {
-    group = "verification"
-    description = "Verifies that dependency freshness checks have an active version catalog to inspect."
-    val versionCatalog = rootProject.layout.projectDirectory.file("gradle/libs.versions.toml")
-    inputs.file(versionCatalog)
-    doLast {
-        val catalog = versionCatalog.asFile
-        require(catalog.exists()) {
-            "Missing gradle/libs.versions.toml; dependency freshness checks need a version catalog."
-        }
-        val text = catalog.readText()
-        require("[versions]" in text && "[libraries]" in text && "[plugins]" in text) {
-            "gradle/libs.versions.toml must keep [versions], [libraries], and [plugins] sections."
-        }
-    }
-}
-
-val verifyReleaseVersionMetadata = tasks.register("verifyReleaseVersionMetadata") {
-    group = "verification"
-    description = "Checks that the app declares explicit versionName and versionCode metadata."
-    val appBuildFile = layout.projectDirectory.file("build.gradle.kts")
-    inputs.file(appBuildFile)
-    doLast {
-        val buildFileText = appBuildFile.asFile.readText()
-        require(Regex("""versionName\s*=\s*"[^"]+"""").containsMatchIn(buildFileText)) {
-            "app/build.gradle.kts must declare versionName."
-        }
-        require(Regex("""versionCode\s*=\s*\d+""").containsMatchIn(buildFileText)) {
-            "app/build.gradle.kts must declare versionCode."
-        }
-    }
-}
-
-tasks.register("verifyOsysterBuildConventions") {
-    group = "verification"
-    description = "Runs Osyster build convention checks used for release readiness."
-    dependsOn(verifyVersionCatalogFreshness, verifyReleaseVersionMetadata)
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.collections.immutable)
+    implementation(project(":core:runtime"))
+    implementation(project(":core:navigation:api"))
+    implementation(project(":core:device:domain"))
+    // Concrete data modules are wired here only, so Hilt sees their bindings.
+    implementation(project(":core:device:data"))
+    implementation(project(":core:usage:data"))
+    implementation(project(":core:system:data"))
+    implementation(project(":core:preferences:domain"))
+    implementation(project(":core:privilege:data"))
+    implementation(project(":core:ui"))
+    implementation(project(":feature:home"))
+    implementation(project(":feature:device"))
+    implementation(project(":feature:datausage"))
+    implementation(project(":feature:screenusage"))
+    implementation(project(":feature:appstopper"))
+    implementation(project(":feature:stayawake"))
+    implementation(project(":feature:flashlight"))
+    implementation(project(":feature:activitylauncher"))
+    implementation(project(":feature:linkactions"))
+    implementation(project(":feature:quicktiles"))
+    implementation(project(":feature:musicwidgets"))
+    implementation(project(":feature:onboarding"))
+    implementation(project(":feature:powertools"))
+    implementation(project(":feature:tools"))
+    implementation(project(":feature:settings"))
 
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.splashscreen)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material3.adaptive)
-    implementation(libs.androidx.compose.material3.adaptive.layout)
-    implementation(libs.androidx.compose.material3.adaptive.navigation)
     implementation(libs.androidx.compose.material.icons.extended)
-    implementation(libs.androidx.graphics.shapes)
-    implementation(libs.androidx.palette)
-    implementation(libs.androidx.media)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    testImplementation(libs.archunit.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

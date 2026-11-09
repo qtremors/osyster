@@ -1,8 +1,160 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.2.0
-> **Last Updated:** 2026-09-19
+> **Version:** 0.3.0
+> **Last Updated:** 2026-09-29
+
+---
+
+## [0.3.0] - 2026-09-29
+
+- **Pure Black Theme**: Pure black is now a theme of its own next to System, Light, and Dark, and pages are truly black. Unselected choice buttons stand out from their rows in every theme.
+- **Settings Layout**: Rows, choices, and color swatches line up, and connected choice buttons share the full width.
+- **Welcome**: Two pages instead of three, and the title and text are readable in dark and pure black themes.
+- **Dashboard**: Battery shows its temperature, storage uses a plain level bar, and the CPU and RAM lines keep a fixed scale so they no longer jump.
+- **Dashboard Tiles**: Screen time and data today join the dashboard; tap them to open the tool, or to allow usage access.
+- **Edit Home**: Reorder, show, or hide dashboard tiles, as well as pinned items and pages.
+- **Search**: One search in the top bar everywhere. On Home it finds any page, tool, setting, or device fact; on device pages, Data usage, Screen usage, Activity launcher, and Standby apps it searches that page. The keyboard opens once, not again when you come back from a result.
+- **Data Usage Charts**: A download and upload ring with the total inside, and stacked bars by hour for one day or by day for longer periods, in distinct colors for download and upload. Tap a bar to see its amount.
+- **Data Usage Periods**: 7 days, Today, and This month, then Mobile, All, and Wi-Fi. Step back and forward, or tap the date to jump to any day.
+- **App Pages**: Tap an app in Data usage to see its data, or in Screen usage to see its screen time today, daily average, opens, and the last 7 days. Tap the app's icon to open its App info.
+- **Status Colors**: Storage, RAM, and battery turn amber and then red as they fill or run low.
+- **App Stopper Grid**: Apps show as a grid of icons with 3 to 6 per row. Tap to stop, long-press for open, App info, store, and remove. Stopped and frozen apps are grayed out.
+- **Uninstalled Apps Stay Listed**: Apps you uninstall stay in App stopper under their real name, counted as uninstalled, with Reinstall and Remove, and are picked up again on reinstall.
+- **Widgets**: Glance and data usage widgets follow your light or dark theme and, on Android 12 and newer, your wallpaper colors and the launcher's corner shape. Glance is now a scrolling list instead of a swiped stack, with a green, amber, or red level bar on each row, and the data and screen time rows open their tools. Data widgets have large numbers that grow with the widget, resize in both directions, ripple on touch, and turn the refresh icon while they reload. The music disc shows sharp album art, picks the best artwork the player offers, and keeps its buttons on the edge of the disc.
+- **Freezing Moved**: Freezing apps now lives in App stopper (with Shizuku or root) instead of a separate tool. The Freeze tile still toggles every frozen app.
+- **Navigation Bar**: Rebuilt as a floating toolbar whose tab pill turns into a Back button with the page title, sized to the title, with no crash when going back.
+- **Choice Buttons**: Sets of five or more options wrap into even rows instead of being cut off.
+- **Lists**: App lists and tile lists are joined groups like the rest of the app.
+- **Tools Tab**: Power tools say what they need only while it is missing, and Power setup shows what is unlocked.
+- **Polish**: Clearer onboarding access rows, a full-width CPU graph from the first second, readable hour labels, one vibration per toggle, a dark theme navigation bar that reads correctly, Home keeping its place and its numbers when you come back from a page, full-width live sensor readings, a picked chart bar that stands out, sheets that keep their buttons above the keyboard, and license texts that read as paragraphs.
+
+---
+
+## [0.2.9] - 2026-09-28
+
+- **Live Home Rows**: Each device page row on Home shows a live fact, such as battery level and charging, RAM in use, Android version and patch, resolution and refresh rate, camera and sensor counts, and the active connection.
+- **Trend Lines**: The CPU and RAM tiles on Home draw a short line of recent readings.
+- **Edit Home**: Drag pinned items and pages into order, and switch pages on or off, from one sheet.
+- **Temperature Unit**: Show temperatures in Celsius, Fahrenheit, or Kelvin.
+- **Live Refresh**: Choose how often live numbers update: fast, normal, or a slower battery saver pace.
+- **Block Screenshots**: Hide Osyster from screenshots, screen recordings, and the recent apps preview.
+- **Data Usage History**: Step back to earlier days, weeks, and months, and search the app list.
+- **App Stopper Actions**: Open an app, go to its App info, view or reinstall it from the store, and see how many apps can run, are stopped, or are uninstalled.
+- **Widgets Page**: Every Osyster widget in one list, with an Add button that asks your launcher to place it.
+- **Glance Widget**: One widget for battery, memory, storage, data today, and screen time.
+- **Color Picker Tile**: Capture the screen once, after Android asks, and copy the hex code of any color under a magnifier.
+- **Two Panes**: On tablets and unfolded foldables, tabs stay on the left and pages open on the right.
+- **Backup**: Exports now include the temperature unit, refresh speed, screenshot blocking, and the Shut-Up! and Freeze lists. Older export files still import.
+- **Stay Awake**: While charging mode can be allowed in one tap when Shizuku or root is set up.
+- **Website**: A new design built around the tools Android leaves out, with live GitHub numbers, the latest version, and a direct APK link.
+
+---
+
+## [0.2.8] - 2026-09-27
+
+- **Website**: Rebuilt as plain HTML, CSS, and JavaScript with no outside requests except GitHub stats, covering device pages, tools, power tools, design, credits, and an FAQ.
+- **README**: Rewritten for the new app, with every feature, the power tools, and the privacy promise.
+- **Privacy Policy**: Lists every permission and special access, what each is used for, and what Osyster stores.
+- **Developer Guide**: Modules, startup, the power tools layer, the design system, rules, tests, and release steps.
+- **Tasks**: A backlog for the next versions, including what the old app had that the new design brings back.
+
+---
+
+## [0.2.7] - 2026-09-26
+
+- **Power Setup**: Unlock power tools with a one-time ADB command, Shizuku, or root. With Shizuku or root, Osyster grants itself settings access once, so settings tools keep working when neither is running.
+- **Power Saving**: Battery saver on or off, the level that turns it on by itself, and which limits it applies. Reset puts back your phone's defaults.
+- **Scale and Animations**: All animation speeds at once, font sizes past the Settings slider, and display size in five steps (Shizuku or root).
+- **Status Bar Icons**: Hide icons you never look at and show the battery percentage. One tap shows them all again.
+- **System Tweaks**: Developer options, USB and wireless debugging, window blur, tap to wake, pop-up notifications, touch indicators, and Private DNS with your own provider.
+- **Shut-Up!**: Open banking apps that refuse to run with developer options on. Debugging turns off first, and Restore in the notification puts back exactly what you had. Pin any of them to your home screen.
+- **Standby Apps**: See and change each app's standby bucket (Shizuku or root).
+- **App Freezing**: Freeze apps you rarely use and unfreeze them in one tap or all at once (Shizuku or root).
+- **New Tiles**: Private DNS, USB debugging, Developer options, Window blur, Tap to wake, Freeze, and Restart SystemUI (root).
+- **App Stopper**: With Shizuku or root, Stop works in one tap and Stop all appears.
+- **Fewer, Honest Tools**: Per-app volume and Night light per app are gone. Both needed hidden system interfaces or background app watching, which Osyster does not use.
+
+---
+
+## [0.2.6] - 2026-09-25
+
+- **Welcome**: First launch walks through what Osyster is, its privacy promises, and the optional access a few tools use. Every step can be skipped.
+- **What's New**: After an update, a short sheet lists the highlights once.
+- **Search**: Search from Home for any device page, tool, setting, or device fact, including values like your chip name or Android version.
+- **Music Widgets**: Disc and capsule music players for the home screen, with album art and play, pause, and skip controls.
+- **Flashlight Pulse**: Blink the flashlight for new notifications while the screen is off. Ongoing notifications are skipped and bursts blink only once. Notification text is never read.
+- **About**: Version, developer, source code, releases, issues, privacy, license, and device in one place.
+- **Open Source Licenses**: Credits for every library and font, with each full license text.
+- **Privacy Page**: What Osyster reads, what it never reads, and why it has no internet access.
+- **Backup**: Export your theme, Home layout, app stopper list, and tool options to a file, and import them on another phone.
+- **About This Page**: Long-press any device page or tool for a plain explanation of what it shows and what it needs.
+- **Launcher Shortcuts**: Long-press the Osyster icon to open Data usage, Stay awake, Flashlight, or Screen time directly.
+
+---
+
+## [0.2.5] - 2026-09-24
+
+- **Stay Awake**: Keep the screen on for 15 minutes, 30 minutes, 1 hour, 2 hours, or until you stop it, with a countdown notification and a Stop button. Works with Osyster closed.
+- **Stay Awake While Charging**: Turn Android's developer setting on or off from Osyster. Until it is allowed, the page shows the one-time ADB command to copy and a shortcut to Developer options.
+- **Flashlight**: A big on and off switch, plus a brightness slider and 25, 50, 75, and 100 percent presets on phones that support brightness levels (Android 13 and newer).
+- **Activity Launcher**: Browse any app's screens, open the ones Android allows, and add them to your home screen.
+- **Link Actions**: Set Osyster as your default browser and every link asks which app should open it, with copy and share. Try any link from the tool page.
+- **Quick Settings Tiles**: Stay awake (each tap adds time), Awake while charging, Flashlight at your last brightness, RAM in use, and Data today. On Android 13 and newer, add any of them with one tap from the Quick Settings tiles page.
+
+---
+
+## [0.2.4] - 2026-09-23
+
+- **Data Usage**: See data used today, over the last 7 days, or this month, split into mobile and Wi-Fi, downloaded and uploaded, with a daily chart and every app's usage. Tap an app to open its App info.
+- **Live Speed**: Data usage shows the current download and upload speed.
+- **Data Usage Widgets**: Today, This month, and Combined home-screen widgets with a refresh button. Tapping one opens Data usage in Osyster.
+- **Screen Usage**: Screen time for each of the last 7 days, an hourly chart, and every app's time and number of opens. Tap a day in the chart to look at it.
+- **App Stopper**: Keep a list of apps you often stop. Each shows whether Android has it stopped, and Stop takes you straight to its App info. Removed apps stay listed until you remove them.
+- **Usage Access**: Data and screen usage explain why they need Usage access, open the right settings page, and load as soon as you come back.
+- **Smoother Back Gesture**: Swiping back now moves the page with your finger instead of shrinking it into a card, and the bottom bar no longer collapses into a circle on the way back.
+
+---
+
+## [0.2.3] - 2026-09-22
+
+- **Display Page**: Resolution, screen size, aspect ratio, density, current and supported refresh rates, HDR formats and brightness, wide color gamut, cutout, and rounded corners.
+- **Screen Tester**: Full-screen colors for dead or stuck pixels, a gray ramp for banding, and a multi-touch drawing test, opened from the Display page.
+- **Cameras Page**: Every camera's megapixels, aperture, focal length, stabilization, flash, Camera2 support level, zoom range, ISO range, and capabilities. No camera is ever opened.
+- **Sensors Page**: Every sensor grouped into motion, position, environment, and other. Tap one to watch its live readings; it stops the moment you close the sheet.
+- **Network Page**: Connection type, internet check, metered and VPN state, live download and upload speed, local addresses, Wi-Fi band, link speed, signal, standard, and security, plus carrier, SIM state, network type, and roaming.
+- **Bluetooth Page**: Adapter state, Low Energy features, LE Audio, and Auracast support, with the lowest Bluetooth version those features prove.
+- **Media and DRM Page**: Widevine security level, version, and HDCP, ClearKey support, and every audio and video codec marked hardware or software.
+- **Certificates Page**: The system and user certificate authorities your phone trusts, with issuer and expiry.
+- **Search Long Pages**: Media, Certificates, and Sensors have a search field that filters rows as you type and opens folded results.
+- **Ask Only When Needed**: The Wi-Fi name needs location access and mobile details need phone access. Each is asked only from its own section, with a sentence on why.
+- **Share Device Report**: Share a plain-text summary of your phone from Home. It leaves out network addresses, the Wi-Fi name, and long lists.
+
+---
+
+## [0.2.2] - 2026-09-21
+
+- **Live Hero Card**: Home now shows CPU, RAM, storage, and battery live. When Android blocks overall CPU load, the card shows the fastest core's clock instead and says so.
+- **System Page**: Android version, API level, security patch, Google Play system update, the Android version the phone launched with, build details, kernel, baseband, bootloader, runtime, uptime, and deep sleep.
+- **Device Page**: Model, manufacturer, codename, device type, chip, board, supported ABIs, and the hardware features the phone declares, such as NFC, UWB, eSIM, IR blaster, and fingerprint.
+- **CPU and GPU Page**: Every cluster's clock range and governor, live clock speed for each core, GPU vendor, renderer, OpenGL ES and Vulkan versions, thermal status, thermal headroom, and CPU temperature where readable.
+- **Memory and Storage Page**: Live RAM and swap use, low-memory point, and every storage volume Android exposes.
+- **Battery Page**: Live level, charging state, power source, time to full, health, temperature, voltage, charge cycles on Android 14 and newer, current, and power, with a shortcut to Android's battery usage by app.
+- **Honest Values**: Anything Android does not report says why (restricted, not supported, or not reported) instead of showing zero.
+- **Copy Any Value**: Long-press a value to copy it.
+- **Arrange Home**: Long-press a page to pin it to the top, move it within its group, or hide it. Hidden pages can be brought back from the bottom of Home. Tools can be pinned to Home from the Tools tab.
+
+---
+
+## [0.2.1] - 2026-09-20
+
+- **Fresh Start**: Osyster is being rebuilt from the ground up with a calmer, more consistent design. This first build brings the new look and layout; device pages and tools return over the next updates.
+- **New Home**: A hero card with your phone's name, Android version, security patch, and chip, followed by every device page grouped into About this phone, Performance, Hardware, Connectivity, and Media and security.
+- **Tools Tab**: Usage, utilities, and power tools are listed in one place. Power tools say up front whether they need a one-time ADB grant, Shizuku, or root.
+- **Floating Toolbar**: Switch between Home, Tools, and Settings from a floating bar that turns into a Back button with the page title on detail pages.
+- **Appearance Settings**: Choose System, Light, or Dark theme, pure black for OLED screens, wallpaper colors or one of six presets, and turn haptic feedback or motion down.
+- **Credits and License**: Osyster is now open source under the GNU General Public License v3. Settings lists the projects it builds on.
+- **Android 8.0 or newer**: The minimum Android version is now 8.0 (Oreo).
 
 ---
 

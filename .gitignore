@@ -65,3 +65,6 @@ desktop.ini
 
 # Google Services
 google-services.json
+
+# Local agent tooling
+.claude/

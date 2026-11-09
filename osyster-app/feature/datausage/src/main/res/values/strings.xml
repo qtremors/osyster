@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="data_usage_access_message">Android keeps a record of how much data each app uses. Osyster reads it on your phone only; nothing leaves the device.</string>
+    <string name="data_period_today">Today</string>
+    <string name="data_period_week">7 days</string>
+    <string name="data_period_month">This month</string>
+    <string name="data_filter_all">All</string>
+    <string name="data_filter_mobile">Mobile</string>
+    <string name="data_filter_wifi">Wi-Fi</string>
+    <string name="data_total">Total</string>
+    <string name="data_downloaded">Downloaded</string>
+    <string name="data_uploaded">Uploaded</string>
+    <string name="data_live">Right now</string>
+    <string name="data_live_value">↓ %1$s · ↑ %2$s</string>
+    <string name="data_live_waiting">Measuring…</string>
+    <string name="data_by_day">By day</string>
+    <string name="data_chart_description">Data used per day. %1$s</string>
+    <string name="data_chart_day">%1$s: %2$s</string>
+    <string name="data_apps">By app</string>
+    <string name="data_app_split">Mobile %1$s · Wi-Fi %2$s</string>
+    <string name="data_show_all">Show all %1$d apps</string>
+    <string name="data_show_fewer">Show fewer</string>
+    <string name="data_no_apps">No app used data in this period.</string>
+    <string name="data_open_app_info">Open App info</string>
+
+    <string name="widget_day_name">Data today</string>
+    <string name="widget_month_name">Data this month</string>
+    <string name="widget_combined_name">Data usage</string>
+    <string name="widget_day_title">Today</string>
+    <string name="widget_month_title">This month</string>
+    <string name="widget_day_data_usage_desc">Mobile and Wi-Fi data used today</string>
+    <string name="widget_month_data_usage_desc">Mobile and Wi-Fi data used this month</string>
+    <string name="widget_combined_data_usage_desc">Today and this month, mobile and Wi-Fi</string>
+    <string name="widget_refresh_description">Refresh data usage</string>
+    <string name="widget_setup">Tap to set up</string>
+    <string name="widget_unknown">--</string>
+    <string name="network_mobile_label">Mobile</string>
+    <string name="network_wifi_label">Wi-Fi</string>
+    <string name="data_previous">Previous period</string>
+    <string name="data_next">Next period</string>
+    <string name="data_range">%1$s to %2$s</string>
+    <string name="data_search">Search apps</string>
+    <string name="data_ring_description">Downloaded %1$s, uploaded %2$s</string>
+    <string name="data_by_hour">By hour</string>
+    <string name="app_usage_title">App usage</string>
+    <string name="app_usage_data">Data</string>
+    <string name="app_usage_screen">Last 7 days</string>
+    <string name="app_usage_screen_week">%1$s this week · %2$d opens</string>
+    <string name="app_usage_screen_day">%1$s: %2$s · %3$d opens</string>
+    <string name="data_pick_go">Show</string>
+    <string name="data_pick_cancel">Cancel</string>
+    <string name="app_usage_screen_title">Screen time</string>
+    <string name="app_usage_today">Today</string>
+    <string name="app_usage_average">Daily average</string>
+    <string name="app_usage_opens">Opens</string>
+</resources>

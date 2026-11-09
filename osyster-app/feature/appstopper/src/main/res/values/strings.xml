@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stopper_how_message">Without Shizuku or root, Stop opens App info, where you tap Force stop. Set up power tools to stop apps in one tap.</string>
+    <string name="stopper_stop_all">Stop all</string>
+    <string name="stopper_open">Open app</string>
+    <string name="stopper_app_info">App info</string>
+    <string name="stopper_store">View in store</string>
+    <string name="stopper_reinstall">Reinstall from store</string>
+    <string name="stopper_add">Add apps</string>
+    <string name="stopper_empty_title">No apps yet</string>
+    <string name="stopper_empty_message">Add the apps you often want to stop, so they are one tap away.</string>
+    <string name="stopper_stop">Stop</string>
+    <string name="stopper_remove_from_list">Remove from list</string>
+    <string name="stopper_search">Search apps</string>
+    <string name="stopper_show_system">Show system apps</string>
+    <plurals name="stopper_add_count">
+        <item quantity="one">Add %d app</item>
+        <item quantity="other">Add %d apps</item>
+    </plurals>
+    <string name="stopper_how_privileged">Tap an app to stop it. Long-press for more, including freezing apps you rarely use.</string>
+    <string name="stopper_counts_frozen">%1$d running · %2$d stopped · %3$d frozen</string>
+    <string name="stopper_columns">Grid size</string>
+    <string name="stopper_columns_count">%1$d per row</string>
+    <string name="stopper_label_running">Running</string>
+    <string name="stopper_label_stopped">Stopped</string>
+    <string name="stopper_label_frozen">Frozen</string>
+    <string name="stopper_label_uninstalled">Uninstalled</string>
+    <string name="stopper_freeze">Freeze</string>
+    <string name="stopper_freeze_summary">Disable it until you unfreeze it; its data stays</string>
+    <string name="stopper_unfreeze">Unfreeze</string>
+    <string name="stopper_unfreeze_summary">Make it usable again</string>
+    <string name="stopper_freeze_needs">Freezing and one-tap stopping need Shizuku or root. Set them up in Power setup.</string>
+    <string name="stopper_how_title">How stopping works</string>
+    <string name="stopper_counts_uninstalled"> · %1$d uninstalled</string>
+    <string name="stopper_uninstalled_notice">This app is uninstalled. It stays on your list, and Osyster picks it up again when you reinstall it.</string>
+</resources>

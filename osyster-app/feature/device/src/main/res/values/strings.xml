@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="device_unknown_title">Page not found</string>
+    <string name="device_unknown_message">This page was removed or renamed. Go back and pick it again from Home.</string>
+    <string name="battery_usage_section">App usage</string>
+    <string name="battery_usage_title">Battery usage by app</string>
+    <string name="battery_usage_summary">Opens Android\'s own battery usage screen</string>
+
+    <string name="screen_tester_section">Test your screen</string>
+    <string name="screen_tester_title">Screen tester</string>
+    <string name="screen_tester_summary">Solid colors for dead pixels, a gray ramp for banding, and a touch test</string>
+    <string name="tester_hint_tap">Tap for the next test · Back to exit</string>
+    <string name="tester_hint_touch">Draw with one or more fingers</string>
+    <plurals name="tester_fingers">
+        <item quantity="one">%1$d finger</item>
+        <item quantity="other">%1$d fingers</item>
+    </plurals>
+    <string name="tester_next">Next test</string>
+
+    <string name="search_page_placeholder">Search this page</string>
+    <string name="search_no_matches_title">No matches</string>
+    <string name="search_no_matches_message">Nothing on this page matches \"%1$s\".</string>
+
+    <string name="permission_denied">Access was not granted</string>
+    <string name="permission_open_settings">Settings</string>
+
+    <string name="sensor_live_title">Live readings</string>
+    <string name="sensor_waiting">Waiting for the sensor. Some sensors only report when something changes.</string>
+    <string name="sensor_accuracy">Accuracy: %1$s</string>
+    <string name="sensor_accuracy_unreliable">unreliable</string>
+    <string name="sensor_accuracy_low">low</string>
+    <string name="sensor_accuracy_medium">medium</string>
+    <string name="sensor_accuracy_high">high</string>
+    <string name="sensor_accuracy_unknown">not reported</string>
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <service
+            android:name=".StayAwakeTimerTile"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_stay_awake"
+            android:label="@string/tile_stay_awake_timer"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".StayAwakeChargingTile"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_charging"
+            android:label="@string/tile_stay_awake_charging"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

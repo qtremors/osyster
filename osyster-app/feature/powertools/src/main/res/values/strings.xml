@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared -->
+    <string name="power_cancel">Cancel</string>
+    <string name="power_done">Done (%1$d)</string>
+    <string name="power_granted">Allowed</string>
+    <string name="power_percent">%1$d%%</string>
+    <string name="power_search_apps">Search apps</string>
+    <string name="power_gate_title">Needs settings access</string>
+    <string name="power_gate_message">This tool changes system settings. Allow it once with ADB, or let Shizuku or root allow it for you.</string>
+    <string name="power_gate_shell_title">Needs Shizuku or root</string>
+    <string name="power_gate_shell_message">This tool runs system commands, which only Shizuku or root can do. The one-time ADB grant is not enough here.</string>
+    <string name="power_gate_action">Set up power tools</string>
+
+    <string name="power_message_no_access">Not allowed yet. Set up power tools first.</string>
+    <string name="power_message_needs_shell">Needs Shizuku or root</string>
+    <string name="power_message_failed">The system refused that change</string>
+    <string name="power_message_granted">Settings access allowed. It stays after a restart.</string>
+    <string name="power_message_root_on">Root is on</string>
+    <string name="power_message_root_failed">Root was not granted</string>
+    <string name="power_message_restored">Debugging restored</string>
+    <string name="power_message_nothing_to_restore">Nothing to restore</string>
+    <string name="power_message_launch_failed">That app could not be opened</string>
+    <string name="power_message_invalid_host">Enter a provider name like dns.example.com</string>
+    <string name="power_message_pinned">Check your home screen</string>
+    <string name="power_message_pin_unsupported">Your launcher does not support pinned shortcuts</string>
+
+    <!-- Power setup -->
+    <string name="power_setup_title">Power setup</string>
+    <string name="power_setup_intro">Power tools change settings Android keeps for itself. Pick one way to allow them. Nothing here is required, and every tool says what it needs.</string>
+    <string name="power_setup_status">Status</string>
+    <string name="power_setup_settings_access">Settings access</string>
+    <string name="power_setup_settings_granted">Allowed. Settings tools work without Shizuku or root.</string>
+    <string name="power_setup_settings_missing">Not allowed yet</string>
+    <string name="power_setup_shell">System commands</string>
+    <string name="power_setup_shell_shizuku">Through Shizuku</string>
+    <string name="power_setup_shell_root">Through root</string>
+    <string name="power_setup_shell_none">Not available. Freeze and Standby apps need Shizuku or root.</string>
+    <string name="power_setup_shizuku">Shizuku</string>
+    <string name="power_setup_shizuku_title">Shizuku</string>
+    <string name="power_setup_shizuku_not_running">Not running. Tap for the setup guide; Shizuku starts with wireless debugging, no computer needed on Android 11 and newer.</string>
+    <string name="power_setup_shizuku_old">This Shizuku is too old. Update it to version 11 or newer.</string>
+    <string name="power_setup_shizuku_allow">Running. Tap to allow Osyster.</string>
+    <string name="power_setup_shizuku_ready">Connected</string>
+    <string name="power_setup_root">Root</string>
+    <string name="power_setup_root_title">Use root</string>
+    <string name="power_setup_root_summary">Your root manager asks once. Osyster runs each command on its own and keeps no root shell open.</string>
+    <string name="power_setup_grant">One-time ADB grant</string>
+    <string name="power_setup_grant_now">Allow settings access now</string>
+    <string name="power_setup_grant_now_summary">Uses Shizuku or root once. Afterwards settings tools work even when neither is running.</string>
+    <string name="power_setup_adb">Or use a computer</string>
+    <string name="power_setup_adb_summary">Turn on USB debugging, connect your phone, and run this command once:</string>
+    <string name="power_setup_copy">Tap to copy</string>
+    <string name="power_setup_footer">To take access back, clear Osyster\'s storage or reinstall it. Osyster never asks for internet access, so nothing here leaves your phone.</string>
+
+    <!-- Power saving -->
+    <string name="power_saving_title">Power saving</string>
+    <string name="power_saving_on">Battery saver</string>
+    <string name="power_saving_on_summary">The same switch as in Settings and Quick Settings</string>
+    <string name="power_saving_trigger">Turn on automatically at</string>
+    <string name="power_saving_trigger_summary">Battery level that switches battery saver on by itself</string>
+    <string name="power_saving_trigger_never">Never</string>
+    <string name="power_saving_reset">Reset to phone defaults</string>
+    <string name="saver_group_display">While battery saver is on: display</string>
+    <string name="saver_group_performance">Performance</string>
+    <string name="saver_group_network">Network and backup</string>
+    <string name="saver_group_sound">Sound and sensors</string>
+    <string name="saver_disable_animation">Turn off animations</string>
+    <string name="saver_disable_animation_summary">Screens switch instantly</string>
+    <string name="saver_disable_aod">Turn off always-on display</string>
+    <string name="saver_disable_aod_summary">The screen stays dark when locked</string>
+    <string name="saver_night_mode">Dark theme</string>
+    <string name="saver_night_mode_summary">Switch to dark theme to save power on OLED screens</string>
+    <string name="saver_launch_boost">Limit launch boost</string>
+    <string name="saver_launch_boost_summary">Apps open a little slower</string>
+    <string name="saver_quick_doze">Quick doze</string>
+    <string name="saver_quick_doze_summary">Sleep soon after the screen turns off</string>
+    <string name="saver_all_standby">Restrict all apps in the background</string>
+    <string name="saver_all_standby_summary">Background apps wait until you open them</string>
+    <string name="saver_background_check">Stricter background checks</string>
+    <string name="saver_background_check_summary">Stops apps that keep running in the background</string>
+    <string name="saver_data_saver">Data saver</string>
+    <string name="saver_data_saver_summary">Background apps cannot use mobile data</string>
+    <string name="saver_firewall">Block background network</string>
+    <string name="saver_firewall_summary">Apps not in use cannot reach the network</string>
+    <string name="saver_full_backup">Delay full backups</string>
+    <string name="saver_full_backup_summary">Backups wait until battery saver turns off</string>
+    <string name="saver_keyvalue_backup">Delay app data backups</string>
+    <string name="saver_keyvalue_backup_summary">Small app backups wait too</string>
+    <string name="saver_vibration">Turn off vibration</string>
+    <string name="saver_vibration_summary">Touch and notification vibrations stop</string>
+    <string name="saver_sensors">Turn off optional sensors</string>
+    <string name="saver_sensors_summary">Sensors apps do not strictly need are paused</string>
+
+    <!-- Scale and animations -->
+    <string name="display_scale_title">Scale and animations</string>
+    <string name="display_scale_motion">Motion</string>
+    <string name="display_scale_animation">Animation speed</string>
+    <string name="display_scale_animation_summary">Window, transition, and animator scales together. Lower is faster.</string>
+    <string name="display_scale_off">Off</string>
+    <string name="display_scale_times">%1$s×</string>
+    <string name="display_scale_text">Text</string>
+    <string name="display_scale_font">Font size</string>
+    <string name="display_scale_font_summary">Includes steps the Settings slider does not offer</string>
+    <string name="display_scale_size">Display size</string>
+    <string name="display_scale_density">Display size</string>
+    <string name="display_scale_density_summary">Now %1$d dpi, phone default %2$d dpi</string>
+    <string name="display_scale_density_loading">Reading the current size</string>
+    <string name="display_scale_density_needs_shell">Needs Shizuku or root</string>
+    <string name="display_scale_density_smallest">Smallest</string>
+    <string name="display_scale_density_small">Small</string>
+    <string name="display_scale_density_default">Default</string>
+    <string name="display_scale_density_large">Large</string>
+    <string name="display_scale_density_largest">Largest</string>
+    <string name="display_scale_density_reset">Reset display size</string>
+
+    <!-- Status bar icons -->
+    <string name="status_icons_title">Status bar icons</string>
+    <string name="status_icons_battery_percent">Battery percentage</string>
+    <string name="status_icons_battery_percent_summary">Show the number next to the battery icon</string>
+    <string name="status_icons_shown">Shown icons</string>
+    <string name="status_icons_show_all">Show all icons</string>
+    <string name="status_icon_alarm">Alarm</string>
+    <string name="status_icon_bluetooth">Bluetooth</string>
+    <string name="status_icon_cast">Cast</string>
+    <string name="status_icon_hotspot">Hotspot</string>
+    <string name="status_icon_vpn">VPN</string>
+    <string name="status_icon_headset">Headset</string>
+    <string name="status_icon_rotate">Rotation lock</string>
+    <string name="status_icon_data_saver">Data saver</string>
+    <string name="status_icon_airplane">Airplane mode</string>
+    <string name="status_icon_mobile">Mobile signal</string>
+    <string name="status_icon_wifi">Wi-Fi</string>
+    <string name="status_icon_ethernet">Ethernet</string>
+    <string name="status_icon_zen">Do Not Disturb</string>
+    <string name="status_icon_volume">Vibrate and silent</string>
+    <string name="status_icon_nfc">NFC</string>
+    <string name="status_icon_location">Location</string>
+    <string name="status_icon_clock">Clock</string>
+
+    <!-- System tweaks -->
+    <string name="tweaks_title">System tweaks</string>
+    <string name="tweaks_group_debugging">Debugging</string>
+    <string name="tweaks_group_display">Display</string>
+    <string name="tweaks_group_input">Notifications and touch</string>
+    <string name="tweaks_group_network">Network</string>
+    <string name="tweak_developer_options">Developer options</string>
+    <string name="tweak_developer_options_summary">Shows or hides Developer options in Settings</string>
+    <string name="tweak_usb_debugging">USB debugging</string>
+    <string name="tweak_usb_debugging_summary">Lets a connected computer use ADB</string>
+    <string name="tweak_wireless_debugging">Wireless debugging</string>
+    <string name="tweak_wireless_debugging_summary">ADB over Wi-Fi, which Shizuku uses to start</string>
+    <string name="tweak_blur">Window blur</string>
+    <string name="tweak_blur_summary">Blurred backgrounds behind panels and dialogs</string>
+    <string name="tweak_tap_to_wake">Tap to check phone</string>
+    <string name="tweak_tap_to_wake_summary">Tap the screen to show the lock screen</string>
+    <string name="tweak_double_tap_to_wake">Double-tap to wake</string>
+    <string name="tweak_double_tap_to_wake_summary">Only on phones that support it</string>
+    <string name="tweak_heads_up">Pop-up notifications</string>
+    <string name="tweak_heads_up_summary">Notifications slide down over what you are doing</string>
+    <string name="tweak_show_touches">Show taps</string>
+    <string name="tweak_show_touches_summary">A dot follows each touch, useful for screen recordings</string>
+    <string name="tweak_pointer_location">Pointer location</string>
+    <string name="tweak_pointer_location_summary">Touch coordinates drawn across the top of the screen</string>
+    <string name="tweaks_private_dns">Private DNS</string>
+    <string name="tweaks_private_dns_summary">Encrypts the lookups that turn site names into addresses</string>
+    <string name="tweaks_dns_off">Off</string>
+    <string name="tweaks_dns_automatic">Automatic</string>
+    <string name="tweaks_dns_provider">Provider</string>
+    <string name="tweaks_private_dns_host">Provider hostname</string>
+    <string name="tweaks_private_dns_example">dns.example.com</string>
+    <string name="tweaks_private_dns_save">Save and use</string>
+
+    <!-- Shut-Up! -->
+    <string name="shut_up_title">Shut-Up!</string>
+    <string name="shut_up_intro">Some banking and payment apps refuse to open while developer options or USB debugging are on. Open them from here and Osyster turns debugging off first, then puts it back when you tap Restore.</string>
+    <string name="shut_up_apps">Apps</string>
+    <string name="shut_up_add">Add apps</string>
+    <string name="shut_up_pick">Apps to open quietly</string>
+    <string name="shut_up_empty_title">No apps yet</string>
+    <string name="shut_up_empty_message">Add the apps that complain about developer options.</string>
+    <string name="shut_up_row_summary">Tap to open quietly. Long-press for more.</string>
+    <string name="shut_up_pin">Add to home screen</string>
+    <string name="shut_up_remove">Remove</string>
+    <string name="shut_up_hidden_title">Debugging is hidden</string>
+    <string name="shut_up_hidden_message">Developer options and debugging are off until you restore them.</string>
+    <string name="shut_up_restore">Restore</string>
+    <string name="shut_up_channel">Power tools</string>
+    <string name="shut_up_notification_title">Debugging is hidden</string>
+    <string name="shut_up_notification_text">Tap Restore when you are done.</string>
+
+    <!-- Standby apps -->
+    <string name="standby_title">Standby apps</string>
+    <string name="standby_intro">Android sorts apps into standby buckets by how often you use them. Lower buckets run less in the background, which saves battery but can delay their notifications.</string>
+    <string name="standby_pick">How often may this app run in the background?</string>
+    <string name="standby_reset_note">Android moves apps between buckets on its own as you use them, so a change may not last.</string>
+    <string name="standby_exempted">Exempt</string>
+    <string name="standby_exempted_summary">System apps Android never limits</string>
+    <string name="standby_active">Active</string>
+    <string name="standby_active_short">Active</string>
+    <string name="standby_active_summary">In use now or just used</string>
+    <string name="standby_working_set">Working set</string>
+    <string name="standby_working_set_short">Daily</string>
+    <string name="standby_working_set_summary">Used most days</string>
+    <string name="standby_frequent">Frequent</string>
+    <string name="standby_frequent_short">Frequent</string>
+    <string name="standby_frequent_summary">Used regularly, not daily</string>
+    <string name="standby_rare">Rare</string>
+    <string name="standby_rare_short">Rare</string>
+    <string name="standby_rare_summary">Seldom used; jobs and alarms are delayed</string>
+    <string name="standby_restricted">Restricted</string>
+    <string name="standby_restricted_short">Restricted</string>
+    <string name="standby_restricted_summary">Runs at most once a day in the background</string>
+    <string name="standby_never">Never used</string>
+    <string name="standby_never_summary">Installed but never opened</string>
+
+    <!-- Freeze -->
+    <string name="freeze_frozen">Frozen</string>
+
+    <!-- Tiles -->
+    <string name="tile_private_dns">Private DNS</string>
+    <string name="tile_usb_debugging">USB debugging</string>
+    <string name="tile_developer_options">Developer options</string>
+    <string name="tile_blur">Window blur</string>
+    <string name="tile_tap_to_wake">Tap to wake</string>
+    <string name="tile_restart_systemui">Restart SystemUI</string>
+    <string name="tile_freeze">Freeze</string>
+    <string name="tile_on">On</string>
+    <string name="tile_off">Off</string>
+    <string name="tile_set_up">Tap to set up</string>
+    <string name="tile_tap_to_restart">Tap to restart</string>
+    <string name="tile_freeze_empty">No apps chosen</string>
+    <string name="tile_freeze_count">%1$d apps</string>
+</resources>

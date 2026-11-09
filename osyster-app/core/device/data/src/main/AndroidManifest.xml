@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Network page: connection type, addresses, Wi-Fi link details. Normal permissions. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- Optional, asked on the Network page only: Android hides the Wi-Fi network name without it. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Optional, asked on the Network page only: mobile network type and SIM details. -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!-- Bluetooth page: adapter state and LE features. Android 11 and older only. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
+    <uses-feature android:name="android.hardware.bluetooth" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+
+    <!-- Read the Google Play system update version shown on the System page. -->
+    <queries>
+        <package android:name="com.google.android.modulemetadata" />
+    </queries>
+</manifest>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="link_chooser_label">Choose app (Osyster)</string>
+    <string name="link_open_with">Open with</string>
+    <string name="link_no_apps">No app can open this link.</string>
+    <string name="link_copy">Copy link</string>
+    <string name="link_share">Share link</string>
+    <string name="link_status_on">Osyster asks for every link</string>
+    <string name="link_status_on_detail">Tapping a web link shows the app chooser.</string>
+    <string name="link_status_off">Links open normally</string>
+    <string name="link_status_off_detail">Set Osyster as your default browser to choose the app for every link.</string>
+    <string name="link_default_apps">Default apps</string>
+    <string name="link_default_apps_detail">Open Android\'s default apps settings</string>
+    <string name="link_try">Try a link</string>
+    <string name="link_try_placeholder">Paste a link</string>
+    <string name="link_try_button">Show apps for this link</string>
+</resources>

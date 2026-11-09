@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stay_awake_channel">Stay awake</string>
+    <string name="stay_awake_channel_description">Shown while Osyster keeps the screen on</string>
+    <string name="stay_awake_notification_title">Screen stays on</string>
+    <string name="stay_awake_counting_down">Turns off when the timer ends</string>
+    <string name="stay_awake_until_stopped">Until you stop it</string>
+    <string name="stay_awake_stop">Stop</string>
+</resources>
