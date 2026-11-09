@@ -31,6 +31,43 @@
         </receiver>
 
         <receiver
+            android:name=".MusicGridWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_music_grid_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_music_grid_info" />
+        </receiver>
+
+        <receiver
+            android:name=".MusicTilesWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_music_tiles_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_music_tiles_info" />
+        </receiver>
+
+        <!-- Opens when a music grid or music tiles widget is placed, and from its widget settings. -->
+        <activity
+            android:name=".MusicTileSetupActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/music_setup_title"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Osyster.MusicSetup">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <receiver
             android:name=".Music5x1WidgetReceiver"
             android:exported="true"
             android:label="@string/widget_music_5x1_name">

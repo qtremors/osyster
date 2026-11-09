@@ -62,7 +62,7 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 - **Bluetooth remote:** control an Android TV, computer, or tablet with nothing to install on it: a remote with D-pad or swipe pad, volume, channels, media, and color keys; a touchpad and air mouse; a keyboard with shortcuts and F-keys; a gamepad; and computer actions like lock, sleep, and restart. The layout follows the device, and a home-screen widget has the media keys. Android 9 and newer.
 - **Activity launcher:** open and pin any app's exported screens.
 - **Link actions:** choose which app opens each link, copy or share links.
-- **Widgets:** a glance list of battery, memory, storage, data, and screen time, 3x3 disc and 5x1 capsule music players, and data usage widgets, all added from one page.
+- **Widgets:** a glance list of battery, memory, storage, data, and screen time, 3x3 disc, 3x3 grid, 3x2 tiles, and 5x1 capsule music players, and data usage widgets, all added from one page.
 - **Quick Settings tiles:** Stay awake, Awake while charging, Flashlight, RAM, Data today, Color picker, Private DNS, USB debugging, Developer options, Window blur, Tap to wake, Freeze, and Restart SystemUI.
 - **Launcher shortcuts:** long-press the icon for Data usage, Stay awake, Flashlight, or Screen time.
 

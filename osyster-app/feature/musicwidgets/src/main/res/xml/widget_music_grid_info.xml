@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="180dp"
+    android:minHeight="180dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="3"
+    android:minResizeWidth="150dp"
+    android:minResizeHeight="150dp"
+    android:maxResizeWidth="520dp"
+    android:maxResizeHeight="520dp"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:configure="dev.qtremors.osyster.feature.musicwidgets.MusicTileSetupActivity"
+    android:widgetFeatures="reconfigurable"
+    android:initialLayout="@layout/widget_music_grid_top_left"
+    android:previewLayout="@layout/widget_music_grid_top_left"
+    android:description="@string/widget_music_grid_desc"
+    android:widgetCategory="home_screen" />

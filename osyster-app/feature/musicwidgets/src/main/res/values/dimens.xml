@@ -2,4 +2,6 @@
 <resources>
     <!-- Both disc buttons share one size, so they sit mirrored on opposite corners of the disc. -->
     <dimen name="widget_music_corner_button">56dp</dimen>
+    <!-- Music tiles: each button and the art is its own rounded tile. -->
+    <dimen name="widget_music_tile_radius">20dp</dimen>
 </resources>

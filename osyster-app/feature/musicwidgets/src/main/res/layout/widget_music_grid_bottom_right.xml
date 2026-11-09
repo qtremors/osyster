@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Music grid, 3x3. Play controls at the bottom, shuffle and repeat on the right. Every part is its own tile: the art is 2x2, each button 1x1. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/music_tile_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="3dp"
+    android:theme="@style/Theme.Osyster.AppWidget">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/music_tile_art"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="3dp"
+                android:layout_weight="2"
+                android:contentDescription="@string/widget_music_art_desc"
+                android:scaleType="fitCenter" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/music_tile_side1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/widget_music_tile"
+                    android:contentDescription="@string/widget_music_shuffle_desc"
+                    android:padding="14dp"
+                    android:scaleType="centerInside" />
+
+                <ImageView
+                    android:id="@+id/music_tile_side2"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/widget_music_tile"
+                    android:contentDescription="@string/widget_music_repeat_desc"
+                    android:padding="14dp"
+                    android:scaleType="centerInside" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/music_tile_prev"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/widget_music_tile"
+                android:contentDescription="@string/widget_music_prev_desc"
+                android:padding="14dp"
+                android:scaleType="centerInside" />
+
+            <ImageView
+                android:id="@+id/music_tile_play"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/widget_music_tile"
+                android:contentDescription="@string/widget_music_play_desc"
+                android:padding="14dp"
+                android:scaleType="centerInside" />
+
+            <ImageView
+                android:id="@+id/music_tile_next"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/widget_music_tile"
+                android:contentDescription="@string/widget_music_next_desc"
+                android:padding="14dp"
+                android:scaleType="centerInside" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

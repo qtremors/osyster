@@ -18,7 +18,9 @@ import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.DataUsage
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.MusicNote
+import androidx.compose.material.icons.rounded.ViewModule
 import androidx.compose.material.icons.rounded.SettingsRemote
 import androidx.compose.material.icons.rounded.ViewCarousel
 import androidx.compose.material3.FilledTonalButton
@@ -47,6 +49,8 @@ private data class WidgetEntry(val className: String, @param:StringRes val title
 private val widgets = listOf(
     WidgetEntry("dev.qtremors.osyster.feature.quicktiles.GlanceStackWidget", R.string.widgets_glance, R.string.widgets_glance_summary, Icons.Rounded.ViewCarousel),
     WidgetEntry("dev.qtremors.osyster.feature.musicwidgets.Music3x3WidgetReceiver", R.string.widgets_music_disc, R.string.widgets_music_disc_summary, Icons.Rounded.Album),
+    WidgetEntry("dev.qtremors.osyster.feature.musicwidgets.MusicGridWidgetReceiver", R.string.widgets_music_grid, R.string.widgets_music_grid_summary, Icons.Rounded.GridView),
+    WidgetEntry("dev.qtremors.osyster.feature.musicwidgets.MusicTilesWidgetReceiver", R.string.widgets_music_tiles, R.string.widgets_music_tiles_summary, Icons.Rounded.ViewModule),
     WidgetEntry("dev.qtremors.osyster.feature.musicwidgets.Music5x1WidgetReceiver", R.string.widgets_music_capsule, R.string.widgets_music_capsule_summary, Icons.Rounded.MusicNote),
     WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.DayDataUsageWidget", R.string.widgets_data_today, R.string.widgets_data_today_summary, Icons.Rounded.DataUsage),
     WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.CombinedDataUsageWidget", R.string.widgets_data_combined, R.string.widgets_data_combined_summary, Icons.Rounded.DataUsage),

@@ -1,12 +1,18 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.3.3
-> **Last Updated:** 2026-10-02
+> **Version:** 0.3.4
+> **Last Updated:** 2026-11-09
 
 ---
 
-## [0.3.3] - 2026-10-02
+## [0.3.4] - 2026-11-09
+
+- **Music Grid Widget**: A 3x3 music widget where the album art (2x2) and every button (1x1) are separate tiles: previous, play, and next in a row, shuffle and repeat in a column. Pick on placing it whether the play controls go above or below the art, which side shuffle and repeat go, and whether play or pause sits in the corner tile next to them; change it later from the widget's settings.
+- **Music Tiles Widget**: A 3x2 version with the art and two buttons beside it, either shuffle and repeat or play and repeat, on either side.
+- **Square Album Art**: Both new widgets show the art as a sharp square with rounded corners. Play and the modes that are on take their color from the art, adjusted until it reads clearly on the tile, and a mode the player cannot change stays in place, dimmed, so the tiles never shift.
+
+## [0.3.3] - 2026-11-09
 
 - **Remote Modes**: Remote, Touchpad, Keyboard, and Gamepad on every layout. Computers open on the touchpad, everything else on the remote, and each device opens on the mode it was last left on.
 - **Touchpad**: Move with one finger and tap to click, two fingers to scroll or right-click, three to middle-click, and a strip for one-finger scrolling. Hold Left, Middle, or Right to drag. Slow moves add up instead of getting lost. Pointer speed, scroll speed, and reverse scrolling in the settings.
@@ -19,7 +25,7 @@
 - **Remote Widget**: Previous, volume, play or pause, and next on the home screen for the connected device; with nothing connected it opens the remote.
 - **Pair Again for New Keys**: The power, sleep, and gamepad keys are new parts of the Bluetooth keyboard, so a TV or computer paired before needs pairing once more before they work.
 
-## [0.3.2] - 2026-10-01
+## [0.3.2] - 2026-11-09
 
 - **Bluetooth Remote**: A new tool that turns the phone into a Bluetooth remote for an Android TV, a computer, or a tablet, with nothing to install on it. D-pad with a cookie-shaped OK or a swipe pad, Home, Back, Menu, and Power, volume and mute, channel up, down, and a number pad, media keys, and the color keys. Hold a key to repeat it. Needs Android 9 or newer and Nearby devices.
 - **Remote Layouts**: The remote matches the connected device. TVs get the full TV remote; computers get keyboard arrows, Enter, Esc, and the Windows key, without power, channels, or color keys; phones and tablets get Android's keys. Tap the connected chip, or long-press a paired device, to pick another layout; the choice is saved for that device.
@@ -28,7 +34,7 @@
 - **Expressive Menus**: Every long-press and overflow menu is now the Material 3 Expressive menu: rounded groups of related actions, a check on the chosen option, and red for removing.
 - **Expressive Buttons**: Every button and icon button changes shape when pressed, the top bar uses the new large flexible style, and loading on Home uses the shape-morphing indicator.
 
-## [0.3.1] - 2026-09-30
+## [0.3.1] - 2026-11-09
 
 - **Data Usage Widget Loads Again**: The Data usage widget (today and this month) showed "Can't load widget". Its divider used a view type home screen widgets don't allow.
 - **Data Widget Setup**: Placing a data widget opens a setup screen with a live preview. Pick Today, 7 days, or This month, and show mobile and Wi-Fi or download and upload. On Android 12 and newer, open it again from the widget's settings. This one widget replaces the separate Data today and Data this month widgets.
