@@ -54,6 +54,8 @@ import dev.qtremors.osyster.core.ui.components.TabItem
 import dev.qtremors.osyster.core.ui.theme.LocalReduceMotion
 import androidx.compose.runtime.LaunchedEffect
 import dev.qtremors.osyster.feature.activitylauncher.registerActivityLauncherRoute
+import dev.qtremors.osyster.feature.btremote.BtRemoteDestination
+import dev.qtremors.osyster.feature.btremote.registerBtRemoteRoute
 import dev.qtremors.osyster.feature.flashlight.FlashlightDestination
 import dev.qtremors.osyster.feature.flashlight.registerFlashlightRoute
 import dev.qtremors.osyster.feature.linkactions.LinkActionsDestination
@@ -263,6 +265,11 @@ private fun NavGraphBuilder.osysterGraph(
     registerFlashlightRoute { target ->
         when (target) {
             FlashlightDestination.NotificationAccess -> system.openNotificationAccess()
+        }
+    }
+    registerBtRemoteRoute { target ->
+        when (target) {
+            is BtRemoteDestination.AppSettings -> system.openAppInfo(target.packageName)
         }
     }
     registerActivityLauncherRoute()

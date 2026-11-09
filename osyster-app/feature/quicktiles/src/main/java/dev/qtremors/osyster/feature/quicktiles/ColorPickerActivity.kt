@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.quicktiles
 
+import androidx.compose.material3.ButtonDefaults
 import android.content.ClipData
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -148,10 +149,10 @@ private fun PickerScreen(image: ImageBitmap, pixels: android.graphics.Bitmap, on
             ) {
                 Box(Modifier.size(32.dp).background(Color(argb), CircleShape).border(1.dp, MaterialTheme.colorScheme.outline, CircleShape))
                 Text(hex, style = MaterialTheme.typography.titleMedium)
-                Button(onClick = { scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("color", hex))) } }) {
+                Button(shapes = ButtonDefaults.shapes(), onClick = { scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("color", hex))) } }) {
                     Text(stringResource(R.string.color_copy))
                 }
-                TextButton(onClick = onDone) { Text(stringResource(R.string.color_done)) }
+                TextButton(shapes = ButtonDefaults.shapes(), onClick = onDone) { Text(stringResource(R.string.color_done)) }
             }
         }
     }

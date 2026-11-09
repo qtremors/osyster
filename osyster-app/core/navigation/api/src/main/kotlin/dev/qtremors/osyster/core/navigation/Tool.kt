@@ -11,6 +11,7 @@ enum class Tool(val id: String, val group: ToolGroup, val access: ToolAccess = T
 
     STAY_AWAKE("stay_awake", ToolGroup.UTILITIES),
     FLASHLIGHT("flashlight", ToolGroup.UTILITIES),
+    BT_REMOTE("bt_remote", ToolGroup.UTILITIES),
     ACTIVITY_LAUNCHER("activity_launcher", ToolGroup.UTILITIES),
     LINK_ACTIONS("link_actions", ToolGroup.UTILITIES),
     WIDGETS("widgets", ToolGroup.UTILITIES),

@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.powertools
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -90,7 +91,7 @@ internal fun AccessCard(status: PrivilegeStatus, needsShell: Boolean, onSetup: (
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onTertiaryContainer
             )
-            Button(onClick = onSetup) { Text(stringResource(R.string.power_gate_action)) }
+            Button(shapes = ButtonDefaults.shapes(), onClick = onSetup) { Text(stringResource(R.string.power_gate_action)) }
         }
     }
 }
@@ -151,8 +152,8 @@ internal fun AppPickerSheet(
                 }
             }
             Row(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.power_cancel)) }
-                Button(onClick = { onDone(chosen) }) { Text(stringResource(R.string.power_done, chosen.size)) }
+                TextButton(shapes = ButtonDefaults.shapes(), onClick = onDismiss) { Text(stringResource(R.string.power_cancel)) }
+                Button(shapes = ButtonDefaults.shapes(), onClick = { onDone(chosen) }) { Text(stringResource(R.string.power_done, chosen.size)) }
             }
         }
     }

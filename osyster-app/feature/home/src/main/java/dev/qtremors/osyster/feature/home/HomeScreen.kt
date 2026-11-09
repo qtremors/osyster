@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.home
 
+import androidx.compose.material3.IconButtonDefaults
 import dev.qtremors.osyster.core.ui.components.FilterTop
 import dev.qtremors.osyster.feature.home.search.FactHit
 import dev.qtremors.osyster.feature.home.search.SearchResults
@@ -16,7 +17,7 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Visibility
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -79,12 +80,12 @@ internal fun HomeScreen(state: HomeState, sharing: Boolean, search: HomeSearch, 
             onOpenChange = { searching = it }
         ),
         actions = {
-            IconButton(onClick = { editing = true }, enabled = state.layout != null) {
+            IconButton(shapes = IconButtonDefaults.shapes(), onClick = { editing = true }, enabled = state.layout != null) {
                 Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.home_edit_title))
             }
-            IconButton(onClick = actions.onShareReport, enabled = !sharing) {
+            IconButton(shapes = IconButtonDefaults.shapes(), onClick = actions.onShareReport, enabled = !sharing) {
                 if (sharing) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    LoadingIndicator(modifier = Modifier.size(28.dp))
                 } else {
                     Icon(Icons.Rounded.Share, contentDescription = stringResource(R.string.home_share_report))
                 }

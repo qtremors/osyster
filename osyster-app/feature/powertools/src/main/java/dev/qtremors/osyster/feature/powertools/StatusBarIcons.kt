@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.powertools
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHost
@@ -88,7 +89,7 @@ internal fun StatusBarIconsRoute(onNavigate: (PowerToolsDestination) -> Unit) {
             }
             item(key = "reset") {
                 ActionButtons {
-                    OutlinedButton(onClick = viewModel::showAll, enabled = enabled && state.blacklist.hidden.isNotEmpty()) {
+                    OutlinedButton(shapes = ButtonDefaults.shapes(), onClick = viewModel::showAll, enabled = enabled && state.blacklist.hidden.isNotEmpty()) {
                         Text(stringResource(R.string.status_icons_show_all))
                     }
                 }

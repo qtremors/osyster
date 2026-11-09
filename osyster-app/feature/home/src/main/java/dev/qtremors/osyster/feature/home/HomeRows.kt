@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.feature.home
 
+import dev.qtremors.osyster.core.ui.components.MenuAction
+import dev.qtremors.osyster.core.ui.components.OsysterMenu
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
@@ -8,8 +10,6 @@ import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material.icons.outlined.PushPin
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,35 +51,22 @@ internal fun PageRow(
             onClick = { actions.onOpenPage(page) },
             onLongClick = { menuOpen = true }
         )
-        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-            MenuItem(
-                text = stringResource(if (pinned) R.string.home_unpin else R.string.home_pin),
-                icon = if (pinned) Icons.Outlined.PushPin else Icons.Rounded.PushPin
-            ) {
-                menuOpen = false
-                actions.onTogglePin(PinKey.page(page.id))
-            }
-            if (canMoveUp) {
-                MenuItem(stringResource(R.string.home_move_up), Icons.Rounded.ArrowUpward) {
-                    menuOpen = false
-                    actions.onMove(page, true)
-                }
-            }
-            if (canMoveDown) {
-                MenuItem(stringResource(R.string.home_move_down), Icons.Rounded.ArrowDownward) {
-                    menuOpen = false
-                    actions.onMove(page, false)
-                }
-            }
-            MenuItem(stringResource(R.string.home_hide), Icons.Rounded.VisibilityOff) {
-                menuOpen = false
-                actions.onHide(page)
-            }
-            MenuItem(stringResource(UiR.string.help_about_page), HelpIcon) {
-                menuOpen = false
-                helpOpen = true
-            }
-        }
+        OsysterMenu(
+            expanded = menuOpen,
+            onDismissRequest = { menuOpen = false },
+            groups = listOf(
+                listOfNotNull(
+                    MenuAction(
+                        stringResource(if (pinned) R.string.home_unpin else R.string.home_pin),
+                        if (pinned) Icons.Outlined.PushPin else Icons.Rounded.PushPin
+                    ) { actions.onTogglePin(PinKey.page(page.id)) },
+                    if (canMoveUp) MenuAction(stringResource(R.string.home_move_up), Icons.Rounded.ArrowUpward) { actions.onMove(page, true) } else null,
+                    if (canMoveDown) MenuAction(stringResource(R.string.home_move_down), Icons.Rounded.ArrowDownward) { actions.onMove(page, false) } else null
+                ),
+                listOf(MenuAction(stringResource(R.string.home_hide), Icons.Rounded.VisibilityOff) { actions.onHide(page) }),
+                listOf(MenuAction(stringResource(UiR.string.help_about_page), HelpIcon) { helpOpen = true })
+            )
+        )
     }
     if (helpOpen) HelpSheet(label = label, help = page.help, badgeKey = page.id, onDismiss = { helpOpen = false })
 }
@@ -105,25 +92,15 @@ internal fun PinnedRow(
             onClick = onOpen,
             onLongClick = { menuOpen = true }
         )
-        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-            MenuItem(stringResource(R.string.home_unpin), Icons.Outlined.PushPin) {
-                menuOpen = false
-                onUnpin()
-            }
-            MenuItem(stringResource(UiR.string.help_about_page), HelpIcon) {
-                menuOpen = false
-                helpOpen = true
-            }
-        }
+        OsysterMenu(
+            expanded = menuOpen,
+            onDismissRequest = { menuOpen = false },
+            groups = listOf(
+                listOf(MenuAction(stringResource(R.string.home_unpin), Icons.Outlined.PushPin, onClick = onUnpin)),
+                listOf(MenuAction(stringResource(UiR.string.help_about_page), HelpIcon) { helpOpen = true })
+            )
+        )
     }
     if (helpOpen) HelpSheet(label = label, help = help, badgeKey = badgeKey, onDismiss = { helpOpen = false })
 }
 
-@Composable
-private fun MenuItem(text: String, icon: ImageVector, onClick: () -> Unit) {
-    DropdownMenuItem(
-        text = { Text(text) },
-        leadingIcon = { Icon(icon, contentDescription = null) },
-        onClick = onClick
-    )
-}

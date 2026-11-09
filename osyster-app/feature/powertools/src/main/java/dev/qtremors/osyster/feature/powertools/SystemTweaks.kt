@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.powertools
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -182,7 +183,7 @@ private fun PrivateDnsSection(state: TweaksState, enabled: Boolean, onMode: (Pri
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
                     modifier = Modifier.fillMaxWidth()
                 )
-                Button(onClick = { onSave(host) }, enabled = enabled && host.isNotBlank()) {
+                Button(shapes = ButtonDefaults.shapes(), onClick = { onSave(host) }, enabled = enabled && host.isNotBlank()) {
                     Text(stringResource(R.string.tweaks_private_dns_save))
                 }
             }

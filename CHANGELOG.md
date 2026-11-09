@@ -1,10 +1,19 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.3.1
-> **Last Updated:** 2026-09-30
+> **Version:** 0.3.2
+> **Last Updated:** 2026-10-01
 
 ---
+
+## [0.3.2] - 2026-10-01
+
+- **Bluetooth Remote**: A new tool that turns the phone into a Bluetooth remote for an Android TV, a computer, or a tablet, with nothing to install on it. D-pad with a cookie-shaped OK or a swipe pad, Home, Back, Menu, and Power, volume and mute, channel up, down, and a number pad, media keys, and the color keys. Hold a key to repeat it. Needs Android 9 or newer and Nearby devices.
+- **Remote Layouts**: The remote matches the connected device. TVs get the full TV remote; computers get keyboard arrows, Enter, Esc, and the Windows key, without power, channels, or color keys; phones and tablets get Android's keys. Tap the connected chip, or long-press a paired device, to pick another layout; the choice is saved for that device.
+- **Pairing**: Connect to a paired TV in one tap, find nearby devices and pair, or make the phone visible and pair from the TV's own settings. The last device reconnects when you open the remote. Bluetooth addresses are used only to connect and are never shown.
+- **Remote Settings**: The layout for the connected device, D-pad or swipe pad, a minimal remote, OK as Enter, and play and pause in the notification while connected.
+- **Expressive Menus**: Every long-press and overflow menu is now the Material 3 Expressive menu: rounded groups of related actions, a check on the chosen option, and red for removing.
+- **Expressive Buttons**: Every button and icon button changes shape when pressed, the top bar uses the new large flexible style, and loading on Home uses the shape-morphing indicator.
 
 ## [0.3.1] - 2026-09-30
 

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- States before the remote can run -->
+    <string name="remote_unsupported_title">Needs Android 9</string>
+    <string name="remote_unsupported_message">This phone cannot act as a Bluetooth keyboard and remote. Android added that in Android 9.</string>
+    <string name="remote_permission_title">Allow Nearby devices</string>
+    <string name="remote_permission_message">Osyster needs Nearby devices to connect to your TV or computer and to find new ones. It never uses Bluetooth to find your location.</string>
+    <string name="remote_permission_action">Allow</string>
+    <string name="remote_permission_settings">Open app settings</string>
+    <string name="remote_bluetooth_off_title">Bluetooth is off</string>
+    <string name="remote_bluetooth_off_message">Turn on Bluetooth to use the remote.</string>
+    <string name="remote_bluetooth_off_action">Turn on Bluetooth</string>
+
+    <!-- Devices -->
+    <string name="remote_paired_header">Paired devices</string>
+    <string name="remote_add_header">Add a device</string>
+    <string name="remote_getting_ready">Getting ready</string>
+    <string name="remote_getting_ready_summary">Registering as a Bluetooth keyboard and remote</string>
+    <string name="remote_no_paired">No paired devices yet</string>
+    <string name="remote_no_paired_summary">Find a nearby device, or pair from the TV</string>
+    <string name="remote_unnamed">Unnamed device</string>
+    <string name="remote_last_used">Last used</string>
+    <string name="remote_connecting">Connecting</string>
+    <string name="remote_tap_to_connect">Tap to connect</string>
+    <string name="remote_find">Find nearby devices</string>
+    <string name="remote_find_summary">For TVs and computers that are visible to Bluetooth</string>
+    <string name="remote_pair_from_tv">Pair from the TV</string>
+    <string name="remote_pair_from_tv_summary">For devices that do not show up when you search</string>
+    <string name="remote_footnote">Nothing is installed on the TV or computer. Osyster connects to it as a Bluetooth keyboard, mouse, and remote.</string>
+    <string name="remote_kind_tv">TV</string>
+    <string name="remote_kind_computer">Computer</string>
+    <string name="remote_kind_phone">Phone or tablet</string>
+    <string name="remote_kind_other">Device</string>
+
+    <!-- Scan sheet -->
+    <string name="remote_scan_title">Nearby devices</string>
+    <string name="remote_scan_looking">Looking for devices</string>
+    <string name="remote_scan_none">Nothing found</string>
+    <string name="remote_scan_none_summary">Make the TV or computer visible in its Bluetooth settings, then scan again.</string>
+    <string name="remote_scan_again">Scan again</string>
+    <string name="remote_scan_permission">Allow Nearby devices to search</string>
+    <string name="remote_scan_permission_old">Allow location to search. Android 11 and older need it to find Bluetooth devices.</string>
+    <string name="remote_scan_pair_hint">Tap a device to pair and connect. Accept the code on both screens.</string>
+
+    <!-- Pair from the TV sheet -->
+    <string name="remote_pair_title">Pair from the TV</string>
+    <string name="remote_pair_step1_title">1. Make this phone visible</string>
+    <string name="remote_pair_step1">The TV can find this phone for 5 minutes.</string>
+    <string name="remote_pair_visible">Make visible</string>
+    <string name="remote_pair_step2_title">2. Pair on the TV</string>
+    <string name="remote_pair_step2">On the TV or computer, open Bluetooth settings, choose to pair a new device, and pick %1$s.</string>
+    <string name="remote_pair_this_phone">this phone</string>
+    <string name="remote_pair_step3_title">3. Accept and connect</string>
+    <string name="remote_pair_step3">Accept the pairing on both screens. Then come back and tap the TV under Paired devices.</string>
+
+    <!-- Remote -->
+    <string name="remote_connected_to">Connected to %1$s</string>
+    <string name="remote_connected_layout">%1$s · %2$s</string>
+    <string name="remote_layout_tv">TV remote</string>
+    <string name="remote_layout_computer">Computer remote</string>
+    <string name="remote_layout_tablet">Tablet remote</string>
+    <string name="remote_disconnect">Disconnect</string>
+    <string name="remote_settings">Remote settings</string>
+    <string name="remote_power">Power</string>
+    <string name="remote_home">Home</string>
+    <string name="remote_back">Back</string>
+    <string name="remote_menu">Menu</string>
+    <string name="remote_up">Up</string>
+    <string name="remote_down">Down</string>
+    <string name="remote_left">Left</string>
+    <string name="remote_right">Right</string>
+    <string name="remote_ok">OK</string>
+    <string name="remote_volume">Volume</string>
+    <string name="remote_volume_up">Volume up</string>
+    <string name="remote_volume_down">Volume down</string>
+    <string name="remote_mute">Mute</string>
+    <string name="remote_channel">Channel</string>
+    <string name="remote_channel_up">Next channel</string>
+    <string name="remote_channel_down">Previous channel</string>
+    <string name="remote_channel_pad">Channel number</string>
+    <string name="remote_previous">Previous</string>
+    <string name="remote_rewind">Rewind</string>
+    <string name="remote_play_pause">Play or pause</string>
+    <string name="remote_fast_forward">Fast forward</string>
+    <string name="remote_next">Next</string>
+    <string name="remote_captions">Captions</string>
+    <string name="remote_red">Red</string>
+    <string name="remote_green">Green</string>
+    <string name="remote_yellow">Yellow</string>
+    <string name="remote_blue">Blue</string>
+    <string name="remote_swipe_hint">Swipe to move, tap to select</string>
+    <string name="remote_digit_enter">Enter</string>
+
+    <!-- Settings sheet -->
+    <string name="remote_settings_layout">Remote for this device</string>
+    <string name="remote_settings_layout_summary">Automatic picks the TV, computer, or tablet remote from what the device says it is. Saved for this device.</string>
+    <string name="remote_layout_auto">Automatic</string>
+    <string name="remote_layout_auto_detected">Automatic (%1$s)</string>
+    <string name="remote_settings_navigation">Navigation</string>
+    <string name="remote_settings_navigation_summary">Arrow buttons, or swipes on a pad</string>
+    <string name="remote_nav_dpad">D-pad</string>
+    <string name="remote_nav_swipe">Swipe pad</string>
+    <string name="remote_settings_minimal">Minimal remote</string>
+    <string name="remote_settings_minimal_summary">Only the D-pad, Home, Back, and volume</string>
+    <string name="remote_settings_enter">OK sends Enter</string>
+    <string name="remote_settings_enter_summary">For computers and TVs that ignore the remote\'s select key</string>
+    <string name="remote_settings_notification">Buttons in the notification</string>
+    <string name="remote_settings_notification_summary">Play, pause, and disconnect while connected</string>
+
+    <!-- Notification -->
+    <string name="remote_channel_name">Bluetooth remote</string>
+    <string name="remote_notification_waiting">Bluetooth remote is ready</string>
+    <string name="remote_notification_waiting_text">Waiting for a TV or computer to connect</string>
+    <string name="remote_notification_open">Open</string>
+</resources>

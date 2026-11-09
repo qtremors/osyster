@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import dev.qtremors.osyster.core.navigation.AppRoute
 import dev.qtremors.osyster.core.navigation.ActivityLauncherRoute
 import dev.qtremors.osyster.core.navigation.AppStopperRoute
+import dev.qtremors.osyster.core.navigation.BtRemoteRoute
 import dev.qtremors.osyster.core.navigation.FlashlightRoute
 import dev.qtremors.osyster.core.navigation.LinkActionsRoute
 import dev.qtremors.osyster.core.navigation.PowerToolRoute
@@ -25,6 +26,7 @@ internal fun Tool.route(): AppRoute = when (this) {
     Tool.APP_STOPPER -> AppStopperRoute
     Tool.STAY_AWAKE -> StayAwakeRoute
     Tool.FLASHLIGHT -> FlashlightRoute
+    Tool.BT_REMOTE -> BtRemoteRoute
     Tool.ACTIVITY_LAUNCHER -> ActivityLauncherRoute
     Tool.LINK_ACTIONS -> LinkActionsRoute
     Tool.QUICK_TILES -> QuickTilesRoute
@@ -44,6 +46,7 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
         destination.hasRoute<AppStopperRoute>() -> Tool.APP_STOPPER
         destination.hasRoute<StayAwakeRoute>() -> Tool.STAY_AWAKE
         destination.hasRoute<FlashlightRoute>() -> Tool.FLASHLIGHT
+        destination.hasRoute<BtRemoteRoute>() -> Tool.BT_REMOTE
         destination.hasRoute<ActivityLauncherRoute>() -> Tool.ACTIVITY_LAUNCHER
         destination.hasRoute<LinkActionsRoute>() -> Tool.LINK_ACTIONS
         destination.hasRoute<QuickTilesRoute>() -> Tool.QUICK_TILES
@@ -55,5 +58,5 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
 
 internal fun NavDestination.isToolPage(): Boolean =
     hasRoute<DataUsageRoute>() || hasRoute<ScreenUsageRoute>() || hasRoute<AppStopperRoute>() ||
-        hasRoute<StayAwakeRoute>() || hasRoute<FlashlightRoute>() || hasRoute<ActivityLauncherRoute>() ||
+        hasRoute<StayAwakeRoute>() || hasRoute<FlashlightRoute>() || hasRoute<BtRemoteRoute>() || hasRoute<ActivityLauncherRoute>() ||
         hasRoute<LinkActionsRoute>() || hasRoute<QuickTilesRoute>() || hasRoute<WidgetsRoute>() || hasRoute<PowerToolRoute>()

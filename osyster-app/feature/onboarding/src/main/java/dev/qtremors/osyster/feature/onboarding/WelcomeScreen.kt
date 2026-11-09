@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.onboarding
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import android.Manifest
@@ -85,7 +86,7 @@ internal fun WelcomeScreen(access: AccessStatus, onNavigate: (OnboardingDestinat
 private fun Footer(page: Int, onSkip: () -> Unit, onNext: () -> Unit, modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxWidth().padding(24.dp)) {
         if (page < PAGES - 1) {
-            TextButton(onClick = onSkip, modifier = Modifier.align(Alignment.CenterStart)) { Text(stringResource(R.string.welcome_skip)) }
+            TextButton(shapes = ButtonDefaults.shapes(), onClick = onSkip, modifier = Modifier.align(Alignment.CenterStart)) { Text(stringResource(R.string.welcome_skip)) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.align(Alignment.Center)) {
             repeat(PAGES) { index ->
@@ -97,7 +98,7 @@ private fun Footer(page: Int, onSkip: () -> Unit, onNext: () -> Unit, modifier: 
                 )
             }
         }
-        Button(onClick = onNext, modifier = Modifier.align(Alignment.CenterEnd)) {
+        Button(shapes = ButtonDefaults.shapes(), onClick = onNext, modifier = Modifier.align(Alignment.CenterEnd)) {
             Text(stringResource(if (page == 0) R.string.welcome_next else R.string.welcome_done))
         }
     }

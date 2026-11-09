@@ -56,6 +56,10 @@ data object StayAwakeRoute : AppRoute
 @Serializable
 data object FlashlightRoute : AppRoute
 
+/** The Bluetooth remote: devices, then the remote once one connects. */
+@Serializable
+data object BtRemoteRoute : AppRoute
+
 @Serializable
 data object ActivityLauncherRoute : AppRoute
 

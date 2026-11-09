@@ -46,6 +46,8 @@
     <string name="tool_stay_awake">Stay awake</string>
     <string name="tool_stay_awake_summary">Keep the screen on for a while or while charging</string>
     <string name="tool_flashlight">Flashlight</string>
+    <string name="tool_bt_remote">Bluetooth remote</string>
+    <string name="tool_bt_remote_summary">Control a TV or computer as its keyboard and remote</string>
     <string name="tool_flashlight_summary">Brightness, fading, and notification pulse</string>
     <string name="tool_activity_launcher">Activity launcher</string>
     <string name="tool_activity_launcher_summary">Open or pin any app screen</string>

@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.onboarding
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +26,7 @@ internal fun WhatsNewSheet(version: String, onDismiss: () -> Unit) {
             }
         }
         Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp), horizontalArrangement = Arrangement.End) {
-            Button(onClick = onDismiss) { Text(stringResource(R.string.whats_new_ok)) }
+            Button(shapes = ButtonDefaults.shapes(), onClick = onDismiss) { Text(stringResource(R.string.whats_new_ok)) }
         }
     }
 }

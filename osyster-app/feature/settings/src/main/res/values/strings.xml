@@ -103,6 +103,8 @@
     <string name="credit_osyster_detail">Tremors. GNU General Public License v3.</string>
     <string name="credit_essentials">Essentials by Sameera Sandakelum</string>
     <string name="credit_essentials_detail">Design reference and interface patterns. MIT License.</string>
+    <string name="credit_btremote">BT Remote by Atharok</string>
+    <string name="credit_btremote_detail">Bluetooth remote, keyboard, and mouse reports. GPL-3.0 License.</string>
     <string name="credit_metro">Metro and Retro Music Player</string>
     <string name="credit_metro_detail">Circle album art music widget layout. GPL-3.0 License.</string>
     <string name="credit_androidx">AndroidX, Jetpack Compose, and Material 3</string>

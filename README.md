@@ -59,6 +59,7 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 - **App stopper:** a grid of apps you often stop. Tap to stop (directly with Shizuku or root, otherwise through App info), long-press to open, freeze, find in the store, or remove.
 - **Stay awake:** keep the screen on for 15 minutes to "until I stop it" with a countdown notification, or while charging through Android's own setting.
 - **Flashlight:** brightness levels on Android 13 and newer, and a pulse that blinks the torch for new notifications while the screen is off.
+- **Bluetooth remote:** control an Android TV, computer, or tablet as its Bluetooth remote and keyboard, with nothing to install on it: D-pad or swipe pad, volume, channels, media, and color keys. Android 9 and newer.
 - **Activity launcher:** open and pin any app's exported screens.
 - **Link actions:** choose which app opens each link, copy or share links.
 - **Widgets:** a glance list of battery, memory, storage, data, and screen time, 3x3 disc and 5x1 capsule music players, and data usage widgets, all added from one page.
@@ -101,6 +102,7 @@ Osyster is built by [Tremors](https://github.com/qtremors). Thanks to the mainta
 - [Roboto Flex](https://fonts.google.com/specimen/Roboto+Flex) for the app's text
 - [Essentials](https://github.com/sameerasw/essentials) by sameerasw (MIT), which inspired the interface design
 - [Metro](https://github.com/MuntashirAkon/Metro) and [Retro Music Player](https://github.com/h4h13/RetroMusicPlayer) (GPL-3.0), whose circle widget layout shaped the disc music widget
+- [BT Remote](https://gitlab.com/Atharok/BtRemote) by Atharok (GPL-3.0), whose Bluetooth keyboard and remote reports power the Bluetooth remote
 - [Lucide](https://lucide.dev/) and [Simple Icons](https://simpleicons.org/) for the website icons
 
 The app's **Settings, About, Open source licenses** screen lists every license in full. Each project remains the property of its authors and is used under its own license.

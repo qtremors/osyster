@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.quicktiles
 
+import androidx.compose.material3.ButtonDefaults
 import dev.qtremors.osyster.core.ui.components.ConnectedItem
 import androidx.compose.foundation.lazy.itemsIndexed
 import android.appwidget.AppWidgetManager
@@ -81,7 +82,7 @@ private fun WidgetsScreen() {
                         leading = { IconBadge(widget.icon, key = widget.className) },
                         trailing = {
                             if (canPin) {
-                                FilledTonalButton(onClick = { requestPin(context, widget.className) }) {
+                                FilledTonalButton(shapes = ButtonDefaults.shapes(), onClick = { requestPin(context, widget.className) }) {
                                     Icon(Icons.Rounded.Add, contentDescription = null)
                                     Text(stringResource(R.string.qt_add), modifier = Modifier.padding(start = 4.dp))
                                 }

@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.device
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -145,7 +146,7 @@ private fun TouchTest(onNext: () -> Unit) {
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.align(Alignment.TopStart).statusBarsPadding().padding(16.dp)
         )
-        FilledTonalButton(
+        FilledTonalButton(shapes = ButtonDefaults.shapes(), 
             onClick = {
                 strokes.clear()
                 onNext()

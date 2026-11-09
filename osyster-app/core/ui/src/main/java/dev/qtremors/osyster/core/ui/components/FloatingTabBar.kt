@@ -124,7 +124,7 @@ fun FloatingTabBar(
             ) { backMode ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (backMode) {
-                        IconButton(
+                        IconButton(shapes = IconButtonDefaults.shapes(), 
                             onClick = {
                                 haptics.tap()
                                 lastBack?.invoke()
@@ -166,7 +166,7 @@ fun FloatingTabBar(
                     } else {
                         tabs.forEachIndexed { index, tab ->
                             val selected = index == selectedIndex
-                            IconButton(
+                            IconButton(shapes = IconButtonDefaults.shapes(), 
                                 onClick = {
                                     haptics.tap()
                                     onSelect(index)

@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.quicktiles
 
+import androidx.compose.material3.ButtonDefaults
 import dev.qtremors.osyster.core.ui.components.ConnectedItem
 import androidx.compose.foundation.lazy.itemsIndexed
 import android.app.StatusBarManager
@@ -90,7 +91,7 @@ private fun QuickTilesScreen() {
                         leading = { Icon(painterResource(tile.icon), contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                         trailing = {
                             if (canRequest) {
-                                FilledTonalButton(onClick = { requestAdd(context, tile, title) }) {
+                                FilledTonalButton(shapes = ButtonDefaults.shapes(), onClick = { requestAdd(context, tile, title) }) {
                                     Icon(Icons.Rounded.Add, contentDescription = null)
                                     Text(stringResource(R.string.qt_add), modifier = Modifier.padding(start = 4.dp))
                                 }

@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.core.ui.components
 
+import androidx.compose.material3.IconButtonDefaults
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,7 +16,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -93,7 +94,7 @@ fun OsysterScaffold(
                 filter != null -> AnimatedContent(targetState = filtering, label = "topBarFilter") { open ->
                     if (open) FilterTopBar(filter, onClose = closeFilter, requestFocus = focusPending, onFocused = { focusPending = false })
                     else TitleTopBar(title, scrollBehavior) {
-                        IconButton(onClick = {
+                        IconButton(shapes = IconButtonDefaults.shapes(), onClick = {
                             filtering = true
                             focusPending = true
                             filter.onOpenChange(true)
@@ -121,8 +122,9 @@ fun OsysterScaffold(
 @Composable
 private fun TitleTopBar(title: String, scrollBehavior: TopAppBarScrollBehavior, actions: @Composable RowScope.() -> Unit) {
     val colors = MaterialTheme.colorScheme
-    LargeTopAppBar(
-        title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+    // The Expressive large bar: a bigger title that settles into the small bar as the page scrolls.
+    LargeFlexibleTopAppBar(
+        title = { Text(title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
         actions = actions,
         scrollBehavior = scrollBehavior,
         colors = TopAppBarDefaults.topAppBarColors(
@@ -146,7 +148,7 @@ private fun FilterTopBar(filter: FilterTop, onClose: () -> Unit, requestFocus: B
     }
     TopAppBar(
         navigationIcon = {
-            IconButton(onClick = onClose) {
+            IconButton(shapes = IconButtonDefaults.shapes(), onClick = onClose) {
                 Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_close_search))
             }
         },
@@ -159,7 +161,7 @@ private fun FilterTopBar(filter: FilterTop, onClose: () -> Unit, requestFocus: B
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 trailingIcon = {
                     if (filter.query.isNotEmpty()) {
-                        IconButton(onClick = { filter.onQueryChange("") }) {
+                        IconButton(shapes = IconButtonDefaults.shapes(), onClick = { filter.onQueryChange("") }) {
                             Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.action_clear_search))
                         }
                     }

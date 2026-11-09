@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.datausage.widget
 
+import androidx.compose.material3.ButtonDefaults
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Intent
@@ -163,7 +164,7 @@ private fun DataWidgetSetupScreen(
                     )
                 }
             }
-            Button(
+            Button(shapes = ButtonDefaults.shapes(), 
                 onClick = { onDone(DataWidgetConfig(period, traffic)) },
                 modifier = Modifier
                     .fillMaxWidth()

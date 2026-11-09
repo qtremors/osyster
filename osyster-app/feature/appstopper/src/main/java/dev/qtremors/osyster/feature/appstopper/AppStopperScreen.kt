@@ -1,5 +1,9 @@
 package dev.qtremors.osyster.feature.appstopper
 
+import dev.qtremors.osyster.core.ui.components.MenuAction
+import dev.qtremors.osyster.core.ui.components.OsysterMenu
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -29,8 +33,6 @@ import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Shop
 import androidx.compose.material.icons.rounded.StopCircle
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -108,7 +110,7 @@ internal fun AppStopperScreen(ui: AppStopperUi, actions: AppStopperActions) {
     OsysterScaffold(
         title = stringResource(Tool.APP_STOPPER.label.title),
         actions = {
-            IconButton(onClick = openPicker) { Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.stopper_add)) }
+            IconButton(shapes = IconButtonDefaults.shapes(), onClick = openPicker) { Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.stopper_add)) }
             // Columns only mean something once there is a grid to arrange.
             if (!apps.isNullOrEmpty()) ColumnsMenu(ui.columns, actions.onColumns)
         }
@@ -184,7 +186,7 @@ private fun Header(apps: List<ManagedApp>, privileged: Boolean, onStopAll: () ->
             modifier = Modifier.weight(1f)
         )
         if (privileged && apps.any { it.installed && !it.stopped && !it.frozen }) {
-            TextButton(onClick = onStopAll) { Text(stringResource(R.string.stopper_stop_all)) }
+            TextButton(shapes = ButtonDefaults.shapes(), onClick = onStopAll) { Text(stringResource(R.string.stopper_stop_all)) }
         }
     }
 }
@@ -193,19 +195,16 @@ private fun Header(apps: List<ManagedApp>, privileged: Boolean, onStopAll: () ->
 private fun ColumnsMenu(columns: Int, onColumns: (Int) -> Unit) {
     var open by remember { mutableStateOf(false) }
     Box {
-        IconButton(onClick = { open = true }) { Icon(Icons.Rounded.GridView, contentDescription = stringResource(R.string.stopper_columns)) }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            COLUMN_CHOICES.forEach { count ->
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.stopper_columns_count, count)) },
-                    trailingIcon = if (count == columns) ({ Icon(Icons.Rounded.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }) else null,
-                    onClick = {
-                        open = false
-                        onColumns(count)
-                    }
-                )
-            }
-        }
+        IconButton(shapes = IconButtonDefaults.shapes(), onClick = { open = true }) { Icon(Icons.Rounded.GridView, contentDescription = stringResource(R.string.stopper_columns)) }
+        OsysterMenu(
+            expanded = open,
+            onDismissRequest = { open = false },
+            groups = listOf(
+                COLUMN_CHOICES.map { count ->
+                    MenuAction(stringResource(R.string.stopper_columns_count, count), selected = count == columns) { onColumns(count) }
+                }
+            )
+        )
     }
 }
 

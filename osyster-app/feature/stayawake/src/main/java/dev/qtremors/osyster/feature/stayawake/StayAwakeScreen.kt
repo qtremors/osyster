@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.stayawake
 
+import androidx.compose.material3.ButtonDefaults
 import android.content.ClipData
 import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Arrangement
@@ -113,11 +114,11 @@ private fun TimerSection(timer: StayAwakeTimer, selectedMinutes: Int?, actions: 
             onSelect = actions.onSelect
         )
         Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = actions.onStart, modifier = Modifier.weight(1f)) {
+            Button(shapes = ButtonDefaults.shapes(), onClick = actions.onStart, modifier = Modifier.weight(1f)) {
                 Text(stringResource(if (timer is StayAwakeTimer.Running) R.string.stay_awake_restart else R.string.stay_awake_start))
             }
             if (timer is StayAwakeTimer.Running) {
-                FilledTonalButton(onClick = actions.onStop, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.stay_awake_stop)) }
+                FilledTonalButton(shapes = ButtonDefaults.shapes(), onClick = actions.onStop, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.stay_awake_stop)) }
             }
         }
     }
