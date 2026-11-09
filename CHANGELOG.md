@@ -1,10 +1,19 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.3.0
-> **Last Updated:** 2026-09-29
+> **Version:** 0.3.1
+> **Last Updated:** 2026-09-30
 
 ---
+
+## [0.3.1] - 2026-09-30
+
+- **Data Usage Widget Loads Again**: The Data usage widget (today and this month) showed "Can't load widget". Its divider used a view type home screen widgets don't allow.
+- **Data Widget Setup**: Placing a data widget opens a setup screen with a live preview. Pick Today, 7 days, or This month, and show mobile and Wi-Fi or download and upload. On Android 12 and newer, open it again from the widget's settings. This one widget replaces the separate Data today and Data this month widgets.
+- **Data Widgets at One Cell Tall**: The data widgets fit a 2x1 cell again, with the period over the refresh button and both numbers the same size, lined up at the end with their icons. Taller, they switch to the large layout, and they change layout as soon as they are resized.
+- **Private DNS Widget**: A 2x1 switch for Private DNS on the home screen. Off turns on to your saved provider, or automatic without one. It follows changes from the tile and System tweaks, and without settings access a tap opens Power setup.
+- **Music Disc Buttons**: Play and repeat are the same size, mirrored on opposite corners of the disc, and use the same card color as the other widgets.
+- **Widget Previews**: The widget picker shows This month for the month widget, example rows for Glance instead of a loading message, and the music disc instead of an empty space.
 
 ## [0.3.0] - 2026-09-29
 

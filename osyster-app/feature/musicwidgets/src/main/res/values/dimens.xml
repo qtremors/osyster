@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Both disc buttons share one size, so they sit mirrored on opposite corners of the disc. -->
+    <dimen name="widget_music_corner_button">56dp</dimen>
+</resources>

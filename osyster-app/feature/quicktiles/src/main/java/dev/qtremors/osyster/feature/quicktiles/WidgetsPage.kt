@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.DataUsage
+import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.ViewCarousel
@@ -46,8 +47,8 @@ private val widgets = listOf(
     WidgetEntry("dev.qtremors.osyster.feature.musicwidgets.Music3x3WidgetReceiver", R.string.widgets_music_disc, R.string.widgets_music_disc_summary, Icons.Rounded.Album),
     WidgetEntry("dev.qtremors.osyster.feature.musicwidgets.Music5x1WidgetReceiver", R.string.widgets_music_capsule, R.string.widgets_music_capsule_summary, Icons.Rounded.MusicNote),
     WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.DayDataUsageWidget", R.string.widgets_data_today, R.string.widgets_data_today_summary, Icons.Rounded.DataUsage),
-    WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.MonthDataUsageWidget", R.string.widgets_data_month, R.string.widgets_data_month_summary, Icons.Rounded.DataUsage),
-    WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.CombinedDataUsageWidget", R.string.widgets_data_combined, R.string.widgets_data_combined_summary, Icons.Rounded.DataUsage)
+    WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.CombinedDataUsageWidget", R.string.widgets_data_combined, R.string.widgets_data_combined_summary, Icons.Rounded.DataUsage),
+    WidgetEntry("dev.qtremors.osyster.feature.powertools.PrivateDnsWidget", R.string.widgets_private_dns, R.string.widgets_private_dns_summary, Icons.Rounded.Dns)
 )
 
 fun NavGraphBuilder.registerWidgetsRoute() {

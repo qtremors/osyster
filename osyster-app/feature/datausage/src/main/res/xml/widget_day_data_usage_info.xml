@@ -10,7 +10,9 @@
     android:maxResizeHeight="220dp"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="1800000"
-    android:initialLayout="@layout/widget_data_usage"
-    android:previewLayout="@layout/widget_data_usage"
+    android:configure="dev.qtremors.osyster.feature.datausage.widget.DataWidgetSetupActivity"
+    android:widgetFeatures="reconfigurable"
+    android:initialLayout="@layout/widget_data_usage_compact"
+    android:previewLayout="@layout/widget_data_usage_compact"
     android:description="@string/widget_day_data_usage_desc"
     android:widgetCategory="home_screen" />

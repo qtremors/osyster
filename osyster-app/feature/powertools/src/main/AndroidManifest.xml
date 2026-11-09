@@ -15,6 +15,19 @@
             android:name=".RestoreDebuggingReceiver"
             android:exported="false" />
 
+        <!-- Private DNS switch for the home screen. -->
+        <receiver
+            android:name=".PrivateDnsWidget"
+            android:exported="true"
+            android:label="@string/widget_dns_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_private_dns_info" />
+        </receiver>
+
         <!-- Quick Settings tiles. Each opens Power setup when its access is missing. -->
         <service
             android:name=".PrivateDnsTile"

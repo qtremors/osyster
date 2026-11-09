@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="power_widget_card">#1A2122</color>
+    <color name="power_widget_on_card">#DEE3E5</color>
+    <color name="power_widget_on_card_dim">#BFC8CA</color>
+    <color name="power_widget_accent">#82D3E0</color>
+    <color name="power_widget_on_accent">#00363F</color>
+    <color name="power_widget_track">#3F484A</color>
+    <color name="power_widget_ripple">#33FFFFFF</color>
+</resources>

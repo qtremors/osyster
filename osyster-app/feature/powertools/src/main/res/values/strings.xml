@@ -228,6 +228,10 @@
     <string name="tile_on">On</string>
     <string name="tile_off">Off</string>
     <string name="tile_set_up">Tap to set up</string>
+    <string name="widget_dns_name">Private DNS</string>
+    <string name="widget_dns_desc">Turn Private DNS on or off. Needs settings access from Power setup</string>
+    <string name="widget_dns_turn_on">Turn on Private DNS</string>
+    <string name="widget_dns_turn_off">Turn off Private DNS</string>
     <string name="tile_tap_to_restart">Tap to restart</string>
     <string name="tile_freeze_empty">No apps chosen</string>
     <string name="tile_freeze_count">%1$d apps</string>

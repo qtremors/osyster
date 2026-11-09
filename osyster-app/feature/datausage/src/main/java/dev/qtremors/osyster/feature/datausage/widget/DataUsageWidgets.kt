@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
 import android.view.View
@@ -27,7 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * Shared behavior of the three data usage widgets: update on the system schedule and on the
+ * Shared behavior of the two data usage widgets: update on the system schedule and on the
  * refresh button, open Osyster's Data usage on tap, or Usage access settings until it is granted.
  * Widgets show device totals only, never per-app data. A tap on refresh turns the refresh icon
  * until the new totals are in, so the tap always gets a visible answer.
@@ -38,12 +39,18 @@ abstract class DataUsageWidget : AppWidgetProvider() {
     protected abstract val refreshAction: String
 
     /** Builds the views for one widget. Called off the main thread. */
-    protected abstract suspend fun render(context: Context, views: RemoteViews)
+    protected abstract suspend fun render(context: Context, views: RemoteViews, widgetId: Int)
 
-    protected abstract val layout: Int
+    /** The layout for one widget at its current size. */
+    protected abstract fun layoutFor(manager: AppWidgetManager, widgetId: Int): Int
 
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         updateAsync(context, manager, ids)
+    }
+
+    /** Resized, or moved to a launcher with another grid: redraw, maybe in the other layout. */
+    override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, widgetId: Int, newOptions: Bundle) {
+        updateAsync(context, manager, intArrayOf(widgetId))
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -58,13 +65,14 @@ abstract class DataUsageWidget : AppWidgetProvider() {
 
     /** Swaps each refresh icon for its spinning copy. The full update that follows puts the icon back. */
     private fun showSpinning(context: Context, manager: AppWidgetManager, ids: IntArray) {
-        if (ids.isEmpty()) return
-        val views = RemoteViews(context.packageName, layout)
-        refreshButtons.zip(refreshSpinners).forEach { (button, spinner) ->
-            views.setViewVisibility(button, View.GONE)
-            views.setViewVisibility(spinner, View.VISIBLE)
+        ids.forEach { id ->
+            val views = RemoteViews(context.packageName, layoutFor(manager, id))
+            refreshButtons.zip(refreshSpinners).forEach { (button, spinner) ->
+                views.setViewVisibility(button, View.GONE)
+                views.setViewVisibility(spinner, View.VISIBLE)
+            }
+            manager.partiallyUpdateAppWidget(id, views)
         }
-        ids.forEach { manager.partiallyUpdateAppWidget(it, views) }
     }
 
     private fun updateAsync(context: Context, manager: AppWidgetManager, ids: IntArray, minSpinMs: Long = 0) {
@@ -73,7 +81,7 @@ abstract class DataUsageWidget : AppWidgetProvider() {
         val started = SystemClock.elapsedRealtime()
         scope.launch {
             try {
-                val built = ids.associateWith { id -> build(context, id) }
+                val built = ids.associateWith { id -> build(context, manager, id) }
                 // Fast loads would flash the spinner; keep it up for one full turn.
                 delay((minSpinMs - (SystemClock.elapsedRealtime() - started)).coerceAtLeast(0))
                 built.forEach { (id, views) -> manager.updateAppWidget(id, views) }
@@ -83,13 +91,13 @@ abstract class DataUsageWidget : AppWidgetProvider() {
         }
     }
 
-    private suspend fun build(context: Context, widgetId: Int): RemoteViews {
-        val views = RemoteViews(context.packageName, layout)
+    private suspend fun build(context: Context, manager: AppWidgetManager, widgetId: Int): RemoteViews {
+        val views = RemoteViews(context.packageName, layoutFor(manager, widgetId))
         val granted = source.accessState() == UsageAccessState.GRANTED
         if (granted) {
-            runCatchingCancellable { render(context, views) }.onFailure { showUnknown(context, views) }
+            runCatchingCancellable { render(context, views, widgetId) }.onFailure { showUnknown(context, views, widgetId) }
         } else {
-            showSetup(context, views)
+            showSetup(context, views, widgetId)
         }
         views.setOnClickPendingIntent(R.id.widget_root, if (granted) openApp(context, widgetId) else openUsageAccess(context, widgetId))
         val refresh = PendingIntent.getBroadcast(
@@ -112,8 +120,8 @@ abstract class DataUsageWidget : AppWidgetProvider() {
     /** The spinning icon that stands in for each of [refreshButtons], in the same order. */
     protected open val refreshSpinners: List<Int> = listOf(R.id.widget_refresh_spin)
 
-    protected abstract fun showSetup(context: Context, views: RemoteViews)
-    protected abstract fun showUnknown(context: Context, views: RemoteViews)
+    protected abstract fun showSetup(context: Context, views: RemoteViews, widgetId: Int)
+    protected abstract fun showUnknown(context: Context, views: RemoteViews, widgetId: Int)
 
     private fun openApp(context: Context, widgetId: Int): PendingIntent? {
         val launch = context.packageManager.getLaunchIntentForPackage(context.packageName)
@@ -135,55 +143,62 @@ abstract class DataUsageWidget : AppWidgetProvider() {
     }
 }
 
-/** One period: mobile and Wi-Fi totals with a title. */
+/**
+ * One period of mobile and Wi-Fi, or download and upload, as picked in the setup screen
+ * ([DataWidgetSetupActivity]). One cell tall it uses the compact two-row layout (label and refresh
+ * beside the values); taller, the large one with a header.
+ */
 abstract class SinglePeriodDataUsageWidget : DataUsageWidget() {
-    protected abstract val period: DataPeriod
-    protected abstract val title: Int
-    override val layout: Int = R.layout.widget_data_usage
+    /** The period a widget shows until it is set up. */
+    abstract val defaultPeriod: DataPeriod
 
-    override suspend fun render(context: Context, views: RemoteViews) {
-        val report = source.report(period, includeApps = false)
-        views.setTextViewText(R.id.widget_interval_label, context.getString(title))
-        views.setTextViewText(R.id.widget_mobile_text, UsageFormat.bytes(report.totals.mobile))
-        views.setTextViewText(R.id.widget_wifi_text, UsageFormat.bytes(report.totals.wifi))
+
+    override fun layoutFor(manager: AppWidgetManager, widgetId: Int): Int {
+        // Portrait height. Zero before the launcher reports a size: the widget starts 1 cell tall.
+        val heightDp = manager.getAppWidgetOptions(widgetId).getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
+        return if (heightDp < LARGE_MIN_HEIGHT_DP) R.layout.widget_data_usage_compact else R.layout.widget_data_usage
     }
 
-    override fun showSetup(context: Context, views: RemoteViews) {
-        views.setTextViewText(R.id.widget_interval_label, context.getString(title))
-        views.setTextViewText(R.id.widget_mobile_text, context.getString(R.string.widget_setup))
-        views.setTextViewText(R.id.widget_wifi_text, context.getString(R.string.widget_unknown))
+    private companion object {
+        /** The large layout's header and two value rows need about this much height. */
+        const val LARGE_MIN_HEIGHT_DP = 110
     }
 
-    override fun showUnknown(context: Context, views: RemoteViews) {
-        views.setTextViewText(R.id.widget_interval_label, context.getString(title))
-        views.setTextViewText(R.id.widget_mobile_text, context.getString(R.string.widget_unknown))
-        views.setTextViewText(R.id.widget_wifi_text, context.getString(R.string.widget_unknown))
+    private fun config(context: Context, widgetId: Int) = DataWidgetSettings.read(context, widgetId, defaultPeriod)
+
+    override suspend fun render(context: Context, views: RemoteViews, widgetId: Int) {
+        val config = config(context, widgetId)
+        fillDataWidget(context, views, config, source.report(config.period, includeApps = false).totals)
+    }
+
+    override fun showSetup(context: Context, views: RemoteViews, widgetId: Int) {
+        fillDataWidget(context, views, config(context, widgetId), totals = null, placeholder = context.getString(R.string.widget_setup))
+    }
+
+    override fun showUnknown(context: Context, views: RemoteViews, widgetId: Int) {
+        fillDataWidget(context, views, config(context, widgetId), totals = null)
+    }
+
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        DataWidgetSettings.delete(context, appWidgetIds)
     }
 }
 
 @AndroidEntryPoint
 class DayDataUsageWidget : SinglePeriodDataUsageWidget() {
-    override val period = DataPeriod.TODAY
-    override val title = R.string.widget_day_title
+    override val defaultPeriod = DataPeriod.TODAY
     override val refreshAction = "dev.qtremors.osyster.action.REFRESH_DAY_DATA_WIDGET"
-}
-
-@AndroidEntryPoint
-class MonthDataUsageWidget : SinglePeriodDataUsageWidget() {
-    override val period = DataPeriod.MONTH
-    override val title = R.string.widget_month_title
-    override val refreshAction = "dev.qtremors.osyster.action.REFRESH_MONTH_DATA_WIDGET"
 }
 
 /** Today and this month side by side. */
 @AndroidEntryPoint
 class CombinedDataUsageWidget : DataUsageWidget() {
-    override val layout: Int = R.layout.widget_data_usage_combined
+    override fun layoutFor(manager: AppWidgetManager, widgetId: Int): Int = R.layout.widget_data_usage_combined
     override val refreshAction = "dev.qtremors.osyster.action.REFRESH_COMBINED_DATA_WIDGET"
     override val refreshButtons = listOf(R.id.widget_btn_refresh, R.id.widget_btn_refresh_month)
     override val refreshSpinners = listOf(R.id.widget_refresh_spin, R.id.widget_refresh_spin_month)
 
-    override suspend fun render(context: Context, views: RemoteViews) {
+    override suspend fun render(context: Context, views: RemoteViews, widgetId: Int) {
         val today = source.report(DataPeriod.TODAY, includeApps = false).totals
         val month = source.report(DataPeriod.MONTH, includeApps = false).totals
         views.setTextViewText(R.id.widget_today_mobile_text, UsageFormat.bytes(today.mobile))
@@ -192,13 +207,13 @@ class CombinedDataUsageWidget : DataUsageWidget() {
         views.setTextViewText(R.id.widget_month_wifi_text, UsageFormat.bytes(month.wifi))
     }
 
-    override fun showSetup(context: Context, views: RemoteViews) {
+    override fun showSetup(context: Context, views: RemoteViews, widgetId: Int) {
         views.setTextViewText(R.id.widget_today_mobile_text, context.getString(R.string.widget_setup))
         listOf(R.id.widget_today_wifi_text, R.id.widget_month_mobile_text, R.id.widget_month_wifi_text)
             .forEach { views.setTextViewText(it, context.getString(R.string.widget_unknown)) }
     }
 
-    override fun showUnknown(context: Context, views: RemoteViews) {
+    override fun showUnknown(context: Context, views: RemoteViews, widgetId: Int) {
         listOf(R.id.widget_today_mobile_text, R.id.widget_today_wifi_text, R.id.widget_month_mobile_text, R.id.widget_month_wifi_text)
             .forEach { views.setTextViewText(it, context.getString(R.string.widget_unknown)) }
     }

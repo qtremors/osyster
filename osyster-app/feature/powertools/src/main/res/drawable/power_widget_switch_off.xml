@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:width="52dp" android:height="32dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/power_widget_track" />
+            <stroke android:width="2dp" android:color="@color/power_widget_on_card_dim" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+    <item android:width="16dp" android:height="16dp" android:gravity="start|center_vertical" android:left="8dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/power_widget_on_card_dim" />
+        </shape>
+    </item>
+</layer-list>

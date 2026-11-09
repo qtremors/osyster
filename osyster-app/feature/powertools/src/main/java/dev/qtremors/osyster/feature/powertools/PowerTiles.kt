@@ -133,6 +133,7 @@ class PrivateDnsTile : PowerTile() {
         val current = PrivateDnsMode.parse(settings.read(Keys.PrivateDnsMode))
         val hasHost = settings.read(Keys.PrivateDnsHost)?.let(::isValidDnsHost) == true
         settings.write(Keys.PrivateDnsMode, nextPrivateDnsMode(current, hasHost).value)
+        PrivateDnsWidget.updateAll(this)
     }
 }
 

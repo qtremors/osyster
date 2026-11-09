@@ -22,12 +22,14 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -154,6 +156,9 @@ internal fun SystemTweaksRoute(onNavigate: (PowerToolsDestination) -> Unit) {
 @Composable
 private fun PrivateDnsSection(state: TweaksState, enabled: Boolean, onMode: (PrivateDnsMode) -> Unit, onSave: (String) -> Unit) {
     var host by rememberSaveable(state.dnsHost) { mutableStateOf(state.dnsHost) }
+    // The home screen switch follows whatever mode this page shows, set here or elsewhere.
+    val context = LocalContext.current
+    LaunchedEffect(state.dnsMode, state.dnsHost) { PrivateDnsWidget.updateAll(context) }
     SectionHeader(stringResource(R.string.tweaks_group_network))
     ConnectedGroup {
         ChoiceRow(
