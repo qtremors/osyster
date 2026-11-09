@@ -1,10 +1,23 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.3.2
-> **Last Updated:** 2026-10-01
+> **Version:** 0.3.3
+> **Last Updated:** 2026-10-02
 
 ---
+
+## [0.3.3] - 2026-10-02
+
+- **Remote Modes**: Remote, Touchpad, Keyboard, and Gamepad on every layout. Computers open on the touchpad, everything else on the remote, and each device opens on the mode it was last left on.
+- **Touchpad**: Move with one finger and tap to click, two fingers to scroll or right-click, three to middle-click, and a strip for one-finger scrolling. Hold Left, Middle, or Right to drag. Slow moves add up instead of getting lost. Pointer speed, scroll speed, and reverse scrolling in the settings.
+- **Air Mouse**: Point the phone to move the pointer, using the gyroscope; a resting hand does not drift.
+- **Keyboard**: Text is sent as you type with any phone keyboard, swipe typing included. Ctrl, Alt, Shift, and Win stick for the next key, for shortcuts like Ctrl+C, and keys a phone lacks (Esc, Tab, Home, End, Page Up and Down, Insert, Delete, Print Screen, arrows, F1 to F12) repeat while held.
+- **Gamepad**: Two sticks, the D-pad, A, B, X, and Y, the shoulder buttons, and Select, Home, and Start, for Android TV and computer games.
+- **Computer Actions**: Lock, sleep, the power key, shut down, restart, a screenshot to Pictures, Task Manager, and show desktop, with nothing installed on the computer. Sleep, power, shut down, and restart ask first; shut down, restart, and the shortcuts marked Windows work on Windows.
+- **More Keys**: Browser, calculator, files, email, and search keys, play, pause, stop, repeat, captions, and screen brightness.
+- **Volume Keys**: Optionally, the phone's volume keys change the TV or computer's volume while the remote is open.
+- **Remote Widget**: Previous, volume, play or pause, and next on the home screen for the connected device; with nothing connected it opens the remote.
+- **Pair Again for New Keys**: The power, sleep, and gamepad keys are new parts of the Bluetooth keyboard, so a TV or computer paired before needs pairing once more before they work.
 
 ## [0.3.2] - 2026-10-01
 

@@ -50,6 +50,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.focusable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,12 +85,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.qtremors.osyster.core.hid.domain.RemoteKey
 import dev.qtremors.osyster.core.hid.domain.LayoutChoice
+import dev.qtremors.osyster.core.hid.domain.RemoteInput
 import dev.qtremors.osyster.core.hid.domain.RemoteLayout
 import dev.qtremors.osyster.core.hid.domain.layoutFor
 import dev.qtremors.osyster.core.hid.domain.shows
 import dev.qtremors.osyster.core.hid.domain.RemoteNavigation
 import dev.qtremors.osyster.core.hid.domain.RemoteSettings
 import dev.qtremors.osyster.core.hid.domain.swipeDirection
+import dev.qtremors.osyster.core.ui.components.ConnectedChoices
 import dev.qtremors.osyster.core.ui.components.MenuAction
 import dev.qtremors.osyster.core.ui.components.OsysterMenu
 import dev.qtremors.osyster.core.ui.components.rememberAppHaptics
@@ -95,9 +107,15 @@ internal fun RemoteContent(viewModel: RemoteViewModel, settings: RemoteSettings,
     val name = state.device?.name?.ifBlank { null } ?: stringResource(R.string.remote_unnamed)
     val keys = KeyActions(onPress = viewModel::hold, onRelease = viewModel::release)
 
+    // With the setting on, the phone's volume keys go to the TV while the remote is on screen.
+    val focus = remember { FocusRequester() }
+    LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .focusRequester(focus)
+            .focusable()
+            .onPreviewKeyEvent { event -> settings.volumeKeys && volumeKey(event, viewModel) }
             .verticalScroll(rememberScrollState())
             .padding(padding),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -111,52 +129,90 @@ internal fun RemoteContent(viewModel: RemoteViewModel, settings: RemoteSettings,
             detected = stringResource(layoutFor(LayoutChoice.AUTO, state.device?.kind).label),
             onChoose = { choice -> state.device?.let { viewModel.setLayout(it, choice) } }
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-            if (!settings.minimal && layout.shows(RemoteKey.POWER)) {
-                RemoteKeyButton(
-                    Icons.Rounded.PowerSettingsNew, stringResource(R.string.remote_power), keys, RemoteKey.POWER, Modifier.weight(1f),
-                    container = MaterialTheme.colorScheme.errorContainer, content = MaterialTheme.colorScheme.onErrorContainer
-                )
-            }
-            RemoteKeyButton(Icons.Rounded.Home, stringResource(R.string.remote_home), keys, RemoteKey.HOME, Modifier.weight(1f))
-            RemoteKeyButton(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.remote_back), keys, RemoteKey.BACK, Modifier.weight(1f))
-            if (!settings.minimal && layout.shows(RemoteKey.MENU)) {
-                RemoteKeyButton(Icons.Rounded.Menu, stringResource(R.string.remote_menu), keys, RemoteKey.MENU, Modifier.weight(1f))
+        // Computers start on the touchpad, everything else on the remote; a pick is saved per device.
+        val input by viewModel.input.collectAsStateWithLifecycle()
+        ConnectedChoices(
+            options = RemoteInput.entries,
+            selected = input,
+            label = { stringResource(it.label) },
+            onSelect = viewModel::setInput
+        )
+        when (input) {
+            RemoteInput.TOUCHPAD -> TouchpadContent(viewModel = viewModel, keys = keys, settings = settings)
+            RemoteInput.KEYBOARD -> KeyboardContent(viewModel = viewModel)
+            RemoteInput.GAMEPAD -> GamepadContent(viewModel = viewModel)
+            RemoteInput.REMOTE -> {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    if (!settings.minimal && layout.shows(RemoteKey.POWER)) {
+                        RemoteKeyButton(
+                            Icons.Rounded.PowerSettingsNew, stringResource(R.string.remote_power), keys, RemoteKey.POWER, Modifier.weight(1f),
+                            container = MaterialTheme.colorScheme.errorContainer, content = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                    RemoteKeyButton(Icons.Rounded.Home, stringResource(R.string.remote_home), keys, RemoteKey.HOME, Modifier.weight(1f))
+                    RemoteKeyButton(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.remote_back), keys, RemoteKey.BACK, Modifier.weight(1f))
+                    if (!settings.minimal && layout.shows(RemoteKey.MENU)) {
+                        RemoteKeyButton(Icons.Rounded.Menu, stringResource(R.string.remote_menu), keys, RemoteKey.MENU, Modifier.weight(1f))
+                    }
+                }
+
+                when (settings.navigation) {
+                    RemoteNavigation.DPAD -> DPad(keys = keys, onSelectPress = { viewModel.hold(RemoteKey.SELECT) }, onSelectRelease = viewModel::release)
+                    RemoteNavigation.SWIPE -> SwipePad(keys = keys, onSelectPress = { viewModel.hold(RemoteKey.SELECT) }, onSelectRelease = viewModel::release)
+                }
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    Rocker(
+                        label = stringResource(R.string.remote_volume),
+                        keys = keys,
+                        down = RemoteKey.VOLUME_DOWN to stringResource(R.string.remote_volume_down),
+                        middle = Triple(Icons.Rounded.VolumeOff, stringResource(R.string.remote_mute), { viewModel.tap(RemoteKey.MUTE) }),
+                        up = RemoteKey.VOLUME_UP to stringResource(R.string.remote_volume_up),
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (!settings.minimal && layout.shows(RemoteKey.CHANNEL_UP)) {
+                        Rocker(
+                            label = stringResource(R.string.remote_channel),
+                            keys = keys,
+                            down = RemoteKey.CHANNEL_DOWN to stringResource(R.string.remote_channel_down),
+                            middle = Triple(Icons.Rounded.Dialpad, stringResource(R.string.remote_channel_pad), { channelPadOpen = true }),
+                            up = RemoteKey.CHANNEL_UP to stringResource(R.string.remote_channel_up),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+
+                if (!settings.minimal) MediaRow(keys = keys)
+                if (!settings.minimal && layout.shows(RemoteKey.RED)) ColorKeys(keys = keys)
             }
         }
-
-        when (settings.navigation) {
-            RemoteNavigation.DPAD -> DPad(keys = keys, onSelectPress = { viewModel.hold(RemoteKey.SELECT) }, onSelectRelease = viewModel::release)
-            RemoteNavigation.SWIPE -> SwipePad(keys = keys, onSelectPress = { viewModel.hold(RemoteKey.SELECT) }, onSelectRelease = viewModel::release)
-        }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-            Rocker(
-                label = stringResource(R.string.remote_volume),
-                keys = keys,
-                down = RemoteKey.VOLUME_DOWN to stringResource(R.string.remote_volume_down),
-                middle = Triple(Icons.Rounded.VolumeOff, stringResource(R.string.remote_mute), { viewModel.tap(RemoteKey.MUTE) }),
-                up = RemoteKey.VOLUME_UP to stringResource(R.string.remote_volume_up),
-                modifier = Modifier.weight(1f)
-            )
-            if (!settings.minimal && layout.shows(RemoteKey.CHANNEL_UP)) {
-                Rocker(
-                    label = stringResource(R.string.remote_channel),
-                    keys = keys,
-                    down = RemoteKey.CHANNEL_DOWN to stringResource(R.string.remote_channel_down),
-                    middle = Triple(Icons.Rounded.Dialpad, stringResource(R.string.remote_channel_pad), { channelPadOpen = true }),
-                    up = RemoteKey.CHANNEL_UP to stringResource(R.string.remote_channel_up),
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-        if (!settings.minimal) MediaRow(keys = keys)
-        if (!settings.minimal && layout.shows(RemoteKey.RED)) ColorKeys(keys = keys)
     }
 
     if (channelPadOpen) ChannelPadSheet(onKey = viewModel::typeKey, onDismiss = { channelPadOpen = false })
 }
+
+/** Volume up and down as the TV's volume keys: pressed on key down, let go on key up. */
+private fun volumeKey(event: KeyEvent, viewModel: RemoteViewModel): Boolean {
+    val key = when (event.key) {
+        Key.VolumeUp -> RemoteKey.VOLUME_UP
+        Key.VolumeDown -> RemoteKey.VOLUME_DOWN
+        else -> return false
+    }
+    when (event.type) {
+        KeyEventType.KeyDown -> if (event.nativeKeyEvent.repeatCount == 0) viewModel.hold(key)
+        KeyEventType.KeyUp -> viewModel.release()
+    }
+    return true
+}
+
+/** The switch label for each input. */
+internal val RemoteInput.label: Int
+    get() = when (this) {
+        RemoteInput.REMOTE -> R.string.remote_mode_remote
+        RemoteInput.TOUCHPAD -> R.string.remote_mode_touchpad
+        RemoteInput.KEYBOARD -> R.string.remote_mode_keyboard
+        RemoteInput.GAMEPAD -> R.string.remote_mode_gamepad
+    }
 
 /** Press and release callbacks for remote keys, so every key button shares one pair. */
 internal class KeyActions(val onPress: (RemoteKey) -> Unit, val onRelease: () -> Unit)

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Remote widget colors, the same as the other Osyster widgets. Android 12+ uses
+         wallpaper colors instead (values-v31). -->
+    <color name="remote_widget_card">#E6EEF0</color>
+    <color name="remote_widget_on_card">#161D1E</color>
+    <color name="remote_widget_on_card_dim">#3F484A</color>
+    <color name="remote_widget_accent">#00687A</color>
+    <color name="remote_widget_on_accent">#FFFFFF</color>
+    <color name="remote_widget_track">#C3CCCE</color>
+    <color name="remote_widget_ripple">#1F000000</color>
+</resources>

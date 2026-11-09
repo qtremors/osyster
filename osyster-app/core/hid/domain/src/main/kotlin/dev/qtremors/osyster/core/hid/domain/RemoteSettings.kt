@@ -42,6 +42,10 @@ interface RemoteSettingsStore {
     val deviceLayouts: Flow<Map<String, LayoutChoice>>
     suspend fun setDeviceLayout(id: String, choice: LayoutChoice)
 
+    /** The input each device was last left on, by Bluetooth address; missing means its default. */
+    val deviceInputs: Flow<Map<String, RemoteInput>>
+    suspend fun setDeviceInput(id: String, input: RemoteInput)
+
     /** The last device that connected, by its Bluetooth address; null when none is saved. */
     suspend fun lastDeviceId(): String?
     suspend fun setLastDeviceId(id: String?)

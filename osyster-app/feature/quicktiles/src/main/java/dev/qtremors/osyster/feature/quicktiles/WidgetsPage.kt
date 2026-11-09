@@ -19,6 +19,7 @@ import androidx.compose.material.icons.rounded.DataUsage
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MusicNote
+import androidx.compose.material.icons.rounded.SettingsRemote
 import androidx.compose.material.icons.rounded.ViewCarousel
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -49,6 +50,7 @@ private val widgets = listOf(
     WidgetEntry("dev.qtremors.osyster.feature.musicwidgets.Music5x1WidgetReceiver", R.string.widgets_music_capsule, R.string.widgets_music_capsule_summary, Icons.Rounded.MusicNote),
     WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.DayDataUsageWidget", R.string.widgets_data_today, R.string.widgets_data_today_summary, Icons.Rounded.DataUsage),
     WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.CombinedDataUsageWidget", R.string.widgets_data_combined, R.string.widgets_data_combined_summary, Icons.Rounded.DataUsage),
+    WidgetEntry("dev.qtremors.osyster.feature.btremote.RemoteWidget", R.string.widgets_remote, R.string.widgets_remote_summary, Icons.Rounded.SettingsRemote),
     WidgetEntry("dev.qtremors.osyster.feature.powertools.PrivateDnsWidget", R.string.widgets_private_dns, R.string.widgets_private_dns_summary, Icons.Rounded.Dns)
 )
 

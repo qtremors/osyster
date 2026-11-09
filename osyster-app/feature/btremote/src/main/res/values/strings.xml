@@ -88,6 +88,81 @@
     <string name="remote_green">Green</string>
     <string name="remote_yellow">Yellow</string>
     <string name="remote_blue">Blue</string>
+    <string name="remote_mode_remote">Remote</string>
+    <string name="remote_mode_touchpad">Touchpad</string>
+    <string name="remote_mode_keyboard">Keyboard</string>
+    <string name="remote_mode_gamepad">Gamepad</string>
+    <string name="remote_air_mouse">Air mouse</string>
+    <string name="remote_air_mouse_summary">Point the phone to move the pointer; the pad still clicks and scrolls</string>
+
+    <!-- Keyboard mode -->
+    <string name="remote_keyboard_field">Type here</string>
+    <string name="remote_keyboard_field_hint">Sent as you type. Send on the keyboard is Enter.</string>
+    <string name="remote_keyboard_clear">Clear the field</string>
+    <string name="remote_key_ctrl">Ctrl</string>
+    <string name="remote_key_alt">Alt</string>
+    <string name="remote_key_shift">Shift</string>
+    <string name="remote_key_win">Win</string>
+    <string name="remote_key_esc">Esc</string>
+    <string name="remote_key_tab">Tab</string>
+    <string name="remote_key_backspace">Backspace</string>
+    <string name="remote_key_home">Home</string>
+    <string name="remote_key_end">End</string>
+    <string name="remote_key_page_up">PgUp</string>
+    <string name="remote_key_page_down">PgDn</string>
+    <string name="remote_key_insert">Ins</string>
+    <string name="remote_key_delete">Del</string>
+    <string name="remote_key_print_screen">PrtSc</string>
+    <string name="remote_key_function">F%1$d</string>
+
+    <!-- Gamepad mode -->
+    <string name="pad_a">A</string>
+    <string name="pad_b">B</string>
+    <string name="pad_x">X</string>
+    <string name="pad_y">Y</string>
+    <string name="pad_l1">L1</string>
+    <string name="pad_l2">L2</string>
+    <string name="pad_r1">R1</string>
+    <string name="pad_r2">R2</string>
+    <string name="pad_select">Select</string>
+    <string name="pad_home">Home</string>
+    <string name="pad_start">Start</string>
+    <string name="pad_left_stick">Left stick. Tap to press it in.</string>
+    <string name="pad_right_stick">Right stick. Tap to press it in.</string>
+
+    <!-- More keys -->
+    <string name="remote_more_keys">More keys</string>
+    <string name="remote_more_computer">Computer</string>
+    <string name="remote_more_windows">Windows</string>
+    <string name="remote_more_apps">Apps</string>
+    <string name="remote_more_media">Media and display</string>
+    <string name="remote_more_confirm_title">%1$s the computer?</string>
+    <string name="remote_more_confirm_body">It acts right away, like the computer\'s own key.</string>
+    <string name="remote_more_confirm_windows">This uses the Windows Win+X menu, so it only works on Windows. Unsaved work may be lost.</string>
+    <string name="pc_lock">Lock</string>
+    <string name="pc_sleep">Sleep</string>
+    <string name="pc_power_key">Power key</string>
+    <string name="pc_shut_down">Shut down</string>
+    <string name="pc_restart">Restart</string>
+    <string name="pc_screenshot">Screenshot to Pictures</string>
+    <string name="pc_task_manager">Task Manager</string>
+    <string name="pc_show_desktop">Show desktop</string>
+    <string name="remote_key_browser">Browser</string>
+    <string name="remote_key_calculator">Calculator</string>
+    <string name="remote_key_files">Files</string>
+    <string name="remote_key_email">Email</string>
+    <string name="remote_key_search">Search</string>
+    <string name="remote_key_play">Play</string>
+    <string name="remote_key_pause">Pause</string>
+    <string name="remote_key_stop">Stop</string>
+    <string name="remote_key_repeat">Repeat</string>
+    <string name="remote_key_brightness_down">Dimmer</string>
+    <string name="remote_key_brightness_up">Brighter</string>
+    <string name="remote_touchpad_hint">Move with one finger and tap to click. Two fingers scroll, and a two-finger tap right-clicks.</string>
+    <string name="remote_scroll_strip">Scroll</string>
+    <string name="remote_mouse_left">Left</string>
+    <string name="remote_mouse_middle">Middle</string>
+    <string name="remote_mouse_right">Right</string>
     <string name="remote_swipe_hint">Swipe to move, tap to select</string>
     <string name="remote_digit_enter">Enter</string>
 
@@ -104,8 +179,22 @@
     <string name="remote_settings_minimal_summary">Only the D-pad, Home, Back, and volume</string>
     <string name="remote_settings_enter">OK sends Enter</string>
     <string name="remote_settings_enter_summary">For computers and TVs that ignore the remote\'s select key</string>
+    <string name="remote_settings_volume_keys">Volume keys control the device</string>
+    <string name="remote_settings_volume_keys_summary">While the remote is open, the phone\'s volume keys change the TV or computer volume</string>
     <string name="remote_settings_notification">Buttons in the notification</string>
     <string name="remote_settings_notification_summary">Play, pause, and disconnect while connected</string>
+
+    <string name="remote_settings_touchpad">Touchpad</string>
+    <string name="remote_settings_pointer_speed">Pointer speed</string>
+    <string name="remote_settings_scroll_speed">Scroll speed</string>
+    <string name="remote_settings_speed_value">%1$.2fx</string>
+    <string name="remote_settings_invert">Reverse scrolling</string>
+    <string name="remote_settings_invert_summary">Fingers moving down scroll the page down, like a mouse wheel</string>
+
+    <!-- Widget -->
+    <string name="remote_widget_name">Bluetooth remote</string>
+    <string name="remote_widget_desc">Media and volume keys for the connected TV or computer</string>
+    <string name="remote_widget_not_connected">Not connected. Tap to open the remote</string>
 
     <!-- Notification -->
     <string name="remote_channel_name">Bluetooth remote</string>

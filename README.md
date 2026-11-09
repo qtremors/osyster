@@ -59,7 +59,7 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 - **App stopper:** a grid of apps you often stop. Tap to stop (directly with Shizuku or root, otherwise through App info), long-press to open, freeze, find in the store, or remove.
 - **Stay awake:** keep the screen on for 15 minutes to "until I stop it" with a countdown notification, or while charging through Android's own setting.
 - **Flashlight:** brightness levels on Android 13 and newer, and a pulse that blinks the torch for new notifications while the screen is off.
-- **Bluetooth remote:** control an Android TV, computer, or tablet as its Bluetooth remote and keyboard, with nothing to install on it: D-pad or swipe pad, volume, channels, media, and color keys. Android 9 and newer.
+- **Bluetooth remote:** control an Android TV, computer, or tablet with nothing to install on it: a remote with D-pad or swipe pad, volume, channels, media, and color keys; a touchpad and air mouse; a keyboard with shortcuts and F-keys; a gamepad; and computer actions like lock, sleep, and restart. The layout follows the device, and a home-screen widget has the media keys. Android 9 and newer.
 - **Activity launcher:** open and pin any app's exported screens.
 - **Link actions:** choose which app opens each link, copy or share links.
 - **Widgets:** a glance list of battery, memory, storage, data, and screen time, 3x3 disc and 5x1 capsule music players, and data usage widgets, all added from one page.

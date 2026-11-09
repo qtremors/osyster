@@ -55,6 +55,7 @@ class RemoteService : Service() {
                 .distinctUntilChanged()
                 .collect { (state, settings) ->
                     getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification(state, settings))
+                    if (state.connected != wasConnected) RemoteWidget.updateAll(this@RemoteService)
                     if (wasConnected && !state.connected && !screenOpen) stopSelf()
                     wasConnected = state.connected
                 }
@@ -75,6 +76,7 @@ class RemoteService : Service() {
     override fun onDestroy() {
         hid.stop()
         scope.cancel()
+        RemoteWidget.updateAll(this)
         super.onDestroy()
     }
 

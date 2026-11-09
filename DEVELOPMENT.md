@@ -16,6 +16,7 @@
 - [Usage Data](#usage-data)
 - [System Controls](#system-controls)
 - [Power Tools Layer](#power-tools-layer)
+- [Bluetooth Remote](#bluetooth-remote)
 - [Preferences, First Run, and Backup](#preferences-first-run-and-backup)
 - [Widgets, Tiles, Shortcuts, and the Notification Listener](#widgets-tiles-shortcuts-and-the-notification-listener)
 - [UI System](#ui-system)
@@ -35,16 +36,16 @@ Osyster is a single-activity Jetpack Compose app split into 29 Gradle modules. F
 flowchart TD
     App[":app shell<br/>MainActivity, NavHost, Hilt"] --> Features
     subgraph Features[":feature:*"]
-        Home & Device & Tools & Settings & PowerTools["powertools"] & More["datausage, screenusage, appstopper,<br/>stayawake, flashlight, activitylauncher,<br/>linkactions, quicktiles, musicwidgets,<br/>onboarding, search"]
+        Home & Device & Tools & Settings & PowerTools["powertools"] & More["datausage, screenusage, appstopper,<br/>stayawake, flashlight, btremote, activitylauncher,<br/>linkactions, quicktiles, musicwidgets,<br/>onboarding, search"]
     end
     Features --> Domain
     subgraph Domain["Domain contracts (pure Kotlin)"]
-        DD[":core:device:domain"] & UD[":core:usage:domain"] & SD[":core:system:domain"] & PD[":core:preferences:domain"] & PrD[":core:privilege:domain"] & Nav[":core:navigation:api"]
+        DD[":core:device:domain"] & UD[":core:usage:domain"] & SD[":core:system:domain"] & PD[":core:preferences:domain"] & PrD[":core:privilege:domain"] & HD[":core:hid:domain"] & Nav[":core:navigation:api"]
     end
     Features --> UI[":core:ui<br/>theme, components, catalog"]
     App --> Data
     subgraph Data["Data implementations (Android)"]
-        DDa[":core:device:data"] & UDa[":core:usage:data"] & SDa[":core:system:data"] & PrDa[":core:privilege:data<br/>Shizuku, root, settings"]
+        DDa[":core:device:data"] & UDa[":core:usage:data"] & SDa[":core:system:data"] & PrDa[":core:privilege:data<br/>Shizuku, root, settings"] & HDa[":core:hid:data<br/>Bluetooth keyboard and mouse"]
     end
     Data --> Domain
 ```
@@ -94,11 +95,13 @@ osyster-app/
     preferences/domain/        Settings backup and first-run contracts
     privilege/domain|data/     Privileged shell (Shizuku, root), settings store, power apps,
                                power tools store, quiet launch
+    hid/domain|data/           Bluetooth remote: HID descriptor and reports, layouts, touchpad
+                               math, PC actions; Android HID device, scanner, remote settings
     ui/                        Theme, components, destination catalog and help, formatting
   feature/
     home/ device/ tools/ settings/
     datausage/ screenusage/ appstopper/
-    stayawake/ flashlight/ activitylauncher/ linkactions/
+    stayawake/ flashlight/ btremote/ activitylauncher/ linkactions/
     quicktiles/ musicwidgets/ onboarding/ search/ powertools/
 ```
 
@@ -151,6 +154,18 @@ On screens 840 dp and wider the shell shows two panes: the tab list on the left 
 - **Feature side:** `:feature:powertools` draws Power setup, Power saving, Scale and animations, Status bar icons, System tweaks, Shut-Up!, Standby apps, and Freeze behind one `PowerToolRoute`. Every page extends `PowerViewModel`, which re-reads state whenever a watched setting or the access status changes, and shows an access card instead of failing silently.
 - **Tiles:** `PowerTile` checks access first and opens Power setup when it is missing.
 
+## Bluetooth Remote
+
+The phone registers with Android as a Bluetooth HID device (Android 9+), so a TV, computer, or tablet sees a keyboard, mouse, and remote and needs no app. The descriptor and the first three report types are adapted from BT Remote by Atharok (GPLv3).
+
+- **Descriptor (`HidReports`):** five report IDs: remote keys (Consumer page, one 16-bit usage), keyboard (modifiers and one key), mouse (buttons, X, Y, wheel), system control (power down, sleep, wake), and gamepad (16 buttons, hat, two sticks). A host reads the descriptor when it pairs, so a device paired before a descriptor change must pair again before new parts work.
+- **Keys are held, not tapped:** the screen sends a press on touch-down and the release on lift, so the host repeats a held key the way a real remote does.
+- **Layouts (`RemoteLayout`):** automatic follows the Bluetooth device class (TV, computer, phone); the choice is saved per device by address. `keyboardFor` maps remote keys to keyboard keys on computers (arrows, Enter, Esc, the Windows key), and the ViewModel remembers which kind it held so the release matches.
+- **Inputs:** Remote, Touchpad, Keyboard, and Gamepad, saved per device. `PointerAccumulator` keeps fractions so slow moves add up and splits fast moves into reports of at most 127; `ScrollAccumulator` turns finger travel into wheel clicks; `typingChange` turns field edits into Backspace and new keys; `airMouseDelta` turns gyroscope rates into pointer moves with a dead zone.
+- **Computer actions (`PcAction`):** shortcuts (Win+L, Win+Print Screen, Ctrl+Shift+Esc, Win+D), the system control keys for sleep and power, and timed Win+X menu sequences for shut down and restart (Windows only).
+- **Lifetime:** `RemoteService` is a connected-device foreground service that runs while the remote screen is open or a device is connected, refreshes the remote widget, and offers play, pause, and disconnect in its notification.
+- **Privacy:** addresses are used only to connect and to key saved choices, never shown; the store is a DataStore, which backup rules leave out.
+
 ## Preferences, First Run, and Backup
 
 - Theme options live in `ThemeSettings` (DataStore) in `:core:ui`; Home layout, app stopper, and tool stores live in their data modules.
@@ -199,11 +214,12 @@ Run one Gradle command at a time with `--max-workers=2`, then stop the daemon.
 cd osyster-app
 ./gradlew :app:testDebugUnitTest --max-workers=2
 ./gradlew :core:privilege:domain:test :core:system:domain:test :core:preferences:domain:test --max-workers=2
+./gradlew :core:hid:domain:test --max-workers=2
 ./gradlew :feature:search:testDebugUnitTest :feature:device:testDebugUnitTest --max-workers=2
 ./gradlew --stop
 ```
 
-Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling, stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
+Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling and the widget toggle, HID reports and layouts, touchpad and typing math, stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
 
 ## Build and Release
 

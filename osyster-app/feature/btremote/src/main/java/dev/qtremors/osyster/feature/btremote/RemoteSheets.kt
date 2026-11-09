@@ -23,6 +23,13 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import dev.qtremors.osyster.core.ui.components.SectionHeader
+import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Slider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -85,10 +92,48 @@ internal fun RemoteSettingsSheet(
                 onCheckedChange = { on -> onChange { it.copy(enterSelects = on) } }
             )
             ToggleRow(
+                title = stringResource(R.string.remote_settings_volume_keys),
+                supporting = stringResource(R.string.remote_settings_volume_keys_summary),
+                checked = settings.volumeKeys,
+                onCheckedChange = { on -> onChange { it.copy(volumeKeys = on) } }
+            )
+            ToggleRow(
                 title = stringResource(R.string.remote_settings_notification),
                 supporting = stringResource(R.string.remote_settings_notification_summary),
                 checked = settings.notificationButtons,
                 onCheckedChange = { on -> onChange { it.copy(notificationButtons = on) } }
+            )
+        }
+        SectionHeader(stringResource(R.string.remote_settings_touchpad))
+        ConnectedGroup {
+            SpeedRow(stringResource(R.string.remote_settings_pointer_speed), settings.mouseSpeed) { speed -> onChange { it.copy(mouseSpeed = speed) } }
+            SpeedRow(stringResource(R.string.remote_settings_scroll_speed), settings.scrollSpeed) { speed -> onChange { it.copy(scrollSpeed = speed) } }
+            ToggleRow(
+                title = stringResource(R.string.remote_settings_invert),
+                supporting = stringResource(R.string.remote_settings_invert_summary),
+                checked = settings.invertScroll,
+                onCheckedChange = { on -> onChange { it.copy(invertScroll = on) } }
+            )
+        }
+    }
+}
+
+/** A speed from half to three times normal, saved when the finger lets go. */
+@Composable
+private fun SpeedRow(title: String, value: Float, onChange: (Float) -> Unit) {
+    var current by remember(value) { mutableFloatStateOf(value) }
+    Surface(color = MaterialTheme.colorScheme.surfaceBright, modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.remote_settings_speed_value, current), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            }
+            Slider(
+                value = current,
+                onValueChange = { current = it },
+                onValueChangeFinished = { onChange(current) },
+                valueRange = 0.5f..3f,
+                steps = 9
             )
         }
     }

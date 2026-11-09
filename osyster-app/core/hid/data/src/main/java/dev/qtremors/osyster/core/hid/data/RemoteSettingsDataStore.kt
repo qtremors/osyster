@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.qtremors.osyster.core.hid.domain.LayoutChoice
+import dev.qtremors.osyster.core.hid.domain.RemoteInput
 import dev.qtremors.osyster.core.hid.domain.RemoteNavigation
 import dev.qtremors.osyster.core.hid.domain.RemoteSettings
 import dev.qtremors.osyster.core.hid.domain.RemoteSettingsStore
@@ -72,6 +73,18 @@ internal class RemoteSettingsDataStore @Inject constructor(
         }
     }
 
+    override val deviceInputs: Flow<Map<String, RemoteInput>> = context.remoteStore.data.map { prefs ->
+        prefs.asMap().mapNotNull { (key, value) ->
+            val id = key.name.removePrefix(INPUT_PREFIX).takeIf { key.name.startsWith(INPUT_PREFIX) } ?: return@mapNotNull null
+            val input = RemoteInput.entries.firstOrNull { it.name == value } ?: return@mapNotNull null
+            id to input
+        }.toMap()
+    }
+
+    override suspend fun setDeviceInput(id: String, input: RemoteInput) {
+        context.remoteStore.edit { prefs -> prefs[stringPreferencesKey(INPUT_PREFIX + id)] = input.name }
+    }
+
     override suspend fun lastDeviceId(): String? = context.remoteStore.data.first()[Keys.lastDevice]
 
     override suspend fun setLastDeviceId(id: String?) {
@@ -98,5 +111,6 @@ internal class RemoteSettingsDataStore @Inject constructor(
     private companion object {
         val SPEED_RANGE = 0.5f..3f
         const val LAYOUT_PREFIX = "layout:"
+        const val INPUT_PREFIX = "input:"
     }
 }

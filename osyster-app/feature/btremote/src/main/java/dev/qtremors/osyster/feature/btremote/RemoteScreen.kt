@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Bluetooth
 import androidx.compose.material.icons.rounded.BluetoothDisabled
 import androidx.compose.material.icons.rounded.Computer
@@ -73,12 +74,16 @@ internal fun RemoteScreen(viewModel: RemoteViewModel, onAppSettings: () -> Unit)
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
     var scanOpen by rememberSaveable { mutableStateOf(false) }
     var pairOpen by rememberSaveable { mutableStateOf(false) }
+    var moreOpen by rememberSaveable { mutableStateOf(false) }
     val title = stringResource(Tool.BT_REMOTE.label.title)
 
     OsysterScaffold(
         title = title,
         actions = {
             if (state.connected) {
+                IconButton(shapes = IconButtonDefaults.shapes(), onClick = { moreOpen = true }) {
+                    Icon(Icons.Rounded.Apps, contentDescription = stringResource(R.string.remote_more_keys))
+                }
                 IconButton(shapes = IconButtonDefaults.shapes(), onClick = viewModel::disconnect) {
                     Icon(Icons.Rounded.LinkOff, contentDescription = stringResource(R.string.remote_disconnect))
                 }
@@ -126,6 +131,7 @@ internal fun RemoteScreen(viewModel: RemoteViewModel, onAppSettings: () -> Unit)
             }
         )
     }
+    if (moreOpen && state.connected) MoreKeysSheet(viewModel = viewModel, onDismiss = { moreOpen = false })
     if (pairOpen) PairFromTvSheet(phoneName = viewModel.localName(), onDismiss = { pairOpen = false })
 }
 

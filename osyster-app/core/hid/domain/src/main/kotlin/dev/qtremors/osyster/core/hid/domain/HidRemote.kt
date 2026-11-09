@@ -80,6 +80,12 @@ interface HidRemote {
 
     /** Sends one mouse report; see [HidReports.mouse]. */
     fun mouse(buttons: Int = 0, dx: Int = 0, dy: Int = 0, wheel: Int = 0)
+
+    /** Presses and lets go of a power or sleep key. */
+    suspend fun tapSystem(key: SystemKey)
+
+    /** Sends the whole gamepad state; the host keeps it until the next report. */
+    fun gamepad(state: GamepadState)
 }
 
 /** Finds nearby Bluetooth devices that are not paired yet. */

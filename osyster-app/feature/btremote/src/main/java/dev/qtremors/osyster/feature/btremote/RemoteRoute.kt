@@ -17,7 +17,20 @@ import dev.qtremors.osyster.core.hid.domain.HidRemote
 import dev.qtremors.osyster.core.hid.domain.HidState
 import dev.qtremors.osyster.core.hid.domain.HidSupport
 import dev.qtremors.osyster.core.hid.domain.KeyStroke
+import kotlinx.coroutines.delay
+import dev.qtremors.osyster.core.hid.domain.KeyCodes
+import dev.qtremors.osyster.core.hid.domain.hatFor
+import dev.qtremors.osyster.core.hid.domain.UsKeyboard
+import dev.qtremors.osyster.core.hid.domain.PcAction
+import dev.qtremors.osyster.core.hid.domain.MacroStep
+import dev.qtremors.osyster.core.hid.domain.GamepadState
+import dev.qtremors.osyster.core.hid.domain.GamepadButton
 import dev.qtremors.osyster.core.hid.domain.LayoutChoice
+import dev.qtremors.osyster.core.hid.domain.typingChange
+import dev.qtremors.osyster.core.hid.domain.defaultInput
+import dev.qtremors.osyster.core.hid.domain.RemoteInput
+import dev.qtremors.osyster.core.hid.domain.PointerAccumulator
+import dev.qtremors.osyster.core.hid.domain.ScrollAccumulator
 import dev.qtremors.osyster.core.hid.domain.RemoteDevice
 import dev.qtremors.osyster.core.hid.domain.RemoteKey
 import dev.qtremors.osyster.core.hid.domain.RemoteLayout
@@ -78,6 +91,18 @@ class RemoteViewModel @Inject constructor(
     val layout: StateFlow<RemoteLayout> = combine(hid.state, layoutChoice) { state, choice -> layoutFor(choice, state.device?.kind) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, RemoteLayout.TV)
 
+    private val deviceInputs: StateFlow<Map<String, RemoteInput>> = store.deviceInputs.stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
+    /** The connected device's input: how it was last left, or its layout's default. */
+    val input: StateFlow<RemoteInput> = combine(hid.state, deviceInputs, layout) { state, inputs, layout ->
+        state.device?.id?.let { inputs[it] } ?: defaultInput(layout)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, RemoteInput.REMOTE)
+
+    fun setInput(input: RemoteInput) {
+        val device = hid.state.value.device ?: return
+        viewModelScope.launch { store.setDeviceInput(device.id, input) }
+    }
+
     /** Saves [choice] as [device]'s layout, used every time it connects. */
     fun setLayout(device: RemoteDevice, choice: LayoutChoice) {
         viewModelScope.launch { store.setDeviceLayout(device.id, choice) }
@@ -100,6 +125,113 @@ class RemoteViewModel @Inject constructor(
 
     fun tap(key: RemoteKey) {
         viewModelScope.launch { hid.tap(key) }
+    }
+
+    // ---- Mouse ----
+
+    private val pointer = PointerAccumulator()
+    private val wheel = ScrollAccumulator()
+
+    /** Mouse buttons held down right now; sent with every move so press-and-drag works. */
+    private var buttons = 0
+
+    fun moveMouse(dx: Float, dy: Float) {
+        pointer.move(dx, dy, settings.value.mouseSpeed).forEach { (x, y) -> hid.mouse(buttons, x, y) }
+    }
+
+    fun scrollMouse(dy: Float) {
+        val clicks = wheel.scroll(dy, settings.value.scrollSpeed, settings.value.invertScroll)
+        if (clicks != 0) hid.mouse(buttons, wheel = clicks)
+    }
+
+    fun click(button: Int) {
+        hid.mouse(buttons or button)
+        hid.mouse(buttons)
+    }
+
+    fun pressButton(button: Int) {
+        buttons = buttons or button
+        hid.mouse(buttons)
+    }
+
+    fun releaseButton(button: Int) {
+        buttons = buttons and button.inv()
+        hid.mouse(buttons)
+    }
+
+    // ---- Keyboard ----
+
+    /** Ctrl, Alt, Shift, and Win held for the next key, then let go, like a phone keyboard's shift. */
+    private val _modifiers = MutableStateFlow(0)
+    val modifiers: StateFlow<Int> = _modifiers.asStateFlow()
+
+    fun toggleModifier(bit: Int) {
+        _modifiers.value = _modifiers.value xor bit
+    }
+
+    /** Sends one key with the sticky modifiers, then clears them. */
+    fun pressKey(stroke: KeyStroke) {
+        val withModifiers = stroke.copy(modifiers = stroke.modifiers or _modifiers.value)
+        _modifiers.value = 0
+        viewModelScope.launch { hid.type(listOf(withModifiers)) }
+    }
+
+    /** Typed text: each character as a US keyboard key; the first one takes the sticky modifiers. */
+    fun typeText(text: String) {
+        val strokes = UsKeyboard.strokesFor(text).toMutableList()
+        if (strokes.isEmpty()) return
+        strokes[0] = strokes[0].copy(modifiers = strokes[0].modifiers or _modifiers.value)
+        _modifiers.value = 0
+        viewModelScope.launch { hid.type(strokes) }
+    }
+
+    /** Holds a key (with the sticky modifiers) until [releaseKey], so arrows and Backspace repeat. */
+    fun holdKey(stroke: KeyStroke) {
+        hid.holdKeyboard(stroke.copy(modifiers = stroke.modifiers or _modifiers.value))
+        _modifiers.value = 0
+    }
+
+    fun releaseKey() = hid.releaseKeyboard()
+
+    fun backspace(count: Int) {
+        if (count <= 0) return
+        viewModelScope.launch { hid.type(List(count) { KeyStroke(KeyCodes.BACKSPACE) }) }
+    }
+
+    // ---- Computer actions ----
+
+    fun run(action: PcAction) {
+        viewModelScope.launch {
+            action.steps.forEach { step ->
+                when (step) {
+                    is MacroStep.Keys -> hid.type(listOf(step.stroke))
+                    is MacroStep.System -> hid.tapSystem(step.key)
+                    is MacroStep.Wait -> delay(step.millis)
+                }
+            }
+        }
+    }
+
+    // ---- Gamepad ----
+
+    private var pad = GamepadState()
+    private val arrows = BooleanArray(4)
+
+    fun gamepadButton(button: GamepadButton, pressed: Boolean) {
+        pad = pad.with(button, pressed)
+        hid.gamepad(pad)
+    }
+
+    /** The D-pad: [index] is 0 up, 1 down, 2 left, 3 right. */
+    fun gamepadArrow(index: Int, pressed: Boolean) {
+        arrows[index] = pressed
+        pad = pad.copy(hat = hatFor(arrows[0], arrows[1], arrows[2], arrows[3]))
+        hid.gamepad(pad)
+    }
+
+    fun gamepadStick(left: Boolean, x: Float, y: Float) {
+        pad = if (left) pad.copy(leftX = x, leftY = y) else pad.copy(rightX = x, rightY = y)
+        hid.gamepad(pad)
     }
 
     /** One digit or Enter on the channel pad, sent as keyboard keys like a remote's number pad. */

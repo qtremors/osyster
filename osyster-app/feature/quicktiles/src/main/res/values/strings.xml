@@ -48,6 +48,8 @@
     <string name="widgets_data_today_summary">Today, 7 days, or this month, by connection or direction</string>
     <string name="widgets_data_combined">Data today and month</string>
     <string name="widgets_data_combined_summary">Both totals side by side</string>
+    <string name="widgets_remote">Bluetooth remote</string>
+    <string name="widgets_remote_summary">Media and volume keys for the connected TV or computer</string>
     <string name="widgets_private_dns">Private DNS</string>
     <string name="widgets_private_dns_summary">A switch for Private DNS. Needs settings access</string>
     <string name="glance_card_loading">Reading your phone…</string>

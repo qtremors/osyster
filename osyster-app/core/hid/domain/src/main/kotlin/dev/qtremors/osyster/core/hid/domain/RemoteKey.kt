@@ -17,19 +17,36 @@ enum class RemoteKey(val usage: Int) {
     GREEN(0x6A),
     BLUE(0x6B),
     YELLOW(0x6C),
+    BRIGHTNESS_UP(0x6F),
+    BRIGHTNESS_DOWN(0x70),
     CHANNEL_UP(0x9C),
     CHANNEL_DOWN(0x9D),
+    PLAY(0xB0),
+    PAUSE(0xB1),
     FAST_FORWARD(0xB3),
     REWIND(0xB4),
     NEXT(0xB5),
     PREVIOUS(0xB6),
     STOP(0xB7),
+    REPEAT(0xBC),
     PLAY_PAUSE(0xCD),
     MUTE(0xE2),
     VOLUME_UP(0xE9),
     VOLUME_DOWN(0xEA),
+    EMAIL(0x18A),
+    CALCULATOR(0x192),
+    FILES(0x194),
+    BROWSER(0x196),
+    SEARCH(0x221),
     HOME(0x223),
     BACK(0x224)
+}
+
+/** The power keys of the System control page; Windows and Linux follow them, macOS mostly does not. */
+enum class SystemKey(val bit: Int) {
+    POWER_DOWN(0x01),
+    SLEEP(0x02),
+    WAKE(0x04)
 }
 
 /** One keyboard press: the held modifier bits ([Modifiers]) and one key code ([KeyCodes]). */

@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.qtremors.osyster.core.hid.domain.Connection
 import dev.qtremors.osyster.core.hid.domain.DeviceKind
+import dev.qtremors.osyster.core.hid.domain.GamepadState
 import dev.qtremors.osyster.core.hid.domain.HidRemote
 import dev.qtremors.osyster.core.hid.domain.HidReports
 import dev.qtremors.osyster.core.hid.domain.HidState
@@ -28,6 +29,7 @@ import dev.qtremors.osyster.core.hid.domain.KeyStroke
 import dev.qtremors.osyster.core.hid.domain.RemoteDevice
 import dev.qtremors.osyster.core.hid.domain.RemoteKey
 import dev.qtremors.osyster.core.hid.domain.RemoteSettingsStore
+import dev.qtremors.osyster.core.hid.domain.SystemKey
 import dev.qtremors.osyster.core.runtime.di.AppDispatchers
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -182,6 +184,16 @@ internal class AndroidHidRemote @Inject constructor(
 
     override fun mouse(buttons: Int, dx: Int, dy: Int, wheel: Int) {
         send(HidReports.MOUSE_ID, HidReports.mouse(buttons, dx, dy, wheel))
+    }
+
+    override suspend fun tapSystem(key: SystemKey) {
+        send(HidReports.SYSTEM_ID, HidReports.system(key))
+        delay(TAP_MILLIS)
+        send(HidReports.SYSTEM_ID, HidReports.system(null))
+    }
+
+    override fun gamepad(state: GamepadState) {
+        send(HidReports.GAMEPAD_ID, HidReports.gamepad(state))
     }
 
     // ---- Android callbacks ----
