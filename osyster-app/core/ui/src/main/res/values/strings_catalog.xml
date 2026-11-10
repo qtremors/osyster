@@ -43,6 +43,10 @@
     <string name="tool_screen_usage_summary">Screen time and app opens</string>
     <string name="tool_app_stopper">App stopper</string>
     <string name="tool_app_stopper_summary">Keep a list of apps to stop quickly</string>
+    <string name="tool_measure">Measure</string>
+    <string name="tool_measure_summary">Level, compass, ruler, and sound meter</string>
+    <string name="tool_app_manager">App manager</string>
+    <string name="tool_app_manager_summary">Every app, its permissions, and how much risk it carries</string>
     <string name="tool_battery_history">Battery history</string>
     <string name="tool_battery_history_summary">Charging, drain, and temperature over the last month</string>
     <string name="tool_notification_history">Notification history</string>

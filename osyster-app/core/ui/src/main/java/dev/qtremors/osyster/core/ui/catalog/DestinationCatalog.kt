@@ -19,6 +19,8 @@ import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.SettingsRemote
 import androidx.compose.material.icons.rounded.FormatSize
 import androidx.compose.material.icons.rounded.HourglassBottom
+import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.NotificationsActive
@@ -85,6 +87,8 @@ val Tool.label: DestinationLabel
         Tool.DATA_USAGE -> DestinationLabel(R.string.tool_data_usage, R.string.tool_data_usage_summary, Icons.Rounded.DataUsage)
         Tool.SCREEN_USAGE -> DestinationLabel(R.string.tool_screen_usage, R.string.tool_screen_usage_summary, Icons.Rounded.HourglassBottom)
         Tool.APP_STOPPER -> DestinationLabel(R.string.tool_app_stopper, R.string.tool_app_stopper_summary, Icons.Rounded.StopCircle)
+        Tool.MEASURE -> DestinationLabel(R.string.tool_measure, R.string.tool_measure_summary, Icons.Rounded.Straighten)
+        Tool.APP_MANAGER -> DestinationLabel(R.string.tool_app_manager, R.string.tool_app_manager_summary, Icons.Rounded.Apps)
         Tool.BATTERY_HISTORY -> DestinationLabel(R.string.tool_battery_history, R.string.tool_battery_history_summary, Icons.Rounded.BatteryChargingFull)
         Tool.NOTIFICATION_HISTORY -> DestinationLabel(R.string.tool_notification_history, R.string.tool_notification_history_summary, Icons.Rounded.NotificationsActive)
         Tool.STAY_AWAKE -> DestinationLabel(R.string.tool_stay_awake, R.string.tool_stay_awake_summary, Icons.Rounded.Coffee)

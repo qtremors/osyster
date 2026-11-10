@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="apps_title">App manager</string>
+    <string name="apps_permissions_title">Permissions</string>
+
+    <!-- Overview -->
+    <string name="apps_installed">Installed apps</string>
+    <string name="apps_installed_split">%1$d user · %2$d system</string>
+    <string name="apps_updated_today">Updated today</string>
+    <string name="apps_risk_high">High risk</string>
+    <string name="apps_risk_medium">Medium risk</string>
+    <string name="apps_risk_low">Low risk</string>
+    <string name="apps_special">Special access</string>
+    <string name="apps_count">%1$d apps</string>
+    <string name="apps_explore_permissions">Explore permissions</string>
+    <string name="apps_explore_permissions_detail">Which apps can see your contacts, location, camera, and more</string>
+
+    <!-- List -->
+    <string name="apps_search">Search apps</string>
+    <string name="apps_filter_user">User apps</string>
+    <string name="apps_filter_system">System</string>
+    <string name="apps_filter_all">All</string>
+    <string name="apps_sort">Sort</string>
+    <string name="apps_sort_name">Name</string>
+    <string name="apps_sort_updated">Recently updated</string>
+    <string name="apps_sort_installed">Recently installed</string>
+    <string name="apps_sort_size">Size</string>
+    <string name="apps_row_detail">%1$s · %2$s</string>
+    <string name="apps_disabled">Disabled</string>
+    <string name="apps_none_title">No apps match</string>
+    <string name="apps_none_message">Try another name, or show all apps.</string>
+
+    <!-- Details -->
+    <string name="apps_version">Version %1$s</string>
+    <string name="apps_open">Open</string>
+    <string name="apps_info">App info</string>
+    <string name="apps_store">Store</string>
+    <string name="apps_uninstall">Uninstall</string>
+    <string name="apps_save_apk">Save APK</string>
+    <string name="apps_save_split">This app is installed in %1$d parts, so one APK file would not install on its own.</string>
+    <string name="apps_saved">Saved</string>
+    <string name="apps_save_failed">Couldn\'t save the APK</string>
+    <string name="apps_usage">Screen time and data</string>
+    <string name="apps_usage_detail">This app\'s usage page</string>
+    <string name="apps_details">Details</string>
+    <string name="apps_package">Package</string>
+    <string name="apps_installer">Installed by</string>
+    <string name="apps_installer_unknown">Preinstalled or from a file</string>
+    <string name="apps_installed_on">Installed</string>
+    <string name="apps_updated_on">Updated</string>
+    <string name="apps_target_sdk">Target SDK</string>
+    <string name="apps_min_sdk">Minimum SDK</string>
+    <string name="apps_sdk_value">%1$d (Android %2$s)</string>
+    <string name="apps_abis">Native code</string>
+    <string name="apps_abis_none">None</string>
+    <string name="apps_apk_size">APK size</string>
+    <string name="apps_storage">Storage</string>
+    <string name="apps_storage_value">%1$s app · %2$s data · %3$s cache</string>
+    <string name="apps_storage_none">Needs usage access</string>
+    <string name="apps_battery">Battery</string>
+    <string name="apps_battery_unrestricted">Unrestricted, can run in the background freely</string>
+    <string name="apps_battery_optimized">Optimized by Android</string>
+    <string name="apps_permissions_allowed">Allowed</string>
+    <string name="apps_permissions_denied">Not allowed</string>
+    <string name="apps_permissions_special">Special access</string>
+    <string name="apps_permissions_other">Granted at install</string>
+    <string name="apps_permissions_none">Asks for no permissions</string>
+    <string name="apps_components">Components</string>
+    <string name="apps_activities">Activities</string>
+    <string name="apps_services">Services</string>
+    <string name="apps_receivers">Receivers</string>
+    <string name="apps_providers">Providers</string>
+    <string name="apps_libraries">Native libraries</string>
+    <string name="apps_certificate">Signing certificate</string>
+    <string name="apps_certificate_detail">SHA-256, tap to copy</string>
+    <string name="apps_copied">Copied</string>
+    <string name="apps_not_found">This app is no longer installed.</string>
+
+    <!-- Permissions explorer -->
+    <string name="apps_scope_user">User apps</string>
+    <string name="apps_scope_all">All apps</string>
+    <string name="apps_area_count">%1$d of %2$d allowed</string>
+    <string name="apps_area_apps">Apps that ask</string>
+    <string name="apps_area_none">No app asks for this.</string>
+
+    <string name="group_phone">Phone, SMS, and contacts</string>
+    <string name="group_location">Location</string>
+    <string name="group_files">Files and media</string>
+    <string name="group_notifications">Notifications</string>
+    <string name="group_calendar">Calendar</string>
+    <string name="group_sensors">Camera, mic, and sensors</string>
+
+    <string name="area_contacts">Contacts</string>
+    <string name="area_sms">SMS</string>
+    <string name="area_call_log">Call logs</string>
+    <string name="area_phone">Phone</string>
+    <string name="area_location">Location</string>
+    <string name="area_background_location">Location in the background</string>
+    <string name="area_nearby">Nearby devices</string>
+    <string name="area_files">Files</string>
+    <string name="area_photos">Photos and videos</string>
+    <string name="area_music">Music and audio</string>
+    <string name="area_notifications">Notifications</string>
+    <string name="area_calendar">Calendar</string>
+    <string name="area_camera">Camera</string>
+    <string name="area_microphone">Microphone</string>
+    <string name="area_body_sensors">Body sensors</string>
+    <string name="area_activity">Physical activity</string>
+
+    <string name="special_accessibility">Accessibility</string>
+    <string name="special_notification_listener">Notification access</string>
+    <string name="special_device_admin">Device admin</string>
+    <string name="special_all_files">All files</string>
+    <string name="special_install_apps">Install other apps</string>
+    <string name="special_draw_over">Display over other apps</string>
+    <string name="special_usage">Usage access</string>
+    <string name="special_settings">Modify system settings</string>
+    <string name="special_alarms">Alarms and reminders</string>
+    <string name="special_battery">Unrestricted battery</string>
+</resources>

@@ -67,6 +67,22 @@ data object BtRemoteRoute : AppRoute
 @Serializable
 data class BarcodeRoute(val pickPicture: Boolean = false) : AppRoute
 
+/** Level, compass, ruler, and sound meter. */
+@Serializable
+data object MeasureRoute : AppRoute
+
+/** Every installed app, with counts, risk, and search. */
+@Serializable
+data object AppManagerRoute : AppRoute
+
+/** What every app may see and do, by permission area. */
+@Serializable
+data object AppPermissionsRoute : AppRoute
+
+/** One app's page in the App manager. */
+@Serializable
+data class AppDetailsRoute(val packageName: String) : AppRoute
+
 /** Battery level, charging, drain, and temperature over the last month. */
 @Serializable
 data object BatteryHistoryRoute : AppRoute

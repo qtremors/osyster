@@ -104,11 +104,13 @@ osyster-app/
                                Room recorder, history queries, pictures, settings
     battery/domain|data/       Battery history: samples, charge sessions, drain; Room store,
                                JobScheduler reading, settings
+    apps/domain|data/          App manager: permission areas, risk, counts, sorting; installed
+                               apps through PackageManager, app-ops, and storage stats
     ui/                        Theme, components, destination catalog and help, formatting
   feature/
     home/ device/ tools/ settings/
     datausage/ screenusage/ appstopper/
-    stayawake/ flashlight/ btremote/ barcode/ notificationhistory/ batteryhistory/ activitylauncher/ linkactions/
+    stayawake/ flashlight/ btremote/ barcode/ notificationhistory/ batteryhistory/ appmanager/ measure/ activitylauncher/ linkactions/
     quicktiles/ musicwidgets/ onboarding/ search/ powertools/
 ```
 
@@ -201,6 +203,16 @@ Off until the person turns it on; it needs the notification access the music wid
 - **Removal:** `onNotificationRemoved` with Android's reason marks plain entries as dismissed, opened, or removed by the app. Chat messages keep no removal mark, since apps cancel them whenever a chat is read.
 - **Screens:** a list by day with search (`LIKE` over every text column) and an app filter, pages of 200, and a sheet with the whole entry, its picture, progress, replies, buttons, and for chats the conversation as bubbles.
 
+## App Manager
+
+- **Reading (`AndroidInstalledApps`):** one `getInstalledPackages(GET_PERMISSIONS)` call gives every app's requested permissions and grant flags; launchable apps come from one launcher query; accessibility services, notification listeners, and device admins from one call each. Special access granted through app-ops is checked only for apps that ask for it, through the public `AppOpsManager.permissionToOp` and `unsafeCheckOpNoThrow` (a "default" mode falls back to the permission grant, as Android reads it). The list is kept 30 seconds so moving between pages is instant; coming back to the list reads it again.
+- **App pages:** components and the signing certificate (SHA-256 of the current signer) from `getPackageInfo`, native code ABIs and library names from the APK's `lib/` folder (APKs are world-readable), and storage from `StorageStatsManager` with usage access. Saving an APK copies the single base APK through `CreateDocument`; split apps are explained instead, since one part would not install.
+- **Risk (`AppSummary.risk`, pure and tested):** the highest risk among the areas and special access an app was allowed. Areas map from permission names in `PermissionArea.of`.
+
+## Measure
+
+- Level from `TYPE_GRAVITY` (or the accelerometer), compass from `TYPE_ROTATION_VECTOR` with the heading smoothed the short way round north, ruler from the display's `xdpi`, and sound from `AudioRecord` buffers turned into decibels below full scale plus a fixed offset. Each sensor is registered in a `DisposableEffect`, so only the open tool runs. The math (`MeasureMath.kt`) is tested in `:feature:measure:testDebugUnitTest`.
+
 ## Battery History
 
 - **Reading (`RoomBatteryHistory.recordNow`):** the sticky `ACTION_BATTERY_CHANGED` broadcast (level, status, plug, temperature, voltage, health, cycle count on Android 14+) plus `BATTERY_PROPERTY_CURRENT_NOW`, normalized to milliamps and signed by charging (`normalizeCurrent`). Nothing is registered; the broadcast is only read.
@@ -256,12 +268,12 @@ Run one Gradle command at a time with `--max-workers=2`, then stop the daemon.
 cd osyster-app
 ./gradlew :app:testDebugUnitTest --max-workers=2
 ./gradlew :core:privilege:domain:test :core:system:domain:test :core:preferences:domain:test --max-workers=2
-./gradlew :core:hid:domain:test :core:barcode:domain:test :core:notifications:domain:test :core:battery:domain:test --max-workers=2
+./gradlew :core:hid:domain:test :core:barcode:domain:test :core:notifications:domain:test :core:battery:domain:test :core:apps:domain:test --max-workers=2
 ./gradlew :feature:search:testDebugUnitTest :feature:device:testDebugUnitTest --max-workers=2
 ./gradlew --stop
 ```
 
-Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling and the widget toggle, HID reports and layouts, touchpad and typing math, barcode content parsing, actions, and search templates, notification history rules, battery sessions and drain, music tiles sizing and layouts (`:feature:musicwidgets:testDebugUnitTest`), stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
+Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling and the widget toggle, HID reports and layouts, touchpad and typing math, barcode content parsing, actions, and search templates, notification history rules, battery sessions and drain, app risk and permission counts, measure math, music tiles sizing and layouts (`:feature:musicwidgets:testDebugUnitTest`), stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
 
 ## Build and Release
 

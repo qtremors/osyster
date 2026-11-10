@@ -33,8 +33,8 @@ android {
         minSdk = 26
         targetSdk = 37
         // versionCode is versionName without dots.
-        versionCode = 38
-        versionName = "0.3.8"
+        versionCode = 39
+        versionName = "0.3.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -145,6 +145,7 @@ dependencies {
     implementation(project(":core:barcode:data"))
     implementation(project(":core:notifications:data"))
     implementation(project(":core:battery:data"))
+    implementation(project(":core:apps:data"))
     implementation(project(":core:ui"))
     implementation(project(":feature:home"))
     implementation(project(":feature:device"))
@@ -157,6 +158,8 @@ dependencies {
     implementation(project(":feature:barcode"))
     implementation(project(":feature:notificationhistory"))
     implementation(project(":feature:batteryhistory"))
+    implementation(project(":feature:appmanager"))
+    implementation(project(":feature:measure"))
     implementation(project(":feature:activitylauncher"))
     implementation(project(":feature:linkactions"))
     implementation(project(":feature:quicktiles"))

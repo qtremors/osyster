@@ -41,13 +41,17 @@ Osyster asks for each permission only when a tool needs it, and every tool works
 
 - **Network state and Wi-Fi state:** connection type, signal, and link speed on the Network page and the live speed meter.
 - **Foreground service, special use, and wake lock:** Stay awake keeps the screen on with a visible notification and Stop button.
-- **Query all packages:** App stopper, Activity launcher, Link actions, Shut-Up!, Freeze, and Standby apps list your apps by name and icon.
+- **Query all packages:** App stopper, Activity launcher, Link actions, Shut-Up!, Freeze, Standby apps, the App manager, and Music apps list your apps by name and icon. The App manager also reads what Android shows any app about them: versions, permissions and whether they were allowed, special access, components, and signing certificates. It changes nothing.
+- **Request delete packages:** the App manager's Uninstall button opens Android's own uninstall prompt. Android asks every time.
 - **Shizuku API permission:** lets an installed Shizuku recognise Osyster. It does nothing unless you allow Osyster in Shizuku.
 
 ### Runtime permissions (asked when you choose)
 
 - **Notifications (Android 13 and newer):** the Stay awake countdown and the Shut-Up! Restore notification.
 - **Location:** Android requires it to show the Wi-Fi network name. Asked only when you tap to show it on the Network page. Osyster never reads your position.
+- **Camera:** the barcode scanner reads codes from the camera preview on the phone. Asked when the scanner opens. Frames are never saved.
+- **Microphone:** the Measure tool's sound meter turns what the microphone hears into a loudness number while that page is open. Asked when you open it. Nothing is recorded or saved.
+- **Nearby devices (Bluetooth):** the Bluetooth remote pairs with and controls your TV, computer, or tablet. Asked when you open it. Device addresses are used only to connect and are never shown or sent.
 - **Phone:** carrier, network type, and roaming on the Network page. Asked only when you tap to show them. Your phone number and IMEI are never read.
 
 ### Special access (granted in system Settings)

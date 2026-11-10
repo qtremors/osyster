@@ -1,10 +1,19 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.3.8
+> **Version:** 0.3.9
 > **Last Updated:** 2026-11-10
 
 ---
+
+## [0.3.9] - 2026-11-10
+
+- **App Manager**: A new tool listing every installed app with its version and where it came from, with counts of user and system apps, apps updated today, and how many carry high or medium risk or special access. Search, show user, system, or all apps, and sort by name, update, install, or size.
+- **App Pages**: Each app shows its installer, install and update dates, target and minimum Android, native code, APK size, storage (app, data, and cache), battery setting, its components, native libraries, and signing certificate. Open it, its App info, its store page, uninstall it, save its APK, or see its screen time and data.
+- **Permissions Explorer**: Every permission area (contacts, SMS, call logs, phone, location, nearby devices, files, photos, music, notifications, calendar, camera, microphone, body sensors, activity) with how many apps were allowed it out of how many ask, plus special access such as accessibility, notification access, device admin, all files, installing apps, and display over other apps. Tap one to see the apps behind it.
+- **Risk at a Glance**: Apps are marked high, medium, or low risk from what they were allowed, not from what they ask for, and each app page lists its permissions as allowed, not allowed, or special access with readable names.
+- **Measure**: A new tool with a bubble level that taps when flat, a compass that names the direction you face, a ruler at true size in centimeters or inches, and a sound meter. Sensors run only while a tool is open; the microphone is read, never recorded.
+- **Privacy Policy**: Now lists the camera, Bluetooth, and microphone permissions and how each is used.
 
 ## [0.3.8] - 2026-11-10
 

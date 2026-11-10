@@ -7,7 +7,11 @@ import androidx.navigation.toRoute
 import dev.qtremors.osyster.core.navigation.AppRoute
 import dev.qtremors.osyster.core.navigation.ActivityLauncherRoute
 import dev.qtremors.osyster.core.navigation.AppStopperRoute
+import dev.qtremors.osyster.core.navigation.AppDetailsRoute
+import dev.qtremors.osyster.core.navigation.AppManagerRoute
+import dev.qtremors.osyster.core.navigation.AppPermissionsRoute
 import dev.qtremors.osyster.core.navigation.BarcodeCreateFormRoute
+import dev.qtremors.osyster.core.navigation.MeasureRoute
 import dev.qtremors.osyster.core.navigation.BatteryHistoryRoute
 import dev.qtremors.osyster.core.navigation.BarcodeCreateRoute
 import dev.qtremors.osyster.core.navigation.BarcodeHistoryRoute
@@ -33,6 +37,8 @@ internal fun Tool.route(): AppRoute = when (this) {
     Tool.APP_STOPPER -> AppStopperRoute
     Tool.NOTIFICATION_HISTORY -> NotificationHistoryRoute
     Tool.BATTERY_HISTORY -> BatteryHistoryRoute
+    Tool.APP_MANAGER -> AppManagerRoute
+    Tool.MEASURE -> MeasureRoute
     Tool.STAY_AWAKE -> StayAwakeRoute
     Tool.FLASHLIGHT -> FlashlightRoute
     Tool.BT_REMOTE -> BtRemoteRoute
@@ -69,6 +75,8 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
         destination.hasRoute<AppStopperRoute>() -> Tool.APP_STOPPER
         destination.hasRoute<NotificationHistoryRoute>() -> Tool.NOTIFICATION_HISTORY
         destination.hasRoute<BatteryHistoryRoute>() -> Tool.BATTERY_HISTORY
+        destination.hasRoute<MeasureRoute>() -> Tool.MEASURE
+        destination.hasRoute<AppManagerRoute>() || destination.hasRoute<AppPermissionsRoute>() || destination.hasRoute<AppDetailsRoute>() -> Tool.APP_MANAGER
         destination.hasRoute<StayAwakeRoute>() -> Tool.STAY_AWAKE
         destination.hasRoute<FlashlightRoute>() -> Tool.FLASHLIGHT
         destination.hasRoute<BtRemoteRoute>() -> Tool.BT_REMOTE
@@ -85,6 +93,6 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
 
 internal fun NavDestination.isToolPage(): Boolean =
     hasRoute<DataUsageRoute>() || hasRoute<ScreenUsageRoute>() || hasRoute<AppStopperRoute>() ||
-        hasRoute<StayAwakeRoute>() || hasRoute<FlashlightRoute>() || hasRoute<BtRemoteRoute>() || hasRoute<NotificationHistoryRoute>() || hasRoute<BatteryHistoryRoute>() || hasRoute<BarcodeRoute>() || hasRoute<BarcodeHistoryRoute>() ||
+        hasRoute<StayAwakeRoute>() || hasRoute<FlashlightRoute>() || hasRoute<BtRemoteRoute>() || hasRoute<NotificationHistoryRoute>() || hasRoute<BatteryHistoryRoute>() || hasRoute<MeasureRoute>() || hasRoute<AppManagerRoute>() || hasRoute<AppPermissionsRoute>() || hasRoute<AppDetailsRoute>() || hasRoute<BarcodeRoute>() || hasRoute<BarcodeHistoryRoute>() ||
         hasRoute<BarcodeCreateRoute>() || hasRoute<BarcodeCreateFormRoute>() || hasRoute<ActivityLauncherRoute>() ||
         hasRoute<LinkActionsRoute>() || hasRoute<QuickTilesRoute>() || hasRoute<WidgetsRoute>() || hasRoute<PowerToolRoute>()

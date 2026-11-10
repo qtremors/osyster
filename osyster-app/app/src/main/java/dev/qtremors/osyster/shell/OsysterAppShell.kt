@@ -57,6 +57,12 @@ import dev.qtremors.osyster.feature.activitylauncher.registerActivityLauncherRou
 import dev.qtremors.osyster.core.navigation.BarcodeCreateFormRoute
 import dev.qtremors.osyster.core.navigation.BarcodeCreateRoute
 import dev.qtremors.osyster.core.navigation.BarcodeHistoryRoute
+import dev.qtremors.osyster.feature.measure.registerMeasureRoute
+import dev.qtremors.osyster.feature.measure.MeasureDestination
+import dev.qtremors.osyster.feature.appmanager.registerAppManagerRoutes
+import dev.qtremors.osyster.feature.appmanager.AppManagerDestination
+import dev.qtremors.osyster.core.navigation.AppPermissionsRoute
+import dev.qtremors.osyster.core.navigation.AppDetailsRoute
 import dev.qtremors.osyster.core.navigation.BatteryHistoryRoute
 import dev.qtremors.osyster.feature.barcode.BarcodeDestination
 import dev.qtremors.osyster.feature.barcode.registerBarcodeRoutes
@@ -298,6 +304,21 @@ private fun NavGraphBuilder.osysterGraph(
         }
     }
     registerBatteryHistoryRoute()
+    registerMeasureRoute { target ->
+        when (target) {
+            MeasureDestination.AppSettings -> system.openAppSettings()
+        }
+    }
+    registerAppManagerRoutes { target ->
+        when (target) {
+            AppManagerDestination.Permissions -> navController.navigate(AppPermissionsRoute)
+            is AppManagerDestination.Details -> navController.navigate(AppDetailsRoute(target.packageName))
+            is AppManagerDestination.Usage -> navController.navigate(AppUsageRoute(target.packageName))
+            is AppManagerDestination.Open -> system.launchApp(target.packageName)
+            is AppManagerDestination.AppInfo -> system.openAppInfo(target.packageName)
+            is AppManagerDestination.Store -> system.openStoreListing(target.packageName)
+        }
+    }
     registerActivityLauncherRoute()
     registerLinkActionsRoute { target ->
         when (target) {
