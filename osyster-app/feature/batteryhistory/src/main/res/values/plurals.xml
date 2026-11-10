@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="battery_minutes">
+        <item quantity="one">%d min</item>
+        <item quantity="other">%d min</item>
+    </plurals>
+    <plurals name="battery_charges_value">
+        <item quantity="one">Once, %2$d%% added</item>
+        <item quantity="other">%1$d times, %2$d%% added</item>
+    </plurals>
+    <plurals name="battery_hours">
+        <item quantity="one">%d hr</item>
+        <item quantity="other">%d hr</item>
+    </plurals>
+</resources>

@@ -42,19 +42,14 @@
                 android:resource="@xml/widget_music_grid_info" />
         </receiver>
 
-        <receiver
-            android:name=".MusicTilesWidgetReceiver"
-            android:exported="true"
-            android:label="@string/widget_music_tiles_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_music_tiles_info" />
-        </receiver>
 
-        <!-- Opens when a music grid or music tiles widget is placed, and from its widget settings. -->
+        <!-- Which apps the music widgets follow; opened from the Widgets page and widget setup. -->
+        <activity
+            android:name=".MusicAppsActivity"
+            android:exported="false"
+            android:label="@string/music_apps_title" />
+
+        <!-- Opens when a music tiles widget is placed, and from its widget settings. -->
         <activity
             android:name=".MusicTileSetupActivity"
             android:excludeFromRecents="true"

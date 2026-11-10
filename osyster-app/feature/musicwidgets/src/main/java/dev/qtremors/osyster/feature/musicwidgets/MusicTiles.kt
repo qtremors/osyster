@@ -12,8 +12,14 @@ import android.provider.Settings
 import android.widget.RemoteViews
 import androidx.core.graphics.ColorUtils
 
-/** The two music tile widgets: the 3x3 grid and the 3x2 tiles. */
+/** The two arrangements of the music tiles widget: the 3x3 grid and the 3x2 tiles. */
 enum class MusicTileKind { GRID, TILES }
+
+/**
+ * The widget's size: [AUTO] picks the grid when it is about three cells tall and the tiles when
+ * it is two, so resizing on the home screen switches between them; the others keep one.
+ */
+enum class TileSize { AUTO, LARGE, SMALL }
 
 /** What the two side tiles hold. */
 enum class SideButtons { SHUFFLE_REPEAT, PLAY_REPEAT }
@@ -28,8 +34,16 @@ data class MusicTileConfig(
     val controlsTop: Boolean = true,
     val sideLeft: Boolean = true,
     val buttons: SideButtons = SideButtons.SHUFFLE_REPEAT,
-    val playBySide: Boolean = false
+    val playBySide: Boolean = false,
+    val size: TileSize = TileSize.AUTO
 ) {
+    /** The arrangement for a widget [heightDp] tall (its portrait height, null when unknown). */
+    fun kind(heightDp: Int?): MusicTileKind = when (size) {
+        TileSize.LARGE -> MusicTileKind.GRID
+        TileSize.SMALL -> MusicTileKind.TILES
+        TileSize.AUTO -> if ((heightDp ?: GRID_MIN_HEIGHT_DP) >= GRID_MIN_HEIGHT_DP) MusicTileKind.GRID else MusicTileKind.TILES
+    }
+
     fun layout(kind: MusicTileKind): Int = when (kind) {
         MusicTileKind.GRID -> when {
             controlsTop && sideLeft -> R.layout.widget_music_grid_top_left
@@ -69,7 +83,8 @@ internal object MusicTileSettings {
             sideLeft = prefs.getBoolean("left_$id", true),
             buttons = prefs.getString("buttons_$id", null)?.let { saved -> SideButtons.entries.firstOrNull { it.name == saved } }
                 ?: SideButtons.SHUFFLE_REPEAT,
-            playBySide = prefs.getBoolean("play_side_$id", false)
+            playBySide = prefs.getBoolean("play_side_$id", false),
+            size = prefs.getString("size_$id", null)?.let { saved -> TileSize.entries.firstOrNull { it.name == saved } } ?: TileSize.AUTO
         )
     }
 
@@ -79,12 +94,13 @@ internal object MusicTileSettings {
             .putBoolean("left_$id", config.sideLeft)
             .putString("buttons_$id", config.buttons.name)
             .putBoolean("play_side_$id", config.playBySide)
+            .putString("size_$id", config.size.name)
             .apply()
     }
 
     fun delete(context: Context, ids: IntArray) {
         val editor = prefs(context).edit()
-        ids.forEach { editor.remove("top_$it").remove("left_$it").remove("buttons_$it").remove("play_side_$it") }
+        ids.forEach { editor.remove("top_$it").remove("left_$it").remove("buttons_$it").remove("play_side_$it").remove("size_$it") }
         editor.apply()
     }
 }
@@ -96,9 +112,10 @@ internal object MusicTileSettings {
  */
 internal object MusicTileRenderer {
 
-    fun update(context: Context, manager: AppWidgetManager, id: Int, kind: MusicTileKind) {
+    fun update(context: Context, manager: AppWidgetManager, id: Int) {
         runCatching {
             val config = MusicTileSettings.read(context, id)
+            val kind = config.kind(heightDp(manager, id))
             val views = RemoteViews(context.packageName, config.layout(kind))
             fill(context, views, kind, config, id)
             manager.updateAppWidget(id, views)
@@ -107,13 +124,12 @@ internal object MusicTileRenderer {
 
     fun updateAll(context: Context) {
         val manager = AppWidgetManager.getInstance(context) ?: return
-        listOf(
-            MusicTileKind.GRID to MusicGridWidgetReceiver::class.java,
-            MusicTileKind.TILES to MusicTilesWidgetReceiver::class.java
-        ).forEach { (kind, receiver) ->
-            (manager.getAppWidgetIds(ComponentName(context, receiver)) ?: IntArray(0)).forEach { update(context, manager, it, kind) }
-        }
+        (manager.getAppWidgetIds(ComponentName(context, MusicGridWidgetReceiver::class.java)) ?: IntArray(0)).forEach { update(context, manager, it) }
     }
+
+    /** The widget's height in portrait, where launchers report it as the largest height. */
+    fun heightDp(manager: AppWidgetManager, id: Int): Int? =
+        manager.getAppWidgetOptions(id)?.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)?.takeIf { it > 0 }
 
     /** Fills [views], built from [config]'s layout for [kind]; also used by the setup screen's preview. */
     fun fill(context: Context, views: RemoteViews, kind: MusicTileKind, config: MusicTileConfig, id: Int) {
@@ -226,14 +242,18 @@ internal object MusicTileRenderer {
     private const val MIN_CONTRAST = 3.0
 }
 
-/** Shared behavior of the two tile widgets: draw on update and resize, forget settings on removal. */
-abstract class MusicTileWidgetReceiver(private val kind: MusicTileKind) : AppWidgetProvider() {
+/**
+ * The music tiles widget. At 3x3: the art (2x2), previous, play, and next in a row, and shuffle
+ * and repeat in a column. At 3x2: the art and two buttons beside it. Resizing redraws it in the
+ * arrangement that fits, unless a size is picked in its setup.
+ */
+class MusicGridWidgetReceiver : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
-        ids.forEach { MusicTileRenderer.update(context, manager, it, kind) }
+        ids.forEach { MusicTileRenderer.update(context, manager, it) }
     }
 
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager, id: Int, newOptions: Bundle) {
-        MusicTileRenderer.update(context, manager, id, kind)
+        MusicTileRenderer.update(context, manager, id)
     }
 
     override fun onDeleted(context: Context, ids: IntArray) {
@@ -241,8 +261,5 @@ abstract class MusicTileWidgetReceiver(private val kind: MusicTileKind) : AppWid
     }
 }
 
-/** 3x3: the art (2x2), previous, play, and next in a row, shuffle and repeat in a column. */
-class MusicGridWidgetReceiver : MusicTileWidgetReceiver(MusicTileKind.GRID)
-
-/** 3x2: the art (2x2) and two buttons in a column beside it. */
-class MusicTilesWidgetReceiver : MusicTileWidgetReceiver(MusicTileKind.TILES)
+/** About three home-screen cells; shorter widgets get the 3x2 arrangement. */
+internal const val GRID_MIN_HEIGHT_DP = 170

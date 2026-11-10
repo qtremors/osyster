@@ -1,10 +1,20 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.3.7
+> **Version:** 0.3.8
 > **Last Updated:** 2026-11-10
 
 ---
+
+## [0.3.8] - 2026-11-10
+
+- **Battery History**: A new tool that draws the battery level over the last day, week, or month with charging shaded, lists each charge (from and to what level, how long, the charger, average current, highest temperature), and sums up average drain on battery, the temperature range, health, and charge cycles where Android reports them.
+- **Light on Battery**: Readings come from Android's own last battery report every half hour, through Android's job scheduler, batched with other work and paused in Doze. Opening the page adds a fresh reading. Readings are kept 30 days and can be turned off or cleared.
+- **From the Battery Page**: The Battery page links to Battery history, above Android's battery usage by app.
+- **Battery Widget**: A 2x2 widget with the level, whether it is charging, the temperature, and the last day as a small chart. It redraws when a reading is saved, with no schedule of its own, and opens Battery history.
+- **Music Apps**: Choose which apps the music widgets follow: any app playing media, or only the ones you pick, so a video or game in the background never takes over the disc, capsule, or tiles. Apps that have played media are listed, along with music and podcast apps. Open it from the Widgets page or a music widget's setup.
+- **One Music Tiles Widget**: The music grid and music tiles are now one widget. Set to Auto, it shows play controls at 3x3 and two buttons at 3x2 and switches as you resize it; or keep one size. Every button choice is still in its setup.
+- **Lighter Starts**: Launcher shortcuts are only published again when they change, so the app starts faster when Android runs background work.
 
 ## [0.3.7] - 2026-11-10
 

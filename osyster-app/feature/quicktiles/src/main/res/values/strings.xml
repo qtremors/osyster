@@ -48,10 +48,13 @@
     <string name="widgets_data_today_summary">Today, 7 days, or this month, by connection or direction</string>
     <string name="widgets_data_combined">Data today and month</string>
     <string name="widgets_data_combined_summary">Both totals side by side</string>
-    <string name="widgets_music_grid">Music grid</string>
-    <string name="widgets_music_grid_summary">3x3: art, play controls, shuffle, and repeat as tiles</string>
-    <string name="widgets_music_tiles">Music tiles</string>
-    <string name="widgets_music_tiles_summary">3x2: art with shuffle and repeat, or play and repeat</string>
+    <string name="widgets_battery">Battery</string>
+    <string name="widgets_battery_summary">2x2: level, charging, and the last day as a chart</string>
+    <string name="widgets_music_section">Music widgets</string>
+    <string name="widgets_music_apps">Music apps</string>
+    <string name="widgets_music_apps_summary">Show music only from the apps you choose, not videos or games</string>
+    <string name="widgets_music_grid">Music tiles</string>
+    <string name="widgets_music_grid_summary">3x3 or 3x2: art and buttons as tiles, sized as you resize it</string>
     <string name="widgets_remote">Bluetooth remote</string>
     <string name="widgets_remote_summary">Media and volume keys for the connected TV or computer</string>
     <string name="widgets_private_dns">Private DNS</string>

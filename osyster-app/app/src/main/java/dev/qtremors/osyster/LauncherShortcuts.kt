@@ -27,6 +27,10 @@ internal object LauncherShortcuts {
     fun publish(context: Context) {
         val limit = ShortcutManagerCompat.getMaxShortcutCountPerActivity(context).coerceAtLeast(1)
         val shortcuts = tools.take(limit).mapIndexed { rank, shortcut -> shortcut.build(context, rank) }
+        // The app also starts for background work (battery history's reading); publishing only
+        // when something changed keeps those starts light.
+        val current = runCatching { ShortcutManagerCompat.getDynamicShortcuts(context) }.getOrDefault(emptyList())
+        if (current.map { Triple(it.id, it.shortLabel.toString(), it.rank) }.toSet() == shortcuts.map { Triple(it.id, it.shortLabel.toString(), it.rank) }.toSet()) return
         runCatching { ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts) }
     }
 

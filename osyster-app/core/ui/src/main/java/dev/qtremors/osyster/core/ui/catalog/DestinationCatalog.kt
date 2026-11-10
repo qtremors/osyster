@@ -19,6 +19,7 @@ import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.SettingsRemote
 import androidx.compose.material.icons.rounded.FormatSize
 import androidx.compose.material.icons.rounded.HourglassBottom
+import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.PhotoCamera
@@ -84,6 +85,7 @@ val Tool.label: DestinationLabel
         Tool.DATA_USAGE -> DestinationLabel(R.string.tool_data_usage, R.string.tool_data_usage_summary, Icons.Rounded.DataUsage)
         Tool.SCREEN_USAGE -> DestinationLabel(R.string.tool_screen_usage, R.string.tool_screen_usage_summary, Icons.Rounded.HourglassBottom)
         Tool.APP_STOPPER -> DestinationLabel(R.string.tool_app_stopper, R.string.tool_app_stopper_summary, Icons.Rounded.StopCircle)
+        Tool.BATTERY_HISTORY -> DestinationLabel(R.string.tool_battery_history, R.string.tool_battery_history_summary, Icons.Rounded.BatteryChargingFull)
         Tool.NOTIFICATION_HISTORY -> DestinationLabel(R.string.tool_notification_history, R.string.tool_notification_history_summary, Icons.Rounded.NotificationsActive)
         Tool.STAY_AWAKE -> DestinationLabel(R.string.tool_stay_awake, R.string.tool_stay_awake_summary, Icons.Rounded.Coffee)
         Tool.FLASHLIGHT -> DestinationLabel(R.string.tool_flashlight, R.string.tool_flashlight_summary, Icons.Rounded.FlashlightOn)

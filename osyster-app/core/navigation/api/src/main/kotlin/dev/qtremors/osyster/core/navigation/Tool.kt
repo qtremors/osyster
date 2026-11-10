@@ -9,6 +9,7 @@ enum class Tool(val id: String, val group: ToolGroup, val access: ToolAccess = T
     SCREEN_USAGE("screen_usage", ToolGroup.USAGE),
     APP_STOPPER("app_stopper", ToolGroup.USAGE),
     NOTIFICATION_HISTORY("notification_history", ToolGroup.USAGE),
+    BATTERY_HISTORY("battery_history", ToolGroup.USAGE),
 
     STAY_AWAKE("stay_awake", ToolGroup.UTILITIES),
     FLASHLIGHT("flashlight", ToolGroup.UTILITIES),

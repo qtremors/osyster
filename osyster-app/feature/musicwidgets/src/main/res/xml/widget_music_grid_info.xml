@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="180dp"
-    android:minHeight="180dp"
+    android:minHeight="110dp"
     android:targetCellWidth="3"
     android:targetCellHeight="3"
     android:minResizeWidth="150dp"
-    android:minResizeHeight="150dp"
+    android:minResizeHeight="100dp"
     android:maxResizeWidth="520dp"
     android:maxResizeHeight="520dp"
     android:resizeMode="horizontal|vertical"

@@ -57,6 +57,7 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 - **Data usage:** mobile and Wi-Fi data today, this week, or this month, with a download and upload ring, hourly or daily bars, live speed, earlier periods, and app search. Tap an app for its own data and screen time.
 - **Screen usage:** seven days of screen time, hourly charts, and per-app time and opens.
 - **Notification history:** every notification with its whole text: long messages, email lists, each message of a chat (read as a conversation), your replies, its buttons, and its picture, including ones you dismissed or the app took back. Search, filter by app, choose how long to keep it, and leave apps out. Off until you turn it on, stays on the phone, and saves in small batches so it costs almost no battery.
+- **Battery history:** the battery level over a day, week, or month with each charge listed (levels, time, charger, current, temperature), average drain, temperature range, health, and cycle count where Android reports it. One reading every half hour from Android's own battery report.
 - **App stopper:** a grid of apps you often stop. Tap to stop (directly with Shizuku or root, otherwise through App info), long-press to open, freeze, find in the store, or remove.
 - **Stay awake:** keep the screen on for 15 minutes to "until I stop it" with a countdown notification, or while charging through Android's own setting.
 - **Flashlight:** brightness levels on Android 13 and newer, and a pulse that blinks the torch for new notifications while the screen is off.
@@ -64,7 +65,7 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 - **Barcode scanner:** read QR codes and barcodes with the camera (torch and zoom), from a picture with a crop frame, or from an image shared to Osyster. Links, contacts, events, phone numbers, and more open in the right app, product codes can be looked up on search sites you add, and scans stay in a history on the phone. It also creates QR codes for text, links, Wi-Fi, contacts, events, and more, and every common barcode, in your colors, saved as PNG or SVG or shared. Offline.
 - **Activity launcher:** open and pin any app's exported screens.
 - **Link actions:** choose which app opens each link, copy or share links.
-- **Widgets:** a glance list of battery, memory, storage, data, and screen time, 3x3 disc, 3x3 grid, 3x2 tiles, and 5x1 capsule music players, and data usage widgets, all added from one page.
+- **Widgets:** a glance list of battery, memory, storage, data, and screen time, a battery widget with the last day's chart, 3x3 disc, music tiles (3x3 or 3x2, adapting as you resize), and 5x1 capsule music players that follow only the music apps you choose, and data usage widgets, all added from one page.
 - **Quick Settings tiles:** Stay awake, Awake while charging, Flashlight, RAM, Data today, Color picker, Private DNS, USB debugging, Developer options, Window blur, Tap to wake, Freeze, and Restart SystemUI.
 - **Launcher shortcuts:** long-press the icon for Data usage, scanning or creating a code, Flashlight, Stay awake, Screen time, or scanning a picture.
 

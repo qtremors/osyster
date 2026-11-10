@@ -56,10 +56,14 @@ class OsysterNotificationListener : NotificationListenerService() {
     private val sessionsChangedListener = MediaSessionManager.OnActiveSessionsChangedListener { controllers ->
         handleSessionsChanged(controllers)
     }
+    private var appsListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     override fun onListenerConnected() {
         super.onListenerConnected()
         try {
+            // Picking other music apps takes effect at once: the widgets drop an app that is no
+            // longer followed and pick up one that now is.
+            appsListener = MusicApps.listen(this) { onMusicAppsChanged() }
             sessionManager = getSystemService(Context.MEDIA_SESSION_SERVICE) as? MediaSessionManager
             val componentName = ComponentName(this, OsysterNotificationListener::class.java)
             sessionManager?.addOnActiveSessionsChangedListener(sessionsChangedListener, componentName)
@@ -74,7 +78,7 @@ class OsysterNotificationListener : NotificationListenerService() {
             if (!activeNotifs.isNullOrEmpty()) {
                 val selectedPackage = selectedController?.packageName
                 val musicNotif = activeNotifs.firstOrNull { it.packageName == selectedPackage }
-                    ?: activeNotifs.firstOrNull { isMusicNotification(it) }
+                    ?: activeNotifs.firstOrNull { isMusicNotification(it) && MusicApps.allows(this, it.packageName) }
                 if (musicNotif != null) {
                     processNotification(musicNotif)
                 }
@@ -89,6 +93,8 @@ class OsysterNotificationListener : NotificationListenerService() {
             sessionManager?.removeOnActiveSessionsChangedListener(sessionsChangedListener)
         } catch (_: Throwable) {
         }
+        appsListener?.let { MusicApps.stopListening(this, it) }
+        appsListener = null
         clearSelectedController(markStopped = true)
     }
 
@@ -102,7 +108,8 @@ class OsysterNotificationListener : NotificationListenerService() {
         super.onNotificationPosted(sbn)
         if (sbn == null) return
         if (isMusicNotification(sbn)) {
-            processNotification(sbn)
+            MusicApps.markSeen(this, sbn.packageName)
+            if (MusicApps.allows(this, sbn.packageName)) processNotification(sbn)
         } else {
             flashlightPulse.onNotificationPosted(sbn.packageName, sbn.isOngoing, sbn.postTime)
         }
@@ -216,7 +223,8 @@ class OsysterNotificationListener : NotificationListenerService() {
     }
 
     private fun handleSessionsChanged(controllers: List<MediaController>?) {
-        val available = controllers.orEmpty()
+        controllers.orEmpty().forEach { MusicApps.markSeen(this, it.packageName) }
+        val available = controllers.orEmpty().filter { MusicApps.allows(this, it.packageName) }
         val currentToken = selectedController?.sessionToken
         val selectedToken = selectMediaSession(
             candidates = available.map { controller ->
@@ -466,6 +474,20 @@ class OsysterNotificationListener : NotificationListenerService() {
         } catch (_: Throwable) {}
 
         return null
+    }
+
+    /**
+     * The followed apps changed: re-pick the session, and clear what the widgets show if it came
+     * from an app that is no longer followed (players without a session leave only cached text).
+     */
+    private fun onMusicAppsChanged() {
+        refreshActiveSessions()
+        val cached = MusicWidgetManager.getTrackInfo(this)
+        if (selectedController == null && cached.packageName.isNotBlank() && !MusicApps.allows(this, cached.packageName)) {
+            MusicWidgetManager.saveTrackInfo(this, MusicTrackInfo(title = "", artist = "", packageName = "", isPlaying = false))
+            MusicWidgetManager.clearArtwork(this)
+            MusicWidgetUpdater.updateAllMusicWidgets(this)
+        }
     }
 
     private fun refreshActiveSessions() {

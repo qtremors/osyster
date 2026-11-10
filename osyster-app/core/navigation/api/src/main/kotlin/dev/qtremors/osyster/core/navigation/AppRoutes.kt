@@ -67,6 +67,10 @@ data object BtRemoteRoute : AppRoute
 @Serializable
 data class BarcodeRoute(val pickPicture: Boolean = false) : AppRoute
 
+/** Battery level, charging, drain, and temperature over the last month. */
+@Serializable
+data object BatteryHistoryRoute : AppRoute
+
 /** Saved notifications, newest first. */
 @Serializable
 data object NotificationHistoryRoute : AppRoute

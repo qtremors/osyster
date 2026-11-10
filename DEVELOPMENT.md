@@ -102,11 +102,13 @@ osyster-app/
                                Room history and search sites, scanner settings
     notifications/domain|data/ Notification history: what is kept and how chats split; batched
                                Room recorder, history queries, pictures, settings
+    battery/domain|data/       Battery history: samples, charge sessions, drain; Room store,
+                               JobScheduler reading, settings
     ui/                        Theme, components, destination catalog and help, formatting
   feature/
     home/ device/ tools/ settings/
     datausage/ screenusage/ appstopper/
-    stayawake/ flashlight/ btremote/ barcode/ notificationhistory/ activitylauncher/ linkactions/
+    stayawake/ flashlight/ btremote/ barcode/ notificationhistory/ batteryhistory/ activitylauncher/ linkactions/
     quicktiles/ musicwidgets/ onboarding/ search/ powertools/
 ```
 
@@ -199,6 +201,13 @@ Off until the person turns it on; it needs the notification access the music wid
 - **Removal:** `onNotificationRemoved` with Android's reason marks plain entries as dismissed, opened, or removed by the app. Chat messages keep no removal mark, since apps cancel them whenever a chat is read.
 - **Screens:** a list by day with search (`LIKE` over every text column) and an app filter, pages of 200, and a sheet with the whole entry, its picture, progress, replies, buttons, and for chats the conversation as bubbles.
 
+## Battery History
+
+- **Reading (`RoomBatteryHistory.recordNow`):** the sticky `ACTION_BATTERY_CHANGED` broadcast (level, status, plug, temperature, voltage, health, cycle count on Android 14+) plus `BATTERY_PROPERTY_CURRENT_NOW`, normalized to milliamps and signed by charging (`normalizeCurrent`). Nothing is registered; the broadcast is only read.
+- **Schedule (`JobBatterySampling`):** a periodic `JobScheduler` job every 30 minutes with a 10 minute flex, no new library. `OsysterApplication` schedules it on start while history is on (a pending job is left alone so its period is not reset), so it comes back after a reboot once the app runs. Android 8 and newer no longer deliver plug and unplug broadcasts to manifest receivers, so sessions come from the readings.
+- **Sessions and drain (`chargeSessions`, `drainPerHour`, pure and tested):** a session runs from the reading before the plug went in to the first reading after it came out; drain is the level lost per hour over stretches on battery. Readings older than 30 days are removed on each write.
+- **Widget (`BatteryWidget`):** after each saved reading the store sends `ACTION_BATTERY_HISTORY_UPDATED` to Osyster's own package; the widget redraws from the last day's readings (level, state, temperature, and a bitmap chart sized to the widget), so it needs no update period.
+
 ## Preferences, First Run, and Backup
 
 - Theme options live in `ThemeSettings` (DataStore) in `:core:ui`; Home layout, app stopper, and tool stores live in their data modules.
@@ -208,7 +217,7 @@ Off until the person turns it on; it needs the notification access the music wid
 
 ## Widgets, Tiles, Shortcuts, and the Notification Listener
 
-- **Music widgets:** `OsysterNotificationListener` tracks media sessions; `MusicWidgetUpdater` renders 3x3 and 5x1 RemoteViews with Palette colors; `MusicWidgetControlReceiver` sends transport controls. The same listener feeds flashlight pulse with package name, ongoing flag, and post time only, and, while history is on, hands each notification to the history recorder.
+- **Music widgets:** `OsysterNotificationListener` tracks media sessions, only from the apps `MusicApps` allows (any, or the chosen ones; changes apply at once through a preferences listener); `MusicWidgetUpdater` renders 3x3 and 5x1 RemoteViews with Palette colors; `MusicWidgetControlReceiver` sends transport controls. The same listener feeds flashlight pulse with package name, ongoing flag, and post time only, and, while history is on, hands each notification to the history recorder.
 - **Data widgets:** today, month, and combined, refreshed on demand and on a schedule.
 - **Tiles:** each feature declares its own `TileService`s; the Quick tiles page lists them by class name and offers one-tap add on Android 13 and newer.
 - **Shortcuts:** dynamic launcher shortcuts and pinned Shut-Up! shortcuts target `QuietLaunchActivity`, which has no UI.
@@ -247,12 +256,12 @@ Run one Gradle command at a time with `--max-workers=2`, then stop the daemon.
 cd osyster-app
 ./gradlew :app:testDebugUnitTest --max-workers=2
 ./gradlew :core:privilege:domain:test :core:system:domain:test :core:preferences:domain:test --max-workers=2
-./gradlew :core:hid:domain:test :core:barcode:domain:test :core:notifications:domain:test --max-workers=2
+./gradlew :core:hid:domain:test :core:barcode:domain:test :core:notifications:domain:test :core:battery:domain:test --max-workers=2
 ./gradlew :feature:search:testDebugUnitTest :feature:device:testDebugUnitTest --max-workers=2
 ./gradlew --stop
 ```
 
-Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling and the widget toggle, HID reports and layouts, touchpad and typing math, barcode content parsing, actions, and search templates, notification history rules, stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
+Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling and the widget toggle, HID reports and layouts, touchpad and typing math, barcode content parsing, actions, and search templates, notification history rules, battery sessions and drain, music tiles sizing and layouts (`:feature:musicwidgets:testDebugUnitTest`), stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
 
 ## Build and Release
 

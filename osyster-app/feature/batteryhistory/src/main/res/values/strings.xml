@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="battery_title">Battery history</string>
+    <string name="battery_widget_name">Battery</string>
+    <string name="battery_widget_desc">The battery level, whether it is charging, and the last day as a small chart</string>
+    <string name="battery_widget_placeholder">–</string>
+    <string name="battery_widget_empty">Open Battery history to start</string>
+    <string name="battery_settings">Battery history settings</string>
+
+    <string name="battery_off_title">Battery history is off</string>
+    <string name="battery_off_message">Turn it on to see charging, drain, and temperature over the last month. It reads the battery every half hour, which costs next to nothing.</string>
+    <string name="battery_turn_on">Turn on history</string>
+    <string name="battery_collecting">The first readings come within half an hour. Open this page any time to add one.</string>
+
+    <string name="battery_now_charging">Charging</string>
+    <string name="battery_now_full">Full</string>
+    <string name="battery_now_draining">On battery</string>
+    <string name="battery_current">%1$d mA</string>
+    <string name="battery_temperature">%1$s °C</string>
+    <string name="battery_cycles">%1$d charge cycles</string>
+
+    <string name="battery_day">24 hours</string>
+    <string name="battery_week">7 days</string>
+    <string name="battery_month">30 days</string>
+    <string name="battery_level_chart">Battery level over time; charging is shaded</string>
+
+    <string name="battery_stats">Summary</string>
+    <string name="battery_drain">Average drain</string>
+    <string name="battery_drain_value">%1$s%% an hour on battery</string>
+    <string name="battery_drain_none">Not enough time on battery yet</string>
+    <string name="battery_temp_range">Temperature</string>
+    <string name="battery_temp_range_value">%1$s to %2$s °C</string>
+    <string name="battery_charges">Charges</string>
+    <string name="battery_health">Health</string>
+    <string name="battery_health_good">Good</string>
+    <string name="battery_health_overheat">Overheating</string>
+    <string name="battery_health_dead">Dead</string>
+    <string name="battery_health_over_voltage">Over voltage</string>
+    <string name="battery_health_cold">Cold</string>
+    <string name="battery_health_failure">Failure</string>
+    <string name="battery_health_unknown">Not reported</string>
+
+    <string name="battery_sessions">Charging</string>
+    <string name="battery_session_title">%1$d%% to %2$d%%</string>
+    <string name="battery_session_now_line">Charging now · %1$s</string>
+    <string name="battery_session_at">At %1$d%%</string>
+    <string name="battery_session_detail">%1$s · %2$s</string>
+    <string name="battery_plug_ac">Charger</string>
+    <string name="battery_plug_usb">USB</string>
+    <string name="battery_plug_wireless">Wireless</string>
+    <string name="battery_plug_dock">Dock</string>
+    <string name="battery_plug_unknown">Plugged in</string>
+    <string name="battery_no_sessions">No charging in this time.</string>
+
+    <string name="battery_enabled">Keep battery history</string>
+    <string name="battery_enabled_detail">Reads the battery every half hour and keeps 30 days</string>
+    <string name="battery_clear">Clear history</string>
+    <string name="battery_clear_confirm">Clear battery history?</string>
+    <string name="battery_clear_body">Every saved reading is deleted from this phone.</string>
+</resources>

@@ -1,5 +1,8 @@
 package dev.qtremors.osyster.feature.musicwidgets
 
+import dev.qtremors.osyster.core.ui.components.NavigationRow
+import androidx.compose.material.icons.rounded.LibraryMusic
+import androidx.compose.material.icons.Icons
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
@@ -52,9 +55,9 @@ import dev.qtremors.osyster.core.ui.theme.spacing
 import javax.inject.Inject
 
 /**
- * Opens when a music grid or music tiles widget is placed (and from its widget settings on
- * Android 12+): where the play controls and the side buttons go, with the real widget as a live
- * preview. Backing out cancels placing the widget.
+ * Opens when the music tiles widget is placed (and from its widget settings on Android 12+): its
+ * size, where the play controls and side buttons go, and which apps it follows, with the real
+ * widget as a live preview. Backing out cancels placing the widget.
  */
 @AndroidEntryPoint
 class MusicTileSetupActivity : ComponentActivity() {
@@ -70,37 +73,51 @@ class MusicTileSetupActivity : ComponentActivity() {
             return
         }
         enableEdgeToEdge()
-        val provider = AppWidgetManager.getInstance(this).getAppWidgetInfo(id)?.provider
-        val kind = if (provider?.className == MusicTilesWidgetReceiver::class.java.name) MusicTileKind.TILES else MusicTileKind.GRID
         val initial = MusicTileSettings.read(this, id)
+        // The arrangement this widget shows at its current size, which Auto previews first.
+        val current = initial.copy(size = TileSize.AUTO).kind(MusicTileRenderer.heightDp(AppWidgetManager.getInstance(this), id))
         val done = if (MusicTileSettings.has(this, id)) R.string.music_setup_save else R.string.music_setup_add
         setContent {
             val options by themeSettings.options.collectAsStateWithLifecycle(initialValue = null)
             val loaded = options ?: return@setContent
             OsysterTheme(options = loaded) {
-                MusicTileSetupScreen(kind, id, initial, stringResource(done)) { config -> save(id, kind, config) }
+                MusicTileSetupScreen(current, id, initial, stringResource(done), onApps = { startActivity(Intent(this, MusicAppsActivity::class.java)) }) { config -> save(id, config) }
             }
         }
     }
 
-    private fun save(id: Int, kind: MusicTileKind, config: MusicTileConfig) {
+    private fun save(id: Int, config: MusicTileConfig) {
         MusicTileSettings.write(this, id, config)
-        MusicTileRenderer.update(this, AppWidgetManager.getInstance(this), id, kind)
+        MusicTileRenderer.update(this, AppWidgetManager.getInstance(this), id)
         setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
         finish()
     }
 }
 
 @Composable
-private fun MusicTileSetupScreen(kind: MusicTileKind, id: Int, initial: MusicTileConfig, doneLabel: String, onDone: (MusicTileConfig) -> Unit) {
+private fun MusicTileSetupScreen(
+    current: MusicTileKind,
+    id: Int,
+    initial: MusicTileConfig,
+    doneLabel: String,
+    onApps: () -> Unit,
+    onDone: (MusicTileConfig) -> Unit
+) {
     var controlsTop by rememberSaveable { mutableStateOf(initial.controlsTop) }
     var sideLeft by rememberSaveable { mutableStateOf(initial.sideLeft) }
     var buttons by rememberSaveable { mutableStateOf(initial.buttons) }
     var playBySide by rememberSaveable { mutableStateOf(initial.playBySide) }
-    val config = MusicTileConfig(controlsTop, sideLeft, buttons, playBySide)
+    var size by rememberSaveable { mutableStateOf(initial.size) }
+    // With Auto, both arrangements can show, so either can be previewed and set up here.
+    var previewed by rememberSaveable { mutableStateOf(current) }
+    val config = MusicTileConfig(controlsTop, sideLeft, buttons, playBySide, size)
+    val kind = when (size) {
+        TileSize.AUTO -> previewed
+        else -> config.kind(null)
+    }
     val direction = LocalLayoutDirection.current
     val spacing = MaterialTheme.spacing
-    val title = stringResource(if (kind == MusicTileKind.GRID) R.string.widget_music_grid_name else R.string.widget_music_tiles_name)
+    val title = stringResource(R.string.widget_music_grid_name)
 
     OsysterScaffold(title = title) { padding ->
         Column(
@@ -113,6 +130,25 @@ private fun MusicTileSetupScreen(kind: MusicTileKind, id: Int, initial: MusicTil
                 verticalArrangement = Arrangement.spacedBy(spacing.medium)
             ) {
                 TilePreview(kind, config, id)
+                ConnectedGroup {
+                    ChoiceRow(
+                        title = stringResource(R.string.music_setup_size),
+                        supporting = stringResource(if (size == TileSize.AUTO) R.string.music_setup_size_auto_summary else R.string.music_setup_size_fixed_summary),
+                        options = TileSize.entries,
+                        selected = size,
+                        label = { stringResource(it.label) },
+                        onSelect = { size = it }
+                    )
+                    if (size == TileSize.AUTO) {
+                        ChoiceRow(
+                            title = stringResource(R.string.music_setup_previewing),
+                            options = MusicTileKind.entries,
+                            selected = previewed,
+                            label = { stringResource(if (it == MusicTileKind.GRID) R.string.music_setup_size_large else R.string.music_setup_size_small) },
+                            onSelect = { previewed = it }
+                        )
+                    }
+                }
                 ConnectedGroup {
                     if (kind == MusicTileKind.GRID) {
                         ChoiceRow(
@@ -150,6 +186,15 @@ private fun MusicTileSetupScreen(kind: MusicTileKind, id: Int, initial: MusicTil
                         )
                     }
                 }
+                ConnectedGroup {
+                    NavigationRow(
+                        stringResource(R.string.music_setup_apps),
+                        Icons.Rounded.LibraryMusic,
+                        "music-apps",
+                        onApps,
+                        supporting = stringResource(R.string.music_setup_apps_summary)
+                    )
+                }
             }
             Button(
                 shapes = ButtonDefaults.shapes(),
@@ -180,3 +225,10 @@ private fun TilePreview(kind: MusicTileKind, config: MusicTileConfig, id: Int) {
         }
     }
 }
+
+private val TileSize.label: Int
+    get() = when (this) {
+        TileSize.AUTO -> R.string.music_setup_size_auto
+        TileSize.LARGE -> R.string.music_setup_size_large
+        TileSize.SMALL -> R.string.music_setup_size_small
+    }

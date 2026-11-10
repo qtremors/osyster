@@ -57,8 +57,10 @@ import dev.qtremors.osyster.feature.activitylauncher.registerActivityLauncherRou
 import dev.qtremors.osyster.core.navigation.BarcodeCreateFormRoute
 import dev.qtremors.osyster.core.navigation.BarcodeCreateRoute
 import dev.qtremors.osyster.core.navigation.BarcodeHistoryRoute
+import dev.qtremors.osyster.core.navigation.BatteryHistoryRoute
 import dev.qtremors.osyster.feature.barcode.BarcodeDestination
 import dev.qtremors.osyster.feature.barcode.registerBarcodeRoutes
+import dev.qtremors.osyster.feature.batteryhistory.registerBatteryHistoryRoute
 import dev.qtremors.osyster.feature.btremote.BtRemoteDestination
 import dev.qtremors.osyster.feature.btremote.registerBtRemoteRoute
 import dev.qtremors.osyster.feature.flashlight.FlashlightDestination
@@ -227,6 +229,7 @@ private fun NavGraphBuilder.osysterGraph(
     registerDevicePageRoute { target ->
         when (target) {
             DeviceDestination.SystemBatteryUsage -> system.openBatteryUsage()
+            DeviceDestination.BatteryHistory -> navController.navigate(BatteryHistoryRoute)
             DeviceDestination.ScreenTester -> navController.navigate(ScreenTesterRoute)
             DeviceDestination.AppPermissionSettings -> system.openAppSettings()
         }
@@ -294,6 +297,7 @@ private fun NavGraphBuilder.osysterGraph(
             is NotificationHistoryDestination.OpenApp -> system.launchApp(target.packageName)
         }
     }
+    registerBatteryHistoryRoute()
     registerActivityLauncherRoute()
     registerLinkActionsRoute { target ->
         when (target) {

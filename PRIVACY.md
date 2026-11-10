@@ -26,6 +26,8 @@ The app contains **no advertisements** and **no third-party analytics, tracking,
 - Package names you add to App stopper, Shut-Up!, and Freeze lists.
 - The debugging switches as they were before a Shut-Up! launch, until you restore them.
 - Whether you finished the welcome.
+- Battery history, unless you turn it off: the battery level, charging state and charger type, temperature, voltage, and current, read every half hour and kept 30 days.
+- Which apps the music widgets follow, and apps that have played media (to offer them in that list).
 - Notification history, only if you turn it on: the text of each notification (title, full text, chat messages, replies, button labels), the app it came from, when it arrived and left, and its picture if it had one. It is cleared after the time you choose (one week to one year), and you can delete one entry, one app, or all of it.
 - Your temperature unit, refresh speed, and whether screenshots are blocked.
 
