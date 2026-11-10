@@ -1,10 +1,20 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.3.6
+> **Version:** 0.3.7
 > **Last Updated:** 2026-11-10
 
 ---
+
+## [0.3.7] - 2026-11-10
+
+- **Notification History**: A new tool that keeps every notification with all of it: the full expanded text, email and inbox lists, summary lines, progress, buttons, replies you sent from it, and its picture. Android's own history keeps a day of notifications and less of each.
+- **Chats as Conversations**: Each message of a chat is kept on its own, with sender and time, and opens as a conversation, so messages the app later takes back or replaces are still there.
+- **What Happened to It**: Each notification shows whether you dismissed it, opened it, or the app removed it.
+- **Search and Filters**: Search every saved word, filter by app, and page back through older days.
+- **Your Choice What Is Kept**: History is off until you turn it on. Choose to keep it for a week, a month, three months, or a year; leave out ongoing notifications and any app; delete one entry, one app, or everything.
+- **Light on Battery**: Notifications are saved in small batches as they arrive, with no scheduled work, and nothing is read at all while history is off. Everything stays on the phone and out of Android backup.
+- **No More What's New Sheet**: Updates open straight into the app.
 
 ## [0.3.6] - 2026-11-10
 

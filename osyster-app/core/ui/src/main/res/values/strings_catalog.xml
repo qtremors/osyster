@@ -43,6 +43,8 @@
     <string name="tool_screen_usage_summary">Screen time and app opens</string>
     <string name="tool_app_stopper">App stopper</string>
     <string name="tool_app_stopper_summary">Keep a list of apps to stop quickly</string>
+    <string name="tool_notification_history">Notification history</string>
+    <string name="tool_notification_history_summary">Every notification, with its full text, kept on the phone</string>
     <string name="tool_stay_awake">Stay awake</string>
     <string name="tool_stay_awake_summary">Keep the screen on for a while or while charging</string>
     <string name="tool_flashlight">Flashlight</string>

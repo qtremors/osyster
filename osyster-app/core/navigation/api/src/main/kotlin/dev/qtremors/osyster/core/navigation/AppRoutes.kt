@@ -67,6 +67,10 @@ data object BtRemoteRoute : AppRoute
 @Serializable
 data class BarcodeRoute(val pickPicture: Boolean = false) : AppRoute
 
+/** Saved notifications, newest first. */
+@Serializable
+data object NotificationHistoryRoute : AppRoute
+
 /** Past scans. */
 @Serializable
 data object BarcodeHistoryRoute : AppRoute

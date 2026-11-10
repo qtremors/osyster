@@ -20,18 +20,9 @@
     <string name="welcome_notifications">Notifications</string>
     <string name="welcome_notifications_detail">The Stay awake countdown and its Stop button</string>
     <string name="welcome_notification_access">Notification access</string>
-    <string name="welcome_notification_access_detail">Music widgets and flashlight pulse</string>
+    <string name="welcome_notification_access_detail">Music widgets, flashlight pulse, and notification history</string>
     <string name="welcome_granted">Allowed</string>
     <string name="welcome_access_later">Location and phone access are asked only on the Network page, when you choose to see those details.</string>
 
-    <string name="whats_new_title">What\'s new in %1$s</string>
-    <string name="whats_new_ok">Got it</string>
-    <string-array name="whats_new_items">
-        <item>Barcode scanner: Read QR codes and barcodes with the camera, from a picture, or from the share sheet, and create your own in your colors as PNG or SVG.</item>
-        <item>Bluetooth remote: Control a TV, computer, or tablet as a remote, touchpad, air mouse, keyboard, or gamepad.</item>
-        <item>Music widgets: A grid and a tiles widget with square art and buttons you can arrange.</item>
-        <item>Data widgets: Pick the period and what to show, and a compact 2x1 size.</item>
-        <item>Private DNS: A widget to turn Private DNS on and off.</item>
-    </string-array>
     <string name="welcome_allow">Allow</string>
 </resources>

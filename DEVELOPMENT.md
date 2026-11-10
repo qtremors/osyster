@@ -100,11 +100,13 @@ osyster-app/
                                math, PC actions; Android HID device, scanner, remote settings
     barcode/domain|data/       Barcode scanner: code content and actions (ZXing), search sites;
                                Room history and search sites, scanner settings
+    notifications/domain|data/ Notification history: what is kept and how chats split; batched
+                               Room recorder, history queries, pictures, settings
     ui/                        Theme, components, destination catalog and help, formatting
   feature/
     home/ device/ tools/ settings/
     datausage/ screenusage/ appstopper/
-    stayawake/ flashlight/ btremote/ barcode/ activitylauncher/ linkactions/
+    stayawake/ flashlight/ btremote/ barcode/ notificationhistory/ activitylauncher/ linkactions/
     quicktiles/ musicwidgets/ onboarding/ search/ powertools/
 ```
 
@@ -114,7 +116,7 @@ Domain and API modules are pure Kotlin JVM modules. Data modules are Android lib
 
 1. `OsysterApplication` (Hilt) publishes dynamic launcher shortcuts. A shortcut can open a page inside a tool (`DeepLinks.EXTRA_OPEN_PAGE`, such as the code creator); `shortcutRoutes` turns it into the tool's page plus the page on top, so Back lands on the tool.
 2. `MainActivity` keeps the splash screen until theme options load (two second ceiling), reads `EXTRA_OPEN_TOOL` from the launch intent (and `onNewIntent`), and builds `SystemActions` for things only an activity can do (open URLs, system settings pages, share sheets).
-3. `StartGate` wraps the shell. It decides once per launch, from `AppStartRepository`, whether to show the welcome, the "What's new" sheet, or nothing, and draws it over the running app.
+3. `StartGate` wraps the shell. It decides once per launch, from `AppStartRepository`, whether to show the welcome, and draws it over the running app.
 4. `OsysterAppShell` hosts a `NavHost` with spring transitions. Navigation 2.10 plays the `predictivePop*` transitions during the back gesture, so those are set to the same springs to keep the gesture continuous.
 5. The `FloatingTabBar` shows Home, Tools, and Settings on top-level pages and morphs into a back button with the page title on detail pages. Tabs keep their own back stacks (`saveState` / `restoreState`).
 
@@ -187,16 +189,26 @@ Codes are read on the phone with ZXing; reading and acting on them follows Barco
 - **Saving and sharing:** PNG and SVG go through `CreateDocument` (no storage permission). Shares go through a `FileProvider` (`<applicationId>.codes`) limited to `cache/codes/`, cleared before each share. File names come from the code's headline, never a Wi-Fi password.
 - **Tests:** `CodeCreationTest` draws every kind and reads it back with ZXing's own reader, round dots included, then parses it with `parseContent`.
 
+## Notification History
+
+Off until the person turns it on; it needs the notification access the music widgets already use. Everything stays on the phone.
+
+- **Capture (`NotificationCapture`, in the listener's module):** reads the title, expanded text, inbox lines, summary and info lines, progress, button labels, replies sent from the notification, and every chat message (with the earlier ones Android attaches) through `NotificationCompat.MessagingStyle`. The big picture is passed as a `PictureSource`, so it is only scaled (1080 px) and written as a JPEG if the notification is kept. Nothing is read while history is off: the listener checks `recorder.recording` first.
+- **Rules (`shouldRecord`, `entriesFor`, pure and tested):** skip Osyster, excluded apps, media players, group summaries (their children carry the content), ongoing notifications unless asked, and empty ones. A chat becomes one entry per message, keyed by the conversation title, then the app's conversation shortcut id, then the notification key; never the title Android rebuilds from the latest sender.
+- **Recorder (`RoomNotificationRecorder`):** the listener's calls drop work into a channel and return. One coroutine wakes per burst, waits a second, and writes the whole batch in one transaction. Duplicates are stopped three ways: a unique index on app, time, and content fingerprint (reposts and the shade replay on reconnect), the last fingerprint per live notification (reposts with a new time), and matching a chat's recent messages by content (apps that restamp old messages). Every six hours at most, entries past the retention, beyond 50,000, and unused pictures are removed.
+- **Removal:** `onNotificationRemoved` with Android's reason marks plain entries as dismissed, opened, or removed by the app. Chat messages keep no removal mark, since apps cancel them whenever a chat is read.
+- **Screens:** a list by day with search (`LIKE` over every text column) and an app filter, pages of 200, and a sheet with the whole entry, its picture, progress, replies, buttons, and for chats the conversation as bubbles.
+
 ## Preferences, First Run, and Backup
 
 - Theme options live in `ThemeSettings` (DataStore) in `:core:ui`; Home layout, app stopper, and tool stores live in their data modules.
-- `AppStartRepository` (contract in `:core:preferences:domain`, DataStore in `:app`) records onboarding and the last seen version; `startScreenFor` is pure and tested.
+- `AppStartRepository` (contract in `:core:preferences:domain`, DataStore in `:app`) records whether the welcome was finished; `startScreenFor` is pure and tested.
 - `SettingsBackup` writes a versioned JSON file (`format: osyster-settings`, `version: 1`) through the Storage Access Framework and refuses files that are not Osyster exports.
-- `backup_rules.xml` and `data_extraction_rules.xml` exclude caches and keys; `BackupRulesTest` keeps the two in step.
+- `backup_rules.xml` and `data_extraction_rules.xml` exclude caches, keys, databases, and saved notification pictures; `BackupRulesTest` keeps the two in step.
 
 ## Widgets, Tiles, Shortcuts, and the Notification Listener
 
-- **Music widgets:** `OsysterNotificationListener` tracks media sessions; `MusicWidgetUpdater` renders 3x3 and 5x1 RemoteViews with Palette colors; `MusicWidgetControlReceiver` sends transport controls. The same listener feeds flashlight pulse with package name, ongoing flag, and post time only.
+- **Music widgets:** `OsysterNotificationListener` tracks media sessions; `MusicWidgetUpdater` renders 3x3 and 5x1 RemoteViews with Palette colors; `MusicWidgetControlReceiver` sends transport controls. The same listener feeds flashlight pulse with package name, ongoing flag, and post time only, and, while history is on, hands each notification to the history recorder.
 - **Data widgets:** today, month, and combined, refreshed on demand and on a schedule.
 - **Tiles:** each feature declares its own `TileService`s; the Quick tiles page lists them by class name and offers one-tap add on Android 13 and newer.
 - **Shortcuts:** dynamic launcher shortcuts and pinned Shut-Up! shortcuts target `QuietLaunchActivity`, which has no UI.
@@ -235,12 +247,12 @@ Run one Gradle command at a time with `--max-workers=2`, then stop the daemon.
 cd osyster-app
 ./gradlew :app:testDebugUnitTest --max-workers=2
 ./gradlew :core:privilege:domain:test :core:system:domain:test :core:preferences:domain:test --max-workers=2
-./gradlew :core:hid:domain:test :core:barcode:domain:test --max-workers=2
+./gradlew :core:hid:domain:test :core:barcode:domain:test :core:notifications:domain:test --max-workers=2
 ./gradlew :feature:search:testDebugUnitTest :feature:device:testDebugUnitTest --max-workers=2
 ./gradlew --stop
 ```
 
-Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling and the widget toggle, HID reports and layouts, touchpad and typing math, barcode content parsing, actions, and search templates, stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
+Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling and the widget toggle, HID reports and layouts, touchpad and typing math, barcode content parsing, actions, and search templates, notification history rules, stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
 
 ## Build and Release
 

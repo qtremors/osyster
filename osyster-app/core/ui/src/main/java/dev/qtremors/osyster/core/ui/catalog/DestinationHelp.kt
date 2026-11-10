@@ -34,6 +34,7 @@ val Tool.help: Int
         Tool.FLASHLIGHT -> R.string.help_tool_flashlight
         Tool.BT_REMOTE -> R.string.help_tool_bt_remote
         Tool.BARCODE -> R.string.help_tool_barcode
+        Tool.NOTIFICATION_HISTORY -> R.string.help_tool_notification_history
         Tool.ACTIVITY_LAUNCHER -> R.string.help_tool_activity_launcher
         Tool.LINK_ACTIONS -> R.string.help_tool_link_actions
         Tool.WIDGETS -> R.string.help_tool_widgets

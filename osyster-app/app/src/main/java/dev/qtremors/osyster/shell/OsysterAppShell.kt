@@ -64,6 +64,8 @@ import dev.qtremors.osyster.feature.btremote.registerBtRemoteRoute
 import dev.qtremors.osyster.feature.flashlight.FlashlightDestination
 import dev.qtremors.osyster.feature.flashlight.registerFlashlightRoute
 import dev.qtremors.osyster.feature.linkactions.LinkActionsDestination
+import dev.qtremors.osyster.feature.notificationhistory.NotificationHistoryDestination
+import dev.qtremors.osyster.feature.notificationhistory.registerNotificationHistoryRoute
 import dev.qtremors.osyster.feature.linkactions.registerLinkActionsRoute
 import dev.qtremors.osyster.feature.powertools.PowerToolsDestination
 import dev.qtremors.osyster.feature.powertools.registerPowerToolsRoute
@@ -284,6 +286,12 @@ private fun NavGraphBuilder.osysterGraph(
             BarcodeDestination.Create -> navController.navigate(BarcodeCreateRoute)
             is BarcodeDestination.CreateForm -> navController.navigate(BarcodeCreateFormRoute(target.kind))
             is BarcodeDestination.AppSettings -> system.openAppInfo(target.packageName)
+        }
+    }
+    registerNotificationHistoryRoute { target ->
+        when (target) {
+            NotificationHistoryDestination.NotificationAccess -> system.openNotificationAccess()
+            is NotificationHistoryDestination.OpenApp -> system.launchApp(target.packageName)
         }
     }
     registerActivityLauncherRoute()

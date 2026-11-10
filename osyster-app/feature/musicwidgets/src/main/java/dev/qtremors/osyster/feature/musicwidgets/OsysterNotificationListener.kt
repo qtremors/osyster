@@ -22,18 +22,21 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
+import dev.qtremors.osyster.core.notifications.domain.NotificationRecorder
 import dev.qtremors.osyster.core.system.domain.FlashlightPulse
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 
 /**
- * Osyster's optional notification access. It follows active media sessions for the music widgets
- * and, when the user turns it on, asks for a flashlight pulse on new notifications. It never
- * reads or keeps notification text.
+ * Osyster's optional notification access. It follows active media sessions for the music widgets,
+ * asks for a flashlight pulse on new notifications when that is on, and hands notifications to
+ * the history when the person turns history on. History text stays on the phone; with history
+ * off, notification text is never read or kept.
  */
 @AndroidEntryPoint
 class OsysterNotificationListener : NotificationListenerService() {
     @Inject lateinit var flashlightPulse: FlashlightPulse
+    @Inject lateinit var recorder: NotificationRecorder
 
     private companion object {
         const val ARTWORK_DECODE_TARGET_PX = 1024
@@ -65,6 +68,9 @@ class OsysterNotificationListener : NotificationListenerService() {
             handleSessionsChanged(initialSessions)
 
             val activeNotifs = activeNotifications
+            // Anything posted while the listener was not connected is still in the shade; the
+            // history keeps it (and ignores what it already has).
+            if (recorder.recording) activeNotifs?.forEach(::record)
             if (!activeNotifs.isNullOrEmpty()) {
                 val selectedPackage = selectedController?.packageName
                 val musicNotif = activeNotifs.firstOrNull { it.packageName == selectedPackage }
@@ -99,6 +105,22 @@ class OsysterNotificationListener : NotificationListenerService() {
             processNotification(sbn)
         } else {
             flashlightPulse.onNotificationPosted(sbn.packageName, sbn.isOngoing, sbn.postTime)
+        }
+        if (recorder.recording) record(sbn)
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?, reason: Int) {
+        super.onNotificationRemoved(sbn, rankingMap, reason)
+        if (sbn != null && recorder.recording) {
+            recorder.removed(sbn.key, sbn.packageName, System.currentTimeMillis(), NotificationCapture.reason(reason))
+        }
+    }
+
+    /** Reading a notification must never take the listener down with it. */
+    private fun record(sbn: StatusBarNotification) {
+        try {
+            recorder.posted(NotificationCapture.from(this, sbn, media = isMusicNotification(sbn)))
+        } catch (_: Throwable) {
         }
     }
 

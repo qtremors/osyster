@@ -15,6 +15,7 @@ import dev.qtremors.osyster.core.navigation.DeepLinks
 import dev.qtremors.osyster.core.navigation.BtRemoteRoute
 import dev.qtremors.osyster.core.navigation.FlashlightRoute
 import dev.qtremors.osyster.core.navigation.LinkActionsRoute
+import dev.qtremors.osyster.core.navigation.NotificationHistoryRoute
 import dev.qtremors.osyster.core.navigation.PowerToolRoute
 import dev.qtremors.osyster.core.navigation.QuickTilesRoute
 import dev.qtremors.osyster.core.navigation.StayAwakeRoute
@@ -29,6 +30,7 @@ internal fun Tool.route(): AppRoute = when (this) {
     Tool.DATA_USAGE -> DataUsageRoute
     Tool.SCREEN_USAGE -> ScreenUsageRoute
     Tool.APP_STOPPER -> AppStopperRoute
+    Tool.NOTIFICATION_HISTORY -> NotificationHistoryRoute
     Tool.STAY_AWAKE -> StayAwakeRoute
     Tool.FLASHLIGHT -> FlashlightRoute
     Tool.BT_REMOTE -> BtRemoteRoute
@@ -63,6 +65,7 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
         destination.hasRoute<DataUsageRoute>() -> Tool.DATA_USAGE
         destination.hasRoute<ScreenUsageRoute>() -> Tool.SCREEN_USAGE
         destination.hasRoute<AppStopperRoute>() -> Tool.APP_STOPPER
+        destination.hasRoute<NotificationHistoryRoute>() -> Tool.NOTIFICATION_HISTORY
         destination.hasRoute<StayAwakeRoute>() -> Tool.STAY_AWAKE
         destination.hasRoute<FlashlightRoute>() -> Tool.FLASHLIGHT
         destination.hasRoute<BtRemoteRoute>() -> Tool.BT_REMOTE
@@ -79,6 +82,6 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
 
 internal fun NavDestination.isToolPage(): Boolean =
     hasRoute<DataUsageRoute>() || hasRoute<ScreenUsageRoute>() || hasRoute<AppStopperRoute>() ||
-        hasRoute<StayAwakeRoute>() || hasRoute<FlashlightRoute>() || hasRoute<BtRemoteRoute>() || hasRoute<BarcodeRoute>() || hasRoute<BarcodeHistoryRoute>() ||
+        hasRoute<StayAwakeRoute>() || hasRoute<FlashlightRoute>() || hasRoute<BtRemoteRoute>() || hasRoute<NotificationHistoryRoute>() || hasRoute<BarcodeRoute>() || hasRoute<BarcodeHistoryRoute>() ||
         hasRoute<BarcodeCreateRoute>() || hasRoute<BarcodeCreateFormRoute>() || hasRoute<ActivityLauncherRoute>() ||
         hasRoute<LinkActionsRoute>() || hasRoute<QuickTilesRoute>() || hasRoute<WidgetsRoute>() || hasRoute<PowerToolRoute>()

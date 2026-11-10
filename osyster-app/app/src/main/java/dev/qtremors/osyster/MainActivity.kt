@@ -67,7 +67,6 @@ class MainActivity : ComponentActivity() {
             val openTool by pendingTool.collectAsStateWithLifecycle()
             OsysterTheme(options = options ?: ThemeOptions()) {
                 StartGate(
-                    appVersion = BuildConfig.VERSION_NAME,
                     onNavigate = { target ->
                         when (target) {
                             OnboardingDestination.UsageAccess -> systemActions.openUsageAccess()

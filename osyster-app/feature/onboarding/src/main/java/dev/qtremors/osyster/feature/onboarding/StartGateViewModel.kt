@@ -25,8 +25,6 @@ class StartGateViewModel @Inject constructor(
     private val dataUsage: DataUsageSource,
     private val pulse: FlashlightPulse
 ) : ViewModel() {
-    private var version: String = ""
-
     /**
      * Decided once per launch from the stored state, then only ever moves to NONE. Resetting the
      * welcome from Settings therefore waits for the next start instead of covering Settings now.
@@ -38,10 +36,8 @@ class StartGateViewModel @Inject constructor(
     private val _access = MutableStateFlow(readAccess())
     val access: StateFlow<AccessStatus> = _access.asStateFlow()
 
-    fun bind(appVersion: String) {
-        if (version.isNotEmpty()) return
-        version = appVersion
-        viewModelScope.launch { _screen.value = startScreenFor(appStart.state.first(), appVersion) }
+    init {
+        viewModelScope.launch { _screen.value = startScreenFor(appStart.state.first()) }
     }
 
     fun refreshAccess() {
@@ -50,13 +46,9 @@ class StartGateViewModel @Inject constructor(
 
     fun finishWelcome() {
         _screen.value = StartScreen.NONE
-        viewModelScope.launch { appStart.finishOnboarding(version) }
+        viewModelScope.launch { appStart.finishOnboarding() }
     }
 
-    fun dismissWhatsNew() {
-        _screen.value = StartScreen.NONE
-        viewModelScope.launch { appStart.markVersionSeen(version) }
-    }
 
     private fun readAccess() = AccessStatus(
         usage = dataUsage.accessState() == UsageAccessState.GRANTED,

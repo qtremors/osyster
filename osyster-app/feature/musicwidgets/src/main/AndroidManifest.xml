@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
-        <!-- Optional notification access. Reads media sessions for the music widgets and, when
-             turned on, pulses the flashlight for new notifications. Notification text is never
-             stored or sent anywhere. -->
+        <!-- Optional notification access. Reads media sessions for the music widgets, pulses the
+             flashlight for new notifications when turned on, and saves notification history when
+             the person turns it on. History stays on the phone and is never sent anywhere. -->
         <service
             android:name=".OsysterNotificationListener"
             android:exported="true"

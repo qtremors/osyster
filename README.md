@@ -56,6 +56,7 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 
 - **Data usage:** mobile and Wi-Fi data today, this week, or this month, with a download and upload ring, hourly or daily bars, live speed, earlier periods, and app search. Tap an app for its own data and screen time.
 - **Screen usage:** seven days of screen time, hourly charts, and per-app time and opens.
+- **Notification history:** every notification with its whole text: long messages, email lists, each message of a chat (read as a conversation), your replies, its buttons, and its picture, including ones you dismissed or the app took back. Search, filter by app, choose how long to keep it, and leave apps out. Off until you turn it on, stays on the phone, and saves in small batches so it costs almost no battery.
 - **App stopper:** a grid of apps you often stop. Tap to stop (directly with Shizuku or root, otherwise through App info), long-press to open, freeze, find in the store, or remove.
 - **Stay awake:** keep the screen on for 15 minutes to "until I stop it" with a countdown notification, or while charging through Android's own setting.
 - **Flashlight:** brightness levels on Android 13 and newer, and a pulse that blinks the torch for new notifications while the screen is off.
@@ -84,7 +85,7 @@ Allow them once with an ADB command, or through [Shizuku](https://shizuku.rikka.
 - Connected rows, a floating toolbar that turns into a back button, springy motion with predictive back, haptics, and Reduce motion.
 - Temperature in °C, °F, or K, a live refresh speed setting, and Block screenshots.
 - Two panes on tablets and unfolded foldables.
-- A short welcome on first launch, a "What's new" sheet after updates, and settings export and import.
+- A short welcome on first launch, and settings export and import.
 
 ## Community and support
 
