@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.feature.activitylauncher
 
+import dev.qtremors.osyster.core.ui.components.MenuAction
+import dev.qtremors.osyster.core.ui.components.OsysterMenu
 import dev.qtremors.osyster.core.ui.components.FilterTop
 import dev.qtremors.osyster.core.ui.components.ConnectedItem
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -13,8 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.AddToHomeScreen
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
@@ -141,15 +141,12 @@ private fun ActivityRow(activity: ActivityEntry, onLaunch: (ActivityEntry) -> Un
             onClick = { onLaunch(activity) },
             onLongClick = if (activity.exported) ({ menuOpen = true }) else null
         )
-        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.launcher_pin)) },
-                leadingIcon = { Icon(Icons.AutoMirrored.Rounded.AddToHomeScreen, contentDescription = null) },
-                onClick = {
-                    menuOpen = false
-                    onPin(activity)
-                }
+        OsysterMenu(
+            expanded = menuOpen,
+            onDismissRequest = { menuOpen = false },
+            groups = listOf(
+                listOf(MenuAction(stringResource(R.string.launcher_pin), Icons.AutoMirrored.Rounded.AddToHomeScreen) { onPin(activity) })
             )
-        }
+        )
     }
 }

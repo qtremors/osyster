@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Camera -->
+    <string name="scan_camera_title">Allow the camera</string>
+    <string name="scan_camera_message">Osyster reads codes from the camera on the phone. Frames are never saved or sent anywhere.</string>
+    <string name="scan_camera_allow">Allow</string>
+    <string name="scan_camera_settings">Open app settings</string>
+    <string name="scan_no_camera_title">No camera</string>
+    <string name="scan_no_camera_message">This device has no camera Osyster can use. You can still scan a picture.</string>
+    <string name="scan_hint">Point at a code</string>
+    <string name="scan_torch_on">Turn on the torch</string>
+    <string name="scan_torch_off">Turn off the torch</string>
+    <string name="scan_zoom">Zoom</string>
+    <string name="scan_picture">Scan a picture</string>
+    <string name="scan_history">History</string>
+    <string name="scan_settings">Scanner settings</string>
+
+    <!-- Picture and crop -->
+    <string name="scan_picture_none_title">No code found</string>
+    <string name="scan_picture_none_message">Drag the frame around the code and try again.</string>
+    <string name="scan_crop_title">Frame the code</string>
+    <string name="scan_crop_hint">Drag the frame or its corners around the code.</string>
+    <string name="scan_crop_scan">Scan this area</string>
+    <string name="scan_crop_none">Still no code. Try a tighter frame or a sharper picture.</string>
+    <string name="scan_picture_unreadable">This picture could not be opened.</string>
+
+    <!-- Result -->
+    <string name="scan_result_title">Scanned</string>
+    <string name="scan_kind_link">Link</string>
+    <string name="scan_kind_email">Email</string>
+    <string name="scan_kind_phone">Phone number</string>
+    <string name="scan_kind_sms">Text message</string>
+    <string name="scan_kind_location">Location</string>
+    <string name="scan_kind_contact">Contact</string>
+    <string name="scan_kind_event">Event</string>
+    <string name="scan_kind_wifi">Wi-Fi network</string>
+    <string name="scan_kind_product">Product</string>
+    <string name="scan_kind_book">Book</string>
+    <string name="scan_kind_text">Text</string>
+    <string name="scan_format_line">%1$s · %2$s</string>
+    <string name="scan_wifi_details">Network %1$s</string>
+    <string name="scan_wifi_password">Password %1$s</string>
+    <string name="scan_wifi_open">No password</string>
+    <string name="scan_location_value">%1$.5f, %2$.5f</string>
+    <string name="scan_action_open">Open link</string>
+    <string name="scan_action_call">Call</string>
+    <string name="scan_action_sms">Send a text</string>
+    <string name="scan_action_email">Send an email</string>
+    <string name="scan_action_map">Open in maps</string>
+    <string name="scan_action_contact">Add to contacts</string>
+    <string name="scan_action_event">Add to calendar</string>
+    <string name="scan_action_search">Search on %1$s</string>
+    <string name="scan_action_password">Copy password</string>
+    <string name="scan_action_copy">Copy</string>
+    <string name="scan_action_share">Share</string>
+    <string name="scan_copied">Copied</string>
+    <string name="scan_no_app">No app can open this</string>
+    <string name="scan_again">Scan again</string>
+    <string name="scan_add_sites_hint">Add a search site in the scanner settings to look up codes like this one.</string>
+
+    <!-- History -->
+    <string name="scan_history_title">History</string>
+    <string name="scan_history_empty_title">No scans yet</string>
+    <string name="scan_history_empty_message">Codes you scan are kept here, on this phone only.</string>
+    <string name="scan_history_clear">Clear history</string>
+    <string name="scan_history_clear_confirm">Clear all scans?</string>
+    <string name="scan_history_clear_body">This deletes every scan in the history and cannot be undone.</string>
+    <string name="scan_history_rename">Rename</string>
+    <string name="scan_history_delete">Delete</string>
+    <string name="scan_history_name">Name</string>
+    <string name="scan_history_just_now">Just now</string>
+    <string name="scan_history_save">Save</string>
+    <string name="scan_history_open">Open</string>
+
+    <!-- Settings -->
+    <string name="scan_settings_beep">Beep on a scan</string>
+    <string name="scan_settings_vibrate">Vibrate on a scan</string>
+    <string name="scan_settings_sites">Search sites</string>
+    <string name="scan_settings_sites_hint">Look up product codes and text on sites you choose. Osyster opens them in your browser and never goes online itself.</string>
+    <string name="scan_settings_site_add">Add a search site</string>
+    <string name="scan_settings_site_name">Name</string>
+    <string name="scan_settings_site_template" formatted="false">Web address with %s for the code</string>
+    <string name="scan_settings_site_example" formatted="false">https://www.example.com/search?q=%s</string>
+    <string name="scan_settings_site_invalid" formatted="false">Use an http or https address with one %s where the code goes.</string>
+    <string name="scan_settings_site_delete">Remove %1$s</string>
+    <string name="scan_settings_add">Add</string>
+
+    <!-- Share sheet -->
+    <string name="scan_share_label">Scan with Osyster</string>
+
+    <!-- Code creator -->
+    <string name="create_title">Create a code</string>
+    <string name="create_open">Create a code</string>
+    <string name="create_section_qr">QR codes</string>
+    <string name="create_section_other">Barcodes and other codes</string>
+    <string name="create_kind_text">Text</string>
+    <string name="create_kind_text_detail">Any words, a note, or a message</string>
+    <string name="create_kind_link">Link</string>
+    <string name="create_kind_link_detail">Opens a website</string>
+    <string name="create_kind_wifi">Wi-Fi network</string>
+    <string name="create_kind_wifi_detail">Lets someone join without typing the password</string>
+    <string name="create_kind_contact">Contact</string>
+    <string name="create_kind_contact_detail">A name, number, and email to save</string>
+    <string name="create_kind_event">Event</string>
+    <string name="create_kind_event_detail">Adds a date and time to a calendar</string>
+    <string name="create_kind_sms">Text message</string>
+    <string name="create_kind_sms_detail">Starts a message to a number</string>
+    <string name="create_kind_email">Email</string>
+    <string name="create_kind_email_detail">Starts an email to an address</string>
+    <string name="create_kind_phone">Phone number</string>
+    <string name="create_kind_phone_detail">Calls a number</string>
+    <string name="create_kind_location">Location</string>
+    <string name="create_kind_location_detail">Opens a place in maps</string>
+    <string name="create_kind_app">App</string>
+    <string name="create_kind_app_detail">Opens an app\'s Play Store page</string>
+    <string name="create_kind_matrix_detail">Small square codes for labels and parts</string>
+    <string name="create_kind_aztec_detail">Square codes used on tickets</string>
+    <string name="create_kind_pdf417_detail">Wide codes used on IDs and boarding passes</string>
+    <string name="create_kind_ean13_detail">Product barcodes, 13 digits</string>
+    <string name="create_kind_ean8_detail">Short product barcodes, 8 digits</string>
+    <string name="create_kind_upca_detail">Product barcodes in North America, 12 digits</string>
+    <string name="create_kind_upce_detail">Short UPC barcodes, 8 digits</string>
+    <string name="create_kind_code128_detail">Letters and digits, for shipping and stock</string>
+    <string name="create_kind_code93_detail">Letters and digits, compact</string>
+    <string name="create_kind_code39_detail">Letters and digits, for badges and parts</string>
+    <string name="create_kind_codabar_detail">Digits, for libraries and blood banks</string>
+    <string name="create_kind_itf_detail">Pairs of digits, for cartons</string>
+
+    <string name="create_field_text">Text</string>
+    <string name="create_field_url">Web address</string>
+    <string name="create_field_ssid">Network name</string>
+    <string name="create_field_password">Password</string>
+    <string name="create_field_password_show">Show password</string>
+    <string name="create_field_password_hide">Hide password</string>
+    <string name="create_field_security">Security</string>
+    <string name="create_field_hidden">Hidden network</string>
+    <string name="create_field_name">Name</string>
+    <string name="create_field_organization">Company</string>
+    <string name="create_field_job_title">Job title</string>
+    <string name="create_field_phone">Phone number</string>
+    <string name="create_field_email">Email address</string>
+    <string name="create_field_address">Address</string>
+    <string name="create_field_website">Website</string>
+    <string name="create_field_note">Note</string>
+    <string name="create_field_summary">Title</string>
+    <string name="create_field_start">Starts</string>
+    <string name="create_field_end">Ends</string>
+    <string name="create_field_all_day">All day</string>
+    <string name="create_field_place">Place</string>
+    <string name="create_field_subject">Subject</string>
+    <string name="create_field_message">Message</string>
+    <string name="create_field_latitude">Latitude</string>
+    <string name="create_field_longitude">Longitude</string>
+    <string name="create_field_query">Place name</string>
+    <string name="create_field_package">Package name</string>
+    <string name="create_field_package_hint">Such as com.example.app</string>
+    <string name="create_field_digits">Digits</string>
+    <string name="create_field_content">Text</string>
+    <string name="create_security_wpa">WPA</string>
+    <string name="create_security_wep">WEP</string>
+    <string name="create_security_none">None</string>
+    <string name="create_pick_date">Pick a date</string>
+    <string name="create_pick_time">Pick a time</string>
+    <string name="create_ok">OK</string>
+
+    <string name="create_problem_missing">Fill in %1$s to make the code.</string>
+    <string name="create_problem_digits">Use %1$d digits, or %2$d with the check digit.</string>
+    <string name="create_problem_checksum">The last digit doesn\'t match. Leave it off and it\'s added for you.</string>
+    <string name="create_problem_upce">UPC-E codes start with 0 or 1.</string>
+    <string name="create_problem_even">Use an even number of digits.</string>
+    <string name="create_problem_characters">Only these can be used: %1$s</string>
+    <string name="create_problem_range">Use a number from %1$s to %2$s.</string>
+    <string name="create_problem_package">Use a package name like com.example.app.</string>
+    <string name="create_problem_end">The end is before the start.</string>
+    <string name="create_problem_long">This is too long for this kind of code. Shorten it or pick another kind.</string>
+    <string name="create_warning_contrast">The colors are close, so some scanners may not read this code.</string>
+    <string name="create_warning_inverted">Light codes on dark backgrounds don\'t read in every scanner.</string>
+
+    <string name="create_preview">Code preview</string>
+    <string name="create_style">Style</string>
+    <string name="create_save">Save</string>
+    <string name="create_share">Share</string>
+    <string name="create_save_png">PNG picture</string>
+    <string name="create_save_png_detail">For phones, chats, and documents</string>
+    <string name="create_save_svg">SVG drawing</string>
+    <string name="create_save_svg_detail">Sharp at any size, for printing</string>
+    <string name="create_saved">Saved</string>
+    <string name="create_save_failed">Couldn\'t save the code</string>
+    <string name="create_share_failed">Couldn\'t share the code</string>
+
+    <string name="create_style_look">Look</string>
+    <string name="create_style_foreground">Code color</string>
+    <string name="create_style_background">Background</string>
+    <string name="create_style_transparent">See-through</string>
+    <string name="create_style_rounded">Round dots</string>
+    <string name="create_style_rounded_detail">Draws the code as dots instead of squares</string>
+    <string name="create_style_text">Show the text</string>
+    <string name="create_style_text_detail">Prints what the barcode holds under it</string>
+    <string name="create_style_margin">Border</string>
+    <string name="create_style_margin_value">%1$d modules</string>
+    <string name="create_style_margin_detail">Scanners need some empty space around a code.</string>
+    <string name="create_style_recovery">Damage recovery</string>
+    <string name="create_style_recovery_detail">More recovery reads through dirt and creases but makes a denser code.</string>
+    <string name="create_recovery_low">7%</string>
+    <string name="create_recovery_medium">15%</string>
+    <string name="create_recovery_quartile">25%</string>
+    <string name="create_recovery_high">30%</string>
+    <string name="create_style_size">Picture size</string>
+    <string name="create_size_small">Small</string>
+    <string name="create_size_medium">Medium</string>
+    <string name="create_size_large">Large</string>
+    <string name="create_style_reset">Reset style</string>
+    <string name="create_color">Color %1$s</string>
+</resources>

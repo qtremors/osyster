@@ -2,6 +2,9 @@
 <resources>
     <string name="device_unknown_title">Page not found</string>
     <string name="device_unknown_message">This page was removed or renamed. Go back and pick it again from Home.</string>
+    <string name="battery_history_section">History</string>
+    <string name="battery_history_title">Battery history</string>
+    <string name="battery_history_summary">Charging, drain, and temperature over the last month</string>
     <string name="battery_usage_section">App usage</string>
     <string name="battery_usage_title">Battery usage by app</string>
     <string name="battery_usage_summary">Opens Android\'s own battery usage screen</string>

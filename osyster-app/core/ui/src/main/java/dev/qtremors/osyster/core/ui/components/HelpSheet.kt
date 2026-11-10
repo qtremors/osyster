@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.core.ui.components
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -54,7 +55,7 @@ fun HelpSheet(
                 color = MaterialTheme.colorScheme.primary
             )
             Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onDismiss) { Text(stringResource(android.R.string.ok)) }
+                TextButton(shapes = ButtonDefaults.shapes(), onClick = onDismiss) { Text(stringResource(android.R.string.ok)) }
             }
         }
     }

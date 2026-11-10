@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.feature.tools
 
+import dev.qtremors.osyster.core.ui.components.MenuAction
+import dev.qtremors.osyster.core.ui.components.OsysterMenu
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,8 +9,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.rounded.PushPin
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -108,24 +108,19 @@ private fun ToolRow(tool: Tool, pinned: Boolean, access: PrivilegeStatus, onOpen
             onClick = { onOpen(tool) },
             onLongClick = { menuOpen = true }
         )
-        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-            DropdownMenuItem(
-                text = { Text(stringResource(if (pinned) R.string.tools_unpin else R.string.tools_pin)) },
-                leadingIcon = { Icon(if (pinned) Icons.Outlined.PushPin else Icons.Rounded.PushPin, contentDescription = null) },
-                onClick = {
-                    menuOpen = false
-                    onTogglePin(tool)
-                }
+        OsysterMenu(
+            expanded = menuOpen,
+            onDismissRequest = { menuOpen = false },
+            groups = listOf(
+                listOf(
+                    MenuAction(
+                        stringResource(if (pinned) R.string.tools_unpin else R.string.tools_pin),
+                        if (pinned) Icons.Outlined.PushPin else Icons.Rounded.PushPin
+                    ) { onTogglePin(tool) }
+                ),
+                listOf(MenuAction(stringResource(UiR.string.help_about_tool), HelpIcon) { helpOpen = true })
             )
-            DropdownMenuItem(
-                text = { Text(stringResource(UiR.string.help_about_tool)) },
-                leadingIcon = { Icon(HelpIcon, contentDescription = null) },
-                onClick = {
-                    menuOpen = false
-                    helpOpen = true
-                }
-            )
-        }
+        )
     }
     if (helpOpen) HelpSheet(label = label, help = tool.help, badgeKey = tool.id, onDismiss = { helpOpen = false }, needs = needs)
 }

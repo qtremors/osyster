@@ -9,6 +9,6 @@
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_glance_stack"
-    android:previewLayout="@layout/widget_glance_stack"
+    android:previewLayout="@layout/widget_glance_preview"
     android:description="@string/widgets_glance_summary"
     android:widgetCategory="home_screen" />

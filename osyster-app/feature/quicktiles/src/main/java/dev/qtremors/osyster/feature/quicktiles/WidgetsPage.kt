@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.quicktiles
 
+import androidx.compose.material3.ButtonDefaults
 import dev.qtremors.osyster.core.ui.components.ConnectedItem
 import androidx.compose.foundation.lazy.itemsIndexed
 import android.appwidget.AppWidgetManager
@@ -15,8 +16,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.DataUsage
+import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.MusicNote
+import androidx.compose.material.icons.rounded.BatteryChargingFull
+import androidx.compose.material.icons.rounded.LibraryMusic
+import androidx.compose.material.icons.rounded.SettingsRemote
 import androidx.compose.material.icons.rounded.ViewCarousel
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -36,6 +42,7 @@ import dev.qtremors.osyster.core.ui.components.ConnectedGroup
 import dev.qtremors.osyster.core.ui.components.ConnectedRow
 import dev.qtremors.osyster.core.ui.components.IconBadge
 import dev.qtremors.osyster.core.ui.components.OsysterScaffold
+import dev.qtremors.osyster.core.ui.components.NavigationRow
 import dev.qtremors.osyster.core.ui.components.SectionHeader
 
 /** Every Osyster widget, by receiver class name, so this page needs no other feature module. */
@@ -43,11 +50,14 @@ private data class WidgetEntry(val className: String, @param:StringRes val title
 
 private val widgets = listOf(
     WidgetEntry("dev.qtremors.osyster.feature.quicktiles.GlanceStackWidget", R.string.widgets_glance, R.string.widgets_glance_summary, Icons.Rounded.ViewCarousel),
+    WidgetEntry("dev.qtremors.osyster.feature.batteryhistory.BatteryWidget", R.string.widgets_battery, R.string.widgets_battery_summary, Icons.Rounded.BatteryChargingFull),
     WidgetEntry("dev.qtremors.osyster.feature.musicwidgets.Music3x3WidgetReceiver", R.string.widgets_music_disc, R.string.widgets_music_disc_summary, Icons.Rounded.Album),
+    WidgetEntry("dev.qtremors.osyster.feature.musicwidgets.MusicGridWidgetReceiver", R.string.widgets_music_grid, R.string.widgets_music_grid_summary, Icons.Rounded.GridView),
     WidgetEntry("dev.qtremors.osyster.feature.musicwidgets.Music5x1WidgetReceiver", R.string.widgets_music_capsule, R.string.widgets_music_capsule_summary, Icons.Rounded.MusicNote),
     WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.DayDataUsageWidget", R.string.widgets_data_today, R.string.widgets_data_today_summary, Icons.Rounded.DataUsage),
-    WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.MonthDataUsageWidget", R.string.widgets_data_month, R.string.widgets_data_month_summary, Icons.Rounded.DataUsage),
-    WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.CombinedDataUsageWidget", R.string.widgets_data_combined, R.string.widgets_data_combined_summary, Icons.Rounded.DataUsage)
+    WidgetEntry("dev.qtremors.osyster.feature.datausage.widget.CombinedDataUsageWidget", R.string.widgets_data_combined, R.string.widgets_data_combined_summary, Icons.Rounded.DataUsage),
+    WidgetEntry("dev.qtremors.osyster.feature.btremote.RemoteWidget", R.string.widgets_remote, R.string.widgets_remote_summary, Icons.Rounded.SettingsRemote),
+    WidgetEntry("dev.qtremors.osyster.feature.powertools.PrivateDnsWidget", R.string.widgets_private_dns, R.string.widgets_private_dns_summary, Icons.Rounded.Dns)
 )
 
 fun NavGraphBuilder.registerWidgetsRoute() {
@@ -80,7 +90,7 @@ private fun WidgetsScreen() {
                         leading = { IconBadge(widget.icon, key = widget.className) },
                         trailing = {
                             if (canPin) {
-                                FilledTonalButton(onClick = { requestPin(context, widget.className) }) {
+                                FilledTonalButton(shapes = ButtonDefaults.shapes(), onClick = { requestPin(context, widget.className) }) {
                                     Icon(Icons.Rounded.Add, contentDescription = null)
                                     Text(stringResource(R.string.qt_add), modifier = Modifier.padding(start = 4.dp))
                                 }
@@ -89,9 +99,28 @@ private fun WidgetsScreen() {
                     )
                 }
             }
+            item(key = "music-header") { SectionHeader(stringResource(R.string.widgets_music_section)) }
+            item(key = "music-apps") {
+                ConnectedGroup {
+                    NavigationRow(
+                        stringResource(R.string.widgets_music_apps),
+                        Icons.Rounded.LibraryMusic,
+                        "widgets_music_apps",
+                        { openMusicApps(context) },
+                        supporting = stringResource(R.string.widgets_music_apps_summary)
+                    )
+                }
+            }
         }
     }
 }
+
+/** The music widgets' app picker lives with the widgets; it is opened by name like they are pinned. */
+private fun openMusicApps(context: Context) {
+    runCatching { context.startActivity(android.content.Intent().setClassName(context.packageName, MUSIC_APPS_ACTIVITY)) }
+}
+
+private const val MUSIC_APPS_ACTIVITY = "dev.qtremors.osyster.feature.musicwidgets.MusicAppsActivity"
 
 private fun canPinWidgets(context: Context): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && AppWidgetManager.getInstance(context).isRequestPinAppWidgetSupported

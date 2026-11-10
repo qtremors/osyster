@@ -4,6 +4,28 @@
     <string name="widget_music_3x3_desc">Round player with album art and playback controls</string>
     <string name="widget_music_5x1_name">Music capsule</string>
     <string name="widget_music_5x1_desc">One-row player with track details and controls</string>
+    <string name="widget_music_grid_name">Music tiles</string>
+    <string name="widget_music_grid_desc">Album art and buttons as separate tiles. At 3x3 it adds play controls; at 3x2 it keeps two buttons. Pick the size and where they go.</string>
+    <string name="widget_music_art_desc">Album art. Opens the player</string>
+
+    <!-- Music tile setup -->
+    <string name="music_setup_title">Music widget</string>
+    <string name="music_setup_controls">Play controls</string>
+    <string name="music_setup_controls_summary">Previous, play, and next above or below the art</string>
+    <string name="music_setup_top">Top</string>
+    <string name="music_setup_bottom">Bottom</string>
+    <string name="music_setup_side">Side buttons</string>
+    <string name="music_setup_side_summary">Which side of the art the two buttons go</string>
+    <string name="music_setup_left">Left</string>
+    <string name="music_setup_right">Right</string>
+    <string name="music_setup_play_side">Play next to shuffle and repeat</string>
+    <string name="music_setup_play_side_summary">Puts play or pause in the corner tile that touches them</string>
+    <string name="music_setup_buttons">Side buttons show</string>
+    <string name="music_setup_shuffle_repeat">Shuffle and repeat</string>
+    <string name="music_setup_play_repeat">Play and repeat</string>
+    <string name="music_setup_add">Add widget</string>
+    <string name="music_setup_save">Save</string>
+    <string name="music_setup_preview">Preview of the widget</string>
     <string name="widget_music_default_title">Nothing playing</string>
     <string name="widget_music_default_artist">Start music in any app</string>
     <string name="widget_music_access_needed_title">Notification access needed</string>
@@ -20,4 +42,25 @@
     <string name="widget_music_repeat_all_desc">Repeat all on; switch to repeat one</string>
     <string name="widget_music_repeat_one_desc">Repeat one on; turn repeat off</string>
     <string name="notification_listener_label">Osyster music widgets and flashlight pulse</string>
+
+    <!-- Music apps -->
+    <string name="music_apps_title">Music apps</string>
+    <string name="music_apps_follow">Show music from</string>
+    <string name="music_apps_follow_any">Any app</string>
+    <string name="music_apps_follow_chosen">Chosen apps</string>
+    <string name="music_apps_follow_any_detail">Whatever is playing, including videos and games</string>
+    <string name="music_apps_follow_chosen_detail">Only the apps turned on below</string>
+    <string name="music_apps_pick">Apps</string>
+    <string name="music_apps_none_chosen">No app is turned on, so the music widgets stay empty.</string>
+    <string name="music_apps_empty_title">No music apps yet</string>
+    <string name="music_apps_empty_message">Play something in your music app once and it shows up here.</string>
+    <string name="music_setup_apps">Music apps</string>
+    <string name="music_setup_apps_summary">Show music only from the apps you choose</string>
+    <string name="music_setup_size">Size</string>
+    <string name="music_setup_size_auto">Auto</string>
+    <string name="music_setup_size_large">3x3</string>
+    <string name="music_setup_size_small">3x2</string>
+    <string name="music_setup_size_auto_summary">Changes with the widget when you resize it</string>
+    <string name="music_setup_size_fixed_summary">Stays this way at any size</string>
+    <string name="music_setup_previewing">Previewing</string>
 </resources>

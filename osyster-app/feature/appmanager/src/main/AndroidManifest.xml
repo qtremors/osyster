@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Lets the App manager's Uninstall button open Android's own uninstall prompt; Android asks
+         the person every time, and nothing is removed without it. -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+</manifest>

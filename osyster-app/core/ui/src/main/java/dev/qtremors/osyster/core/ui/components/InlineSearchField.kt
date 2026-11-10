@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.core.ui.components
 
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -40,7 +41,7 @@ fun InlineSearchField(
         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
         trailingIcon = {
             if (query.isNotEmpty()) {
-                IconButton(onClick = { onQueryChange("") }) {
+                IconButton(shapes = IconButtonDefaults.shapes(), onClick = { onQueryChange("") }) {
                     Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.action_clear_search))
                 }
             }

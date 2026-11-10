@@ -32,6 +32,12 @@ val Tool.help: Int
         Tool.APP_STOPPER -> R.string.help_tool_app_stopper
         Tool.STAY_AWAKE -> R.string.help_tool_stay_awake
         Tool.FLASHLIGHT -> R.string.help_tool_flashlight
+        Tool.BT_REMOTE -> R.string.help_tool_bt_remote
+        Tool.BARCODE -> R.string.help_tool_barcode
+        Tool.NOTIFICATION_HISTORY -> R.string.help_tool_notification_history
+        Tool.BATTERY_HISTORY -> R.string.help_tool_battery_history
+        Tool.APP_MANAGER -> R.string.help_tool_app_manager
+        Tool.MEASURE -> R.string.help_tool_measure
         Tool.ACTIVITY_LAUNCHER -> R.string.help_tool_activity_launcher
         Tool.LINK_ACTIONS -> R.string.help_tool_link_actions
         Tool.WIDGETS -> R.string.help_tool_widgets

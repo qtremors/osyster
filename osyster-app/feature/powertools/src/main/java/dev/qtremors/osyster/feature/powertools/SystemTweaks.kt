@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.powertools
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,12 +23,14 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -51,6 +54,7 @@ import dev.qtremors.osyster.core.ui.components.SectionHeader
 import dev.qtremors.osyster.core.ui.components.ToggleRow
 import javax.inject.Inject
 import kotlinx.coroutines.launch
+import dev.qtremors.osyster.core.ui.theme.FieldShape
 
 /** One on/off system setting. [inverted] is for "disable_" keys shown as a positive switch. */
 enum class Tweak(val key: SettingKey, val inverted: Boolean = false, val defaultOn: Boolean = false) {
@@ -154,6 +158,9 @@ internal fun SystemTweaksRoute(onNavigate: (PowerToolsDestination) -> Unit) {
 @Composable
 private fun PrivateDnsSection(state: TweaksState, enabled: Boolean, onMode: (PrivateDnsMode) -> Unit, onSave: (String) -> Unit) {
     var host by rememberSaveable(state.dnsHost) { mutableStateOf(state.dnsHost) }
+    // The home screen switch follows whatever mode this page shows, set here or elsewhere.
+    val context = LocalContext.current
+    LaunchedEffect(state.dnsMode, state.dnsHost) { PrivateDnsWidget.updateAll(context) }
     SectionHeader(stringResource(R.string.tweaks_group_network))
     ConnectedGroup {
         ChoiceRow(
@@ -168,6 +175,7 @@ private fun PrivateDnsSection(state: TweaksState, enabled: Boolean, onMode: (Pri
         Surface(color = MaterialTheme.colorScheme.surfaceBright, modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
+                    shape = FieldShape,
                     value = host,
                     onValueChange = { host = it.take(MAX_HOST) },
                     label = { Text(stringResource(R.string.tweaks_private_dns_host)) },
@@ -177,7 +185,7 @@ private fun PrivateDnsSection(state: TweaksState, enabled: Boolean, onMode: (Pri
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
                     modifier = Modifier.fillMaxWidth()
                 )
-                Button(onClick = { onSave(host) }, enabled = enabled && host.isNotBlank()) {
+                Button(shapes = ButtonDefaults.shapes(), onClick = { onSave(host) }, enabled = enabled && host.isNotBlank()) {
                     Text(stringResource(R.string.tweaks_private_dns_save))
                 }
             }

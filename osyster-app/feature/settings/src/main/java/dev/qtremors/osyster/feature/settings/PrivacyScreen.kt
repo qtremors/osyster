@@ -29,6 +29,9 @@ private val permissions = listOf(
     R.string.privacy_perm_usage to R.string.privacy_perm_usage_detail,
     R.string.privacy_perm_location to R.string.privacy_perm_location_detail,
     R.string.privacy_perm_phone to R.string.privacy_perm_phone_detail,
+    R.string.privacy_perm_camera to R.string.privacy_perm_camera_detail,
+    R.string.privacy_perm_microphone to R.string.privacy_perm_microphone_detail,
+    R.string.privacy_perm_bluetooth to R.string.privacy_perm_bluetooth_detail,
     R.string.privacy_perm_notifications to R.string.privacy_perm_notifications_detail,
     R.string.privacy_perm_notification_access to R.string.privacy_perm_notification_access_detail,
     R.string.privacy_perm_secure_settings to R.string.privacy_perm_secure_settings_detail

@@ -12,6 +12,8 @@ import dev.qtremors.osyster.core.navigation.ScreenTesterRoute
 sealed interface DeviceDestination {
     /** Android's own battery usage screen; apps have no honest per-app drain data of their own. */
     data object SystemBatteryUsage : DeviceDestination
+    /** Osyster's battery history: charging, drain, and temperature over time. */
+    data object BatteryHistory : DeviceDestination
     data object ScreenTester : DeviceDestination
     /** Osyster's App info page, for permissions the user declined with "Don't ask again". */
     data object AppPermissionSettings : DeviceDestination

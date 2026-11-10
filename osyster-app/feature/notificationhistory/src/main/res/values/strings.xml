@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="history_title">Notification history</string>
+    <string name="history_settings">History settings</string>
+
+    <!-- Gates -->
+    <string name="history_access_title">Notification access is off</string>
+    <string name="history_access_message">Osyster needs notification access to keep a history. The same access runs the music widgets and the flashlight pulse.</string>
+    <string name="history_access_action">Turn on access</string>
+    <string name="history_intro_title">Keep every notification</string>
+    <string name="history_intro_message">Read what you dismissed, missed, or the app took back.</string>
+    <string name="history_intro_full">The whole text</string>
+    <string name="history_intro_full_detail">Long messages, email lists, and every message of a chat, not just the first line.</string>
+    <string name="history_intro_private">Only on this phone</string>
+    <string name="history_intro_private_detail">Nothing leaves the phone, and Android backup leaves the history out.</string>
+    <string name="history_intro_light">Light on battery</string>
+    <string name="history_intro_light_detail">Saved in small batches as notifications arrive, with no extra work in the background.</string>
+    <string name="history_intro_action">Turn on history</string>
+
+    <!-- List -->
+    <string name="history_search">Search notifications</string>
+    <string name="history_all_apps">All apps</string>
+    <string name="history_empty_title">Nothing saved yet</string>
+    <string name="history_empty_message">New notifications show up here as they arrive.</string>
+    <string name="history_no_results_title">No matches</string>
+    <string name="history_no_results_message">Try other words, or all apps.</string>
+    <string name="history_today">Today</string>
+    <string name="history_yesterday">Yesterday</string>
+    <string name="history_more">Show older</string>
+    <string name="history_you">You</string>
+    <string name="history_sender_line">%1$s: %2$s</string>
+    <string name="history_meta_line">%1$s · %2$s</string>
+
+    <!-- Removal -->
+    <string name="history_removed_dismissed">Dismissed</string>
+    <string name="history_removed_opened">Opened</string>
+    <string name="history_removed_app">Removed by the app</string>
+    <string name="history_removed_other">Cleared</string>
+    <string name="history_removed_at">%1$s at %2$s</string>
+
+    <!-- Entry sheet -->
+    <string name="history_conversation">Conversation</string>
+    <string name="history_picture">Picture in the notification</string>
+    <string name="history_progress">%1$d%% done</string>
+    <string name="history_replies">Your replies</string>
+    <string name="history_buttons">Buttons</string>
+    <string name="history_details">Details</string>
+    <string name="history_channel">Channel: %1$s</string>
+    <string name="history_open_app">Open %1$s</string>
+    <string name="history_copy">Copy text</string>
+    <string name="history_copied">Copied</string>
+    <string name="history_only_app">Show only %1$s</string>
+    <string name="history_exclude">Stop saving from %1$s</string>
+    <string name="history_excluded">%1$s won\'t be saved anymore</string>
+    <string name="history_delete">Delete</string>
+
+    <!-- Settings -->
+    <string name="history_enabled">Keep notification history</string>
+    <string name="history_enabled_detail">Saves new notifications from now on</string>
+    <string name="history_ongoing">Include ongoing notifications</string>
+    <string name="history_ongoing_detail">Downloads, navigation, timers, and other notifications that stay up</string>
+    <string name="history_retention">Keep for</string>
+    <string name="history_retention_detail">Older entries clear themselves</string>
+    <string name="history_retention_week">1 week</string>
+    <string name="history_retention_month">1 month</string>
+    <string name="history_retention_quarter">3 months</string>
+    <string name="history_retention_year">1 year</string>
+    <string name="history_excluded_title">Not saved</string>
+    <string name="history_excluded_empty">Every app is saved. Stop saving an app from one of its notifications.</string>
+    <string name="history_include_again">Save %1$s again</string>
+    <string name="history_clear">Clear history</string>
+    <string name="history_clear_confirm">Clear the whole history?</string>
+    <string name="history_clear_body">Every saved notification is deleted from this phone. This can\'t be undone.</string>
+    <string name="history_delete_app">Delete %1$s\'s history</string>
+</resources>

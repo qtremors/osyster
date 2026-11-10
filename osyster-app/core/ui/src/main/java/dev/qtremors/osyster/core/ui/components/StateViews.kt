@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.core.ui.components
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -59,7 +60,7 @@ fun EmptyState(
         Text(title, style = MaterialTheme.typography.titleLarge, color = colors.onSurface, textAlign = TextAlign.Center)
         Text(message, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant, textAlign = TextAlign.Center)
         if (actionLabel != null && onAction != null) {
-            FilledTonalButton(onClick = onAction, modifier = Modifier.padding(top = 4.dp)) { Text(actionLabel) }
+            FilledTonalButton(shapes = ButtonDefaults.shapes(), onClick = onAction, modifier = Modifier.padding(top = 4.dp)) { Text(actionLabel) }
         }
     }
 }

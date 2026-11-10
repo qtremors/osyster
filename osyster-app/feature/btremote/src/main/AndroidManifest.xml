@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Keeps the Bluetooth link to the TV alive while the remote is in use. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <!-- Making this phone visible so a TV can pair from its own settings (Android 12+). -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADVERTISE"
+        tools:targetApi="s" />
+
+    <application>
+        <service
+            android:name=".RemoteService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+
+        <!-- Media and volume keys for the connected device on the home screen. -->
+        <receiver
+            android:name=".RemoteWidget"
+            android:exported="true"
+            android:label="@string/remote_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_remote_info" />
+        </receiver>
+    </application>
+</manifest>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The disc before any music plays, and in the widget picker. Sized so the disc and its corner
+     buttons have a shape to sit on; the real album art replaces it at run time. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="200dp"
+        android:height="200dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/widget_music_button_bg" />
+        </shape>
+    </item>
+    <item
+        android:width="64dp"
+        android:height="64dp"
+        android:drawable="@drawable/ic_music_note"
+        android:gravity="center" />
+</layer-list>

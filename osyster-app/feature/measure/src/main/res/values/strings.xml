@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="measure_title">Measure</string>
+    <string name="measure_level">Level</string>
+    <string name="measure_compass">Compass</string>
+    <string name="measure_ruler">Ruler</string>
+    <string name="measure_sound">Sound</string>
+
+    <string name="level_tilt">Left and right %1$s° · forward and back %2$s°</string>
+    <string name="level_flat">Level</string>
+    <string name="level_hint">Lay the phone on the surface, screen up, or stand it on an edge.</string>
+    <string name="level_bubble">Bubble level</string>
+
+    <string name="compass_heading">%1$d° %2$s</string>
+    <string name="compass_dial">Compass dial</string>
+    <string name="compass_calibrate">The compass is unsure. Move the phone in a figure 8 a few times.</string>
+    <string name="compass_hint">Hold the phone flat and away from magnets, metal, and speakers.</string>
+    <string name="compass_missing">This phone has no compass sensor.</string>
+    <string-array name="compass_points">
+        <item>N</item><item>NNE</item><item>NE</item><item>ENE</item>
+        <item>E</item><item>ESE</item><item>SE</item><item>SSE</item>
+        <item>S</item><item>SSW</item><item>SW</item><item>WSW</item>
+        <item>W</item><item>WNW</item><item>NW</item><item>NNW</item>
+    </string-array>
+
+    <string name="ruler_length">%1$s</string>
+    <string name="ruler_hint">Line one end of the object up with the first mark, then drag the blue line to its other end.</string>
+    <string name="ruler_cm">cm</string>
+    <string name="ruler_inch">in</string>
+    <string name="ruler_value_cm">%1$s cm</string>
+    <string name="ruler_value_inch">%1$s in</string>
+    <string name="ruler_scale">Ruler marks</string>
+
+    <string name="sound_level">About %1$d dB</string>
+    <string name="sound_peak">Peak %1$d dB</string>
+    <string name="sound_note">Phone microphones are not calibrated, so use this to compare sounds rather than to measure them exactly. Nothing is recorded or saved.</string>
+    <string name="sound_permission_title">Microphone access</string>
+    <string name="sound_permission_message">The sound meter listens to how loud it is around you while this page is open. Nothing is recorded or saved.</string>
+    <string name="sound_permission_action">Allow microphone</string>
+    <string name="sound_permission_settings">Open App info</string>
+    <string-array name="sound_bands">
+        <item>Very quiet</item>
+        <item>Quiet, like a library</item>
+        <item>Normal, like talking</item>
+        <item>Loud, like traffic</item>
+        <item>Very loud, limit your time near it</item>
+    </string-array>
+</resources>

@@ -2,7 +2,6 @@ package dev.qtremors.osyster.feature.onboarding
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -21,12 +20,10 @@ sealed interface OnboardingDestination {
  */
 @Composable
 fun StartGate(
-    appVersion: String,
     onNavigate: (OnboardingDestination) -> Unit,
     content: @Composable () -> Unit
 ) {
     val viewModel: StartGateViewModel = hiltViewModel()
-    LaunchedEffect(appVersion) { viewModel.bind(appVersion) }
     val screen by viewModel.screen.collectAsStateWithLifecycle()
     val access by viewModel.access.collectAsStateWithLifecycle()
     LifecycleResumeEffect(Unit) {
@@ -37,7 +34,6 @@ fun StartGate(
         content()
         when (screen) {
             StartScreen.WELCOME -> WelcomeScreen(access = access, onNavigate = onNavigate, onFinish = viewModel::finishWelcome)
-            StartScreen.WHATS_NEW -> WhatsNewSheet(version = appVersion, onDismiss = viewModel::dismissWhatsNew)
             StartScreen.NONE, null -> Unit
         }
     }

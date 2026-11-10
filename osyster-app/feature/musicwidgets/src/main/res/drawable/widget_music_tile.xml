@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One music tile: the widget card color with rounded corners, rippling on touch. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#33808080">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/widget_music_button_bg" />
+            <corners android:radius="@dimen/widget_music_tile_radius" />
+        </shape>
+    </item>
+</ripple>

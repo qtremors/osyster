@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BatteryChargingFull
+import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.material.icons.rounded.Construction
 import androidx.compose.material.icons.rounded.Gradient
 import androidx.compose.material.icons.rounded.SearchOff
@@ -116,6 +117,11 @@ internal fun DevicePageScreen(
                         )
                     }
                     if (page == DevicePage.BATTERY && !searching) {
+                        item(key = "battery_history") {
+                            PageLink(R.string.battery_history_section, R.string.battery_history_title, R.string.battery_history_summary, Icons.Rounded.Timeline, "battery_history") {
+                                onNavigate(DeviceDestination.BatteryHistory)
+                            }
+                        }
                         item(key = "battery_usage") {
                             PageLink(R.string.battery_usage_section, R.string.battery_usage_title, R.string.battery_usage_summary, Icons.Rounded.BatteryChargingFull, "battery_usage") {
                                 onNavigate(DeviceDestination.SystemBatteryUsage)

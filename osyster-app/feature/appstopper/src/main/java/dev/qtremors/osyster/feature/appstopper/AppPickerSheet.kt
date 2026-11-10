@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.appstopper
 
+import androidx.compose.material3.ButtonDefaults
 import dev.qtremors.osyster.core.ui.components.ConnectedItem
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.layout.Arrangement
@@ -73,7 +74,7 @@ internal fun AppPickerSheet(
             }
         }
         Row(modifier = Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.End) {
-            Button(onClick = { onConfirm(chosen) }, enabled = chosen.isNotEmpty()) {
+            Button(shapes = ButtonDefaults.shapes(), onClick = { onConfirm(chosen) }, enabled = chosen.isNotEmpty()) {
                 androidx.compose.material3.Text(pluralStringResource(R.plurals.stopper_add_count, chosen.size, chosen.size))
             }
         }

@@ -35,6 +35,8 @@ object MusicWidgetUpdater {
             for (id in ids5x1) {
                 updateMusic5x1Widget(context, appWidgetManager, id)
             }
+
+            MusicTileRenderer.updateAll(context)
         } catch (_: Throwable) {
         }
     }

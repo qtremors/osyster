@@ -2,7 +2,7 @@
 
 > How Osyster is built: modules, data flow, the power tools layer, the design system, and how to test and ship it.
 
-**Version:** 0.3.0 | **Last Updated:** 2026-09-29
+**Version:** 0.4.0 | **Last Updated:** 2026-11-10
 
 ---
 
@@ -16,6 +16,12 @@
 - [Usage Data](#usage-data)
 - [System Controls](#system-controls)
 - [Power Tools Layer](#power-tools-layer)
+- [Bluetooth Remote](#bluetooth-remote)
+- [Barcode Scanner](#barcode-scanner)
+- [Notification History](#notification-history)
+- [App Manager](#app-manager)
+- [Measure](#measure)
+- [Battery History](#battery-history)
 - [Preferences, First Run, and Backup](#preferences-first-run-and-backup)
 - [Widgets, Tiles, Shortcuts, and the Notification Listener](#widgets-tiles-shortcuts-and-the-notification-listener)
 - [UI System](#ui-system)
@@ -29,22 +35,22 @@
 
 ## Overview
 
-Osyster is a single-activity Jetpack Compose app split into 29 Gradle modules. Features own their screens and ViewModels and talk only to domain contracts; data modules implement those contracts; the app shell is the only place that knows every feature.
+Osyster is a single-activity Jetpack Compose app split into 44 Gradle modules. Features own their screens and ViewModels and talk only to domain contracts; data modules implement those contracts; the app shell is the only place that knows every feature.
 
 ```mermaid
 flowchart TD
     App[":app shell<br/>MainActivity, NavHost, Hilt"] --> Features
     subgraph Features[":feature:*"]
-        Home & Device & Tools & Settings & PowerTools["powertools"] & More["datausage, screenusage, appstopper,<br/>stayawake, flashlight, activitylauncher,<br/>linkactions, quicktiles, musicwidgets,<br/>onboarding, search"]
+        Home["home (with search)"] & Device & Tools & Settings & PowerTools["powertools"] & More["datausage, screenusage, appstopper,<br/>stayawake, flashlight, btremote, barcode,<br/>notificationhistory, batteryhistory, appmanager,<br/>measure, activitylauncher, linkactions,<br/>quicktiles, musicwidgets, onboarding"]
     end
     Features --> Domain
     subgraph Domain["Domain contracts (pure Kotlin)"]
-        DD[":core:device:domain"] & UD[":core:usage:domain"] & SD[":core:system:domain"] & PD[":core:preferences:domain"] & PrD[":core:privilege:domain"] & Nav[":core:navigation:api"]
+        DD[":core:device:domain"] & UD[":core:usage:domain"] & SD[":core:system:domain"] & PD[":core:preferences:domain"] & PrD[":core:privilege:domain"] & HD[":core:hid:domain"] & BD[":core:barcode:domain"] & ND[":core:notifications:domain"] & BaD[":core:battery:domain"] & AD[":core:apps:domain"] & Nav[":core:navigation:api"]
     end
     Features --> UI[":core:ui<br/>theme, components, catalog"]
     App --> Data
     subgraph Data["Data implementations (Android)"]
-        DDa[":core:device:data"] & UDa[":core:usage:data"] & SDa[":core:system:data"] & PrDa[":core:privilege:data<br/>Shizuku, root, settings"]
+        DDa[":core:device:data"] & UDa[":core:usage:data"] & SDa[":core:system:data"] & PrDa[":core:privilege:data<br/>Shizuku, root, settings"] & HDa[":core:hid:data<br/>Bluetooth keyboard and mouse"] & BDa[":core:barcode:data<br/>scan history (Room)"] & NDa[":core:notifications:data<br/>history (Room)"] & BaDa[":core:battery:data<br/>readings (Room)"] & ADa[":core:apps:data<br/>installed apps"]
     end
     Data --> Domain
 ```
@@ -61,16 +67,20 @@ flowchart TD
 
 | Tool | Version |
 |---|---|
-| Android Gradle Plugin | 9.5.0 |
+| Android Gradle Plugin | 9.5.1 |
 | Gradle | 9.8.2 |
 | Kotlin | 2.4.21 |
 | KSP | 2.3.12 |
 | Compose BOM | 2026.09.00 |
-| Material 3 | 1.5.0-beta02 (Expressive APIs) |
+| Material 3 | 1.5.0-rc01 (Expressive APIs) |
 | Navigation Compose | 2.10.2 (type-safe routes) |
 | Hilt | 2.60.1 |
-| DataStore | 1.2.1 |
+| DataStore | 1.3.0 |
+| Room | 2.8.5 |
+| CameraX | 1.6.2 |
+| ZXing | 3.5.4 |
 | Coroutines | 1.11.0 |
+| Kotlin serialization | 1.12.0 |
 | MaterialKolor | 5.0.1 |
 | Shizuku API | 13.1.5 |
 | ArchUnit (tests) | 1.5.1 |
@@ -94,25 +104,35 @@ osyster-app/
     preferences/domain/        Settings backup and first-run contracts
     privilege/domain|data/     Privileged shell (Shizuku, root), settings store, power apps,
                                power tools store, quiet launch
+    hid/domain|data/           Bluetooth remote: HID descriptor and reports, layouts, touchpad
+                               math, PC actions; Android HID device, scanner, remote settings
+    barcode/domain|data/       Barcode scanner: code content and actions (ZXing), search sites;
+                               Room history and search sites, scanner settings
+    notifications/domain|data/ Notification history: what is kept and how chats split; batched
+                               Room recorder, history queries, pictures, settings
+    battery/domain|data/       Battery history: samples, charge sessions, drain; Room store,
+                               JobScheduler reading, settings
+    apps/domain|data/          App manager: permission areas, risk, counts, sorting; installed
+                               apps through PackageManager, app-ops, and storage stats
     ui/                        Theme, components, destination catalog and help, formatting
   feature/
     home/ device/ tools/ settings/
     datausage/ screenusage/ appstopper/
-    stayawake/ flashlight/ activitylauncher/ linkactions/
-    quicktiles/ musicwidgets/ onboarding/ search/ powertools/
+    stayawake/ flashlight/ btremote/ barcode/ notificationhistory/ batteryhistory/ appmanager/ measure/ activitylauncher/ linkactions/
+    quicktiles/ musicwidgets/ onboarding/ powertools/
 ```
 
 Domain and API modules are pure Kotlin JVM modules. Data modules are Android libraries with Hilt bindings. Feature modules depend on `:core:runtime`, `:core:navigation:api`, `:core:ui`, and domain modules only.
 
 ## Startup and Navigation
 
-1. `OsysterApplication` (Hilt) publishes dynamic launcher shortcuts.
+1. `OsysterApplication` (Hilt) publishes dynamic launcher shortcuts. A shortcut can open a page inside a tool (`DeepLinks.EXTRA_OPEN_PAGE`, such as the code creator); `shortcutRoutes` turns it into the tool's page plus the page on top, so Back lands on the tool.
 2. `MainActivity` keeps the splash screen until theme options load (two second ceiling), reads `EXTRA_OPEN_TOOL` from the launch intent (and `onNewIntent`), and builds `SystemActions` for things only an activity can do (open URLs, system settings pages, share sheets).
-3. `StartGate` wraps the shell. It decides once per launch, from `AppStartRepository`, whether to show the welcome, the "What's new" sheet, or nothing, and draws it over the running app.
+3. `StartGate` wraps the shell. It decides once per launch, from `AppStartRepository`, whether to show the welcome, and draws it over the running app.
 4. `OsysterAppShell` hosts a `NavHost` with spring transitions. Navigation 2.10 plays the `predictivePop*` transitions during the back gesture, so those are set to the same springs to keep the gesture continuous.
 5. The `FloatingTabBar` shows Home, Tools, and Settings on top-level pages and morphs into a back button with the page title on detail pages. Tabs keep their own back stacks (`saveState` / `restoreState`).
 
-Routes: `HomeRoute`, `ToolsRoute`, `SettingsRoute`, `DevicePageRoute(pageId)`, `ScreenTesterRoute`, `SearchRoute`, `AboutRoute`, `PrivacyRoute`, `LicensesRoute`, one route per utility tool, `WidgetsRoute`, `AppUsageRoute(packageName)` shared by both usage tools, `PowerToolRoute(toolId)` shared by all power tools, and `ToolRoute(toolId)` for tools without a page yet.
+Routes (`AppRoutes.kt`): `HomeRoute`, `ToolsRoute`, `SettingsRoute`, `DevicePageRoute(pageId)`, `ScreenTesterRoute`, `AboutRoute`, `PrivacyRoute`, `LicensesRoute`, one route per tool (the barcode, app manager, and battery and notification history tools add their own inner pages), `WidgetsRoute`, `QuickTilesRoute`, `AppUsageRoute(packageName)` shared by both usage tools, `PowerToolRoute(toolId)` shared by all power tools, and `EmptyDetailRoute` for the empty right-hand pane. Search lives inside Home (`feature/home/search`), not on its own route.
 
 On screens 840 dp and wider the shell shows two panes: the tab list on the left in its own NavHost, and pages on the right. One graph builder serves both, and page navigation always goes to the right-hand controller, so features need no changes.
 
@@ -151,16 +171,73 @@ On screens 840 dp and wider the shell shows two panes: the tab list on the left 
 - **Feature side:** `:feature:powertools` draws Power setup, Power saving, Scale and animations, Status bar icons, System tweaks, Shut-Up!, Standby apps, and Freeze behind one `PowerToolRoute`. Every page extends `PowerViewModel`, which re-reads state whenever a watched setting or the access status changes, and shows an access card instead of failing silently.
 - **Tiles:** `PowerTile` checks access first and opens Power setup when it is missing.
 
+## Bluetooth Remote
+
+The phone registers with Android as a Bluetooth HID device (Android 9+), so a TV, computer, or tablet sees a keyboard, mouse, and remote and needs no app. The descriptor and the first three report types are adapted from BT Remote by Atharok (GPLv3).
+
+- **Descriptor (`HidReports`):** five report IDs: remote keys (Consumer page, one 16-bit usage), keyboard (modifiers and one key), mouse (buttons, X, Y, wheel), system control (power down, sleep, wake), and gamepad (16 buttons, hat, two sticks). A host reads the descriptor when it pairs, so a device paired before a descriptor change must pair again before new parts work.
+- **Keys are held, not tapped:** the screen sends a press on touch-down and the release on lift, so the host repeats a held key the way a real remote does.
+- **Layouts (`RemoteLayout`):** automatic follows the Bluetooth device class (TV, computer, phone); the choice is saved per device by address. `keyboardFor` maps remote keys to keyboard keys on computers (arrows, Enter, Esc, the Windows key), and the ViewModel remembers which kind it held so the release matches.
+- **Inputs:** Remote, Touchpad, Keyboard, and Gamepad, saved per device. `PointerAccumulator` keeps fractions so slow moves add up and splits fast moves into reports of at most 127; `ScrollAccumulator` turns finger travel into wheel clicks; `typingChange` turns field edits into Backspace and new keys; `airMouseDelta` turns gyroscope rates into pointer moves with a dead zone.
+- **Computer actions (`PcAction`):** shortcuts (Win+L, Win+Print Screen, Ctrl+Shift+Esc, Win+D), the system control keys for sleep and power, and timed Win+X menu sequences for shut down and restart (Windows only).
+- **Lifetime:** `RemoteService` is a connected-device foreground service that runs while the remote screen is open or a device is connected, refreshes the remote widget, and offers play, pause, and disconnect in its notification.
+- **Privacy:** addresses are used only to connect and to key saved choices, never shown; the store is a DataStore, which backup rules leave out.
+
+## Barcode Scanner
+
+Codes are read on the phone with ZXing; reading and acting on them follows Barcode Scanner by Atharok (GPLv3). Nothing goes online.
+
+- **Camera (`CodeReader`, `CodeAnalyzer`):** CameraX preview through `CameraXViewfinder` and an `ImageAnalysis` that keeps only the latest frame. Only the brightness plane is read, cut to the square drawn on screen and turned to match the screen (ZXing's 1D readers cannot rotate a camera frame themselves). Every image is tried again inverted. After a read the analyzer pauses until the result sheet closes.
+- **Pictures:** the photo picker (no storage permission), opened at most 2048 px; a miss is retried at 3/4, 1/2, and 1/4 size, then the Compose crop sheet scans only the framed part.
+- **Content (`parseContent`, `actionsFor`):** ZXing's `ResultParser` turns text into links, email, phone, SMS, locations, vCard and MeCard contacts, calendar events, Wi-Fi, products, and ISBNs. Every action is an intent to another app (browser, dialer, Contacts and Calendar insert screens), so no contacts, calendar, or internet permission is needed. Wi-Fi codes show the network and copy the password; Osyster does not join networks.
+- **Storage:** scan history and search sites in a Room database (`barcode.db`), excluded from backup; beep and vibrate in a DataStore.
+- **Share sheet:** `ShareScanActivity` takes `image/*` shares, reads them over the sharing app, and saves the scan to the history.
+- **Clean pictures:** a straight, noise-free code (a screenshot or a saved code) can trip ZXing's finder search on some module patterns, so pictures get a last try with `PURE_BARCODE`.
+
+### Code Creator
+
+- **Forms (`CreateKind`, `CodeField`, `encode`):** each kind lists its fields; values travel as strings in the ViewModel's saved state, so a half-filled form survives rotation and process death. `encode` builds the text (WIFI: with backslash escaping, vCard 3.0, VEVENT with UTC times or all-day dates, SMSTO:, mailto:, tel:, geo:, a Play Store link) or returns the first `CreateProblem`. EAN and UPC add or check the check digit (UPC-E's covers the UPC-A it expands to).
+- **Drawing (`encodeMatrix`, `CodeLayout`, `toSvg`):** ZXing writes the modules with no margin; Osyster adds the quiet zone, draws 1D bars a third of the width tall with the digits under them, and keeps a QR code's three finder squares solid when the rest are dots. Non-Latin text is marked UTF-8 (ECI); plain Latin text is not, so every scanner reads it. `CodeImage` draws whole pixels per module so edges stay sharp.
+- **Saving and sharing:** PNG and SVG go through `CreateDocument` (no storage permission). Shares go through a `FileProvider` (`<applicationId>.codes`) limited to `cache/codes/`, cleared before each share. File names come from the code's headline, never a Wi-Fi password.
+- **Tests:** `CodeCreationTest` draws every kind and reads it back with ZXing's own reader, round dots included, then parses it with `parseContent`.
+
+## Notification History
+
+Off until the person turns it on; it needs the notification access the music widgets already use. Everything stays on the phone.
+
+- **Capture (`NotificationCapture`, in the listener's module):** reads the title, expanded text, inbox lines, summary and info lines, progress, button labels, replies sent from the notification, and every chat message (with the earlier ones Android attaches) through `NotificationCompat.MessagingStyle`. The big picture is passed as a `PictureSource`, so it is only scaled (1080 px) and written as a JPEG if the notification is kept. Nothing is read while history is off: the listener checks `recorder.recording` first.
+- **Rules (`shouldRecord`, `entriesFor`, pure and tested):** skip Osyster, excluded apps, media players, group summaries (their children carry the content), ongoing notifications unless asked, and empty ones. A chat becomes one entry per message, keyed by the conversation title, then the app's conversation shortcut id, then the notification key; never the title Android rebuilds from the latest sender.
+- **Recorder (`RoomNotificationRecorder`):** the listener's calls drop work into a channel and return. One coroutine wakes per burst, waits a second, and writes the whole batch in one transaction. Duplicates are stopped three ways: a unique index on app, time, and content fingerprint (reposts and the shade replay on reconnect), the last fingerprint per live notification (reposts with a new time), and matching a chat's recent messages by content (apps that restamp old messages). Every six hours at most, entries past the retention, beyond 50,000, and unused pictures are removed.
+- **Removal:** `onNotificationRemoved` with Android's reason marks plain entries as dismissed, opened, or removed by the app. Chat messages keep no removal mark, since apps cancel them whenever a chat is read.
+- **Screens:** a list by day with search (`LIKE` over every text column) and an app filter, pages of 200, and a sheet with the whole entry, its picture, progress, replies, buttons, and for chats the conversation as bubbles.
+
+## App Manager
+
+- **Reading (`AndroidInstalledApps`):** one `getInstalledPackages(GET_PERMISSIONS)` call gives every app's requested permissions and grant flags; launchable apps come from one launcher query; accessibility services, notification listeners, and device admins from one call each. Special access granted through app-ops is checked only for apps that ask for it, through the public `AppOpsManager.permissionToOp` and `unsafeCheckOpNoThrow` (a "default" mode falls back to the permission grant, as Android reads it). The list is kept 30 seconds so moving between pages is instant; coming back to the list reads it again.
+- **App pages:** components and the signing certificate (SHA-256 of the current signer) from `getPackageInfo`, native code ABIs and library names from the APK's `lib/` folder (APKs are world-readable), and storage from `StorageStatsManager` with usage access. Saving an APK copies the single base APK through `CreateDocument`; split apps are explained instead, since one part would not install.
+- **Risk (`AppSummary.risk`, pure and tested):** the highest risk among the areas and special access an app was allowed. Areas map from permission names in `PermissionArea.of`.
+
+## Measure
+
+- Level from `TYPE_GRAVITY` (or the accelerometer), compass from `TYPE_ROTATION_VECTOR` with the heading smoothed the short way round north, ruler from the display's `xdpi`, and sound from `AudioRecord` buffers turned into decibels below full scale plus a fixed offset. Each sensor is registered in a `DisposableEffect`, so only the open tool runs. The math (`MeasureMath.kt`) is tested in `:feature:measure:testDebugUnitTest`.
+
+## Battery History
+
+- **Reading (`RoomBatteryHistory.recordNow`):** the sticky `ACTION_BATTERY_CHANGED` broadcast (level, status, plug, temperature, voltage, health, cycle count on Android 14+) plus `BATTERY_PROPERTY_CURRENT_NOW`, normalized to milliamps and signed by charging (`normalizeCurrent`). Nothing is registered; the broadcast is only read.
+- **Schedule (`JobBatterySampling`):** a periodic `JobScheduler` job every 30 minutes with a 10 minute flex, no new library. `OsysterApplication` schedules it on start while history is on (a pending job is left alone so its period is not reset), so it comes back after a reboot once the app runs. Android 8 and newer no longer deliver plug and unplug broadcasts to manifest receivers, so sessions come from the readings.
+- **Sessions and drain (`chargeSessions`, `drainPerHour`, pure and tested):** a session runs from the reading before the plug went in to the first reading after it came out; drain is the level lost per hour over stretches on battery. Readings older than 30 days are removed on each write.
+- **Widget (`BatteryWidget`):** after each saved reading the store sends `ACTION_BATTERY_HISTORY_UPDATED` to Osyster's own package; the widget redraws from the last day's readings (level, state, temperature, and a bitmap chart sized to the widget), so it needs no update period.
+
 ## Preferences, First Run, and Backup
 
 - Theme options live in `ThemeSettings` (DataStore) in `:core:ui`; Home layout, app stopper, and tool stores live in their data modules.
-- `AppStartRepository` (contract in `:core:preferences:domain`, DataStore in `:app`) records onboarding and the last seen version; `startScreenFor` is pure and tested.
+- `AppStartRepository` (contract in `:core:preferences:domain`, DataStore in `:app`) records whether the welcome was finished; `startScreenFor` is pure and tested.
 - `SettingsBackup` writes a versioned JSON file (`format: osyster-settings`, `version: 1`) through the Storage Access Framework and refuses files that are not Osyster exports.
-- `backup_rules.xml` and `data_extraction_rules.xml` exclude caches and keys; `BackupRulesTest` keeps the two in step.
+- `backup_rules.xml` and `data_extraction_rules.xml` exclude caches, keys, databases, and saved notification pictures; `BackupRulesTest` keeps the two in step.
 
 ## Widgets, Tiles, Shortcuts, and the Notification Listener
 
-- **Music widgets:** `OsysterNotificationListener` tracks media sessions; `MusicWidgetUpdater` renders 3x3 and 5x1 RemoteViews with Palette colors; `MusicWidgetControlReceiver` sends transport controls. The same listener feeds flashlight pulse with package name, ongoing flag, and post time only.
+- **Music widgets:** `OsysterNotificationListener` tracks media sessions, only from the apps `MusicApps` allows (any, or the chosen ones; changes apply at once through a preferences listener); `MusicWidgetUpdater` renders 3x3 and 5x1 RemoteViews with Palette colors; `MusicWidgetControlReceiver` sends transport controls. The same listener feeds flashlight pulse with package name, ongoing flag, and post time only, and, while history is on, hands each notification to the history recorder.
 - **Data widgets:** today, month, and combined, refreshed on demand and on a schedule.
 - **Tiles:** each feature declares its own `TileService`s; the Quick tiles page lists them by class name and offers one-tap add on Android 13 and newer.
 - **Shortcuts:** dynamic launcher shortcuts and pinned Shut-Up! shortcuts target `QuietLaunchActivity`, which has no UI.
@@ -198,12 +275,14 @@ Run one Gradle command at a time with `--max-workers=2`, then stop the daemon.
 ```bash
 cd osyster-app
 ./gradlew :app:testDebugUnitTest --max-workers=2
-./gradlew :core:privilege:domain:test :core:system:domain:test :core:preferences:domain:test --max-workers=2
-./gradlew :feature:search:testDebugUnitTest :feature:device:testDebugUnitTest --max-workers=2
+./gradlew :core:device:domain:test :core:usage:domain:test :core:system:domain:test :core:preferences:domain:test :core:privilege:domain:test --max-workers=2
+./gradlew :core:hid:domain:test :core:barcode:domain:test :core:notifications:domain:test :core:battery:domain:test :core:apps:domain:test --max-workers=2
+./gradlew :core:runtime:testDebugUnitTest :core:ui:testDebugUnitTest :core:device:data:testDebugUnitTest :core:usage:data:testDebugUnitTest --max-workers=2
+./gradlew :feature:home:testDebugUnitTest :feature:device:testDebugUnitTest :feature:measure:testDebugUnitTest :feature:musicwidgets:testDebugUnitTest :feature:quicktiles:testDebugUnitTest --max-workers=2
 ./gradlew --stop
 ```
 
-Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling, stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
+Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling and the widget toggle, HID reports and layouts, touchpad and typing math, barcode content parsing, actions, and search templates, notification history rules, battery sessions and drain, app risk and permission counts, measure math, music tiles sizing and layouts (`:feature:musicwidgets:testDebugUnitTest`), stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
 
 ## Build and Release
 
@@ -213,14 +292,14 @@ cd osyster-app
 ./gradlew :app:assembleRelease --max-workers=2
 ```
 
-- **Version:** `versionCode` is `versionName` without dots (0.2.8 is 28).
+- **Version:** `versionCode` is `versionName` without dots (0.4.0 is 40).
 - **Outputs:** `Osyster-x.y.z.apk` for release, `Osyster-x.y.z-debug.apk` for debug (`.debug` application ID suffix).
 - **Signing:** release signing reads the untracked `signing.properties`, falling back to `local.properties`. Never commit either, or the keystore.
 - **Shrinking:** R8 and resource shrinking are on. `proguard-rules.pro` holds only `-dontwarn` lines and line-number attributes; classes created by name use `@Keep`.
 - **Verify the certificate** before publishing:
 
 ```bash
-apksigner verify --print-certs app/build/outputs/apk/release/Osyster-0.2.8.apk
+apksigner verify --print-certs app/build/outputs/apk/release/Osyster-0.4.0.apk
 ```
 
 ## Troubleshooting
@@ -233,7 +312,7 @@ apksigner verify --print-certs app/build/outputs/apk/release/Osyster-0.2.8.apk
 
 ## Maintenance
 
-- Update dependencies together, following Arcile's catalog, then rebuild and run the architecture test.
+- Update dependencies on purpose and together, then rebuild and run the architecture test.
 - When adding a tool: add it to `Tool`, its label and help to the catalog, its route to the shell, and its search entry.
 - When adding a privileged command: add it to `PowerCommands` with a test.
 - CHANGELOG is updated every version; RELEASES only when a version is actually released.

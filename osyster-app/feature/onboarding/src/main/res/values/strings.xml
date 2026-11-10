@@ -20,18 +20,9 @@
     <string name="welcome_notifications">Notifications</string>
     <string name="welcome_notifications_detail">The Stay awake countdown and its Stop button</string>
     <string name="welcome_notification_access">Notification access</string>
-    <string name="welcome_notification_access_detail">Music widgets and flashlight pulse</string>
+    <string name="welcome_notification_access_detail">Music widgets, flashlight pulse, and notification history</string>
     <string name="welcome_granted">Allowed</string>
     <string name="welcome_access_later">Location and phone access are asked only on the Network page, when you choose to see those details.</string>
 
-    <string name="whats_new_title">What\'s new in %1$s</string>
-    <string name="whats_new_ok">Got it</string>
-    <string-array name="whats_new_items">
-        <item>Dashboard: Screen time, data today, and battery temperature, with tiles you can reorder or hide.</item>
-        <item>Data usage: The ring and bar charts are back, and every app has its own usage page.</item>
-        <item>App stopper: A grid of icons again, now with freezing built in.</item>
-        <item>Themes: A true pure black theme and better contrast everywhere.</item>
-        <item>Search: A search bar at the top of Home with suggestions.</item>
-    </string-array>
     <string name="welcome_allow">Allow</string>
 </resources>

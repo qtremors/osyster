@@ -7,8 +7,20 @@ import androidx.navigation.toRoute
 import dev.qtremors.osyster.core.navigation.AppRoute
 import dev.qtremors.osyster.core.navigation.ActivityLauncherRoute
 import dev.qtremors.osyster.core.navigation.AppStopperRoute
+import dev.qtremors.osyster.core.navigation.AppDetailsRoute
+import dev.qtremors.osyster.core.navigation.AppManagerRoute
+import dev.qtremors.osyster.core.navigation.AppPermissionsRoute
+import dev.qtremors.osyster.core.navigation.BarcodeCreateFormRoute
+import dev.qtremors.osyster.core.navigation.MeasureRoute
+import dev.qtremors.osyster.core.navigation.BatteryHistoryRoute
+import dev.qtremors.osyster.core.navigation.BarcodeCreateRoute
+import dev.qtremors.osyster.core.navigation.BarcodeHistoryRoute
+import dev.qtremors.osyster.core.navigation.BarcodeRoute
+import dev.qtremors.osyster.core.navigation.DeepLinks
+import dev.qtremors.osyster.core.navigation.BtRemoteRoute
 import dev.qtremors.osyster.core.navigation.FlashlightRoute
 import dev.qtremors.osyster.core.navigation.LinkActionsRoute
+import dev.qtremors.osyster.core.navigation.NotificationHistoryRoute
 import dev.qtremors.osyster.core.navigation.PowerToolRoute
 import dev.qtremors.osyster.core.navigation.QuickTilesRoute
 import dev.qtremors.osyster.core.navigation.StayAwakeRoute
@@ -23,13 +35,32 @@ internal fun Tool.route(): AppRoute = when (this) {
     Tool.DATA_USAGE -> DataUsageRoute
     Tool.SCREEN_USAGE -> ScreenUsageRoute
     Tool.APP_STOPPER -> AppStopperRoute
+    Tool.NOTIFICATION_HISTORY -> NotificationHistoryRoute
+    Tool.BATTERY_HISTORY -> BatteryHistoryRoute
+    Tool.APP_MANAGER -> AppManagerRoute
+    Tool.MEASURE -> MeasureRoute
     Tool.STAY_AWAKE -> StayAwakeRoute
     Tool.FLASHLIGHT -> FlashlightRoute
+    Tool.BT_REMOTE -> BtRemoteRoute
+    Tool.BARCODE -> BarcodeRoute()
     Tool.ACTIVITY_LAUNCHER -> ActivityLauncherRoute
     Tool.LINK_ACTIONS -> LinkActionsRoute
     Tool.QUICK_TILES -> QuickTilesRoute
     Tool.WIDGETS -> WidgetsRoute
     else -> PowerToolRoute(id)
+}
+
+/**
+ * The pages a launcher shortcut opens, bottom first: a tool's own page, then any page inside it,
+ * so Back from the creator lands on the scanner. An unknown tool opens nothing.
+ */
+internal fun shortcutRoutes(toolId: String, page: String?): List<AppRoute> {
+    val tool = Tool.fromId(toolId) ?: return emptyList()
+    return when {
+        tool == Tool.BARCODE && page == DeepLinks.PAGE_SCAN_PICTURE -> listOf(BarcodeRoute(pickPicture = true))
+        tool == Tool.BARCODE && page == DeepLinks.PAGE_CREATE_CODE -> listOf(BarcodeRoute(), BarcodeCreateRoute)
+        else -> listOf(tool.route())
+    }
 }
 
 /** An unknown id (from an old pin or shortcut) falls back to the Tools tab instead of a blank page. */
@@ -42,8 +73,15 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
         destination.hasRoute<DataUsageRoute>() -> Tool.DATA_USAGE
         destination.hasRoute<ScreenUsageRoute>() -> Tool.SCREEN_USAGE
         destination.hasRoute<AppStopperRoute>() -> Tool.APP_STOPPER
+        destination.hasRoute<NotificationHistoryRoute>() -> Tool.NOTIFICATION_HISTORY
+        destination.hasRoute<BatteryHistoryRoute>() -> Tool.BATTERY_HISTORY
+        destination.hasRoute<MeasureRoute>() -> Tool.MEASURE
+        destination.hasRoute<AppManagerRoute>() || destination.hasRoute<AppPermissionsRoute>() || destination.hasRoute<AppDetailsRoute>() -> Tool.APP_MANAGER
         destination.hasRoute<StayAwakeRoute>() -> Tool.STAY_AWAKE
         destination.hasRoute<FlashlightRoute>() -> Tool.FLASHLIGHT
+        destination.hasRoute<BtRemoteRoute>() -> Tool.BT_REMOTE
+        destination.hasRoute<BarcodeRoute>() || destination.hasRoute<BarcodeHistoryRoute>() ||
+            destination.hasRoute<BarcodeCreateRoute>() || destination.hasRoute<BarcodeCreateFormRoute>() -> Tool.BARCODE
         destination.hasRoute<ActivityLauncherRoute>() -> Tool.ACTIVITY_LAUNCHER
         destination.hasRoute<LinkActionsRoute>() -> Tool.LINK_ACTIONS
         destination.hasRoute<QuickTilesRoute>() -> Tool.QUICK_TILES
@@ -55,5 +93,6 @@ internal fun toolOf(entry: NavBackStackEntry): Tool? {
 
 internal fun NavDestination.isToolPage(): Boolean =
     hasRoute<DataUsageRoute>() || hasRoute<ScreenUsageRoute>() || hasRoute<AppStopperRoute>() ||
-        hasRoute<StayAwakeRoute>() || hasRoute<FlashlightRoute>() || hasRoute<ActivityLauncherRoute>() ||
+        hasRoute<StayAwakeRoute>() || hasRoute<FlashlightRoute>() || hasRoute<BtRemoteRoute>() || hasRoute<NotificationHistoryRoute>() || hasRoute<BatteryHistoryRoute>() || hasRoute<MeasureRoute>() || hasRoute<AppManagerRoute>() || hasRoute<AppPermissionsRoute>() || hasRoute<AppDetailsRoute>() || hasRoute<BarcodeRoute>() || hasRoute<BarcodeHistoryRoute>() ||
+        hasRoute<BarcodeCreateRoute>() || hasRoute<BarcodeCreateFormRoute>() || hasRoute<ActivityLauncherRoute>() ||
         hasRoute<LinkActionsRoute>() || hasRoute<QuickTilesRoute>() || hasRoute<WidgetsRoute>() || hasRoute<PowerToolRoute>()

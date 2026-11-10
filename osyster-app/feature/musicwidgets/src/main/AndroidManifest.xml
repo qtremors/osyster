@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
-        <!-- Optional notification access. Reads media sessions for the music widgets and, when
-             turned on, pulses the flashlight for new notifications. Notification text is never
-             stored or sent anywhere. -->
+        <!-- Optional notification access. Reads media sessions for the music widgets, pulses the
+             flashlight for new notifications when turned on, and saves notification history when
+             the person turns it on. History stays on the phone and is never sent anywhere. -->
         <service
             android:name=".OsysterNotificationListener"
             android:exported="true"
@@ -29,6 +29,38 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_music_3x3_info" />
         </receiver>
+
+        <receiver
+            android:name=".MusicGridWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_music_grid_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_music_grid_info" />
+        </receiver>
+
+
+        <!-- Which apps the music widgets follow; opened from the Widgets page and widget setup. -->
+        <activity
+            android:name=".MusicAppsActivity"
+            android:exported="false"
+            android:label="@string/music_apps_title" />
+
+        <!-- Opens when a music tiles widget is placed, and from its widget settings. -->
+        <activity
+            android:name=".MusicTileSetupActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/music_setup_title"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Osyster.MusicSetup">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name=".Music5x1WidgetReceiver"

@@ -15,22 +15,17 @@ interface SettingsBackup {
 /** Thrown when a picked file is not an Osyster settings export. */
 class NotAnOsysterBackupException : IllegalArgumentException("Not an Osyster settings file")
 
-/** First-run and update state: whether the welcome was finished and which version was last seen. */
-data class AppStartState(val onboardingDone: Boolean, val lastSeenVersion: String?)
+/** First-run state: whether the welcome was finished. */
+data class AppStartState(val onboardingDone: Boolean)
 
 interface AppStartRepository {
     val state: Flow<AppStartState>
-    suspend fun finishOnboarding(version: String)
-    suspend fun markVersionSeen(version: String)
+    suspend fun finishOnboarding()
     /** Shows the welcome again on next start, from Settings. */
     suspend fun resetOnboarding()
 }
 
-/** What to show when the app starts, decided purely from state and the running version. */
-enum class StartScreen { WELCOME, WHATS_NEW, NONE }
+/** What to show when the app starts: the welcome until it is finished, then nothing. */
+enum class StartScreen { WELCOME, NONE }
 
-fun startScreenFor(state: AppStartState, currentVersion: String): StartScreen = when {
-    !state.onboardingDone -> StartScreen.WELCOME
-    state.lastSeenVersion != currentVersion -> StartScreen.WHATS_NEW
-    else -> StartScreen.NONE
-}
+fun startScreenFor(state: AppStartState): StartScreen = if (state.onboardingDone) StartScreen.NONE else StartScreen.WELCOME

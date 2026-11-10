@@ -15,9 +15,15 @@ import androidx.compose.material.icons.rounded.DisplaySettings
 import androidx.compose.material.icons.rounded.DoNotDisturbOn
 import androidx.compose.material.icons.rounded.EnergySavingsLeaf
 import androidx.compose.material.icons.rounded.FlashlightOn
+import androidx.compose.material.icons.rounded.QrCodeScanner
+import androidx.compose.material.icons.rounded.SettingsRemote
 import androidx.compose.material.icons.rounded.FormatSize
 import androidx.compose.material.icons.rounded.HourglassBottom
+import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.rounded.Straighten
+import androidx.compose.material.icons.rounded.BatteryChargingFull
 import androidx.compose.material.icons.rounded.Link
+import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material.icons.rounded.RocketLaunch
@@ -81,8 +87,14 @@ val Tool.label: DestinationLabel
         Tool.DATA_USAGE -> DestinationLabel(R.string.tool_data_usage, R.string.tool_data_usage_summary, Icons.Rounded.DataUsage)
         Tool.SCREEN_USAGE -> DestinationLabel(R.string.tool_screen_usage, R.string.tool_screen_usage_summary, Icons.Rounded.HourglassBottom)
         Tool.APP_STOPPER -> DestinationLabel(R.string.tool_app_stopper, R.string.tool_app_stopper_summary, Icons.Rounded.StopCircle)
+        Tool.MEASURE -> DestinationLabel(R.string.tool_measure, R.string.tool_measure_summary, Icons.Rounded.Straighten)
+        Tool.APP_MANAGER -> DestinationLabel(R.string.tool_app_manager, R.string.tool_app_manager_summary, Icons.Rounded.Apps)
+        Tool.BATTERY_HISTORY -> DestinationLabel(R.string.tool_battery_history, R.string.tool_battery_history_summary, Icons.Rounded.BatteryChargingFull)
+        Tool.NOTIFICATION_HISTORY -> DestinationLabel(R.string.tool_notification_history, R.string.tool_notification_history_summary, Icons.Rounded.NotificationsActive)
         Tool.STAY_AWAKE -> DestinationLabel(R.string.tool_stay_awake, R.string.tool_stay_awake_summary, Icons.Rounded.Coffee)
         Tool.FLASHLIGHT -> DestinationLabel(R.string.tool_flashlight, R.string.tool_flashlight_summary, Icons.Rounded.FlashlightOn)
+        Tool.BT_REMOTE -> DestinationLabel(R.string.tool_bt_remote, R.string.tool_bt_remote_summary, Icons.Rounded.SettingsRemote)
+        Tool.BARCODE -> DestinationLabel(R.string.tool_barcode, R.string.tool_barcode_summary, Icons.Rounded.QrCodeScanner)
         Tool.ACTIVITY_LAUNCHER -> DestinationLabel(R.string.tool_activity_launcher, R.string.tool_activity_launcher_summary, Icons.Rounded.RocketLaunch)
         Tool.LINK_ACTIONS -> DestinationLabel(R.string.tool_link_actions, R.string.tool_link_actions_summary, Icons.Rounded.Link)
         Tool.WIDGETS -> DestinationLabel(R.string.tool_widgets, R.string.tool_widgets_summary, Icons.Rounded.Widgets)

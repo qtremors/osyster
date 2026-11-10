@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A data widget one cell tall: the period over refresh, the two values in equal boxes so they
+     match in size, and their icons at the end. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_card_background">
+
+    <LinearLayout
+        android:id="@+id/widget_content_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="6dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/widget_interval_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="start|center_vertical"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/widget_period_today"
+                    android:textColor="@color/widget_on_card_dim"
+                    android:textSize="13sp" />
+
+                <FrameLayout
+                    android:layout_width="28dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="-6dp">
+
+                    <ImageView
+                        android:id="@+id/widget_btn_refresh"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/widget_refresh_ripple"
+                        android:contentDescription="@string/widget_refresh_description"
+                        android:padding="6dp"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_refresh"
+                        android:tint="@color/widget_on_card_dim" />
+
+                    <ProgressBar
+                        android:id="@+id/widget_refresh_spin"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:indeterminate="true"
+                        android:indeterminateBehavior="repeat"
+                        android:indeterminateDrawable="@drawable/widget_refresh_spin"
+                        android:indeterminateDuration="700"
+                        android:indeterminateTint="@color/widget_accent"
+                        android:padding="6dp"
+                        android:visibility="gone" />
+                </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/widget_mobile_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:autoSizeMaxTextSize="17sp"
+                    android:autoSizeMinTextSize="10sp"
+                    android:autoSizeStepGranularity="1sp"
+                    android:autoSizeTextType="uniform"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="end|center_vertical"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="0 B"
+                    android:textColor="@color/widget_on_card" />
+
+                <TextView
+                    android:id="@+id/widget_wifi_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:autoSizeMaxTextSize="17sp"
+                    android:autoSizeMinTextSize="10sp"
+                    android:autoSizeStepGranularity="1sp"
+                    android:autoSizeTextType="uniform"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="end|center_vertical"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="0 B"
+                    android:textColor="@color/widget_on_card" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/widget_mobile_icon"
+                    android:layout_width="16dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/network_mobile_label"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_mobile_data"
+                    android:tint="@color/widget_on_card" />
+
+                <ImageView
+                    android:id="@+id/widget_wifi_icon"
+                    android:layout_width="16dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/network_wifi_label"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/ic_wifi"
+                    android:tint="@color/widget_on_card" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

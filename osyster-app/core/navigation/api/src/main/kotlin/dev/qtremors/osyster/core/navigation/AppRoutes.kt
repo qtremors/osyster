@@ -56,6 +56,53 @@ data object StayAwakeRoute : AppRoute
 @Serializable
 data object FlashlightRoute : AppRoute
 
+/** The Bluetooth remote: devices, then the remote once one connects. */
+@Serializable
+data object BtRemoteRoute : AppRoute
+
+/**
+ * The barcode scanner: camera, picture scanning, and results. [pickPicture] opens the photo
+ * picker straight away, for the "Scan a picture" launcher shortcut.
+ */
+@Serializable
+data class BarcodeRoute(val pickPicture: Boolean = false) : AppRoute
+
+/** Level, compass, ruler, and sound meter. */
+@Serializable
+data object MeasureRoute : AppRoute
+
+/** Every installed app, with counts, risk, and search. */
+@Serializable
+data object AppManagerRoute : AppRoute
+
+/** What every app may see and do, by permission area. */
+@Serializable
+data object AppPermissionsRoute : AppRoute
+
+/** One app's page in the App manager. */
+@Serializable
+data class AppDetailsRoute(val packageName: String) : AppRoute
+
+/** Battery level, charging, drain, and temperature over the last month. */
+@Serializable
+data object BatteryHistoryRoute : AppRoute
+
+/** Saved notifications, newest first. */
+@Serializable
+data object NotificationHistoryRoute : AppRoute
+
+/** Past scans. */
+@Serializable
+data object BarcodeHistoryRoute : AppRoute
+
+/** The kinds of code the creator makes. */
+@Serializable
+data object BarcodeCreateRoute : AppRoute
+
+/** One creator form; [kind] is a CreateKind name. */
+@Serializable
+data class BarcodeCreateFormRoute(val kind: String) : AppRoute
+
 @Serializable
 data object ActivityLauncherRoute : AppRoute
 

@@ -120,6 +120,14 @@ class StatusAndDnsTest {
     }
 
     @Test
+    fun privateDnsWidgetTogglesBetweenOffAndTheSavedMode() {
+        assertEquals(PrivateDnsMode.HOSTNAME, togglePrivateDnsMode(PrivateDnsMode.OFF, hasHost = true))
+        assertEquals(PrivateDnsMode.AUTOMATIC, togglePrivateDnsMode(PrivateDnsMode.OFF, hasHost = false))
+        assertEquals(PrivateDnsMode.OFF, togglePrivateDnsMode(PrivateDnsMode.AUTOMATIC, hasHost = true))
+        assertEquals(PrivateDnsMode.OFF, togglePrivateDnsMode(PrivateDnsMode.HOSTNAME, hasHost = true))
+    }
+
+    @Test
     fun dnsHostValidation() {
         assertTrue(isValidDnsHost("dns.adguard.com"))
         assertFalse(isValidDnsHost("not a host"))

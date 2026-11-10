@@ -40,6 +40,7 @@ dependencies {
     implementation(project(":core:runtime"))
     implementation(project(":core:navigation:api"))
     implementation(project(":core:system:domain"))
+    implementation(project(":core:notifications:domain"))
     implementation(libs.androidx.media)
     implementation(libs.androidx.palette)
     implementation(libs.androidx.core.ktx)

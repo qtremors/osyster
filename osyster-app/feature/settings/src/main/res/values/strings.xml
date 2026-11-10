@@ -86,15 +86,21 @@
     <string name="privacy_identifiers_detail">Serial numbers, IMEI, phone numbers, MAC addresses, and DRM device IDs are never read.</string>
     <string name="privacy_permissions">Optional permissions</string>
     <string name="privacy_perm_usage">Usage access</string>
-    <string name="privacy_perm_usage_detail">Data usage and screen time. Asked on those tools only.</string>
+    <string name="privacy_perm_usage_detail">Data usage, screen time, and app sizes. Asked on those tools only.</string>
+    <string name="privacy_perm_camera">Camera</string>
+    <string name="privacy_perm_camera_detail">The barcode scanner reads codes from the camera. No picture is saved.</string>
+    <string name="privacy_perm_microphone">Microphone</string>
+    <string name="privacy_perm_microphone_detail">The sound meter shows how loud it is while open. Nothing is recorded.</string>
+    <string name="privacy_perm_bluetooth">Nearby devices</string>
+    <string name="privacy_perm_bluetooth_detail">The Bluetooth remote connects to your TV or computer. Addresses are used only to connect.</string>
     <string name="privacy_perm_location">Location</string>
     <string name="privacy_perm_location_detail">Android shows the Wi-Fi network name only to apps with location access. Your location itself is never read.</string>
     <string name="privacy_perm_phone">Phone</string>
     <string name="privacy_perm_phone_detail">Mobile network type and SIM state. Your number, calls, and contacts are never read.</string>
     <string name="privacy_perm_notifications">Notifications</string>
-    <string name="privacy_perm_notifications_detail">Shows the Stay awake countdown so you can stop it.</string>
+    <string name="privacy_perm_notifications_detail">Shows the Stay awake countdown and the Shut-Up! restore button.</string>
     <string name="privacy_perm_notification_access">Notification access</string>
-    <string name="privacy_perm_notification_access_detail">Music widgets and flashlight pulse. Notification text is never stored.</string>
+    <string name="privacy_perm_notification_access_detail">Music widgets and flashlight pulse. Notification text is saved only if you turn on notification history, and stays on this phone.</string>
     <string name="privacy_perm_secure_settings">Change system settings</string>
     <string name="privacy_perm_secure_settings_detail">Granted only by you through ADB, Shizuku, or root, for Stay awake while charging and power tools.</string>
 
@@ -103,6 +109,12 @@
     <string name="credit_osyster_detail">Tremors. GNU General Public License v3.</string>
     <string name="credit_essentials">Essentials by Sameera Sandakelum</string>
     <string name="credit_essentials_detail">Design reference and interface patterns. MIT License.</string>
+    <string name="credit_btremote">BT Remote by Atharok</string>
+    <string name="credit_btremote_detail">Bluetooth remote, keyboard, and mouse reports. GPL-3.0 License.</string>
+    <string name="credit_barcode">Barcode Scanner by Atharok</string>
+    <string name="credit_barcode_detail">How the barcode scanner reads and acts on codes. GPL-3.0 License.</string>
+    <string name="credit_zxing">ZXing</string>
+    <string name="credit_zxing_detail">Reading and parsing barcodes and QR codes. Apache License 2.0.</string>
     <string name="credit_metro">Metro and Retro Music Player</string>
     <string name="credit_metro_detail">Circle album art music widget layout. GPL-3.0 License.</string>
     <string name="credit_androidx">AndroidX, Jetpack Compose, and Material 3</string>

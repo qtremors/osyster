@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.powertools
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Animation
@@ -159,7 +160,7 @@ private fun DensitySection(density: DensityInfo?, hasShell: Boolean, onSet: (Int
     }
     if (density?.override != null) {
         ActionButtons {
-            OutlinedButton(onClick = { onSet(null) }) { Text(stringResource(R.string.display_scale_density_reset)) }
+            OutlinedButton(shapes = ButtonDefaults.shapes(), onClick = { onSet(null) }) { Text(stringResource(R.string.display_scale_density_reset)) }
         }
     }
 }

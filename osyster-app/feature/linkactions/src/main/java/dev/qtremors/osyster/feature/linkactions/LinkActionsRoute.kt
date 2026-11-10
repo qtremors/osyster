@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.linkactions
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -91,7 +92,7 @@ private fun LinkActionsScreen(isDefault: Boolean, links: LinkHandlers, onNavigat
                 Column {
                     SectionHeader(stringResource(R.string.link_try))
                     InlineSearchField(query = testUrl, onQueryChange = { testUrl = it }, placeholder = stringResource(R.string.link_try_placeholder))
-                    Button(
+                    Button(shapes = ButtonDefaults.shapes(), 
                         onClick = { chooserFor = testUrl.trim() },
                         enabled = testUrl.trim().startsWith("http"),
                         modifier = Modifier.padding(top = 12.dp)

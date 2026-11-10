@@ -45,7 +45,10 @@ class MainActivity : ComponentActivity() {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        if (savedInstanceState == null) pendingTool.value = intent?.getStringExtra(DeepLinks.EXTRA_OPEN_TOOL)
+        if (savedInstanceState == null) {
+            pendingTool.value = intent?.let(::requestedTool)
+            LauncherShortcuts.reportUsed(this, intent)
+        }
 
         lifecycleScope.launch {
             themeSettings.options.collect { themeOptions.value = it }
@@ -67,7 +70,6 @@ class MainActivity : ComponentActivity() {
             val openTool by pendingTool.collectAsStateWithLifecycle()
             OsysterTheme(options = options ?: ThemeOptions()) {
                 StartGate(
-                    appVersion = BuildConfig.VERSION_NAME,
                     onNavigate = { target ->
                         when (target) {
                             OnboardingDestination.UsageAccess -> systemActions.openUsageAccess()
@@ -119,7 +121,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        intent.getStringExtra(DeepLinks.EXTRA_OPEN_TOOL)?.let { pendingTool.value = it }
+        requestedTool(intent)?.let { pendingTool.value = it }
+        LauncherShortcuts.reportUsed(this, intent)
+    }
+
+    /** The tool a widget, tile, or shortcut asked for, as "tool" or "tool/page". */
+    private fun requestedTool(intent: Intent): String? {
+        val tool = intent.getStringExtra(DeepLinks.EXTRA_OPEN_TOOL) ?: return null
+        return intent.getStringExtra(DeepLinks.EXTRA_OPEN_PAGE)?.let { "$tool/$it" } ?: tool
     }
 
     /** Starts another app's screen; if it vanished, there is nothing the user can fix from here. */

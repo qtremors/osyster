@@ -7,7 +7,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import dev.qtremors.osyster.core.navigation.EmptyDetailRoute
@@ -54,9 +55,26 @@ import dev.qtremors.osyster.core.ui.components.TabItem
 import dev.qtremors.osyster.core.ui.theme.LocalReduceMotion
 import androidx.compose.runtime.LaunchedEffect
 import dev.qtremors.osyster.feature.activitylauncher.registerActivityLauncherRoute
+import dev.qtremors.osyster.core.navigation.BarcodeCreateFormRoute
+import dev.qtremors.osyster.core.navigation.BarcodeCreateRoute
+import dev.qtremors.osyster.core.navigation.BarcodeHistoryRoute
+import dev.qtremors.osyster.feature.measure.registerMeasureRoute
+import dev.qtremors.osyster.feature.measure.MeasureDestination
+import dev.qtremors.osyster.feature.appmanager.registerAppManagerRoutes
+import dev.qtremors.osyster.feature.appmanager.AppManagerDestination
+import dev.qtremors.osyster.core.navigation.AppPermissionsRoute
+import dev.qtremors.osyster.core.navigation.AppDetailsRoute
+import dev.qtremors.osyster.core.navigation.BatteryHistoryRoute
+import dev.qtremors.osyster.feature.barcode.BarcodeDestination
+import dev.qtremors.osyster.feature.barcode.registerBarcodeRoutes
+import dev.qtremors.osyster.feature.batteryhistory.registerBatteryHistoryRoute
+import dev.qtremors.osyster.feature.btremote.BtRemoteDestination
+import dev.qtremors.osyster.feature.btremote.registerBtRemoteRoute
 import dev.qtremors.osyster.feature.flashlight.FlashlightDestination
 import dev.qtremors.osyster.feature.flashlight.registerFlashlightRoute
 import dev.qtremors.osyster.feature.linkactions.LinkActionsDestination
+import dev.qtremors.osyster.feature.notificationhistory.NotificationHistoryDestination
+import dev.qtremors.osyster.feature.notificationhistory.registerNotificationHistoryRoute
 import dev.qtremors.osyster.feature.linkactions.registerLinkActionsRoute
 import dev.qtremors.osyster.feature.powertools.PowerToolsDestination
 import dev.qtremors.osyster.feature.powertools.registerPowerToolsRoute
@@ -108,9 +126,10 @@ fun OsysterAppShell(
 ) {
     val navController = rememberNavController()
     // A widget or tile asked for a specific tool; open it once, on top of Home.
+    // openTool is a tool id, or "tool/page" from a launcher shortcut that opens a page inside it.
     LaunchedEffect(openTool) {
-        val tool = openTool?.let(Tool::fromId) ?: return@LaunchedEffect
-        navController.navigate(tool.route())
+        val request = openTool ?: return@LaunchedEffect
+        shortcutRoutes(request.substringBefore('/'), request.substringAfter('/', "").ifEmpty { null }).forEach { navController.navigate(it) }
         onToolOpened()
     }
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -123,7 +142,7 @@ fun OsysterAppShell(
         TabItem(Icons.Rounded.Settings, stringResource(R.string.tab_settings))
     )
 
-    val wide = LocalConfiguration.current.screenWidthDp >= WIDE_SCREEN_DP
+    val wide = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() } >= WIDE_SCREEN_DP.dp
     val listController = rememberNavController()
     val listEntry by listController.currentBackStackEntryAsState()
     val selectTab: (AppRoute) -> Unit = { route -> (if (wide) listController else navController).navigateToTab(route) }
@@ -217,6 +236,7 @@ private fun NavGraphBuilder.osysterGraph(
     registerDevicePageRoute { target ->
         when (target) {
             DeviceDestination.SystemBatteryUsage -> system.openBatteryUsage()
+            DeviceDestination.BatteryHistory -> navController.navigate(BatteryHistoryRoute)
             DeviceDestination.ScreenTester -> navController.navigate(ScreenTesterRoute)
             DeviceDestination.AppPermissionSettings -> system.openAppSettings()
         }
@@ -263,6 +283,41 @@ private fun NavGraphBuilder.osysterGraph(
     registerFlashlightRoute { target ->
         when (target) {
             FlashlightDestination.NotificationAccess -> system.openNotificationAccess()
+        }
+    }
+    registerBtRemoteRoute { target ->
+        when (target) {
+            is BtRemoteDestination.AppSettings -> system.openAppInfo(target.packageName)
+        }
+    }
+    registerBarcodeRoutes { target ->
+        when (target) {
+            BarcodeDestination.History -> navController.navigate(BarcodeHistoryRoute)
+            BarcodeDestination.Create -> navController.navigate(BarcodeCreateRoute)
+            is BarcodeDestination.CreateForm -> navController.navigate(BarcodeCreateFormRoute(target.kind))
+            is BarcodeDestination.AppSettings -> system.openAppInfo(target.packageName)
+        }
+    }
+    registerNotificationHistoryRoute { target ->
+        when (target) {
+            NotificationHistoryDestination.NotificationAccess -> system.openNotificationAccess()
+            is NotificationHistoryDestination.OpenApp -> system.launchApp(target.packageName)
+        }
+    }
+    registerBatteryHistoryRoute()
+    registerMeasureRoute { target ->
+        when (target) {
+            MeasureDestination.AppSettings -> system.openAppSettings()
+        }
+    }
+    registerAppManagerRoutes { target ->
+        when (target) {
+            AppManagerDestination.Permissions -> navController.navigate(AppPermissionsRoute)
+            is AppManagerDestination.Details -> navController.navigate(AppDetailsRoute(target.packageName))
+            is AppManagerDestination.Usage -> navController.navigate(AppUsageRoute(target.packageName))
+            is AppManagerDestination.Open -> system.launchApp(target.packageName)
+            is AppManagerDestination.AppInfo -> system.openAppInfo(target.packageName)
+            is AppManagerDestination.Store -> system.openStoreListing(target.packageName)
         }
     }
     registerActivityLauncherRoute()

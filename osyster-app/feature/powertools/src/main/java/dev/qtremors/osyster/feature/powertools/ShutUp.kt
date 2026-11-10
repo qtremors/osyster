@@ -1,5 +1,8 @@
 package dev.qtremors.osyster.feature.powertools
 
+import dev.qtremors.osyster.core.ui.components.MenuAction
+import dev.qtremors.osyster.core.ui.components.OsysterMenu
+import androidx.compose.material3.ButtonDefaults
 import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,8 +15,6 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.DoNotDisturbOn
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -148,7 +149,7 @@ internal fun ShutUpRoute(onNavigate: (PowerToolsDestination) -> Unit) {
                         }
                     }
                     ActionButtons {
-                        OutlinedButton(onClick = { picking = true }) {
+                        OutlinedButton(shapes = ButtonDefaults.shapes(), onClick = { picking = true }) {
                             Icon(Icons.Rounded.Add, contentDescription = null)
                             Text(stringResource(R.string.shut_up_add), modifier = Modifier.padding(start = 8.dp))
                         }
@@ -185,7 +186,7 @@ private fun RestoreCard(onRestore: () -> Unit) {
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
             )
-            Button(onClick = onRestore) {
+            Button(shapes = ButtonDefaults.shapes(), onClick = onRestore) {
                 Icon(Icons.Rounded.Restore, contentDescription = null)
                 Text(stringResource(R.string.shut_up_restore), modifier = Modifier.padding(start = 8.dp))
             }
@@ -203,23 +204,13 @@ private fun QuietAppRow(app: PowerApp, onOpen: () -> Unit, onPin: () -> Unit, on
             onClick = onOpen,
             onLongClick = { menu = true }
         )
-        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.shut_up_pin)) },
-                leadingIcon = { Icon(Icons.Rounded.PushPin, contentDescription = null) },
-                onClick = {
-                    menu = false
-                    onPin()
-                }
+        OsysterMenu(
+            expanded = menu,
+            onDismissRequest = { menu = false },
+            groups = listOf(
+                listOf(MenuAction(stringResource(R.string.shut_up_pin), Icons.Rounded.PushPin, onClick = onPin)),
+                listOf(MenuAction(stringResource(R.string.shut_up_remove), Icons.Rounded.Delete, destructive = true, onClick = onRemove))
             )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.shut_up_remove)) },
-                leadingIcon = { Icon(Icons.Rounded.Delete, contentDescription = null) },
-                onClick = {
-                    menu = false
-                    onRemove()
-                }
-            )
-        }
+        )
     }
 }

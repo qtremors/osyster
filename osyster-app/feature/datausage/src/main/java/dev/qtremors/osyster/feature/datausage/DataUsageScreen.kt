@@ -1,5 +1,7 @@
 package dev.qtremors.osyster.feature.datausage
 
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButtonDefaults
 import dev.qtremors.osyster.core.ui.components.ConnectedItem
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
@@ -174,14 +176,14 @@ private fun PeriodLabel(state: DataUsageState, actions: DataUsageActions, onPick
         else -> stringResource(R.string.data_range, UsageFormat.day(report.firstDay), UsageFormat.day(report.lastDay))
     }
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-        IconButton(onClick = actions.onPrevious, enabled = state.offset < maxOffset(state.period)) {
+        IconButton(shapes = IconButtonDefaults.shapes(), onClick = actions.onPrevious, enabled = state.offset < maxOffset(state.period)) {
             Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, contentDescription = stringResource(R.string.data_previous))
         }
-        TextButton(onClick = onPick) {
+        TextButton(shapes = ButtonDefaults.shapes(), onClick = onPick) {
             Icon(Icons.Rounded.CalendarMonth, contentDescription = null)
             Text(label, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(start = 8.dp))
         }
-        IconButton(onClick = actions.onNext, enabled = state.offset > 0) {
+        IconButton(shapes = IconButtonDefaults.shapes(), onClick = actions.onNext, enabled = state.offset > 0) {
             Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = stringResource(R.string.data_next))
         }
     }
@@ -207,11 +209,11 @@ private fun PeriodDatePicker(period: DataPeriod, onPick: (LocalDate) -> Unit, on
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = {
+            TextButton(shapes = ButtonDefaults.shapes(), onClick = {
                 pickerState.selectedDateMillis?.let { onPick(Instant.ofEpochMilli(it).atZone(zone).toLocalDate()) } ?: onDismiss()
             }) { Text(stringResource(R.string.data_pick_go)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.data_pick_cancel)) } }
+        dismissButton = { TextButton(shapes = ButtonDefaults.shapes(), onClick = onDismiss) { Text(stringResource(R.string.data_pick_cancel)) } }
     ) {
         DatePicker(state = pickerState)
     }

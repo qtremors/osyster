@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
+        <!-- Shown by the launcher when a data widget is placed, and from its widget settings. -->
+        <activity
+            android:name=".widget.DataWidgetSetupActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/widget_setup_title"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Osyster.DataWidgetSetup">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <receiver
             android:name=".widget.DayDataUsageWidget"
             android:exported="true"
@@ -13,17 +26,6 @@
                 android:resource="@xml/widget_day_data_usage_info" />
         </receiver>
 
-        <receiver
-            android:name=".widget.MonthDataUsageWidget"
-            android:exported="true"
-            android:label="@string/widget_month_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_month_data_usage_info" />
-        </receiver>
 
         <receiver
             android:name=".widget.CombinedDataUsageWidget"

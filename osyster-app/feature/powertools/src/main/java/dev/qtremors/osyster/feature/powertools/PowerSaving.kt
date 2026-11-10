@@ -1,5 +1,6 @@
 package dev.qtremors.osyster.feature.powertools
 
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BatterySaver
@@ -114,7 +115,7 @@ internal fun PowerSavingRoute(onNavigate: (PowerToolsDestination) -> Unit) {
             }
             item(key = "reset") {
                 ActionButtons {
-                    OutlinedButton(onClick = viewModel::reset, enabled = enabled && !state.constants.isEmpty()) {
+                    OutlinedButton(shapes = ButtonDefaults.shapes(), onClick = viewModel::reset, enabled = enabled && !state.constants.isEmpty()) {
                         Text(stringResource(R.string.power_saving_reset))
                     }
                 }

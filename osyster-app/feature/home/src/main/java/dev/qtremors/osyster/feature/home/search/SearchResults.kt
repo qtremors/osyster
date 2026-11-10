@@ -143,7 +143,7 @@ private val SETTINGS = listOf(
 
 /** Tools that already have their own page; the rest still show a placeholder, so search skips them. */
 private val OPEN_TOOLS = setOf(
-    Tool.DATA_USAGE, Tool.SCREEN_USAGE, Tool.APP_STOPPER, Tool.STAY_AWAKE, Tool.FLASHLIGHT,
+    Tool.DATA_USAGE, Tool.SCREEN_USAGE, Tool.APP_STOPPER, Tool.NOTIFICATION_HISTORY, Tool.BATTERY_HISTORY, Tool.APP_MANAGER, Tool.STAY_AWAKE, Tool.FLASHLIGHT, Tool.BT_REMOTE, Tool.BARCODE, Tool.MEASURE,
     Tool.ACTIVITY_LAUNCHER, Tool.LINK_ACTIONS, Tool.QUICK_TILES, Tool.WIDGETS,
     Tool.POWER_SETUP, Tool.POWER_SAVING, Tool.DISPLAY_SCALE, Tool.STATUS_BAR_ICONS, Tool.SYSTEM_TWEAKS,
     Tool.SHUT_UP, Tool.STANDBY_APPS

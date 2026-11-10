@@ -148,6 +148,15 @@ fun nextPrivateDnsMode(current: PrivateDnsMode, hasHost: Boolean): PrivateDnsMod
     PrivateDnsMode.HOSTNAME -> PrivateDnsMode.OFF
 }
 
+/**
+ * The widget's switch: any on mode turns off; off turns on to the saved provider when there is
+ * one (that is what the user set up), otherwise to automatic.
+ */
+fun togglePrivateDnsMode(current: PrivateDnsMode, hasHost: Boolean): PrivateDnsMode = when (current) {
+    PrivateDnsMode.OFF -> if (hasHost) PrivateDnsMode.HOSTNAME else PrivateDnsMode.AUTOMATIC
+    PrivateDnsMode.AUTOMATIC, PrivateDnsMode.HOSTNAME -> PrivateDnsMode.OFF
+}
+
 /** Hostnames a Private DNS provider may use: letters, digits, hyphens, and dots. */
 fun isValidDnsHost(host: String): Boolean =
     host.length in 4..253 && Regex("""([A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}""").matches(host)

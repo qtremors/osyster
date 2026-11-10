@@ -22,18 +22,21 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
+import dev.qtremors.osyster.core.notifications.domain.NotificationRecorder
 import dev.qtremors.osyster.core.system.domain.FlashlightPulse
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 
 /**
- * Osyster's optional notification access. It follows active media sessions for the music widgets
- * and, when the user turns it on, asks for a flashlight pulse on new notifications. It never
- * reads or keeps notification text.
+ * Osyster's optional notification access. It follows active media sessions for the music widgets,
+ * asks for a flashlight pulse on new notifications when that is on, and hands notifications to
+ * the history when the person turns history on. History text stays on the phone; with history
+ * off, notification text is never read or kept.
  */
 @AndroidEntryPoint
 class OsysterNotificationListener : NotificationListenerService() {
     @Inject lateinit var flashlightPulse: FlashlightPulse
+    @Inject lateinit var recorder: NotificationRecorder
 
     private companion object {
         const val ARTWORK_DECODE_TARGET_PX = 1024
@@ -53,10 +56,14 @@ class OsysterNotificationListener : NotificationListenerService() {
     private val sessionsChangedListener = MediaSessionManager.OnActiveSessionsChangedListener { controllers ->
         handleSessionsChanged(controllers)
     }
+    private var appsListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     override fun onListenerConnected() {
         super.onListenerConnected()
         try {
+            // Picking other music apps takes effect at once: the widgets drop an app that is no
+            // longer followed and pick up one that now is.
+            appsListener = MusicApps.listen(this) { onMusicAppsChanged() }
             sessionManager = getSystemService(Context.MEDIA_SESSION_SERVICE) as? MediaSessionManager
             val componentName = ComponentName(this, OsysterNotificationListener::class.java)
             sessionManager?.addOnActiveSessionsChangedListener(sessionsChangedListener, componentName)
@@ -65,10 +72,13 @@ class OsysterNotificationListener : NotificationListenerService() {
             handleSessionsChanged(initialSessions)
 
             val activeNotifs = activeNotifications
+            // Anything posted while the listener was not connected is still in the shade; the
+            // history keeps it (and ignores what it already has).
+            if (recorder.recording) activeNotifs?.forEach(::record)
             if (!activeNotifs.isNullOrEmpty()) {
                 val selectedPackage = selectedController?.packageName
                 val musicNotif = activeNotifs.firstOrNull { it.packageName == selectedPackage }
-                    ?: activeNotifs.firstOrNull { isMusicNotification(it) }
+                    ?: activeNotifs.firstOrNull { isMusicNotification(it) && MusicApps.allows(this, it.packageName) }
                 if (musicNotif != null) {
                     processNotification(musicNotif)
                 }
@@ -83,6 +93,8 @@ class OsysterNotificationListener : NotificationListenerService() {
             sessionManager?.removeOnActiveSessionsChangedListener(sessionsChangedListener)
         } catch (_: Throwable) {
         }
+        appsListener?.let { MusicApps.stopListening(this, it) }
+        appsListener = null
         clearSelectedController(markStopped = true)
     }
 
@@ -96,9 +108,26 @@ class OsysterNotificationListener : NotificationListenerService() {
         super.onNotificationPosted(sbn)
         if (sbn == null) return
         if (isMusicNotification(sbn)) {
-            processNotification(sbn)
+            MusicApps.markSeen(this, sbn.packageName)
+            if (MusicApps.allows(this, sbn.packageName)) processNotification(sbn)
         } else {
             flashlightPulse.onNotificationPosted(sbn.packageName, sbn.isOngoing, sbn.postTime)
+        }
+        if (recorder.recording) record(sbn)
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?, reason: Int) {
+        super.onNotificationRemoved(sbn, rankingMap, reason)
+        if (sbn != null && recorder.recording) {
+            recorder.removed(sbn.key, sbn.packageName, System.currentTimeMillis(), NotificationCapture.reason(reason))
+        }
+    }
+
+    /** Reading a notification must never take the listener down with it. */
+    private fun record(sbn: StatusBarNotification) {
+        try {
+            recorder.posted(NotificationCapture.from(this, sbn, media = isMusicNotification(sbn)))
+        } catch (_: Throwable) {
         }
     }
 
@@ -194,7 +223,8 @@ class OsysterNotificationListener : NotificationListenerService() {
     }
 
     private fun handleSessionsChanged(controllers: List<MediaController>?) {
-        val available = controllers.orEmpty()
+        controllers.orEmpty().forEach { MusicApps.markSeen(this, it.packageName) }
+        val available = controllers.orEmpty().filter { MusicApps.allows(this, it.packageName) }
         val currentToken = selectedController?.sessionToken
         val selectedToken = selectMediaSession(
             candidates = available.map { controller ->
@@ -444,6 +474,20 @@ class OsysterNotificationListener : NotificationListenerService() {
         } catch (_: Throwable) {}
 
         return null
+    }
+
+    /**
+     * The followed apps changed: re-pick the session, and clear what the widgets show if it came
+     * from an app that is no longer followed (players without a session leave only cached text).
+     */
+    private fun onMusicAppsChanged() {
+        refreshActiveSessions()
+        val cached = MusicWidgetManager.getTrackInfo(this)
+        if (selectedController == null && cached.packageName.isNotBlank() && !MusicApps.allows(this, cached.packageName)) {
+            MusicWidgetManager.saveTrackInfo(this, MusicTrackInfo(title = "", artist = "", packageName = "", isPlaying = false))
+            MusicWidgetManager.clearArtwork(this)
+            MusicWidgetUpdater.updateAllMusicWidgets(this)
+        }
     }
 
     private fun refreshActiveSessions() {

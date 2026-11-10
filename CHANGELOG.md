@@ -1,10 +1,108 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.3.0
-> **Last Updated:** 2026-09-29
+> **Version:** 0.4.0
+> **Last Updated:** 2026-11-10
 
 ---
+
+## [0.4.0] - 2026-11-10
+
+- **Screenshots**: Added to the README and the website.
+- **Website**: A new, simpler design in the app's own colors that follows your light or dark setting. It lists notification and battery history, the app manager, the barcode scanner and creator, the Bluetooth remote, and the measure tools, and has a feature graphic for link previews.
+- **Plainer Docs**: The README and privacy policy are rewritten in plain words, and the developer guide matches the current modules, libraries, and tests.
+- **Privacy Screen**: Now lists the camera, microphone, and Bluetooth, and says notification text is saved only when notification history is on.
+- **Split Screen**: The two-pane layout now follows the app's window, so it is right in split screen and on foldables.
+- **Shortcut Order**: Your launcher can now show the Osyster shortcuts you use most first.
+- **Updated Libraries**: Android Gradle Plugin 9.5.1, Material 3 1.5.0-rc01, CameraX 1.6.2, DataStore 1.3.0, Media 1.8.0, Palette 1.1.0, ZXing 3.5.4, and Kotlin serialization 1.12.0.
+
+## [0.3.9] - 2026-11-10
+
+- **App Manager**: A new tool listing every installed app with its version and where it came from, with counts of user and system apps, apps updated today, and how many carry high or medium risk or special access. Search, show user, system, or all apps, and sort by name, update, install, or size.
+- **App Pages**: Each app shows its installer, install and update dates, target and minimum Android, native code, APK size, storage (app, data, and cache), battery setting, its components, native libraries, and signing certificate. Open it, its App info, its store page, uninstall it, save its APK, or see its screen time and data.
+- **Permissions Explorer**: Every permission area (contacts, SMS, call logs, phone, location, nearby devices, files, photos, music, notifications, calendar, camera, microphone, body sensors, activity) with how many apps were allowed it out of how many ask, plus special access such as accessibility, notification access, device admin, all files, installing apps, and display over other apps. Tap one to see the apps behind it.
+- **Risk at a Glance**: Apps are marked high, medium, or low risk from what they were allowed, not from what they ask for, and each app page lists its permissions as allowed, not allowed, or special access with readable names.
+- **Measure**: A new tool with a bubble level that taps when flat, a compass that names the direction you face, a ruler at true size in centimeters or inches, and a sound meter. Sensors run only while a tool is open; the microphone is read, never recorded.
+- **Privacy Policy**: Now lists the camera, Bluetooth, and microphone permissions and how each is used.
+
+## [0.3.8] - 2026-11-10
+
+- **Battery History**: A new tool that draws the battery level over the last day, week, or month with charging shaded, lists each charge (from and to what level, how long, the charger, average current, highest temperature), and sums up average drain on battery, the temperature range, health, and charge cycles where Android reports them.
+- **Light on Battery**: Readings come from Android's own last battery report every half hour, through Android's job scheduler, batched with other work and paused in Doze. Opening the page adds a fresh reading. Readings are kept 30 days and can be turned off or cleared.
+- **From the Battery Page**: The Battery page links to Battery history, above Android's battery usage by app.
+- **Battery Widget**: A 2x2 widget with the level, whether it is charging, the temperature, and the last day as a small chart. It redraws when a reading is saved, with no schedule of its own, and opens Battery history.
+- **Music Apps**: Choose which apps the music widgets follow: any app playing media, or only the ones you pick, so a video or game in the background never takes over the disc, capsule, or tiles. Apps that have played media are listed, along with music and podcast apps. Open it from the Widgets page or a music widget's setup.
+- **One Music Tiles Widget**: The music grid and music tiles are now one widget. Set to Auto, it shows play controls at 3x3 and two buttons at 3x2 and switches as you resize it; or keep one size. Every button choice is still in its setup.
+- **Lighter Starts**: Launcher shortcuts are only published again when they change, so the app starts faster when Android runs background work.
+
+## [0.3.7] - 2026-11-10
+
+- **Notification History**: A new tool that keeps every notification with all of it: the full expanded text, email and inbox lists, summary lines, progress, buttons, replies you sent from it, and its picture. Android's own history keeps a day of notifications and less of each.
+- **Chats as Conversations**: Each message of a chat is kept on its own, with sender and time, and opens as a conversation, so messages the app later takes back or replaces are still there.
+- **What Happened to It**: Each notification shows whether you dismissed it, opened it, or the app removed it.
+- **Search and Filters**: Search every saved word, filter by app, and page back through older days.
+- **Your Choice What Is Kept**: History is off until you turn it on. Choose to keep it for a week, a month, three months, or a year; leave out ongoing notifications and any app; delete one entry, one app, or everything.
+- **Light on Battery**: Notifications are saved in small batches as they arrive, with no scheduled work, and nothing is read at all while history is off. Everything stays on the phone and out of Android backup.
+- **No More What's New Sheet**: Updates open straight into the app.
+
+## [0.3.6] - 2026-11-10
+
+- **Code Creator**: Make QR codes for text, links, Wi-Fi networks, contacts, events, text messages, emails, phone numbers, locations, and apps, filled in with a form instead of typed by hand. The code is drawn live as you type.
+- **Other Formats**: Make Data Matrix, Aztec, PDF 417, EAN-13, EAN-8, UPC-A, UPC-E, Code 128, 93, and 39, Codabar, and ITF codes. EAN and UPC add their check digit for you or check the one you type, and each format says what it accepts.
+- **Style**: Pick the code and background colors (or a see-through background), round dots for QR codes with solid corner squares, the border, how much damage a QR code can recover from, and whether a barcode prints its digits. Colors that scanners may struggle with get a warning.
+- **Save and Share**: Save a code as a PNG picture or an SVG drawing that stays sharp at any size, in small, medium, or large, through Android's own save screen, or share it to any app. File names never include a Wi-Fi password.
+- **Launcher Shortcuts**: Long-press the Osyster icon to scan a code, scan a picture, or create a code.
+- **Scanning Fixes**: A clean, straight code such as a screenshot or a saved code reads every time, and a location's place name shows as typed instead of as web-address text.
+
+## [0.3.5] - 2026-11-10
+
+- **Barcode Scanner**: A new tool that reads QR codes, Data Matrix, Aztec, PDF 417, EAN, UPC, Code 128, 93, and 39, Codabar, and ITF with the camera, on the phone and offline. Light codes on dark backgrounds read too, and level barcodes read in portrait.
+- **Torch and Zoom**: Turn on the torch and zoom with a slider or a pinch on the camera.
+- **Beep and Vibrate**: A short beep and vibration when a code reads; each can be turned off.
+- **Scan a Picture**: Pick a photo or screenshot with Android's photo picker. If no code reads, drag a frame around it and scan just that part.
+- **Share Sheet**: Share an image to "Scan with Osyster" to read the code in it without leaving the app you are in.
+- **Actions**: Open links, call, text, email, open a location in maps, and add contacts and events through Contacts and Calendar's own screens, so Osyster needs no contacts or calendar permission. Copy or share any code, and copy a Wi-Fi password.
+- **Search Sites**: Add your own sites, such as a shop or a library, to look up product codes and text in your browser. Osyster itself never goes online.
+- **Scan History**: Every scan is kept on the phone, newest first, listed by its link, contact, or network name (never a Wi-Fi password), with rename, delete, and clear. Scanning a code again moves it to the top. Android backup leaves the history out.
+- **Rounded Text Fields**: Text fields in the scanner, the remote's keyboard, and Private DNS are rounded to match the rest of the app.
+- **What's New**: The sheet now lists the changes since 0.3.0.
+
+## [0.3.4] - 2026-11-09
+
+- **Music Grid Widget**: A 3x3 music widget where the album art (2x2) and every button (1x1) are separate tiles: previous, play, and next in a row, shuffle and repeat in a column. Pick on placing it whether the play controls go above or below the art, which side shuffle and repeat go, and whether play or pause sits in the corner tile next to them; change it later from the widget's settings.
+- **Music Tiles Widget**: A 3x2 version with the art and two buttons beside it, either shuffle and repeat or play and repeat, on either side.
+- **Square Album Art**: Both new widgets show the art as a sharp square with rounded corners. Play and the modes that are on take their color from the art, adjusted until it reads clearly on the tile, and a mode the player cannot change stays in place, dimmed, so the tiles never shift.
+
+## [0.3.3] - 2026-11-09
+
+- **Remote Modes**: Remote, Touchpad, Keyboard, and Gamepad on every layout. Computers open on the touchpad, everything else on the remote, and each device opens on the mode it was last left on.
+- **Touchpad**: Move with one finger and tap to click, two fingers to scroll or right-click, three to middle-click, and a strip for one-finger scrolling. Hold Left, Middle, or Right to drag. Slow moves add up instead of getting lost. Pointer speed, scroll speed, and reverse scrolling in the settings.
+- **Air Mouse**: Point the phone to move the pointer, using the gyroscope; a resting hand does not drift.
+- **Keyboard**: Text is sent as you type with any phone keyboard, swipe typing included. Ctrl, Alt, Shift, and Win stick for the next key, for shortcuts like Ctrl+C, and keys a phone lacks (Esc, Tab, Home, End, Page Up and Down, Insert, Delete, Print Screen, arrows, F1 to F12) repeat while held.
+- **Gamepad**: Two sticks, the D-pad, A, B, X, and Y, the shoulder buttons, and Select, Home, and Start, for Android TV and computer games.
+- **Computer Actions**: Lock, sleep, the power key, shut down, restart, a screenshot to Pictures, Task Manager, and show desktop, with nothing installed on the computer. Sleep, power, shut down, and restart ask first; shut down, restart, and the shortcuts marked Windows work on Windows.
+- **More Keys**: Browser, calculator, files, email, and search keys, play, pause, stop, repeat, captions, and screen brightness.
+- **Volume Keys**: Optionally, the phone's volume keys change the TV or computer's volume while the remote is open.
+- **Remote Widget**: Previous, volume, play or pause, and next on the home screen for the connected device; with nothing connected it opens the remote.
+- **Pair Again for New Keys**: The power, sleep, and gamepad keys are new parts of the Bluetooth keyboard, so a TV or computer paired before needs pairing once more before they work.
+
+## [0.3.2] - 2026-11-09
+
+- **Bluetooth Remote**: A new tool that turns the phone into a Bluetooth remote for an Android TV, a computer, or a tablet, with nothing to install on it. D-pad with a cookie-shaped OK or a swipe pad, Home, Back, Menu, and Power, volume and mute, channel up, down, and a number pad, media keys, and the color keys. Hold a key to repeat it. Needs Android 9 or newer and Nearby devices.
+- **Remote Layouts**: The remote matches the connected device. TVs get the full TV remote; computers get keyboard arrows, Enter, Esc, and the Windows key, without power, channels, or color keys; phones and tablets get Android's keys. Tap the connected chip, or long-press a paired device, to pick another layout; the choice is saved for that device.
+- **Pairing**: Connect to a paired TV in one tap, find nearby devices and pair, or make the phone visible and pair from the TV's own settings. The last device reconnects when you open the remote. Bluetooth addresses are used only to connect and are never shown.
+- **Remote Settings**: The layout for the connected device, D-pad or swipe pad, a minimal remote, OK as Enter, and play and pause in the notification while connected.
+- **Expressive Menus**: Every long-press and overflow menu is now the Material 3 Expressive menu: rounded groups of related actions, a check on the chosen option, and red for removing.
+- **Expressive Buttons**: Every button and icon button changes shape when pressed, the top bar uses the new large flexible style, and loading on Home uses the shape-morphing indicator.
+
+## [0.3.1] - 2026-11-09
+
+- **Data Usage Widget Loads Again**: The Data usage widget (today and this month) showed "Can't load widget". Its divider used a view type home screen widgets don't allow.
+- **Data Widget Setup**: Placing a data widget opens a setup screen with a live preview. Pick Today, 7 days, or This month, and show mobile and Wi-Fi or download and upload. On Android 12 and newer, open it again from the widget's settings. This one widget replaces the separate Data today and Data this month widgets.
+- **Data Widgets at One Cell Tall**: The data widgets fit a 2x1 cell again, with the period over the refresh button and both numbers the same size, lined up at the end with their icons. Taller, they switch to the large layout, and they change layout as soon as they are resized.
+- **Private DNS Widget**: A 2x1 switch for Private DNS on the home screen. Off turns on to your saved provider, or automatic without one. It follows changes from the tile and System tweaks, and without settings access a tap opens Power setup.
+- **Music Disc Buttons**: Play and repeat are the same size, mirrored on opposite corners of the disc, and use the same card color as the other widgets.
+- **Widget Previews**: The widget picker shows This month for the month widget, example rows for Glance instead of a loading message, and the music disc instead of an empty space.
 
 ## [0.3.0] - 2026-09-29
 
