@@ -60,6 +60,14 @@ data object FlashlightRoute : AppRoute
 @Serializable
 data object BtRemoteRoute : AppRoute
 
+/** The barcode scanner: camera, picture scanning, and results. */
+@Serializable
+data object BarcodeRoute : AppRoute
+
+/** Past scans. */
+@Serializable
+data object BarcodeHistoryRoute : AppRoute
+
 @Serializable
 data object ActivityLauncherRoute : AppRoute
 

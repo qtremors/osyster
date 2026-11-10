@@ -1,10 +1,23 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.3.4
-> **Last Updated:** 2026-11-09
+> **Version:** 0.3.5
+> **Last Updated:** 2026-11-10
 
 ---
+
+## [0.3.5] - 2026-11-10
+
+- **Barcode Scanner**: A new tool that reads QR codes, Data Matrix, Aztec, PDF 417, EAN, UPC, Code 128, 93, and 39, Codabar, and ITF with the camera, on the phone and offline. Light codes on dark backgrounds read too, and level barcodes read in portrait.
+- **Torch and Zoom**: Turn on the torch and zoom with a slider or a pinch on the camera.
+- **Beep and Vibrate**: A short beep and vibration when a code reads; each can be turned off.
+- **Scan a Picture**: Pick a photo or screenshot with Android's photo picker. If no code reads, drag a frame around it and scan just that part.
+- **Share Sheet**: Share an image to "Scan with Osyster" to read the code in it without leaving the app you are in.
+- **Actions**: Open links, call, text, email, open a location in maps, and add contacts and events through Contacts and Calendar's own screens, so Osyster needs no contacts or calendar permission. Copy or share any code, and copy a Wi-Fi password.
+- **Search Sites**: Add your own sites, such as a shop or a library, to look up product codes and text in your browser. Osyster itself never goes online.
+- **Scan History**: Every scan is kept on the phone, newest first, listed by its link, contact, or network name (never a Wi-Fi password), with rename, delete, and clear. Scanning a code again moves it to the top. Android backup leaves the history out.
+- **Rounded Text Fields**: Text fields in the scanner, the remote's keyboard, and Private DNS are rounded to match the rest of the app.
+- **What's New**: The sheet now lists the changes since 0.3.0.
 
 ## [0.3.4] - 2026-11-09
 

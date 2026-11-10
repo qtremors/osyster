@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Asked only when the scanner opens; frames are read on the phone and never saved. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+
+    <application>
+        <!-- "Scan with Osyster" in the share sheet for images. -->
+        <activity
+            android:name=".ShareScanActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/scan_share_label"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Osyster.ShareScan">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

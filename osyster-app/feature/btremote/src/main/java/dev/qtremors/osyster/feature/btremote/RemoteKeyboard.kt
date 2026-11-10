@@ -46,6 +46,7 @@ import dev.qtremors.osyster.core.hid.domain.KeyStroke
 import dev.qtremors.osyster.core.hid.domain.Modifiers
 import dev.qtremors.osyster.core.hid.domain.typingChange
 import dev.qtremors.osyster.core.ui.components.rememberAppHaptics
+import dev.qtremors.osyster.core.ui.theme.FieldShape
 
 /**
  * Typing on the TV or computer. Text goes out as it is typed: added characters are typed, removed
@@ -60,6 +61,7 @@ internal fun KeyboardContent(viewModel: RemoteViewModel) {
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
+            shape = FieldShape,
             value = field,
             onValueChange = { next ->
                 val change = typingChange(field.text, next.text)

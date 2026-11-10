@@ -105,6 +105,10 @@
     <string name="credit_essentials_detail">Design reference and interface patterns. MIT License.</string>
     <string name="credit_btremote">BT Remote by Atharok</string>
     <string name="credit_btremote_detail">Bluetooth remote, keyboard, and mouse reports. GPL-3.0 License.</string>
+    <string name="credit_barcode">Barcode Scanner by Atharok</string>
+    <string name="credit_barcode_detail">How the barcode scanner reads and acts on codes. GPL-3.0 License.</string>
+    <string name="credit_zxing">ZXing</string>
+    <string name="credit_zxing_detail">Reading and parsing barcodes and QR codes. Apache License 2.0.</string>
     <string name="credit_metro">Metro and Retro Music Player</string>
     <string name="credit_metro_detail">Circle album art music widget layout. GPL-3.0 License.</string>
     <string name="credit_androidx">AndroidX, Jetpack Compose, and Material 3</string>

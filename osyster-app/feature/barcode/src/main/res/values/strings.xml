@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Camera -->
+    <string name="scan_camera_title">Allow the camera</string>
+    <string name="scan_camera_message">Osyster reads codes from the camera on the phone. Frames are never saved or sent anywhere.</string>
+    <string name="scan_camera_allow">Allow</string>
+    <string name="scan_camera_settings">Open app settings</string>
+    <string name="scan_no_camera_title">No camera</string>
+    <string name="scan_no_camera_message">This device has no camera Osyster can use. You can still scan a picture.</string>
+    <string name="scan_hint">Point at a code</string>
+    <string name="scan_torch_on">Turn on the torch</string>
+    <string name="scan_torch_off">Turn off the torch</string>
+    <string name="scan_zoom">Zoom</string>
+    <string name="scan_picture">Scan a picture</string>
+    <string name="scan_history">History</string>
+    <string name="scan_settings">Scanner settings</string>
+
+    <!-- Picture and crop -->
+    <string name="scan_picture_none_title">No code found</string>
+    <string name="scan_picture_none_message">Drag the frame around the code and try again.</string>
+    <string name="scan_crop_title">Frame the code</string>
+    <string name="scan_crop_hint">Drag the frame or its corners around the code.</string>
+    <string name="scan_crop_scan">Scan this area</string>
+    <string name="scan_crop_none">Still no code. Try a tighter frame or a sharper picture.</string>
+    <string name="scan_picture_unreadable">This picture could not be opened.</string>
+
+    <!-- Result -->
+    <string name="scan_result_title">Scanned</string>
+    <string name="scan_kind_link">Link</string>
+    <string name="scan_kind_email">Email</string>
+    <string name="scan_kind_phone">Phone number</string>
+    <string name="scan_kind_sms">Text message</string>
+    <string name="scan_kind_location">Location</string>
+    <string name="scan_kind_contact">Contact</string>
+    <string name="scan_kind_event">Event</string>
+    <string name="scan_kind_wifi">Wi-Fi network</string>
+    <string name="scan_kind_product">Product</string>
+    <string name="scan_kind_book">Book</string>
+    <string name="scan_kind_text">Text</string>
+    <string name="scan_format_line">%1$s · %2$s</string>
+    <string name="scan_wifi_details">Network %1$s</string>
+    <string name="scan_wifi_password">Password %1$s</string>
+    <string name="scan_wifi_open">No password</string>
+    <string name="scan_location_value">%1$.5f, %2$.5f</string>
+    <string name="scan_action_open">Open link</string>
+    <string name="scan_action_call">Call</string>
+    <string name="scan_action_sms">Send a text</string>
+    <string name="scan_action_email">Send an email</string>
+    <string name="scan_action_map">Open in maps</string>
+    <string name="scan_action_contact">Add to contacts</string>
+    <string name="scan_action_event">Add to calendar</string>
+    <string name="scan_action_search">Search on %1$s</string>
+    <string name="scan_action_password">Copy password</string>
+    <string name="scan_action_copy">Copy</string>
+    <string name="scan_action_share">Share</string>
+    <string name="scan_copied">Copied</string>
+    <string name="scan_no_app">No app can open this</string>
+    <string name="scan_again">Scan again</string>
+    <string name="scan_add_sites_hint">Add a search site in the scanner settings to look up codes like this one.</string>
+
+    <!-- History -->
+    <string name="scan_history_title">History</string>
+    <string name="scan_history_empty_title">No scans yet</string>
+    <string name="scan_history_empty_message">Codes you scan are kept here, on this phone only.</string>
+    <string name="scan_history_clear">Clear history</string>
+    <string name="scan_history_clear_confirm">Clear all scans?</string>
+    <string name="scan_history_clear_body">This deletes every scan in the history and cannot be undone.</string>
+    <string name="scan_history_rename">Rename</string>
+    <string name="scan_history_delete">Delete</string>
+    <string name="scan_history_name">Name</string>
+    <string name="scan_history_just_now">Just now</string>
+    <string name="scan_history_save">Save</string>
+    <string name="scan_history_open">Open</string>
+
+    <!-- Settings -->
+    <string name="scan_settings_beep">Beep on a scan</string>
+    <string name="scan_settings_vibrate">Vibrate on a scan</string>
+    <string name="scan_settings_sites">Search sites</string>
+    <string name="scan_settings_sites_hint">Look up product codes and text on sites you choose. Osyster opens them in your browser and never goes online itself.</string>
+    <string name="scan_settings_site_add">Add a search site</string>
+    <string name="scan_settings_site_name">Name</string>
+    <string name="scan_settings_site_template" formatted="false">Web address with %s for the code</string>
+    <string name="scan_settings_site_example" formatted="false">https://www.example.com/search?q=%s</string>
+    <string name="scan_settings_site_invalid" formatted="false">Use an http or https address with one %s where the code goes.</string>
+    <string name="scan_settings_site_delete">Remove %1$s</string>
+    <string name="scan_settings_add">Add</string>
+
+    <!-- Share sheet -->
+    <string name="scan_share_label">Scan with Osyster</string>
+</resources>

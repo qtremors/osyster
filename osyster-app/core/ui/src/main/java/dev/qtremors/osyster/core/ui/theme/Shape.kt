@@ -14,6 +14,9 @@ val OsysterShapes = Shapes(
     extraLarge = RoundedCornerShape(28.dp)
 )
 
+/** Text fields: rounded like the cards around them, not Material's default 4 dp. */
+val FieldShape: Shape = RoundedCornerShape(16.dp)
+
 /** Outer corner of a group of connected rows. */
 val GroupCorner: Dp = 24.dp
 

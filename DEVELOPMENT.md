@@ -17,6 +17,7 @@
 - [System Controls](#system-controls)
 - [Power Tools Layer](#power-tools-layer)
 - [Bluetooth Remote](#bluetooth-remote)
+- [Barcode Scanner](#barcode-scanner)
 - [Preferences, First Run, and Backup](#preferences-first-run-and-backup)
 - [Widgets, Tiles, Shortcuts, and the Notification Listener](#widgets-tiles-shortcuts-and-the-notification-listener)
 - [UI System](#ui-system)
@@ -36,16 +37,16 @@ Osyster is a single-activity Jetpack Compose app split into 29 Gradle modules. F
 flowchart TD
     App[":app shell<br/>MainActivity, NavHost, Hilt"] --> Features
     subgraph Features[":feature:*"]
-        Home & Device & Tools & Settings & PowerTools["powertools"] & More["datausage, screenusage, appstopper,<br/>stayawake, flashlight, btremote, activitylauncher,<br/>linkactions, quicktiles, musicwidgets,<br/>onboarding, search"]
+        Home & Device & Tools & Settings & PowerTools["powertools"] & More["datausage, screenusage, appstopper,<br/>stayawake, flashlight, btremote, barcode, activitylauncher,<br/>linkactions, quicktiles, musicwidgets,<br/>onboarding, search"]
     end
     Features --> Domain
     subgraph Domain["Domain contracts (pure Kotlin)"]
-        DD[":core:device:domain"] & UD[":core:usage:domain"] & SD[":core:system:domain"] & PD[":core:preferences:domain"] & PrD[":core:privilege:domain"] & HD[":core:hid:domain"] & Nav[":core:navigation:api"]
+        DD[":core:device:domain"] & UD[":core:usage:domain"] & SD[":core:system:domain"] & PD[":core:preferences:domain"] & PrD[":core:privilege:domain"] & HD[":core:hid:domain"] & BD[":core:barcode:domain"] & Nav[":core:navigation:api"]
     end
     Features --> UI[":core:ui<br/>theme, components, catalog"]
     App --> Data
     subgraph Data["Data implementations (Android)"]
-        DDa[":core:device:data"] & UDa[":core:usage:data"] & SDa[":core:system:data"] & PrDa[":core:privilege:data<br/>Shizuku, root, settings"] & HDa[":core:hid:data<br/>Bluetooth keyboard and mouse"]
+        DDa[":core:device:data"] & UDa[":core:usage:data"] & SDa[":core:system:data"] & PrDa[":core:privilege:data<br/>Shizuku, root, settings"] & HDa[":core:hid:data<br/>Bluetooth keyboard and mouse"] & BDa[":core:barcode:data<br/>scan history (Room)"]
     end
     Data --> Domain
 ```
@@ -97,11 +98,13 @@ osyster-app/
                                power tools store, quiet launch
     hid/domain|data/           Bluetooth remote: HID descriptor and reports, layouts, touchpad
                                math, PC actions; Android HID device, scanner, remote settings
+    barcode/domain|data/       Barcode scanner: code content and actions (ZXing), search sites;
+                               Room history and search sites, scanner settings
     ui/                        Theme, components, destination catalog and help, formatting
   feature/
     home/ device/ tools/ settings/
     datausage/ screenusage/ appstopper/
-    stayawake/ flashlight/ btremote/ activitylauncher/ linkactions/
+    stayawake/ flashlight/ btremote/ barcode/ activitylauncher/ linkactions/
     quicktiles/ musicwidgets/ onboarding/ search/ powertools/
 ```
 
@@ -166,6 +169,16 @@ The phone registers with Android as a Bluetooth HID device (Android 9+), so a TV
 - **Lifetime:** `RemoteService` is a connected-device foreground service that runs while the remote screen is open or a device is connected, refreshes the remote widget, and offers play, pause, and disconnect in its notification.
 - **Privacy:** addresses are used only to connect and to key saved choices, never shown; the store is a DataStore, which backup rules leave out.
 
+## Barcode Scanner
+
+Codes are read on the phone with ZXing; reading and acting on them follows Barcode Scanner by Atharok (GPLv3). Nothing goes online.
+
+- **Camera (`CodeReader`, `CodeAnalyzer`):** CameraX preview through `CameraXViewfinder` and an `ImageAnalysis` that keeps only the latest frame. Only the brightness plane is read, cut to the square drawn on screen and turned to match the screen (ZXing's 1D readers cannot rotate a camera frame themselves). Every image is tried again inverted. After a read the analyzer pauses until the result sheet closes.
+- **Pictures:** the photo picker (no storage permission), opened at most 2048 px; a miss is retried at 3/4, 1/2, and 1/4 size, then the Compose crop sheet scans only the framed part.
+- **Content (`parseContent`, `actionsFor`):** ZXing's `ResultParser` turns text into links, email, phone, SMS, locations, vCard and MeCard contacts, calendar events, Wi-Fi, products, and ISBNs. Every action is an intent to another app (browser, dialer, Contacts and Calendar insert screens), so no contacts, calendar, or internet permission is needed. Wi-Fi codes show the network and copy the password; Osyster does not join networks.
+- **Storage:** scan history and search sites in a Room database (`barcode.db`), excluded from backup; beep and vibrate in a DataStore.
+- **Share sheet:** `ShareScanActivity` takes `image/*` shares, reads them over the sharing app, and saves the scan to the history.
+
 ## Preferences, First Run, and Backup
 
 - Theme options live in `ThemeSettings` (DataStore) in `:core:ui`; Home layout, app stopper, and tool stores live in their data modules.
@@ -214,12 +227,12 @@ Run one Gradle command at a time with `--max-workers=2`, then stop the daemon.
 cd osyster-app
 ./gradlew :app:testDebugUnitTest --max-workers=2
 ./gradlew :core:privilege:domain:test :core:system:domain:test :core:preferences:domain:test --max-workers=2
-./gradlew :core:hid:domain:test --max-workers=2
+./gradlew :core:hid:domain:test :core:barcode:domain:test --max-workers=2
 ./gradlew :feature:search:testDebugUnitTest :feature:device:testDebugUnitTest --max-workers=2
 ./gradlew --stop
 ```
 
-Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling and the widget toggle, HID reports and layouts, touchpad and typing math, stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
+Test suites cover the architecture rules, backup rule parity, shell quoting and command validation, power policy parsing (standby buckets, battery saver constants, icon blacklist, density), quiet launch ordering and restore, Private DNS cycling and the widget toggle, HID reports and layouts, touchpad and typing math, barcode content parsing, actions, and search templates, stay awake steps, pulse policy, start screen choice, search ranking, inventory search, and device math helpers.
 
 ## Build and Release
 

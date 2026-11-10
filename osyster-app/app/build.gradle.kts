@@ -33,8 +33,8 @@ android {
         minSdk = 26
         targetSdk = 37
         // versionCode is versionName without dots.
-        versionCode = 34
-        versionName = "0.3.4"
+        versionCode = 35
+        versionName = "0.3.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -142,6 +142,7 @@ dependencies {
     implementation(project(":core:preferences:domain"))
     implementation(project(":core:privilege:data"))
     implementation(project(":core:hid:data"))
+    implementation(project(":core:barcode:data"))
     implementation(project(":core:ui"))
     implementation(project(":feature:home"))
     implementation(project(":feature:device"))
@@ -151,6 +152,7 @@ dependencies {
     implementation(project(":feature:stayawake"))
     implementation(project(":feature:flashlight"))
     implementation(project(":feature:btremote"))
+    implementation(project(":feature:barcode"))
     implementation(project(":feature:activitylauncher"))
     implementation(project(":feature:linkactions"))
     implementation(project(":feature:quicktiles"))

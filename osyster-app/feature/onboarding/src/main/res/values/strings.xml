@@ -27,11 +27,11 @@
     <string name="whats_new_title">What\'s new in %1$s</string>
     <string name="whats_new_ok">Got it</string>
     <string-array name="whats_new_items">
-        <item>Dashboard: Screen time, data today, and battery temperature, with tiles you can reorder or hide.</item>
-        <item>Data usage: The ring and bar charts are back, and every app has its own usage page.</item>
-        <item>App stopper: A grid of icons again, now with freezing built in.</item>
-        <item>Themes: A true pure black theme and better contrast everywhere.</item>
-        <item>Search: A search bar at the top of Home with suggestions.</item>
+        <item>Barcode scanner: Read QR codes and barcodes with the camera, from a picture, or from the share sheet, with a history on the phone.</item>
+        <item>Bluetooth remote: Control a TV, computer, or tablet as a remote, touchpad, air mouse, keyboard, or gamepad.</item>
+        <item>Music widgets: A grid and a tiles widget with square art and buttons you can arrange.</item>
+        <item>Data widgets: Pick the period and what to show, and a compact 2x1 size.</item>
+        <item>Private DNS: A widget to turn Private DNS on and off.</item>
     </string-array>
     <string name="welcome_allow">Allow</string>
 </resources>

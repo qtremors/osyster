@@ -60,6 +60,7 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 - **Stay awake:** keep the screen on for 15 minutes to "until I stop it" with a countdown notification, or while charging through Android's own setting.
 - **Flashlight:** brightness levels on Android 13 and newer, and a pulse that blinks the torch for new notifications while the screen is off.
 - **Bluetooth remote:** control an Android TV, computer, or tablet with nothing to install on it: a remote with D-pad or swipe pad, volume, channels, media, and color keys; a touchpad and air mouse; a keyboard with shortcuts and F-keys; a gamepad; and computer actions like lock, sleep, and restart. The layout follows the device, and a home-screen widget has the media keys. Android 9 and newer.
+- **Barcode scanner:** read QR codes and barcodes with the camera (torch and zoom), from a picture with a crop frame, or from an image shared to Osyster. Links, contacts, events, phone numbers, and more open in the right app, product codes can be looked up on search sites you add, and scans stay in a history on the phone. Offline.
 - **Activity launcher:** open and pin any app's exported screens.
 - **Link actions:** choose which app opens each link, copy or share links.
 - **Widgets:** a glance list of battery, memory, storage, data, and screen time, 3x3 disc, 3x3 grid, 3x2 tiles, and 5x1 capsule music players, and data usage widgets, all added from one page.
@@ -103,6 +104,7 @@ Osyster is built by [Tremors](https://github.com/qtremors). Thanks to the mainta
 - [Essentials](https://github.com/sameerasw/essentials) by sameerasw (MIT), which inspired the interface design
 - [Metro](https://github.com/MuntashirAkon/Metro) and [Retro Music Player](https://github.com/h4h13/RetroMusicPlayer) (GPL-3.0), whose circle widget layout shaped the disc music widget
 - [BT Remote](https://gitlab.com/Atharok/BtRemote) by Atharok (GPL-3.0), whose Bluetooth keyboard and remote reports power the Bluetooth remote
+- [Barcode Scanner](https://gitlab.com/Atharok/BarcodeScanner) by Atharok (GPL-3.0), whose approach to reading and acting on codes shaped the barcode scanner, and [ZXing](https://github.com/zxing/zxing) (Apache 2.0), which reads them
 - [Lucide](https://lucide.dev/) and [Simple Icons](https://simpleicons.org/) for the website icons
 
 The app's **Settings, About, Open source licenses** screen lists every license in full. Each project remains the property of its authors and is used under its own license.

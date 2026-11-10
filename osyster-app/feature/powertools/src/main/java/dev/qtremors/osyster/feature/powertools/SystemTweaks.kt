@@ -54,6 +54,7 @@ import dev.qtremors.osyster.core.ui.components.SectionHeader
 import dev.qtremors.osyster.core.ui.components.ToggleRow
 import javax.inject.Inject
 import kotlinx.coroutines.launch
+import dev.qtremors.osyster.core.ui.theme.FieldShape
 
 /** One on/off system setting. [inverted] is for "disable_" keys shown as a positive switch. */
 enum class Tweak(val key: SettingKey, val inverted: Boolean = false, val defaultOn: Boolean = false) {
@@ -174,6 +175,7 @@ private fun PrivateDnsSection(state: TweaksState, enabled: Boolean, onMode: (Pri
         Surface(color = MaterialTheme.colorScheme.surfaceBright, modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
+                    shape = FieldShape,
                     value = host,
                     onValueChange = { host = it.take(MAX_HOST) },
                     label = { Text(stringResource(R.string.tweaks_private_dns_host)) },
