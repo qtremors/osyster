@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.qtremors.osyster.core.barcode.domain.ScanHistory
 import dev.qtremors.osyster.core.barcode.domain.ScanRecord
@@ -13,6 +14,8 @@ import dev.qtremors.osyster.core.barcode.domain.ScannerSettings
 import dev.qtremors.osyster.core.barcode.domain.ScannerSettingsStore
 import dev.qtremors.osyster.core.barcode.domain.SearchSite
 import dev.qtremors.osyster.core.barcode.domain.SearchSiteStore
+import dev.qtremors.osyster.core.navigation.BarcodeCreateFormRoute
+import dev.qtremors.osyster.core.navigation.BarcodeCreateRoute
 import dev.qtremors.osyster.core.navigation.BarcodeHistoryRoute
 import dev.qtremors.osyster.core.navigation.BarcodeRoute
 import javax.inject.Inject
@@ -80,20 +83,34 @@ class ScannerViewModel @Inject constructor(
 sealed interface BarcodeDestination {
     data object History : BarcodeDestination
 
+    /** The kinds of code the creator makes. */
+    data object Create : BarcodeDestination
+
+    /** One creator form; [kind] is a CreateKind name. */
+    data class CreateForm(val kind: String) : BarcodeDestination
+
     /** Osyster's App info page, where a camera permission refused twice can still be turned on. */
     data class AppSettings(val packageName: String) : BarcodeDestination
 }
 
 fun NavGraphBuilder.registerBarcodeRoutes(onNavigate: (BarcodeDestination) -> Unit) {
-    composable<BarcodeRoute> {
+    composable<BarcodeRoute> { entry ->
         val context = LocalContext.current
         ScannerScreen(
             viewModel = hiltViewModel(),
+            pickPicture = entry.toRoute<BarcodeRoute>().pickPicture,
             onHistory = { onNavigate(BarcodeDestination.History) },
+            onCreate = { onNavigate(BarcodeDestination.Create) },
             onAppSettings = { onNavigate(BarcodeDestination.AppSettings(context.packageName)) }
         )
     }
     composable<BarcodeHistoryRoute> {
         HistoryScreen(viewModel = hiltViewModel())
+    }
+    composable<BarcodeCreateRoute> {
+        CreateListScreen(onOpen = { kind -> onNavigate(BarcodeDestination.CreateForm(kind.name)) })
+    }
+    composable<BarcodeCreateFormRoute> {
+        CreateFormScreen(viewModel = hiltViewModel())
     }
 }

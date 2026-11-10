@@ -60,12 +60,12 @@ Download the latest APK from [GitHub Releases](https://github.com/qtremors/osyst
 - **Stay awake:** keep the screen on for 15 minutes to "until I stop it" with a countdown notification, or while charging through Android's own setting.
 - **Flashlight:** brightness levels on Android 13 and newer, and a pulse that blinks the torch for new notifications while the screen is off.
 - **Bluetooth remote:** control an Android TV, computer, or tablet with nothing to install on it: a remote with D-pad or swipe pad, volume, channels, media, and color keys; a touchpad and air mouse; a keyboard with shortcuts and F-keys; a gamepad; and computer actions like lock, sleep, and restart. The layout follows the device, and a home-screen widget has the media keys. Android 9 and newer.
-- **Barcode scanner:** read QR codes and barcodes with the camera (torch and zoom), from a picture with a crop frame, or from an image shared to Osyster. Links, contacts, events, phone numbers, and more open in the right app, product codes can be looked up on search sites you add, and scans stay in a history on the phone. Offline.
+- **Barcode scanner:** read QR codes and barcodes with the camera (torch and zoom), from a picture with a crop frame, or from an image shared to Osyster. Links, contacts, events, phone numbers, and more open in the right app, product codes can be looked up on search sites you add, and scans stay in a history on the phone. It also creates QR codes for text, links, Wi-Fi, contacts, events, and more, and every common barcode, in your colors, saved as PNG or SVG or shared. Offline.
 - **Activity launcher:** open and pin any app's exported screens.
 - **Link actions:** choose which app opens each link, copy or share links.
 - **Widgets:** a glance list of battery, memory, storage, data, and screen time, 3x3 disc, 3x3 grid, 3x2 tiles, and 5x1 capsule music players, and data usage widgets, all added from one page.
 - **Quick Settings tiles:** Stay awake, Awake while charging, Flashlight, RAM, Data today, Color picker, Private DNS, USB debugging, Developer options, Window blur, Tap to wake, Freeze, and Restart SystemUI.
-- **Launcher shortcuts:** long-press the icon for Data usage, Stay awake, Flashlight, or Screen time.
+- **Launcher shortcuts:** long-press the icon for Data usage, scanning or creating a code, Flashlight, Stay awake, Screen time, or scanning a picture.
 
 ### Power tools (optional)
 

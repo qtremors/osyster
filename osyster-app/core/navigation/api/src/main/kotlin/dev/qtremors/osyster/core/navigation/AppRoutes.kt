@@ -60,13 +60,24 @@ data object FlashlightRoute : AppRoute
 @Serializable
 data object BtRemoteRoute : AppRoute
 
-/** The barcode scanner: camera, picture scanning, and results. */
+/**
+ * The barcode scanner: camera, picture scanning, and results. [pickPicture] opens the photo
+ * picker straight away, for the "Scan a picture" launcher shortcut.
+ */
 @Serializable
-data object BarcodeRoute : AppRoute
+data class BarcodeRoute(val pickPicture: Boolean = false) : AppRoute
 
 /** Past scans. */
 @Serializable
 data object BarcodeHistoryRoute : AppRoute
+
+/** The kinds of code the creator makes. */
+@Serializable
+data object BarcodeCreateRoute : AppRoute
+
+/** One creator form; [kind] is a CreateKind name. */
+@Serializable
+data class BarcodeCreateFormRoute(val kind: String) : AppRoute
 
 @Serializable
 data object ActivityLauncherRoute : AppRoute

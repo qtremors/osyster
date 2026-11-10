@@ -112,7 +112,7 @@ Domain and API modules are pure Kotlin JVM modules. Data modules are Android lib
 
 ## Startup and Navigation
 
-1. `OsysterApplication` (Hilt) publishes dynamic launcher shortcuts.
+1. `OsysterApplication` (Hilt) publishes dynamic launcher shortcuts. A shortcut can open a page inside a tool (`DeepLinks.EXTRA_OPEN_PAGE`, such as the code creator); `shortcutRoutes` turns it into the tool's page plus the page on top, so Back lands on the tool.
 2. `MainActivity` keeps the splash screen until theme options load (two second ceiling), reads `EXTRA_OPEN_TOOL` from the launch intent (and `onNewIntent`), and builds `SystemActions` for things only an activity can do (open URLs, system settings pages, share sheets).
 3. `StartGate` wraps the shell. It decides once per launch, from `AppStartRepository`, whether to show the welcome, the "What's new" sheet, or nothing, and draws it over the running app.
 4. `OsysterAppShell` hosts a `NavHost` with spring transitions. Navigation 2.10 plays the `predictivePop*` transitions during the back gesture, so those are set to the same springs to keep the gesture continuous.
@@ -178,6 +178,14 @@ Codes are read on the phone with ZXing; reading and acting on them follows Barco
 - **Content (`parseContent`, `actionsFor`):** ZXing's `ResultParser` turns text into links, email, phone, SMS, locations, vCard and MeCard contacts, calendar events, Wi-Fi, products, and ISBNs. Every action is an intent to another app (browser, dialer, Contacts and Calendar insert screens), so no contacts, calendar, or internet permission is needed. Wi-Fi codes show the network and copy the password; Osyster does not join networks.
 - **Storage:** scan history and search sites in a Room database (`barcode.db`), excluded from backup; beep and vibrate in a DataStore.
 - **Share sheet:** `ShareScanActivity` takes `image/*` shares, reads them over the sharing app, and saves the scan to the history.
+- **Clean pictures:** a straight, noise-free code (a screenshot or a saved code) can trip ZXing's finder search on some module patterns, so pictures get a last try with `PURE_BARCODE`.
+
+### Code Creator
+
+- **Forms (`CreateKind`, `CodeField`, `encode`):** each kind lists its fields; values travel as strings in the ViewModel's saved state, so a half-filled form survives rotation and process death. `encode` builds the text (WIFI: with backslash escaping, vCard 3.0, VEVENT with UTC times or all-day dates, SMSTO:, mailto:, tel:, geo:, a Play Store link) or returns the first `CreateProblem`. EAN and UPC add or check the check digit (UPC-E's covers the UPC-A it expands to).
+- **Drawing (`encodeMatrix`, `CodeLayout`, `toSvg`):** ZXing writes the modules with no margin; Osyster adds the quiet zone, draws 1D bars a third of the width tall with the digits under them, and keeps a QR code's three finder squares solid when the rest are dots. Non-Latin text is marked UTF-8 (ECI); plain Latin text is not, so every scanner reads it. `CodeImage` draws whole pixels per module so edges stay sharp.
+- **Saving and sharing:** PNG and SVG go through `CreateDocument` (no storage permission). Shares go through a `FileProvider` (`<applicationId>.codes`) limited to `cache/codes/`, cleared before each share. File names come from the code's headline, never a Wi-Fi password.
+- **Tests:** `CodeCreationTest` draws every kind and reads it back with ZXing's own reader, round dots included, then parses it with `parseContent`.
 
 ## Preferences, First Run, and Backup
 

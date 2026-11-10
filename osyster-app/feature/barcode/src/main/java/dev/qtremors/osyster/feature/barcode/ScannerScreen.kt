@@ -36,6 +36,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.FlashlightOff
 import androidx.compose.material.icons.rounded.FlashlightOn
 import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.QrCode2
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.NoPhotography
 import androidx.compose.material.icons.rounded.PhotoCamera
@@ -91,7 +92,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-internal fun ScannerScreen(viewModel: ScannerViewModel, onHistory: () -> Unit, onAppSettings: () -> Unit) {
+internal fun ScannerScreen(
+    viewModel: ScannerViewModel,
+    pickPicture: Boolean,
+    onHistory: () -> Unit,
+    onCreate: () -> Unit,
+    onAppSettings: () -> Unit
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val haptics = rememberAppHaptics()
@@ -123,7 +130,7 @@ internal fun ScannerScreen(viewModel: ScannerViewModel, onHistory: () -> Unit, o
     }
     LaunchedEffect(shown) { if (shown == null) analyzer.resume() }
 
-    val pickPicture = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         uri ?: return@rememberLauncherForActivityResult
         scope.launch {
             val bitmap = withContext(Dispatchers.IO) { CodeReader.load(context, uri) }
@@ -136,9 +143,21 @@ internal fun ScannerScreen(viewModel: ScannerViewModel, onHistory: () -> Unit, o
         }
     }
 
+    // The "Scan a picture" launcher shortcut opens the picker once, not again after rotation.
+    var pickedOnStart by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (pickPicture && !pickedOnStart) {
+            pickedOnStart = true
+            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+    }
+
     OsysterScaffold(
         title = stringResource(Tool.BARCODE.label.title),
         actions = {
+            IconButton(shapes = IconButtonDefaults.shapes(), onClick = onHistory) {
+                Icon(Icons.Rounded.History, contentDescription = stringResource(R.string.scan_history))
+            }
             IconButton(shapes = IconButtonDefaults.shapes(), onClick = { settingsOpen = true }) {
                 Icon(Icons.Rounded.Tune, contentDescription = stringResource(R.string.scan_settings))
             }
@@ -167,16 +186,16 @@ internal fun ScannerScreen(viewModel: ScannerViewModel, onHistory: () -> Unit, o
                     shapes = ButtonDefaults.shapes(),
                     onClick = {
                         unreadable = false
-                        pickPicture.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     },
                     modifier = Modifier.weight(1f).height(56.dp)
                 ) {
                     Icon(Icons.Rounded.Image, contentDescription = null)
                     Text(stringResource(R.string.scan_picture), modifier = Modifier.padding(start = 8.dp))
                 }
-                FilledTonalButton(shapes = ButtonDefaults.shapes(), onClick = onHistory, modifier = Modifier.weight(1f).height(56.dp)) {
-                    Icon(Icons.Rounded.History, contentDescription = null)
-                    Text(stringResource(R.string.scan_history), modifier = Modifier.padding(start = 8.dp))
+                FilledTonalButton(shapes = ButtonDefaults.shapes(), onClick = onCreate, modifier = Modifier.weight(1f).height(56.dp)) {
+                    Icon(Icons.Rounded.QrCode2, contentDescription = null)
+                    Text(stringResource(R.string.create_open), modifier = Modifier.padding(start = 8.dp))
                 }
             }
         }

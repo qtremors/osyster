@@ -20,5 +20,15 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
+        <!-- Shares a created code's picture with the app the person picks, one file at a time. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.codes"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/code_files" />
+        </provider>
     </application>
 </manifest>

@@ -54,6 +54,8 @@ import dev.qtremors.osyster.core.ui.components.TabItem
 import dev.qtremors.osyster.core.ui.theme.LocalReduceMotion
 import androidx.compose.runtime.LaunchedEffect
 import dev.qtremors.osyster.feature.activitylauncher.registerActivityLauncherRoute
+import dev.qtremors.osyster.core.navigation.BarcodeCreateFormRoute
+import dev.qtremors.osyster.core.navigation.BarcodeCreateRoute
 import dev.qtremors.osyster.core.navigation.BarcodeHistoryRoute
 import dev.qtremors.osyster.feature.barcode.BarcodeDestination
 import dev.qtremors.osyster.feature.barcode.registerBarcodeRoutes
@@ -113,9 +115,10 @@ fun OsysterAppShell(
 ) {
     val navController = rememberNavController()
     // A widget or tile asked for a specific tool; open it once, on top of Home.
+    // openTool is a tool id, or "tool/page" from a launcher shortcut that opens a page inside it.
     LaunchedEffect(openTool) {
-        val tool = openTool?.let(Tool::fromId) ?: return@LaunchedEffect
-        navController.navigate(tool.route())
+        val request = openTool ?: return@LaunchedEffect
+        shortcutRoutes(request.substringBefore('/'), request.substringAfter('/', "").ifEmpty { null }).forEach { navController.navigate(it) }
         onToolOpened()
     }
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -278,6 +281,8 @@ private fun NavGraphBuilder.osysterGraph(
     registerBarcodeRoutes { target ->
         when (target) {
             BarcodeDestination.History -> navController.navigate(BarcodeHistoryRoute)
+            BarcodeDestination.Create -> navController.navigate(BarcodeCreateRoute)
+            is BarcodeDestination.CreateForm -> navController.navigate(BarcodeCreateFormRoute(target.kind))
             is BarcodeDestination.AppSettings -> system.openAppInfo(target.packageName)
         }
     }

@@ -47,7 +47,7 @@
     <string name="tool_stay_awake_summary">Keep the screen on for a while or while charging</string>
     <string name="tool_flashlight">Flashlight</string>
     <string name="tool_barcode">Barcode scanner</string>
-    <string name="tool_barcode_summary">Read QR codes and barcodes with the camera or from a picture</string>
+    <string name="tool_barcode_summary">Read and create QR codes and barcodes</string>
     <string name="tool_bt_remote">Bluetooth remote</string>
     <string name="tool_bt_remote_summary">Control a TV or computer as its keyboard and remote</string>
     <string name="tool_flashlight_summary">Brightness, fading, and notification pulse</string>

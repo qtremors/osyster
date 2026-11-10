@@ -82,7 +82,7 @@ fun parseContent(text: String, format: CodeFormat): CodeContent =
         is EmailAddressParsedResult -> CodeContent.Email(text, parsed.tos?.firstOrNull().orEmpty(), parsed.subject, parsed.body)
         is TelParsedResult -> CodeContent.Phone(text, parsed.number)
         is SMSParsedResult -> CodeContent.Sms(text, parsed.numbers?.firstOrNull().orEmpty(), parsed.body)
-        is GeoParsedResult -> CodeContent.Location(text, parsed.latitude, parsed.longitude, parsed.query)
+        is GeoParsedResult -> CodeContent.Location(text, parsed.latitude, parsed.longitude, geoQuery(parsed.query))
         is AddressBookParsedResult -> CodeContent.Contact(
             raw = text,
             name = parsed.names?.firstOrNull(),
@@ -108,3 +108,9 @@ fun parseContent(text: String, format: CodeFormat): CodeContent =
         is ISBNParsedResult -> CodeContent.Product(text, parsed.isbn, isbn = true)
         else -> CodeContent.Text(text)
     }
+
+/** ZXing hands back everything after a geo: code's "?", such as "q=Tour%20Eiffel"; keep the place. */
+internal fun geoQuery(query: String?): String? {
+    val raw = query?.split('&')?.firstOrNull { it.startsWith("q=") }?.removePrefix("q=") ?: return query?.takeIf(String::isNotBlank)
+    return runCatching { java.net.URLDecoder.decode(raw, Charsets.UTF_8) }.getOrDefault(raw).takeIf(String::isNotBlank)
+}

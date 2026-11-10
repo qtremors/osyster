@@ -1,10 +1,19 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.3.5
+> **Version:** 0.3.6
 > **Last Updated:** 2026-11-10
 
 ---
+
+## [0.3.6] - 2026-11-10
+
+- **Code Creator**: Make QR codes for text, links, Wi-Fi networks, contacts, events, text messages, emails, phone numbers, locations, and apps, filled in with a form instead of typed by hand. The code is drawn live as you type.
+- **Other Formats**: Make Data Matrix, Aztec, PDF 417, EAN-13, EAN-8, UPC-A, UPC-E, Code 128, 93, and 39, Codabar, and ITF codes. EAN and UPC add their check digit for you or check the one you type, and each format says what it accepts.
+- **Style**: Pick the code and background colors (or a see-through background), round dots for QR codes with solid corner squares, the border, how much damage a QR code can recover from, and whether a barcode prints its digits. Colors that scanners may struggle with get a warning.
+- **Save and Share**: Save a code as a PNG picture or an SVG drawing that stays sharp at any size, in small, medium, or large, through Android's own save screen, or share it to any app. File names never include a Wi-Fi password.
+- **Launcher Shortcuts**: Long-press the Osyster icon to scan a code, scan a picture, or create a code.
+- **Scanning Fixes**: A clean, straight code such as a screenshot or a saved code reads every time, and a location's place name shows as typed instead of as web-address text.
 
 ## [0.3.5] - 2026-11-10
 

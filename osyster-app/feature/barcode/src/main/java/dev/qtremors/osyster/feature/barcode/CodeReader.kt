@@ -30,6 +30,7 @@ data class ReadCode(val text: String, val format: CodeFormat)
 internal object CodeReader {
     private val formats = mapOf(DecodeHintType.POSSIBLE_FORMATS to CodeFormat.entries.map { it.zxing })
     private val pictureHints = formats + (DecodeHintType.TRY_HARDER to true)
+    private val pureHints = pictureHints + (DecodeHintType.PURE_BARCODE to true)
 
     /** Share of the shorter side the camera scans, matching the frame drawn on screen. */
     const val FRAME_SHARE = 0.7f
@@ -63,7 +64,9 @@ internal object CodeReader {
             val smaller = Bitmap.createScaledBitmap(bitmap, w, h, true)
             read(luminance(smaller), pictureHints)?.let { return it }
         }
-        return null
+        // A clean, straight code, such as a saved or screenshotted one, can trip ZXing's finder
+        // search on some module patterns; its pure-barcode mode reads those directly.
+        return read(luminance(bitmap), pureHints)
     }
 
     private fun luminance(bitmap: Bitmap): LuminanceSource {
