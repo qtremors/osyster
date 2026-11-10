@@ -1,14 +1,110 @@
 # Osyster - Releases
 
 > **Project:** Osyster
-> **Version:** 0.3.0
-> **Last Updated:** 2026-11-09
+> **Version:** 0.4.0
+> **Last Updated:** 2026-11-10
 
 | Version | Release Date | Key Focus |
 | :--- | :--- | :--- |
+| [v0.4.0](#v040) | 2026-11-10 | Bluetooth remote, barcode scanner and code creator, notification and battery history, app manager with permissions, measure tools, music tiles and battery widgets, and a new website |
 | [v0.3.0](#v030) | 2026-11-09 | Ground-up rebuild: new Home dashboard, focused device pages, data and screen usage with charts, power tools with ADB, Shizuku, or root, utilities, widgets, tiles, and GPLv3 |
 | [v0.2.0](#v020) | 2026-09-19 | Home-screen data and music widgets, expanded hardware diagnostics, Screen Time, modernized navigation and settings, and developer Stay Awake control |
 | [v0.1.0](#v010) | 2026-09-06 | First public release: offline system monitoring, Bento Grid dashboard, native kernel telemetry, App Stopper, network traffic tracking, and Material 3 Expressive UI |
+
+---
+
+# v0.4.0
+
+**Release Date:** November 10, 2026
+
+**Previous public release:** v0.3.0
+
+**Development range included:** v0.3.1 through v0.4.0
+
+**Known issues and roadmap:** Track open work in [TASKS.md](TASKS.md).
+
+Osyster v0.4.0 adds six new tools: a Bluetooth remote, a barcode scanner and code creator, notification history, battery history, an app manager, and measure tools. It also brings new home-screen widgets and a new website. Everything still runs on your phone, with no internet permission.
+
+## Highlights
+
+- **Bluetooth Remote**: Use your phone as a remote, touchpad, keyboard, or gamepad for an Android TV, computer, or tablet. Nothing to install on the other device.
+- **Barcode Scanner and Creator**: Read QR codes and barcodes from the camera or a picture, and make your own to save or share.
+- **Notification History**: Keeps every notification in full, even ones you dismissed or the app deleted. Off until you turn it on.
+- **Battery History**: Your battery level over the last month, each charge, drain, and temperature, plus a battery widget.
+- **App Manager**: Every installed app with what it's allowed to use and how risky that is, and a page showing which apps can use your camera, microphone, location, contacts, and more.
+- **Measure**: A bubble level, compass, ruler at true size, and sound meter.
+
+## New Tools
+
+### Bluetooth Remote (Android 9 and newer)
+
+- **Remote**: D-pad or swipe pad, Home, Back, power, volume, channels, a number pad, media keys, and color keys. Hold a key to repeat it.
+- **Fits the device**: TVs get the full remote; computers get arrows, Enter, Esc, and the Windows key. The choice is saved for each device.
+- **Touchpad and air mouse**: Move, tap, scroll, and drag with your fingers, or point the phone to move the pointer.
+- **Keyboard**: Type with any phone keyboard, swipe typing included, with Ctrl, Alt, Shift, Win, and keys a phone lacks, like Esc, Tab, and F1 to F12.
+- **Gamepad**: Two sticks, the D-pad, face and shoulder buttons, for TV and computer games.
+- **Computer actions**: Lock, sleep, restart, shut down, take a screenshot, and open Task Manager. Some work only on Windows.
+- **Widget and volume keys**: Media keys on the home screen, and the phone's volume keys can control the TV or computer.
+
+### Barcode Scanner and Code Creator
+
+- **Scan**: QR, Data Matrix, Aztec, PDF 417, EAN, UPC, Code 128, 93, and 39, Codabar, and ITF, with torch and zoom. Works offline.
+- **From a picture**: Pick a photo or screenshot, or share one to Osyster. If nothing reads, frame the code and try again.
+- **Act on it**: Open links, call, text, email, open maps, and add contacts and events, all through your other apps. Copy a Wi-Fi password.
+- **Search sites**: Add your own sites to look up product codes in your browser.
+- **History**: Every scan is kept on your phone, with rename and delete.
+- **Create**: QR codes for text, links, Wi-Fi, contacts, events, messages, and more, filled in with a form, plus every common barcode. Pick colors and round dots, then save as PNG or SVG or share.
+
+### Notification History
+
+- Keeps the full text, lists, pictures, buttons, and your replies. Chats open as a conversation.
+- Shows whether you dismissed it, opened it, or the app removed it.
+- Search, filter by app, and choose how long to keep it, from one week to one year. Leave out any app, and delete one entry, one app, or everything.
+- Saves in small batches, so it uses almost no battery. Stays on the phone and out of Android backup.
+
+### Battery History
+
+- The battery level over a day, week, or month, with each charge listed: from and to what level, how long, the charger, and the highest temperature.
+- Average drain, temperature range, health, and charge cycles where Android reports them.
+- One reading every half hour, kept 30 days. You can turn it off or clear it.
+- A 2x2 battery widget with the level, temperature, and the last day as a small chart.
+
+### App Manager
+
+- Every app with its version, where it came from, its size, and its risk.
+- Each app's page shows its permissions as allowed, not allowed, or special access, plus its components and signing certificate.
+- Uninstall, save its APK, open App info, or see its data and screen time.
+- The permissions page shows how many apps are allowed each kind of access. Tap one to see which apps.
+
+### Measure
+
+- A bubble level that taps when flat, a compass, a ruler in centimeters or inches, and a sound meter.
+- Sensors run only while a tool is open. The microphone is never recorded.
+
+## Widgets and Shortcuts
+
+- **Music tiles**: One widget that shows the album art with play controls at 3x3, or two buttons at 3x2, and switches as you resize it.
+- **Music apps**: Choose which apps the music widgets follow, so a video or game never takes over.
+- **Data widget setup**: Pick the period and what to show, with a live preview. The data widgets fit a 2x1 cell again and load properly.
+- **Private DNS widget**: A 2x1 switch on the home screen.
+- **Launcher shortcuts**: Long-press the icon to scan a code, scan a picture, or create a code. Your launcher can show the ones you use most first.
+
+## Everything Else
+
+- **Split screen**: Two panes follow the app's window, so they work in split screen and on foldables.
+- **New buttons and menus**: Buttons change shape when pressed, and long-press menus are grouped and clearer.
+- **Rounded text fields** everywhere, to match the rest of the app.
+- **No more What's New sheet**: Updates open straight into the app.
+- **Privacy**: The privacy policy and the in-app privacy screen list the camera, microphone, and Bluetooth, and how each is used.
+- **Website and docs**: A new website, screenshots, and simpler README and privacy policy.
+
+## Upgrade and Compatibility Notes
+
+- Your settings and data from v0.3.0 carry over.
+- The Data today and Data this month widgets are now one Data usage widget, set up when you place it.
+- The music grid and music tiles widgets are now one widget.
+- If you paired a TV or computer with the remote before, pair it again once so the power, sleep, and gamepad keys work.
+- Osyster still has no internet permission. Everything it reads stays on the phone.
 
 ---
 

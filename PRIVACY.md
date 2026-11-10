@@ -1,80 +1,78 @@
-# Privacy Policy for Osyster
+# Osyster Privacy Policy
 
-**Last Updated:** 2026-09-28
+**Last updated:** 2026-11-10
 
-Osyster reads information about your phone and changes settings you ask it to change. All of that happens on your phone. This policy explains what it reads, what it stores, and every permission it can use.
+Osyster reads information about your phone and changes settings when you ask it to. All of it happens on your phone. This page lists what Osyster reads, what it keeps, and why it asks for each permission.
 
-## 1. No Data Collection
+## The short version
 
-Osyster **does not send** personal information, usage statistics, device identifiers, or diagnostics to the developer or anyone else. There is no account, no analytics, and no crash reporting.
+- Osyster sends nothing to anyone. Not to the developer, not to anyone else.
+- It has no internet permission, so Android blocks it from going online at all.
+- No ads, no accounts, no analytics, no crash reports.
+- It never reads your serial number, IMEI, phone number, SIM number, or MAC address.
 
-It never reads permanent identifiers: no serial number, IMEI or MEID, phone number, SIM serial, MAC address, or DRM device ID.
+## Offline
 
-## 2. Offline by Design
+Because Osyster has no internet permission, it cannot connect anywhere. The "internet check" on the Network page only asks Android whether your connection works; Osyster itself connects to nothing.
 
-The app does not declare `android.permission.INTERNET`, so Android blocks it from the network entirely. The "internet check" on the Network page only asks Android whether the current connection is validated; it does not connect anywhere.
+Links to GitHub, Discord, the Shizuku guide, or the website open in your browser or another app, which has its own privacy policy. The website shows public numbers from GitHub (stars and downloads). The website is not part of the app, so the app's offline promise doesn't cover it.
 
-Links to GitHub, Discord, the Shizuku guide, or the project website open your browser or another app, which follows its own privacy policy. The project website loads public GitHub statistics from the GitHub API; the app's offline promise does not cover the website.
+## What Osyster keeps on your phone
 
-## 3. No Advertisements or Trackers
-
-The app contains **no advertisements** and **no third-party analytics, tracking, or crash SDKs**.
-
-## 4. What Osyster Stores on Your Phone
-
-- Theme, Home layout (pins, order, hidden pages), and tool choices.
-- Package names you add to App stopper, Shut-Up!, and Freeze lists.
-- The debugging switches as they were before a Shut-Up! launch, until you restore them.
-- Whether you finished the welcome.
-- Battery history, unless you turn it off: the battery level, charging state and charger type, temperature, voltage, and current, read every half hour and kept 30 days.
-- Which apps the music widgets follow, and apps that have played media (to offer them in that list).
-- Notification history, only if you turn it on: the text of each notification (title, full text, chat messages, replies, button labels), the app it came from, when it arrived and left, and its picture if it had one. It is cleared after the time you choose (one week to one year), and you can delete one entry, one app, or all of it.
+- Your theme, your Home layout, and your choices in each tool.
+- The apps you add to App stopper, Shut-Up!, and Freeze.
+- Your debugging settings from before a Shut-Up! launch, until you restore them.
+- Whether you finished the welcome screens.
 - Your temperature unit, refresh speed, and whether screenshots are blocked.
+- **Battery history** (on unless you turn it off): battery level, charging state and charger type, temperature, voltage, and current, once every half hour, kept for 30 days.
+- **Music widgets:** which apps they follow, and which apps have played music (so you can pick from them).
+- **Scan history:** codes you scanned, until you delete them.
+- **Notification history** (only if you turn it on): each notification's text, chat messages, replies, button labels, picture, the app it came from, and when it arrived and left. It's deleted after the time you choose (one week to one year), and you can delete one entry, one app, or all of it at any time.
 
-Android may include these preferences in its own device backup. Scan history, notification history, and saved notification pictures are always left out of it. Settings export writes them to a file only where you choose; nothing is uploaded.
+Android may copy your settings into its own phone backup. Scan history, notification history, and notification pictures are always left out. Settings export saves a file only where you choose, and uploads nothing.
 
-## 5. Permissions
+## Permissions
 
-Osyster asks for each permission only when a tool needs it, and every tool works without the ones it does not need.
+Osyster asks for a permission only when a tool needs it. Every tool works without the permissions it doesn't need.
 
-### Normal permissions (granted at install)
+### Granted when you install
 
-- **Network state and Wi-Fi state:** connection type, signal, and link speed on the Network page and the live speed meter.
-- **Foreground service, special use, and wake lock:** Stay awake keeps the screen on with a visible notification and Stop button.
-- **Query all packages:** App stopper, Activity launcher, Link actions, Shut-Up!, Freeze, Standby apps, the App manager, and Music apps list your apps by name and icon. The App manager also reads what Android shows any app about them: versions, permissions and whether they were allowed, special access, components, and signing certificates. It changes nothing.
-- **Request delete packages:** the App manager's Uninstall button opens Android's own uninstall prompt. Android asks every time.
-- **Shizuku API permission:** lets an installed Shizuku recognise Osyster. It does nothing unless you allow Osyster in Shizuku.
+- **Network and Wi-Fi state:** connection type, signal, and speed on the Network page.
+- **Foreground service and wake lock:** lets Stay awake keep the screen on, with a notification and a Stop button.
+- **See installed apps:** lets App stopper, App manager, Activity launcher, Link actions, Shut-Up!, Freeze, Standby, and the music app list show your apps. App manager also shows what Android tells any app about the others: versions, permissions, and signing certificates. It changes nothing.
+- **Ask to uninstall apps:** App manager's Uninstall button opens Android's own uninstall prompt. Android asks you every time.
+- **Shizuku:** lets Shizuku recognise Osyster. It does nothing unless you allow Osyster inside Shizuku.
 
-### Runtime permissions (asked when you choose)
+### Asked when you use a tool
 
-- **Notifications (Android 13 and newer):** the Stay awake countdown and the Shut-Up! Restore notification.
-- **Location:** Android requires it to show the Wi-Fi network name. Asked only when you tap to show it on the Network page. Osyster never reads your position.
-- **Camera:** the barcode scanner reads codes from the camera preview on the phone. Asked when the scanner opens. Frames are never saved.
-- **Microphone:** the Measure tool's sound meter turns what the microphone hears into a loudness number while that page is open. Asked when you open it. Nothing is recorded or saved.
-- **Nearby devices (Bluetooth):** the Bluetooth remote pairs with and controls your TV, computer, or tablet. Asked when you open it. Device addresses are used only to connect and are never shown or sent.
+- **Notifications (Android 13 and newer):** the Stay awake countdown and the Shut-Up! restore notification.
+- **Location:** Android needs it to show your Wi-Fi network's name. Asked only when you tap to show it. Osyster never reads where you are.
+- **Camera:** the barcode scanner reads codes from the camera. Nothing is saved.
+- **Microphone:** the sound meter turns what it hears into a loudness number while the page is open. Nothing is recorded.
+- **Nearby devices (Bluetooth):** the Bluetooth remote connects to your TV or computer. Device addresses are used only to connect.
 - **Phone:** carrier, network type, and roaming on the Network page. Asked only when you tap to show them. Your phone number and IMEI are never read.
 
-### Special access (granted in system Settings)
+### Turned on in Android's settings
 
-- **Usage access:** Data usage, Screen usage, and the Data today tile read Android's own counters.
-- **Notification access:** music widgets read the playing song from media sessions; Flashlight pulse sees that a notification arrived and which app sent it. Notification text is read and stored only when you turn on notification history, and then only on this phone.
-- **Screen capture (Color picker tile):** Android asks every time. Osyster captures one frame, keeps it only in its private cache while you pick a color, and deletes it when you close the picker. A short foreground notification shows while the capture runs.
+- **Usage access:** data usage, screen time, the Data today tile, and app sizes in App manager. Osyster reads Android's own counters.
+- **Notification access:** music widgets see what's playing, and the flashlight blink sees that a notification arrived. Notification text is saved only if you turn on notification history.
+- **Screen capture (Color picker tile):** Android asks every time. Osyster takes one picture of the screen, keeps it only while you pick a color, and deletes it when you close the picker.
 
-### Power tools (optional, granted by you outside the app)
+### Extra tools (optional)
 
-- **Write secure settings:** granted once with an ADB command, or by Shizuku or root from Power setup. Used to change settings such as battery saver, animation scales, status bar icons, debugging switches, and Private DNS. Remove it by clearing Osyster's storage or reinstalling.
-- **Shizuku or root:** used only while a power tool runs a command (freezing apps, standby buckets, display size, force stop). Each command is a normal Android shell command with quoted arguments. Osyster keeps no root shell open.
+- **Change system settings:** allowed once with a command from a computer, or through Shizuku or root. Used to change battery saver, animation speed, status bar icons, debugging switches, and Private DNS. To take it back, clear Osyster's storage or reinstall it.
+- **Shizuku or root:** used only while an extra tool runs a command, such as freezing an app or changing display size. Osyster never keeps root open in the background.
 
-Osyster **never** uses an AccessibilityService and never calls hidden system interfaces.
+Osyster never uses accessibility services and never uses hidden parts of Android.
 
-## 6. Children
+## Children
 
-Osyster collects no data from anyone, including children.
+Osyster collects nothing from anyone, children included.
 
-## 7. Changes
+## Changes
 
-Changes to this policy are recorded in this file and in the changelog.
+Changes to this policy are written here and in the [changelog](CHANGELOG.md).
 
-## 8. Contact
+## Contact
 
-Questions or concerns: open an issue on [GitHub](https://github.com/qtremors/osyster/issues) or ask in the [Discord community](https://discord.gg/QgUjuNj9U8).
+Questions? Open an issue on [GitHub](https://github.com/qtremors/osyster/issues) or ask in the [Discord](https://discord.gg/QgUjuNj9U8).

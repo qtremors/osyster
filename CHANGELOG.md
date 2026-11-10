@@ -1,10 +1,20 @@
 # Osyster Changelog
 
 > **Project:** Osyster
-> **Version:** 0.3.9
+> **Version:** 0.4.0
 > **Last Updated:** 2026-11-10
 
 ---
+
+## [0.4.0] - 2026-11-10
+
+- **Screenshots**: Added to the README and the website.
+- **Website**: A new, simpler design in the app's own colors that follows your light or dark setting. It lists notification and battery history, the app manager, the barcode scanner and creator, the Bluetooth remote, and the measure tools, and has a feature graphic for link previews.
+- **Plainer Docs**: The README and privacy policy are rewritten in plain words, and the developer guide matches the current modules, libraries, and tests.
+- **Privacy Screen**: Now lists the camera, microphone, and Bluetooth, and says notification text is saved only when notification history is on.
+- **Split Screen**: The two-pane layout now follows the app's window, so it is right in split screen and on foldables.
+- **Shortcut Order**: Your launcher can now show the Osyster shortcuts you use most first.
+- **Updated Libraries**: Android Gradle Plugin 9.5.1, Material 3 1.5.0-rc01, CameraX 1.6.2, DataStore 1.3.0, Media 1.8.0, Palette 1.1.0, ZXing 3.5.4, and Kotlin serialization 1.12.0.
 
 ## [0.3.9] - 2026-11-10
 

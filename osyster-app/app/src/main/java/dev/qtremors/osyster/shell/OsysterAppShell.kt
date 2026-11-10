@@ -7,7 +7,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import dev.qtremors.osyster.core.navigation.EmptyDetailRoute
@@ -141,7 +142,7 @@ fun OsysterAppShell(
         TabItem(Icons.Rounded.Settings, stringResource(R.string.tab_settings))
     )
 
-    val wide = LocalConfiguration.current.screenWidthDp >= WIDE_SCREEN_DP
+    val wide = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() } >= WIDE_SCREEN_DP.dp
     val listController = rememberNavController()
     val listEntry by listController.currentBackStackEntryAsState()
     val selectTab: (AppRoute) -> Unit = { route -> (if (wide) listController else navController).navigateToTab(route) }

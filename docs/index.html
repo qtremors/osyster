@@ -3,129 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Osyster | The tools Android left out</title>
-    <meta name="description" content="Osyster adds the tools Android doesn't give you: keep the screen awake, freeze apps, see data per app, tune hidden settings, and more. Free, open source, and offline.">
-    <meta property="og:title" content="Osyster | The tools Android left out">
-    <meta property="og:description" content="Android gives you settings. Osyster gives you the rest.">
-    <meta property="og:image" content="https://qtremors.github.io/osyster/assets/Osyster.png">
+    <title>Osyster | The tools your phone should have come with</title>
+    <meta name="description" content="Osyster adds the tools Android leaves out: notification and battery history, an app manager, a barcode scanner, a Bluetooth remote, measure tools, and more. Free, open source, and offline.">
+    <meta property="og:title" content="Osyster | The tools your phone should have come with">
+    <meta property="og:description" content="One free app with the tools Android leaves out. Nothing leaves your phone.">
+    <meta property="og:image" content="https://qtremors.github.io/osyster/assets/Osyster-feature.png">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="500">
     <meta property="og:type" content="website">
-    <meta name="theme-color" content="#0e1415">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#e9eff0" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1b2122" media="(prefers-color-scheme: dark)">
     <link rel="icon" type="image/png" href="assets/Osyster.png">
     <link rel="stylesheet" href="styles.css">
     <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
+    <!-- Icons from Lucide (ISC) and Simple Icons (CC0). -->
     <svg aria-hidden="true" width="0" height="0" style="position:absolute">
         <symbol id="i-github" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></symbol>
         <symbol id="i-star" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></symbol>
         <symbol id="i-fork" viewBox="0 0 24 24"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9"/><path d="M12 12v3"/></symbol>
         <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
         <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+        <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+        <symbol id="i-battery" viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2"/><line x1="22" x2="22" y1="11" y2="13"/><line x1="6" x2="6" y1="11" y2="13"/><line x1="10" x2="10" y1="11" y2="13"/></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+        <symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8"/><path d="M11 8v8"/><path d="M14 8v8"/><path d="M17 8v8"/></symbol>
+        <symbol id="i-tv" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></symbol>
+        <symbol id="i-ruler" viewBox="0 0 24 24"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></symbol>
+        <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+        <symbol id="i-phone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></symbol>
+        <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></symbol>
+        <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
         <symbol id="i-discord" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></symbol>
     </svg>
-    <header class="bar">
-        <a class="brand" href="#"><img src="assets/Osyster.png" alt="" width="36" height="36">Osyster</a>
-        <nav class="bar-links" aria-label="Sections"><a href="#do">Tools</a><a href="#developer">Developer</a><a href="#credits">Credits</a></nav>
-        <a class="link" href="https://github.com/qtremors/osyster" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+
+    <header class="nav">
+        <a class="brand" href="#top"><img src="assets/Osyster.png" alt="" width="32" height="32">Osyster</a>
+        <nav class="nav-links" aria-label="Sections"><a href="#tools">Tools</a><a href="#screens">Screens</a><a href="#privacy">Privacy</a><a href="#credits">Credits</a></nav>
+        <a class="nav-action" href="https://github.com/qtremors/osyster" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-github"/></svg><span>GitHub</span></a>
     </header>
 
-    <main>
+    <main id="top">
         <section class="hero">
             <div class="hero-copy">
-                <h1>Android gives you settings.<br><span>Osyster gives you the&nbsp;rest.</span></h1>
-                <p>The tools your phone should have come with, in one app that works offline.</p>
+                <h1>The tools your phone should have come&nbsp;with.</h1>
+                <p class="lead">Osyster shows what your Android phone is made of and adds the small tools it leaves out. Free, open source, and fully offline.</p>
                 <div class="actions">
                     <a class="btn apk-link" href="https://github.com/qtremors/osyster/releases/latest" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg><span class="release">Download APK</span></a>
-                    <a class="btn btn-quiet" href="https://github.com/qtremors/osyster" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-github"/></svg>View on GitHub</a>
+                    <a class="btn btn-tonal" href="https://github.com/qtremors/osyster" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-github"/></svg>Source code</a>
                 </div>
-                <ul class="stats" aria-label="GitHub statistics">
-                    <li title="Stars"><svg class="i" aria-hidden="true"><use href="#i-star"/></svg><span id="gh-stars">–</span><small>stars</small></li>
-                    <li title="Forks"><svg class="i" aria-hidden="true"><use href="#i-fork"/></svg><span id="gh-forks">–</span><small>forks</small></li>
-                    <li title="Downloads of every release"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg><span id="gh-total">–</span><small>downloads</small></li>
-                    <li title="Downloads of the latest release"><span id="gh-latest">–</span><small>on the latest release</small></li>
+                <ul class="stats" aria-label="GitHub numbers">
+                    <li><svg class="i" aria-hidden="true"><use href="#i-star"/></svg><b id="gh-stars">–</b> stars</li>
+                    <li><svg class="i" aria-hidden="true"><use href="#i-fork"/></svg><b id="gh-forks">–</b> forks</li>
+                    <li><svg class="i" aria-hidden="true"><use href="#i-download"/></svg><b id="gh-total">–</b> downloads</li>
+                    <li><b id="gh-latest">–</b> on the latest version</li>
                 </ul>
-                <p class="quiet">Free · Open source · Android 8.0+ · No root needed</p>
+                <p class="note">Android 8.0 or newer · No root needed</p>
             </div>
+            <div class="hero-shots" aria-hidden="true">
+                <div class="blob"></div>
+                <img class="shot back" src="Screenshots/02-tools.webp" alt="" width="1080" height="2345">
+                <img class="shot front" src="Screenshots/01-home.webp" alt="" width="1080" height="2345">
+            </div>
+        </section>
 
-            <!-- Android's own settings, dimmed, with Osyster's additions opening between them. -->
-            <ol class="gaps" aria-label="What Osyster adds to Android's settings">
-                <li class="stock">Display</li>
-                <li class="add" style="--i:1">Keep the screen awake on a timer</li>
-                <li class="add" style="--i:2">Display size and animation speed in finer steps</li>
-                <li class="stock">Battery</li>
-                <li class="add" style="--i:3">Choose what battery saver turns off</li>
-                <li class="stock">Apps</li>
-                <li class="add" style="--i:4">Freeze apps you never use</li>
-                <li class="add" style="--i:5">Data used by each app, live</li>
-                <li class="stock">Notifications</li>
-                <li class="add" style="--i:6">Blink the flashlight when one arrives</li>
-                <li class="stock">Developer options</li>
-                <li class="add" style="--i:7">Hide debugging from apps that refuse to run</li>
-                <li class="stock">Quick Settings</li>
-                <li class="add" style="--i:8">Private DNS, USB debugging, and Freeze tiles</li>
+        <section id="tools" class="section reveal">
+            <h2>What's inside</h2>
+            <p class="section-lead">Everything here works offline, on your phone.</p>
+            <ul class="tiles">
+                <li class="t1"><span class="badge"><svg class="i" aria-hidden="true"><use href="#i-bell"/></svg></span><h3>Notification history</h3><p>Every notification in full, even ones you swiped away or the app deleted. Off until you turn it on.</p></li>
+                <li class="t2"><span class="badge"><svg class="i" aria-hidden="true"><use href="#i-battery"/></svg></span><h3>Battery history</h3><p>Your battery over the last month: each charge, how fast it drains, and how warm it gets.</p></li>
+                <li class="t3"><span class="badge"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg></span><h3>App manager</h3><p>See what each app is allowed to use, like your camera, microphone, or location, and how risky that is.</p></li>
+                <li class="t1"><span class="badge"><svg class="i" aria-hidden="true"><use href="#i-scan"/></svg></span><h3>Barcode scanner</h3><p>Read QR codes and barcodes from the camera or a picture, and make your own.</p></li>
+                <li class="t2"><span class="badge"><svg class="i" aria-hidden="true"><use href="#i-tv"/></svg></span><h3>Bluetooth remote</h3><p>Use your phone as a remote, mouse, or keyboard for a TV or computer. Nothing to install on it.</p></li>
+                <li class="t3"><span class="badge"><svg class="i" aria-hidden="true"><use href="#i-ruler"/></svg></span><h3>Measure</h3><p>A bubble level, compass, ruler, and sound meter, using the phone's own sensors.</p></li>
+                <li class="t1"><span class="badge"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg></span><h3>Data and screen time</h3><p>How much data and time each app uses, by day, week, or month.</p></li>
+                <li class="t2"><span class="badge"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg></span><h3>Your phone</h3><p>Twelve pages on the processor, memory, battery, screen, cameras, sensors, and more, in plain words.</p></li>
+                <li class="t3"><span class="badge"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg></span><h3>Home screen</h3><p>Widgets for battery, data, and music, plus Quick Settings tiles and icon shortcuts.</p></li>
+            </ul>
+            <p class="more">Also: stay awake, flashlight brightness and blink, app stopper, a screen test, and a launcher for hidden app screens.</p>
+        </section>
+
+        <section id="screens" class="section reveal">
+            <h2>Screens</h2>
+            <ul class="screens">
+                <li><img src="Screenshots/01-home.webp" alt="Home with the phone's processor, memory, storage, battery, screen time, and data" width="1080" height="2345" loading="lazy"><span>Home</span></li>
+                <li><img src="Screenshots/02-tools.webp" alt="The Tools tab, grouped into usage, utilities, and extra tools" width="1080" height="2345" loading="lazy"><span>Tools</span></li>
+                <li><img src="Screenshots/03-app-manager.webp" alt="App manager listing installed apps with their risk" width="1080" height="2345" loading="lazy"><span>App manager</span></li>
+                <li><img src="Screenshots/04-permissions.webp" alt="How many apps are allowed each kind of access" width="1080" height="2345" loading="lazy"><span>Permissions</span></li>
+                <li><img src="Screenshots/05-code-creator.webp" alt="Making a QR code for a web address" width="1080" height="2345" loading="lazy"><span>Code creator</span></li>
+                <li><img src="Screenshots/06-measure.webp" alt="A bubble level showing the tilt in degrees" width="1080" height="2345" loading="lazy"><span>Measure</span></li>
+            </ul>
+        </section>
+
+        <section id="privacy" class="section reveal">
+            <div class="promise">
+                <span class="badge big"><svg class="i" aria-hidden="true"><use href="#i-lock"/></svg></span>
+                <h2>Nothing leaves your phone.</h2>
+                <ul class="group">
+                    <li><b>No internet permission</b><span>Android itself keeps Osyster offline.</span></li>
+                    <li><b>No ads, accounts, or tracking</b><span>Nothing is collected, so there is nothing to sell.</span></li>
+                    <li><b>No phone number or IMEI</b><span>Osyster never reads anything that could identify you.</span></li>
+                </ul>
+                <a class="text-link" href="https://github.com/qtremors/osyster/blob/main/PRIVACY.md" target="_blank" rel="noopener">Read the privacy policy</a>
+            </div>
+        </section>
+
+        <section class="section reveal">
+            <h2>Go further if you want</h2>
+            <p class="section-lead">Extra tools can change settings Android keeps hidden, like what battery saver turns off or how fast animations run. They are optional.</p>
+            <ol class="group steps">
+                <li><b>Install</b><span>Almost everything works right away.</span></li>
+                <li><b>Run one command</b><span>From a computer, once, to unlock the settings tools.</span></li>
+                <li><b>Add Shizuku or root</b><span>For freezing apps and stopping them in one tap.</span></li>
             </ol>
         </section>
 
-        <section id="do" class="block reveal">
-            <h2>What you can do</h2>
-            <dl class="verbs">
-                <div><dt>Keep awake</dt><dd>Screen stays on for as long as you choose, or whenever it's charging.</dd></div>
-                <div><dt>Freeze</dt><dd>Turn off apps you rarely use without uninstalling them.</dd></div>
-                <div><dt>Stop</dt><dd>Keep a list of apps you often close and stop them in one tap.</dd></div>
-                <div><dt>Measure</dt><dd>Data and screen time per app, from your phone's own records.</dd></div>
-                <div><dt>Inspect</dt><dd>Every part of your phone, from the processor to the cameras, in plain words.</dd></div>
-                <div><dt>Tune</dt><dd>Status bar icons, Private DNS, battery saver, and other settings Android hides.</dd></div>
-            </dl>
-        </section>
-
-        <section class="block reveal">
-            <h2>Go as far as you like</h2>
-            <ol class="levels">
-                <li><b>Install it</b><span>Most tools work right away, no setup needed.</span></li>
-                <li><b>Run one command</b><span>Allow settings access once from a computer to unlock the setting tools.</span></li>
-                <li><b>Use Shizuku or root</b><span>For freezing apps, standby limits, and one-tap stopping.</span></li>
-            </ol>
-        </section>
-
-        <section class="block promise reveal">
-            <p class="big">No internet permission. No ads. No accounts.</p>
-            <p class="quiet">Nothing Osyster sees ever leaves your phone. <a href="https://github.com/qtremors/osyster/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy policy</a></p>
-        </section>
-
-        <section id="developer" class="block reveal">
-            <h2>Developer</h2>
-            <div class="dev">
-                <img src="assets/Tremors.svg" alt="Tremors" width="88" height="88" loading="lazy">
+        <section id="credits" class="section reveal">
+            <div class="split">
                 <div>
-                    <p class="dev-name">Tremors</p>
-                    <p class="quiet">Builds private, offline Android apps with simple architecture and careful interfaces. Osyster is a solo project.</p>
+                    <h2>Developer</h2>
+                    <div class="dev">
+                        <img src="assets/Tremors.svg" alt="" width="72" height="72" loading="lazy">
+                        <div>
+                            <p class="dev-name">Tremors</p>
+                            <p class="muted">Makes private, offline Android apps. Osyster is a solo project.</p>
+                        </div>
+                    </div>
                     <div class="links">
                         <a href="https://github.com/qtremors" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
                         <a href="https://qtremors.github.io" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg>Website</a>
                         <a href="https://discord.gg/QgUjuNj9U8" target="_blank" rel="noopener noreferrer"><svg class="i" aria-hidden="true"><use href="#i-discord"/></svg>Discord</a>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <section id="credits" class="block reveal">
-            <h2>Credits</h2>
-            <div class="credits">
                 <div>
-                    <h3>In the app</h3>
-                    <p class="quiet">Built with <a href="https://kotlinlang.org/" target="_blank" rel="noopener">Kotlin</a>, <a href="https://developer.android.com/compose" target="_blank" rel="noopener">Jetpack Compose</a>, <a href="https://m3.material.io/" target="_blank" rel="noopener">Material 3</a>, AndroidX, <a href="https://dagger.dev/hilt/" target="_blank" rel="noopener">Hilt</a>, <a href="https://github.com/jordond/MaterialKolor" target="_blank" rel="noopener">MaterialKolor</a>, and the <a href="https://github.com/RikkaApps/Shizuku-API" target="_blank" rel="noopener">Shizuku API</a>, with text in <a href="https://fonts.google.com/specimen/Roboto+Flex" target="_blank" rel="noopener">Roboto Flex</a>. The interface is inspired by <a href="https://github.com/sameerasw/essentials" target="_blank" rel="noopener">Essentials</a> by sameerasw (MIT). The Bluetooth remote builds on <a href="https://gitlab.com/Atharok/BtRemote" target="_blank" rel="noopener">BT Remote</a> and the barcode scanner on <a href="https://gitlab.com/Atharok/BarcodeScanner" target="_blank" rel="noopener">Barcode Scanner</a>, both by Atharok (GPL-3.0), with <a href="https://github.com/zxing/zxing" target="_blank" rel="noopener">ZXing</a> (Apache 2.0) reading the codes.</p>
-                </div>
-                <div>
-                    <h3>On this site</h3>
-                    <p class="quiet">Plain HTML, CSS, and JavaScript, with icons from <a href="https://lucide.dev/" target="_blank" rel="noopener">Lucide</a> (ISC) and <a href="https://simpleicons.org/" target="_blank" rel="noopener">Simple Icons</a> (CC0). Every license is listed in the app under Settings, About, Open source licenses.</p>
+                    <h2>Credits</h2>
+                    <p class="muted">Built with <a href="https://kotlinlang.org/" target="_blank" rel="noopener">Kotlin</a>, <a href="https://developer.android.com/compose" target="_blank" rel="noopener">Jetpack Compose</a>, <a href="https://m3.material.io/" target="_blank" rel="noopener">Material 3</a>, <a href="https://dagger.dev/hilt/" target="_blank" rel="noopener">Hilt</a>, <a href="https://github.com/jordond/MaterialKolor" target="_blank" rel="noopener">MaterialKolor</a>, the <a href="https://github.com/RikkaApps/Shizuku-API" target="_blank" rel="noopener">Shizuku API</a>, and <a href="https://github.com/zxing/zxing" target="_blank" rel="noopener">ZXing</a>, with text in <a href="https://fonts.google.com/specimen/Roboto+Flex" target="_blank" rel="noopener">Roboto Flex</a>.</p>
+                    <p class="muted">The look is inspired by <a href="https://github.com/sameerasw/essentials" target="_blank" rel="noopener">Essentials</a> by sameerasw. The Bluetooth remote and barcode scanner build on <a href="https://gitlab.com/Atharok/BtRemote" target="_blank" rel="noopener">BT Remote</a> and <a href="https://gitlab.com/Atharok/BarcodeScanner" target="_blank" rel="noopener">Barcode Scanner</a> by Atharok. The round music widget follows <a href="https://github.com/MuntashirAkon/Metro" target="_blank" rel="noopener">Metro</a> and <a href="https://github.com/h4h13/RetroMusicPlayer" target="_blank" rel="noopener">Retro Music Player</a>.</p>
+                    <p class="muted">Site icons from <a href="https://lucide.dev/" target="_blank" rel="noopener">Lucide</a> and <a href="https://simpleicons.org/" target="_blank" rel="noopener">Simple Icons</a>. Every license is in the app under Settings, About, Open source licenses.</p>
                 </div>
             </div>
         </section>
 
         <section class="end reveal">
-            <img src="assets/Osyster.png" alt="Osyster icon" width="104" height="104" loading="lazy">
+            <img src="assets/Osyster.png" alt="" width="96" height="96" loading="lazy">
+            <h2>Get Osyster</h2>
             <a class="btn apk-link" href="https://github.com/qtremors/osyster/releases/latest" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-download"/></svg><span class="release">Download APK</span></a>
-            <p class="quiet"><span class="version-note"></span>Requires Android 8.0 or newer.</p>
+            <p class="note"><span class="version-note"></span>Android 8.0 or newer.</p>
         </section>
     </main>
 
@@ -134,10 +160,10 @@
             <a href="https://github.com/qtremors/osyster" target="_blank" rel="noopener">GitHub</a>
             <a href="https://github.com/qtremors/osyster/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
             <a href="https://github.com/qtremors/osyster/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a>
-            <a href="https://github.com/qtremors/osyster/blob/main/LICENSE.md" target="_blank" rel="noopener">GPLv3</a>
+            <a href="https://github.com/qtremors/osyster/blob/main/LICENSE.md" target="_blank" rel="noopener">License</a>
             <a href="https://discord.gg/QgUjuNj9U8" target="_blank" rel="noopener noreferrer">Discord</a>
         </nav>
-        <p>© 2026 Tremors. Licensed under the GNU GPL v3.</p>
+        <p>© 2026 Tremors. Free software under the GNU GPL v3.</p>
     </footer>
 
     <script src="scripts.js" defer></script>

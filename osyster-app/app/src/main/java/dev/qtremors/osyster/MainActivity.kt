@@ -45,7 +45,10 @@ class MainActivity : ComponentActivity() {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        if (savedInstanceState == null) pendingTool.value = intent?.let(::requestedTool)
+        if (savedInstanceState == null) {
+            pendingTool.value = intent?.let(::requestedTool)
+            LauncherShortcuts.reportUsed(this, intent)
+        }
 
         lifecycleScope.launch {
             themeSettings.options.collect { themeOptions.value = it }
@@ -119,6 +122,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         requestedTool(intent)?.let { pendingTool.value = it }
+        LauncherShortcuts.reportUsed(this, intent)
     }
 
     /** The tool a widget, tile, or shortcut asked for, as "tool" or "tool/page". */

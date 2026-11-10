@@ -34,14 +34,26 @@ internal object LauncherShortcuts {
         runCatching { ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts) }
     }
 
+    /** Set on a shortcut's intent, so its use can be reported to the launcher. */
+    const val EXTRA_SHORTCUT_ID = "dev.qtremors.osyster.SHORTCUT_ID"
+
+    /** Lets the launcher rank the shortcut people use most first. */
+    fun reportUsed(context: Context, intent: Intent?) {
+        val id = intent?.getStringExtra(EXTRA_SHORTCUT_ID) ?: return
+        runCatching { ShortcutManagerCompat.reportShortcutUsed(context, id) }
+    }
+
     private data class Shortcut(val tool: Tool, val label: Int, val icon: Int, val page: String? = null) {
+        val id: String get() = "tool_${tool.id}" + page?.let { "_$it" }.orEmpty()
+
         fun build(context: Context, rank: Int): ShortcutInfoCompat {
             val intent = Intent(context, MainActivity::class.java)
                 .setAction(Intent.ACTION_VIEW)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .putExtra(DeepLinks.EXTRA_OPEN_TOOL, tool.id)
             page?.let { intent.putExtra(DeepLinks.EXTRA_OPEN_PAGE, it) }
-            return ShortcutInfoCompat.Builder(context, "tool_${tool.id}" + page?.let { "_$it" }.orEmpty())
+            intent.putExtra(EXTRA_SHORTCUT_ID, id)
+            return ShortcutInfoCompat.Builder(context, id)
                 .setShortLabel(context.getString(label))
                 .setIcon(IconCompat.createWithResource(context, icon))
                 .setIntent(intent)

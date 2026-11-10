@@ -1,13 +1,12 @@
-// Osyster website. Fades sections in, and fills GitHub numbers, the latest version, and the
-// direct APK link from the GitHub API. Without it the page still works: buttons open the
+// Osyster website. Fades sections in, and fills the GitHub numbers, the latest version, and the
+// direct APK link from the GitHub API. Without it the page still works: the buttons open the
 // latest release page and the numbers stay as dashes.
 
 (() => {
-    const reveal = document.querySelectorAll('.reveal');
-    if (!('IntersectionObserver' in window)) {
-        reveal.forEach(element => element.classList.add('seen'));
-        return;
-    }
+    const sections = document.querySelectorAll('.reveal');
+    const showAll = () => sections.forEach(section => section.classList.add('seen'));
+    if (!('IntersectionObserver' in window)) return showAll();
+
     const watcher = new IntersectionObserver(entries => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -15,8 +14,11 @@
                 watcher.unobserve(entry.target);
             }
         });
-    }, { rootMargin: '0px 0px -10% 0px' });
-    reveal.forEach(element => watcher.observe(element));
+    }, { rootMargin: '0px 0px -8% 0px' });
+    sections.forEach(section => watcher.observe(section));
+
+    // Background tabs and slow phones can delay the observer; never leave a section blank.
+    setTimeout(showAll, 2500);
 })();
 
 (async () => {
@@ -39,15 +41,16 @@
         }
 
         if (latest) {
-            // Dynamic version and a direct link to the APK in the latest release.
-            const apk = (latest.assets || []).find(asset => asset.name.endsWith('.apk'));
+            // Show the latest version on the buttons and link straight to its APK.
+            const assets = latest.assets || [];
+            const apk = assets.find(asset => asset.name.endsWith('.apk'));
             document.querySelectorAll('.release').forEach(label => { label.textContent = `Download ${latest.tag_name}`; });
             if (apk) document.querySelectorAll('.apk-link').forEach(link => { link.href = apk.browser_download_url; });
             document.querySelectorAll('.version-note').forEach(note => { note.textContent = `Latest: ${latest.tag_name}. `; });
-            set('gh-latest', format((latest.assets || []).reduce((sum, asset) => sum + asset.download_count, 0)));
+            set('gh-latest', format(assets.reduce((sum, asset) => sum + asset.download_count, 0)));
         }
 
-        // Total downloads across every release page.
+        // Downloads across every release, page by page.
         let total = 0;
         let page = `${api}/releases?per_page=100`;
         while (page) {
@@ -59,6 +62,6 @@
         }
         if (total > 0) set('gh-total', format(total));
     } catch {
-        // Offline or rate limited: links still point at the releases page.
+        // Offline or rate limited: the links still point at the releases page.
     }
 })();

@@ -2,7 +2,7 @@
 
 > How Osyster is built: modules, data flow, the power tools layer, the design system, and how to test and ship it.
 
-**Version:** 0.3.0 | **Last Updated:** 2026-09-29
+**Version:** 0.4.0 | **Last Updated:** 2026-11-10
 
 ---
 
@@ -18,6 +18,10 @@
 - [Power Tools Layer](#power-tools-layer)
 - [Bluetooth Remote](#bluetooth-remote)
 - [Barcode Scanner](#barcode-scanner)
+- [Notification History](#notification-history)
+- [App Manager](#app-manager)
+- [Measure](#measure)
+- [Battery History](#battery-history)
 - [Preferences, First Run, and Backup](#preferences-first-run-and-backup)
 - [Widgets, Tiles, Shortcuts, and the Notification Listener](#widgets-tiles-shortcuts-and-the-notification-listener)
 - [UI System](#ui-system)
@@ -31,22 +35,22 @@
 
 ## Overview
 
-Osyster is a single-activity Jetpack Compose app split into 29 Gradle modules. Features own their screens and ViewModels and talk only to domain contracts; data modules implement those contracts; the app shell is the only place that knows every feature.
+Osyster is a single-activity Jetpack Compose app split into 44 Gradle modules. Features own their screens and ViewModels and talk only to domain contracts; data modules implement those contracts; the app shell is the only place that knows every feature.
 
 ```mermaid
 flowchart TD
     App[":app shell<br/>MainActivity, NavHost, Hilt"] --> Features
     subgraph Features[":feature:*"]
-        Home & Device & Tools & Settings & PowerTools["powertools"] & More["datausage, screenusage, appstopper,<br/>stayawake, flashlight, btremote, barcode, activitylauncher,<br/>linkactions, quicktiles, musicwidgets,<br/>onboarding, search"]
+        Home["home (with search)"] & Device & Tools & Settings & PowerTools["powertools"] & More["datausage, screenusage, appstopper,<br/>stayawake, flashlight, btremote, barcode,<br/>notificationhistory, batteryhistory, appmanager,<br/>measure, activitylauncher, linkactions,<br/>quicktiles, musicwidgets, onboarding"]
     end
     Features --> Domain
     subgraph Domain["Domain contracts (pure Kotlin)"]
-        DD[":core:device:domain"] & UD[":core:usage:domain"] & SD[":core:system:domain"] & PD[":core:preferences:domain"] & PrD[":core:privilege:domain"] & HD[":core:hid:domain"] & BD[":core:barcode:domain"] & Nav[":core:navigation:api"]
+        DD[":core:device:domain"] & UD[":core:usage:domain"] & SD[":core:system:domain"] & PD[":core:preferences:domain"] & PrD[":core:privilege:domain"] & HD[":core:hid:domain"] & BD[":core:barcode:domain"] & ND[":core:notifications:domain"] & BaD[":core:battery:domain"] & AD[":core:apps:domain"] & Nav[":core:navigation:api"]
     end
     Features --> UI[":core:ui<br/>theme, components, catalog"]
     App --> Data
     subgraph Data["Data implementations (Android)"]
-        DDa[":core:device:data"] & UDa[":core:usage:data"] & SDa[":core:system:data"] & PrDa[":core:privilege:data<br/>Shizuku, root, settings"] & HDa[":core:hid:data<br/>Bluetooth keyboard and mouse"] & BDa[":core:barcode:data<br/>scan history (Room)"]
+        DDa[":core:device:data"] & UDa[":core:usage:data"] & SDa[":core:system:data"] & PrDa[":core:privilege:data<br/>Shizuku, root, settings"] & HDa[":core:hid:data<br/>Bluetooth keyboard and mouse"] & BDa[":core:barcode:data<br/>scan history (Room)"] & NDa[":core:notifications:data<br/>history (Room)"] & BaDa[":core:battery:data<br/>readings (Room)"] & ADa[":core:apps:data<br/>installed apps"]
     end
     Data --> Domain
 ```
@@ -63,16 +67,20 @@ flowchart TD
 
 | Tool | Version |
 |---|---|
-| Android Gradle Plugin | 9.5.0 |
+| Android Gradle Plugin | 9.5.1 |
 | Gradle | 9.8.2 |
 | Kotlin | 2.4.21 |
 | KSP | 2.3.12 |
 | Compose BOM | 2026.09.00 |
-| Material 3 | 1.5.0-beta02 (Expressive APIs) |
+| Material 3 | 1.5.0-rc01 (Expressive APIs) |
 | Navigation Compose | 2.10.2 (type-safe routes) |
 | Hilt | 2.60.1 |
-| DataStore | 1.2.1 |
+| DataStore | 1.3.0 |
+| Room | 2.8.5 |
+| CameraX | 1.6.2 |
+| ZXing | 3.5.4 |
 | Coroutines | 1.11.0 |
+| Kotlin serialization | 1.12.0 |
 | MaterialKolor | 5.0.1 |
 | Shizuku API | 13.1.5 |
 | ArchUnit (tests) | 1.5.1 |
@@ -111,7 +119,7 @@ osyster-app/
     home/ device/ tools/ settings/
     datausage/ screenusage/ appstopper/
     stayawake/ flashlight/ btremote/ barcode/ notificationhistory/ batteryhistory/ appmanager/ measure/ activitylauncher/ linkactions/
-    quicktiles/ musicwidgets/ onboarding/ search/ powertools/
+    quicktiles/ musicwidgets/ onboarding/ powertools/
 ```
 
 Domain and API modules are pure Kotlin JVM modules. Data modules are Android libraries with Hilt bindings. Feature modules depend on `:core:runtime`, `:core:navigation:api`, `:core:ui`, and domain modules only.
@@ -124,7 +132,7 @@ Domain and API modules are pure Kotlin JVM modules. Data modules are Android lib
 4. `OsysterAppShell` hosts a `NavHost` with spring transitions. Navigation 2.10 plays the `predictivePop*` transitions during the back gesture, so those are set to the same springs to keep the gesture continuous.
 5. The `FloatingTabBar` shows Home, Tools, and Settings on top-level pages and morphs into a back button with the page title on detail pages. Tabs keep their own back stacks (`saveState` / `restoreState`).
 
-Routes: `HomeRoute`, `ToolsRoute`, `SettingsRoute`, `DevicePageRoute(pageId)`, `ScreenTesterRoute`, `SearchRoute`, `AboutRoute`, `PrivacyRoute`, `LicensesRoute`, one route per utility tool, `WidgetsRoute`, `AppUsageRoute(packageName)` shared by both usage tools, `PowerToolRoute(toolId)` shared by all power tools, and `ToolRoute(toolId)` for tools without a page yet.
+Routes (`AppRoutes.kt`): `HomeRoute`, `ToolsRoute`, `SettingsRoute`, `DevicePageRoute(pageId)`, `ScreenTesterRoute`, `AboutRoute`, `PrivacyRoute`, `LicensesRoute`, one route per tool (the barcode, app manager, and battery and notification history tools add their own inner pages), `WidgetsRoute`, `QuickTilesRoute`, `AppUsageRoute(packageName)` shared by both usage tools, `PowerToolRoute(toolId)` shared by all power tools, and `EmptyDetailRoute` for the empty right-hand pane. Search lives inside Home (`feature/home/search`), not on its own route.
 
 On screens 840 dp and wider the shell shows two panes: the tab list on the left in its own NavHost, and pages on the right. One graph builder serves both, and page navigation always goes to the right-hand controller, so features need no changes.
 
@@ -267,9 +275,10 @@ Run one Gradle command at a time with `--max-workers=2`, then stop the daemon.
 ```bash
 cd osyster-app
 ./gradlew :app:testDebugUnitTest --max-workers=2
-./gradlew :core:privilege:domain:test :core:system:domain:test :core:preferences:domain:test --max-workers=2
+./gradlew :core:device:domain:test :core:usage:domain:test :core:system:domain:test :core:preferences:domain:test :core:privilege:domain:test --max-workers=2
 ./gradlew :core:hid:domain:test :core:barcode:domain:test :core:notifications:domain:test :core:battery:domain:test :core:apps:domain:test --max-workers=2
-./gradlew :feature:search:testDebugUnitTest :feature:device:testDebugUnitTest --max-workers=2
+./gradlew :core:runtime:testDebugUnitTest :core:ui:testDebugUnitTest :core:device:data:testDebugUnitTest :core:usage:data:testDebugUnitTest --max-workers=2
+./gradlew :feature:home:testDebugUnitTest :feature:device:testDebugUnitTest :feature:measure:testDebugUnitTest :feature:musicwidgets:testDebugUnitTest :feature:quicktiles:testDebugUnitTest --max-workers=2
 ./gradlew --stop
 ```
 
@@ -283,14 +292,14 @@ cd osyster-app
 ./gradlew :app:assembleRelease --max-workers=2
 ```
 
-- **Version:** `versionCode` is `versionName` without dots (0.2.8 is 28).
+- **Version:** `versionCode` is `versionName` without dots (0.4.0 is 40).
 - **Outputs:** `Osyster-x.y.z.apk` for release, `Osyster-x.y.z-debug.apk` for debug (`.debug` application ID suffix).
 - **Signing:** release signing reads the untracked `signing.properties`, falling back to `local.properties`. Never commit either, or the keystore.
 - **Shrinking:** R8 and resource shrinking are on. `proguard-rules.pro` holds only `-dontwarn` lines and line-number attributes; classes created by name use `@Keep`.
 - **Verify the certificate** before publishing:
 
 ```bash
-apksigner verify --print-certs app/build/outputs/apk/release/Osyster-0.2.8.apk
+apksigner verify --print-certs app/build/outputs/apk/release/Osyster-0.4.0.apk
 ```
 
 ## Troubleshooting
@@ -303,7 +312,7 @@ apksigner verify --print-certs app/build/outputs/apk/release/Osyster-0.2.8.apk
 
 ## Maintenance
 
-- Update dependencies together, following Arcile's catalog, then rebuild and run the architecture test.
+- Update dependencies on purpose and together, then rebuild and run the architecture test.
 - When adding a tool: add it to `Tool`, its label and help to the catalog, its route to the shell, and its search entry.
 - When adding a privileged command: add it to `PowerCommands` with a test.
 - CHANGELOG is updated every version; RELEASES only when a version is actually released.
